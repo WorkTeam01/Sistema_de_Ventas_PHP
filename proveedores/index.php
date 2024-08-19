@@ -66,12 +66,17 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                         ?>
                                             <tr>
                                                 <td class="text-center"><?php echo $contador += 1; ?></td>
-                                                <td><?php echo $proveedores_dato['nombre_proveedor']; ?></td>
-                                                <td><?php echo $proveedores_dato['celular']; ?></td>
-                                                <td><?php echo $proveedores_dato['telefono']; ?></td>
-                                                <td><?php echo $proveedores_dato['empresa']; ?></td>
-                                                <td><?php echo $proveedores_dato['email']; ?></td>
-                                                <td><?php echo $proveedores_dato['direccion']; ?></td>
+                                                <td><?php echo $nombre_proveedor; ?></td>
+                                                <td class="text-center">
+                                                    <a href="http://wa.me/591<?php echo $celular; ?>" target="_blank" class="btn btn-success">
+                                                        <i class="fas fa-phone-alt"></i>
+                                                        <?php echo $celular; ?>
+                                                    </a>
+                                                </td>
+                                                <td><?php echo $telefono; ?></td>
+                                                <td><?php echo $empresa; ?></td>
+                                                <td><?php echo $email; ?></td>
+                                                <td><?php echo $direccion; ?></td>
                                                 <td>
                                                     <div class="text-center">
                                                         <div class="btn-group">

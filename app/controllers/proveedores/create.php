@@ -26,11 +26,9 @@ if ($sentencia->execute()) {
     $_SESSION['mensaje'] = "La proveedor se ha agregado correctamente";
     $_SESSION['icono'] = "success";
 ?>
-
     <script>
         location.href = "<?php echo $URL; ?>/proveedores";
     </script>
-
 <?php
 } else {
     session_start();

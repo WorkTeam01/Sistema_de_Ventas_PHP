@@ -17,7 +17,6 @@ $fecha_ingreso = $_POST['fecha_ingreso'];
 $image_text = $_POST['image_text'];
 
 
-
 if ($_FILES['image']['name'] != null) {
     $nombreDelArchivo = date("Y-m-d-h-i-s");
     $image_text = $nombreDelArchivo . "__" . $_FILES['image']['name'];

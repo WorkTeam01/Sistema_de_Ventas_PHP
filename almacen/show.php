@@ -15,7 +15,7 @@ include_once '../app/controllers/almacen/cargar_producto.php';
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1 class="m-0">Detalles del producto</h1>
+                    <h1 class="m-0">Detalles del producto <?php echo $nombre; ?></h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
