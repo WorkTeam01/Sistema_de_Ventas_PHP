@@ -67,10 +67,23 @@ include_once '../app/controllers/almacen/listado_de_productos.php';
                                                     <img class="rounded mx-auto d-block" src="<?php echo $URL . "/almacen/img_productos/" . $producto_dato['imagen']; ?>" width="80" alt="">
                                                 </td>
                                                 <td><?php echo $producto_dato['descripcion']; ?></td>
-                                                <td><?php echo $producto_dato['stock']; ?></td>
+                                                <?php
+                                                $stock_actual = $producto_dato['stock'];
+                                                $stock_minimo = $producto_dato['stock_minimo'];
+                                                $stock_maximo = $producto_dato['stock_maximo'];
+
+                                                if ($stock_actual  < $stock_minimo) { ?>
+                                                    <td class="bg-danger text-center"><?php echo $stock_actual; ?></td>
+                                                <?php
+                                                } else if ($stock_actual  > $stock_maximo) { ?>
+                                                    <td class="bg-success text-center"><?php echo $stock_actual; ?></td>
+                                                <?php } else { ?>
+                                                    <td class="text-center"><?php echo $stock_actual; ?></td>
+                                                <?php } ?>
+
                                                 <td><?php echo $producto_dato['precio_compra']; ?></td>
                                                 <td><?php echo $producto_dato['precio_venta']; ?></td>
-                                                <td><?php echo $producto_dato['fecha_ingreso']; ?></td>
+                                                <td class="text-center"><?php echo $producto_dato['fecha_ingreso']; ?></td>
                                                 <td><?php echo $producto_dato['email']; ?></td>
                                                 <td class="text-center">
                                                     <div class="btn-group">

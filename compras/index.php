@@ -58,10 +58,10 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                         ?>
                                             <tr>
                                                 <td class="text-center"><?php echo $contador += 1; ?></td>
-                                                <td><?php echo $compra_dato['nro_compra']; ?></td>
+                                                <td class="text-center"><?php echo $compra_dato['nro_compra']; ?></td>
                                                 <td>
                                                     <div class="text-center">
-                                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-producto<?php echo $id_compra; ?>">
+                                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-producto<?php echo $id_compra; ?>">
                                                             <?php echo $compra_dato['nombre']; ?>
                                                         </button>
                                                     </div>
@@ -69,7 +69,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                     <div class="modal fade" id="modal-producto<?php echo $id_compra; ?>">
                                                         <div class="modal-dialog modal-lg">
                                                             <div class="modal-content">
-                                                                <div class="modal-header bg-info">
+                                                                <div class="modal-header bg-warning">
                                                                     <h4 class="modal-title">Detalle de producto</h4>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                         <span aria-hidden="true">&times;</span>
@@ -166,10 +166,10 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td><?php echo $compra_dato['fecha_compra'] ?></td>
+                                                <td class="text-center"><?php echo $compra_dato['fecha_compra']; ?></td>
                                                 <td>
                                                     <div class="text-center">
-                                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-proveedor<?php echo $id_compra; ?>">
+                                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#modal-proveedor<?php echo $id_compra; ?>">
                                                             <?php echo $compra_dato['nombre_proveedor']; ?>
                                                         </button>
                                                     </div>
@@ -177,7 +177,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                     <div class="modal fade" id="modal-proveedor<?php echo $id_compra; ?>">
                                                         <div class="modal-dialog">
                                                             <div class="modal-content">
-                                                                <div class="modal-header bg-info">
+                                                                <div class="modal-header bg-warning">
                                                                     <h4 class="modal-title">Detalle de proveedor</h4>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                         <span aria-hidden="true">&times;</span>
