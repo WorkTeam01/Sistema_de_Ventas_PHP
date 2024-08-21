@@ -87,6 +87,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                                                                 </button>
                                                                                 <script>
                                                                                     $('#btn_seleccionar<?php echo $id_producto; ?>').click(function() {
+
                                                                                         var id_producto = <?php echo $id_producto; ?>;
                                                                                         $('#id_producto').val(id_producto);
 
@@ -164,7 +165,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <input type="text" id="id_producto" value="<?php echo $id_producto ?>" class="form-control" hidden>
+                                                        <input type="text" id="id_producto" value="<?php echo $id_producto_tabla ?>" class="form-control" hidden>
                                                         <label>Código</label>
                                                         <input type="text" id="codigo" value="<?php echo $codigo; ?>" class="form-control" disabled>
                                                     </div>
@@ -178,7 +179,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label>Nombre del producto</label>
-                                                        <input type="text" id="nombre_producto" value="<?php echo $producto; ?>" class="form-control" disabled>
+                                                        <input type="text" id="nombre_producto" value="<?php echo $nombre_producto; ?>" class="form-control" disabled>
                                                     </div>
                                                 </div>
                                             </div>
@@ -292,7 +293,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                                                                     <script>
                                                                                         $('#btn_seleccionar_proveedor<?php echo $id_proveedor; ?>').click(function() {
 
-                                                                                            var id_proveedor = "<?php echo $proveedores_dato['id_proveedor']; ?>"
+                                                                                            var id_proveedor = "<?php echo $id_proveedor; ?>"
                                                                                             $('#id_proveedor').val(id_proveedor);
 
                                                                                             var nombre_proveedor = "<?php echo $proveedores_dato['nombre_proveedor']; ?>";

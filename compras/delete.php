@@ -15,7 +15,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1 class="m-0">Detalles de la compra</h1>
+                    <h1 class="m-0">Eliminar la compra</h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -29,9 +29,9 @@ include_once '../app/controllers/compras/cargar_compra.php';
                 <div class="col md-9">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="card card-info">
+                            <div class="card card-danger">
                                 <div class="card-header">
-                                    <h3 class="card-title">Datos de la compra</h3>
+                                    <h3 class="card-title">¿Estas seguro de eliminar esta compra?</h3>
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"> <i class="fas fa-minus"></i></button>
                                     </div>
@@ -174,7 +174,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
                 <div class="col-md-3">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="card card-outline card-info">
+                            <div class="card card-outline card-danger">
                                 <div class="card-header">
                                     <h3 class="card-title">Detalle de la compra</h3>
                                     <div class="card-tools">
@@ -187,47 +187,64 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
+                                                <input type="text" class="form-control" value="<?php echo $id_compra; ?>" hidden>
                                                 <label>Número de compra</label>
-                                                <input type="text" class="form-control" value="<?php echo $nro_compra ?>" disabled>
+                                                <input type="text" id="nro_compra" class="form-control" value="<?php echo $nro_compra ?>" disabled>
                                             </div>
                                         </div>
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Fecha de la compra</label>
-                                                <input type="date" class="form-control" value="<?php echo $fecha_compra ?>" disabled>
+                                                <input type="date" id="fecha_compra" class="form-control" value="<?php echo $fecha_compra ?>" disabled>
                                             </div>
                                         </div>
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Comprobante de la compra</label>
-                                                <input type="text" class="form-control" value="<?php echo $comprobante; ?>" disabled>
+                                                <input type="text" id="comprobante" class="form-control" value="<?php echo $comprobante; ?>" disabled>
                                             </div>
                                         </div>
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Precio de la compra</label>
-                                                <input type="text" class="form-control" value="<?php echo $precio_compra; ?>" disabled>
+                                                <input type="text" id="precio_compra" class="form-control text-center" value="<?php echo $precio_compra; ?>" disabled>
                                             </div>
                                         </div>
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Cantidad de la compra</label>
-                                                <input type="number" class="form-control text-center" value="<?php echo $cantidad; ?>" disabled>
+                                                <input type="number" id="cantidad" class="form-control text-center" value="<?php echo $cantidad; ?>" disabled>
                                             </div>
                                         </div>
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Usuario</label>
-                                                <input type="text" class="form-control" value="<?php echo $email_sesion; ?>" disabled>
+                                                <input type="text" id="usuario" class="form-control" value="<?php echo $nombre_usuario; ?>" disabled>
                                             </div>
                                         </div>
                                     </div>
                                     <hr>
-                                    <a href="<?php echo $URL; ?>/compras" class="btn btn-secondary btn-block">Volver</a>
+                                    <div class="form-group">
+                                        <button type="button" id="btn_eliminar_compra" class="btn btn-danger btn-block">Eliminar compra</button>
+                                        <a href="<?php echo $URL; ?>/compras" class="btn btn-secondary btn-block">Cancelar</a>
+                                    </div>
+                                    <script>
+                                        $('#btn_eliminar_compra').click(function() {
+
+                                            var id_compra = <?php echo $id_compra; ?>;
+
+                                            var url = "../app/controllers/compras/delete.php";
+                                            $.get(url, {
+                                                id_compra: id_compra,
+                                            }, function(datos) {
+                                                $('#respuesta_delete').html(datos);
+                                            });
+                                        });
+                                    </script>
                                 </div>
                             </div>
                         </div>
-                        <div id="respuesta_create"></div>
+                        <div id="respuesta_delete"></div>
                     </div>
                 </div>
             </div>

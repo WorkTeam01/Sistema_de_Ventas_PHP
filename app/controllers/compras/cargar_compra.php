@@ -2,7 +2,7 @@
 
 $id_compra_get = $_GET['id'];
 
-$sql_compra = "SELECT co.id_compra, co.nro_compra, co.comprobante, co.precio_compra, co.cantidad, co.fecha_compra, 
+$sql_compra = "SELECT co.id_compra, co.nro_compra, co.comprobante, co.precio_compra as precio_compra_producto, co.cantidad, co.fecha_compra, 
                 al.*, pro.id_proveedor, pro.nombre_proveedor, pro.celular, pro.telefono, pro.empresa, pro.email, pro.direccion, us.nombres, us.email, cat.nombre_categoria
                 FROM tb_compras co
                 INNER JOIN tb_almacen al ON co.id_producto = al.id_producto
@@ -19,13 +19,14 @@ foreach ($compras_dato as $compra_dato) {
     $id_compra = $compra_dato['id_compra'];
     $nro_compra = $compra_dato['nro_compra'];
     $comprobante = $compra_dato['comprobante'];
-    $precio_compra = $compra_dato['precio_compra'];
+    $precio_compra = $compra_dato['precio_compra_producto'];
     $cantidad = $compra_dato['cantidad'];
     $fecha_compra = $compra_dato['fecha_compra'];
 
+    $id_producto_tabla = $compra_dato['id_producto'];
     $codigo = $compra_dato['codigo'];
     $nombre_categoria = $compra_dato['nombre_categoria'];
-    $producto = $compra_dato['nombre'];
+    $nombre_producto = $compra_dato['nombre'];
     $nombre_usuario = $compra_dato['nombres'];
     $descripcion_producto = $compra_dato['descripcion'];
     $stock = $compra_dato['stock'];
