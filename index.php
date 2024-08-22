@@ -9,6 +9,7 @@ include_once 'app/controllers/roles/listado_de_roles.php';
 include_once 'app/controllers/categorias/listado_de_categorias.php';
 include_once 'app/controllers/almacen/listado_de_productos.php';
 include_once 'app/controllers/proveedores/listado_de_proveedores.php';
+include_once 'app/controllers/compras/listado_de_compras.php';
 
 ?>
 
@@ -107,6 +108,23 @@ include_once 'app/controllers/proveedores/listado_de_proveedores.php';
                             <i class="fas fa-truck-moving"></i>
                         </div>
                         <a href="<?php echo $URL; ?>/proveedores" class="small-box-footer">
+                            Mas detalles <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <!-- Tarjet de compras -->
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3><?php echo $total_compras; ?></h3>
+                            <p>Compras registradas</p>
+                        </div>
+                        <a href="<?php echo $URL; ?>/compras/create.php">
+                            <div class="icon">
+                                <i class="fas fa-cart-arrow-down"></i>
+                            </div>
+                        </a>
+                        <a href="<?php echo $URL; ?>/compras" class="small-box-footer">
                             Mas detalles <i class="fas fa-arrow-circle-right"></i>
                         </a>
                     </div>

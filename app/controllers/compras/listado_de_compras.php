@@ -11,4 +11,5 @@ $sql_compras = "SELECT co.id_compra, co.nro_compra, co.comprobante, co.precio_co
 $query_compras = $pdo->query($sql_compras);
 $query_compras->execute();
 $contador_de_compras = $query_compras->rowCount() + 1;
+$total_compras = $query_compras->rowCount();
 $compras_datos = $query_compras->fetchAll(PDO::FETCH_ASSOC);

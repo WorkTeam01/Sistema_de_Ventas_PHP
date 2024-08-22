@@ -44,7 +44,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <input type="text" id="id_producto" class="form-control" hidden>
+                                                        <input type="text" id="id_producto" value="<?php echo $id_producto_tabla; ?>" class="form-control" hidden>
                                                         <label>Código</label>
                                                         <input type="text" value="<?php echo $codigo; ?>" class="form-control" disabled>
                                                     </div>
@@ -225,26 +225,52 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                     </div>
                                     <hr>
                                     <div class="form-group">
-                                        <button type="button" id="btn_eliminar_compra" class="btn btn-danger btn-block">Eliminar compra</button>
+                                        <button type="button" id="btn_eliminar_compra" class="btn btn-danger btn-block"><i class="fas fa-trash"></i> Eliminar compra</button>
                                         <a href="<?php echo $URL; ?>/compras" class="btn btn-secondary btn-block">Cancelar</a>
                                     </div>
+                                    <div id="respuesta_delete"></div>
                                     <script>
                                         $('#btn_eliminar_compra').click(function() {
 
-                                            var id_compra = <?php echo $id_compra; ?>;
+                                            var id_compra = '<?php echo $id_compra; ?>';
+                                            var id_producto = $('#id_producto').val();
+                                            var cantidad_compra = '<?php echo $cantidad; ?>';
+                                            var stock_actual = '<?php echo $stock; ?>';
 
-                                            var url = "../app/controllers/compras/delete.php";
-                                            $.get(url, {
-                                                id_compra: id_compra,
-                                            }, function(datos) {
-                                                $('#respuesta_delete').html(datos);
+                                            Swal.fire({
+                                                title: '¿Está seguro de eliminar esta compra?',
+                                                text: 'No podrá recuperar la información una vez eliminada.',
+                                                icon: 'question',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#3085d6',
+                                                cancelButtonColor: '#d33',
+                                                confirmButtonText: 'Eliminar compra'
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    Swal.fire(
+                                                        eliminar(),
+                                                        'La compra ha sido eliminada con éxito.',
+                                                        'success'
+                                                    )
+                                                }
                                             });
+
+                                            function eliminar() {
+                                                var url = "../app/controllers/compras/delete.php";
+                                                $.get(url, {
+                                                    id_compra: id_compra,
+                                                    id_producto: id_producto,
+                                                    cantidad_compra: cantidad_compra,
+                                                    stock_actual: stock_actual
+                                                }, function(datos) {
+                                                    $('#respuesta_delete').html(datos);
+                                                });
+                                            }
                                         });
                                     </script>
                                 </div>
                             </div>
                         </div>
-                        <div id="respuesta_delete"></div>
                     </div>
                 </div>
             </div>
