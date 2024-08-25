@@ -23,7 +23,7 @@
     <script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
 </head>
 
-<body class=" hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini">
 
     <div class="wrapper">
 
@@ -203,6 +203,32 @@
                                     <a href="<?php echo $URL; ?>/compras/create.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Crear compra</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Modulo de ventas -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon fas fa-shopping-basket"></i>
+                                <p>
+                                    Ventas
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?php echo $URL; ?>/ventas" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Lista de ventas</p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="<?php echo $URL; ?>/ventas/create.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Crear ventas</p>
                                     </a>
                                 </li>
                             </ul>
