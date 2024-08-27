@@ -10,6 +10,7 @@ include_once 'app/controllers/categorias/listado_de_categorias.php';
 include_once 'app/controllers/almacen/listado_de_productos.php';
 include_once 'app/controllers/proveedores/listado_de_proveedores.php';
 include_once 'app/controllers/compras/listado_de_compras.php';
+include_once 'app/controllers/ventas/listado_de_ventas.php';
 
 ?>
 
@@ -125,6 +126,23 @@ include_once 'app/controllers/compras/listado_de_compras.php';
                             </div>
                         </a>
                         <a href="<?php echo $URL; ?>/compras" class="small-box-footer">
+                            Mas detalles <i class="fas fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <!-- Tarjet de compras -->
+                    <div class="small-box bg-indigo">
+                        <div class="inner">
+                            <h3><?php echo $total_ventas; ?></h3>
+                            <p>Ventas registradas</p>
+                        </div>
+                        <a href="<?php echo $URL; ?>/ventas/create.php">
+                            <div class="icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </a>
+                        <a href="<?php echo $URL; ?>/ventas" class="small-box-footer">
                             Mas detalles <i class="fas fa-arrow-circle-right"></i>
                         </a>
                     </div>

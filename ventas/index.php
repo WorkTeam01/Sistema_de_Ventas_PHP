@@ -200,12 +200,12 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
                                                     </div>
                                                 </td>
                                                 <td class="text-center">
-                                                    <button class="btn btn-primary" disabled><?php echo "Bs. " . $ventas_dato['total_pagado']; ?></button>
+                                                    <button class="btn btn-primary"><?php echo "Bs. " . $ventas_dato['total_pagado']; ?></button>
                                                 </td>
                                                 <td class="text-center">
                                                     <div class="btn-group">
-                                                        <a href="#" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
-                                                        <a href="#" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</a>
+                                                        <a href="show.php?id=<?php echo $id_venta; ?>" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
+                                                        <a href="delete.php?id=<?php echo $id_venta; ?>&nro_venta=<?php echo $nro_venta; ?>" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</a>
                                                     </div>
                                                 </td>
                                             </tr>
