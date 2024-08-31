@@ -27,12 +27,20 @@
         if (isset($_SESSION['mensaje'])) {
             $respuesta = $_SESSION['mensaje']; ?>
             <script>
-                Swal.fire({
+                const Toast = Swal.mixin({
+                    toast: true,
                     position: "top-end",
-                    title: "<?php echo $respuesta; ?>",
-                    icon: "error",
                     showConfirmButton: false,
-                    timer: 2000
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                Toast.fire({
+                    icon: "error",
+                    title: "<?php echo $respuesta; ?>"
                 });
             </script>
         <?php

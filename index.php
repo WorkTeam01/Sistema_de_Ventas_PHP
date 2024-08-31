@@ -139,7 +139,7 @@ include_once 'app/controllers/ventas/listado_de_ventas.php';
                         </div>
                         <a href="<?php echo $URL; ?>/ventas/create.php">
                             <div class="icon">
-                                <i class="fas fa-shopping-cart"></i>
+                                <i class="fas fa-shopping-bag"></i>
                             </div>
                         </a>
                         <a href="<?php echo $URL; ?>/ventas" class="small-box-footer">
