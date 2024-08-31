@@ -1,7 +1,12 @@
 <?php
-include_once '../app/config.php';
-include_once '../layout/sesion.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
 
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarPermiso('Administrador');
+
+include_once '../layout/sesion.php';
 include_once '../layout/parte1.php';
 
 include_once '../app/controllers/usuarios/update_usuario.php';
@@ -71,8 +76,8 @@ include_once '../app/controllers/roles/listado_de_roles.php';
                                         </div>
                                         <hr>
                                         <div class="form-group">
-                                            <a href="<?php echo $URL; ?>/usuarios" class="btn btn-secondary mr-1">Cancelar</a>
-                                            <button type="submit" class="btn btn-success">Actualizar</button>
+                                            <a href="<?php echo $URL; ?>/usuarios" class="btn btn-secondary btn-sm mr-1">Cancelar</a>
+                                            <button type="submit" class="btn btn-success btn-sm">Actualizar</button>
                                         </div>
                                     </form>
                                 </div>

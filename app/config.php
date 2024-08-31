@@ -15,6 +15,7 @@ try {
 }
 
 $URL = 'http://localhost/sistemaventas';
+$Año = date('Y');
 
 date_default_timezone_set("America/La_Paz");
 $fechaHora = date("Y-m-d H:i:s");

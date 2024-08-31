@@ -1,6 +1,10 @@
 <?php
-include_once '../app/config.php';
-include_once '../layout/sesion.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
+
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarRoles(['Administrador', 'Comprador', 'Vendedor']);
 
 include_once '../layout/parte1.php';
 
@@ -57,7 +61,7 @@ include_once '../app/controllers/categorias/listado_de_categorias.php';
                                                 <td><?php echo $categorias_dato['nombre_categoria']; ?></td>
                                                 <td class="text-center">
                                                     <div>
-                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-update<?php echo $id_categoria; ?>">
+                                                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-update<?php echo $id_categoria; ?>">
                                                             <i class="fas fa-pencil-alt"></i> Editar
                                                         </button>
                                                         <!-- Modal update categorias -->

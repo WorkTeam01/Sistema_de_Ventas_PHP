@@ -1,6 +1,10 @@
 <?php
-include_once '../app/config.php';
-include_once '../layout/sesion.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
+
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarRoles(['Administrador', 'Comprador', 'Vendedor']);
 
 include_once '../layout/parte1.php';
 
@@ -87,9 +91,9 @@ include_once '../app/controllers/almacen/listado_de_productos.php';
                                                 <td><?php echo $producto_dato['email']; ?></td>
                                                 <td class="text-center">
                                                     <div class="btn-group">
-                                                        <a href="show.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-info"><i class="fas fa-eye"></i> Ver</a>
-                                                        <a href="update.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-success"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                        <a href="delete.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</a>
+                                                        <a href="show.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
+                                                        <a href="update.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
+                                                        <a href="delete.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</a>
                                                     </div>
                                                 </td>
                                             </tr>

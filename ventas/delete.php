@@ -2,8 +2,12 @@
 $id_venta_get = $_GET['id'];
 $nro_venta_get = $_GET['nro_venta'];
 
-include_once '../app/config.php';
-include_once '../layout/sesion.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
+
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']);
 
 include_once '../layout/parte1.php';
 

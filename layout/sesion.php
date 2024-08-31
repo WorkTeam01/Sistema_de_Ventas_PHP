@@ -1,8 +1,8 @@
 <?php
-session_start();
-$Año = date('Y');
+if (session_status() == PHP_SESSION_NONE)
+    session_start();
+
 if (isset($_SESSION['sesion_email'])) {
-    // echo "Existe sesion de: " . $_SESSION['sesion_email'];
     $email_sesion = $_SESSION['sesion_email'];
     $sql = "SELECT us.id_usuario, us.nombres, us.email, rol.rol FROM tb_usuarios us
                 INNER JOIN tb_roles rol on us.id_rol = rol.id_rol WHERE email = '$email_sesion'";

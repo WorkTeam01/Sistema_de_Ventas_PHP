@@ -4,11 +4,11 @@ require_once '../layout/sesion.php';
 require_once '../app/controllers/middleware/AuthMiddleware.php';
 
 $auth = new AuthMiddleware($pdo, $URL);
-$usuario = $auth->verificarPermiso('Administrador');
+$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']);
 
 include_once '../layout/parte1.php';
 
-include_once '../app/controllers/roles/listado_de_roles.php';
+include_once '../app/controllers/clientes/listado_de_clientes.php';
 ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -17,7 +17,7 @@ include_once '../app/controllers/roles/listado_de_roles.php';
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1 class="m-0">Lista de roles</h1>
+                    <h1 class="m-0">Lista de clientes</h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -28,10 +28,10 @@ include_once '../app/controllers/roles/listado_de_roles.php';
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title">Roles registrados</h3>
+                            <h3 class="card-title">Clientes registrados</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse"> <i class="fas fa-minus"></i></button>
                             </div>
@@ -42,28 +42,29 @@ include_once '../app/controllers/roles/listado_de_roles.php';
                                     <thead>
                                         <tr>
                                             <th class="text-center">Nro</th>
-                                            <th class="text-center">Nombre rol</th>
-                                            <th class="text-center">Acciones</th>
+                                            <th class="text-center">Nombres cliente</th>
+                                            <th class="text-center">Nit/CI del cliente</th>
+                                            <th class="text-center">Celular</th>
+                                            <th class="text-center">Correo</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
                                         $contador = 0;
-                                        foreach ($roles_datos as $roles_dato) {
-                                            $id_rol = $roles_dato['id_rol']; ?>
+                                        foreach ($clientes_datos as $clientes_dato) {
+                                            $id_usuario = $clientes_dato['id_cliente']; ?>
                                             <tr>
                                                 <td class="text-center"><?php echo $contador += 1; ?></td>
-                                                <td><?php echo $roles_dato['rol']; ?></td>
-                                                <td class="text-center">
-                                                    <div class="btn-group">
-                                                        <a href="update.php?id=<?php echo $id_rol; ?>" type="button" class="btn btn-success"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                    </div>
-                                                </td>
+                                                <td><?php echo $clientes_dato['nombre_cliente']; ?></td>
+                                                <td><?php echo $clientes_dato['nit_ci_cliente']; ?></td>
+                                                <td><?php echo $clientes_dato['celular_cliente']; ?></td>
+                                                <td><?php echo $clientes_dato['email_cliente']; ?></td>
                                             </tr>
                                         <?php } ?>
                                     </tbody>
                                 </table>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -115,9 +116,9 @@ include_once '../app/controllers/roles/listado_de_roles.php';
             "sLengthMenu": "Mostrar _MENU_ registros",
             "sZeroRecords": "No se encontraron resultados",
             "sEmptyTable": "Ningún dato disponible en esta tabla",
-            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ Roles",
-            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 Roles",
-            "sInfoFiltered": "(filtrado de un total de _MAX_ Roles)",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ Usuarios",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 Usuarios",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ Usuarios)",
             "sInfoPostFix": "",
             "sSearch": "Buscar:",
             "sUrl": "",

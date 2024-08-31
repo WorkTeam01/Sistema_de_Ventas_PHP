@@ -1,6 +1,10 @@
 <?php
-include_once '../app/config.php';
-include_once '../layout/sesion.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
+
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']);
 
 include_once '../layout/parte1.php';
 
@@ -423,6 +427,7 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                             </div>
                             <hr>
                             <div class="form-group">
+                                <a href="<?php echo $URL; ?>/ventas" class="btn btn-secondary btn-block">Cancelar</a>
                                 <button type="button" id="btn_guardar_venta" class="btn btn-primary btn-block">Guardar venta</button>
                                 <div id="respuesta_registro_venta"></div>
                                 <script>

@@ -2,7 +2,13 @@
 
 // Include the main TCPDF library (search for installation path).
 require_once('../app/TCPDF-main/tcpdf.php');
-include_once '../app/config.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
+
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarRoles(['Administrador', 'Comprador', 'Vendedor']);
+
 include_once '../app/controllers/ventas/literal.php';
 
 session_start();

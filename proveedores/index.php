@@ -1,7 +1,10 @@
 <?php
-include_once '../app/config.php';
-include_once '../layout/sesion.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
 
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarRoles(['Administrador', 'Comprador']);
 include_once '../layout/parte1.php';
 
 include_once '../app/controllers/proveedores/listado_de_proveedores.php';
@@ -68,7 +71,7 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                 <td class="text-center"><?php echo $contador += 1; ?></td>
                                                 <td><?php echo $nombre_proveedor; ?></td>
                                                 <td class="text-center">
-                                                    <a href="http://wa.me/591<?php echo $celular; ?>" target="_blank" class="btn btn-success">
+                                                    <a href="http://wa.me/591<?php echo $celular; ?>" target="_blank" class="btn btn-success btn-sm">
                                                         <i class="fas fa-phone-alt"></i>
                                                         <?php echo $celular; ?>
                                                     </a>
@@ -80,10 +83,10 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                 <td>
                                                     <div class="text-center">
                                                         <div class="btn-group">
-                                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-update<?php echo $id_proveedor; ?>">
+                                                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-update<?php echo $id_proveedor; ?>">
                                                                 <i class="fas fa-pencil-alt"></i> Editar
                                                             </button>
-                                                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-delete<?php echo $id_proveedor ?>">
+                                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-delete<?php echo $id_proveedor ?>">
                                                                 <i class="fas fa-trash-alt"></i> Eliminar
                                                             </button>
                                                         </div>

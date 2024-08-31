@@ -1,9 +1,12 @@
 <?php
-include_once '../app/config.php';
-include_once '../layout/sesion.php';
+require_once '../app/config.php';
+require_once '../layout/sesion.php';
+require_once '../app/controllers/middleware/AuthMiddleware.php';
+
+$auth = new AuthMiddleware($pdo, $URL);
+$usuario = $auth->verificarPermiso('Administrador');
 
 include_once '../layout/parte1.php';
-
 include_once '../app/controllers/usuarios/listado_de_usuarios.php';
 ?>
 <!-- Content Wrapper. Contains page content -->
