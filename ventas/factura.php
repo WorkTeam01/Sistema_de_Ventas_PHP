@@ -11,7 +11,8 @@ $usuario = $auth->verificarRoles(['Administrador', 'Comprador', 'Vendedor']);
 
 include_once '../app/controllers/ventas/literal.php';
 
-session_start();
+if (session_status() == PHP_SESSION_NONE)
+    session_start();
 
 if (isset($_SESSION['sesion_email'])) {
     // echo "Existe sesion de: " . $_SESSION['sesion_email'];
@@ -46,9 +47,6 @@ foreach ($ventas_datos as $ventas_dato) {
     $nombre_cliente = $ventas_dato['nombre_cliente'];
     $total_pagado = $ventas_dato['total_pagado'];
 }
-
-// Convertir precio total a literal
-$monto_literal = numeroletras($total_pagado);
 
 $fecha = date("d/m/Y", strtotime($fyh_creacion));
 
@@ -108,8 +106,7 @@ $html = /*html*/ '
             SANTA CRUZ - BOLIVIA
         </td>
         <td style="width: 179px"></td>
-        <td style="font-size: 16px; width: 300px"><br><br><br>
-            <b>NIT: </b> ' . $nit_ci_cliente . '<br>
+        <td style="font-size: 16px; width: 300px"><br><br><br><br>
             <b>Número factura: </b> ' . $id_venta_get . ' <br>
             <b>Número de autorización: </b>565586565
             <p style="text-align: center"><B>ORIGINAL</B></p>
@@ -178,6 +175,10 @@ foreach ($carrito_datos as $carrito_dato) {
     </tr>
     ';
 }
+
+// Convertir precio total a literal
+// $monto_literal = numeroletras($total_pagado);
+$monto_literal = numeroletras($precio_total);
 
 $html .= /* html*/ '
     <tr style="background-color: #d6d6d6">

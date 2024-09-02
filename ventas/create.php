@@ -407,7 +407,7 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Total pagado</label>
-                                        <input type="text" id="total_pagado" class="form-control text-center" value="">
+                                        <input type="text" id="total_pagado" class="form-control text-center">
                                         <script>
                                             $('#total_pagado').keyup(function() {
                                                 var total_a_cancelar = $('#total_a_cancelar').val();

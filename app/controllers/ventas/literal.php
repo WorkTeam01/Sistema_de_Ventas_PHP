@@ -42,7 +42,7 @@ function numeroletras($xcifra)
         900 => "NOVECIENTOS"
     );
 
-    $xcifra = trim($xcifra);
+    $xcifra = number_format((float)$xcifra, 2, '.', '');
     $xlength = strlen($xcifra);
     $xpos_punto = strpos($xcifra, ".");
     $xaux_int = $xcifra;
@@ -53,8 +53,8 @@ function numeroletras($xcifra)
             $xcifra = "0" . $xcifra;
             $xpos_punto = strpos($xcifra, ".");
         }
-        $xaux_int = substr($xcifra, 0, $xpos_punto);
-        $xdecimales = substr($xcifra . "00", $xpos_punto + 1, 2);
+        $xaux_int = substr($xcifra, 0, $xpos_punto); // Parte entera
+        $xdecimales = substr($xcifra . "00", $xpos_punto + 1, 2); // Parte final
     }
 
     $XAUX = str_pad($xaux_int, 18, " ", STR_PAD_LEFT);
@@ -151,12 +151,13 @@ function numeroletras($xcifra)
                         $xcadena .= " MILLONES ";
                     break;
                 case 2:
-                    if ($xcifra < 1)
+                    if ($xcifra < 1) {
                         $xcadena = " CERO CON $xdecimales/100 Bs.";
-                    if ($xcifra >= 1 && $xcifra < 2)
-                        $xcadena = " UN CON $xdecimales/100";
-                    if ($xcifra >= 2)
-                        $xcadena .= " Bs. CON $xdecimales/100";
+                    } elseif ($xcifra >= 1 && $xcifra < 2) {
+                        $xcadena .= " UN CON $xdecimales/100 Bs.";
+                    } else {
+                        $xcadena .= " CON $xdecimales/100 Bs.";
+                    }
                     break;
             }
         }
