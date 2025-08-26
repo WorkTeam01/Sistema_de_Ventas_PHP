@@ -52,7 +52,7 @@
         </div>
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <a href="../public/templates/AdminLTE-3.2.0/index2.html" class="h1"><b>SISTEMA DE</b> VENTAS</a>
+                <a href="#" class="h1"><b>SISTEMA DE</b> VENTAS</a>
             </div>
             <div class="card-body">
                 <h5 class="login-box-msg">Login</h5>

@@ -7,7 +7,7 @@ require_once '../layout/sesion.php';
 require_once '../app/controllers/middleware/AuthMiddleware.php';
 
 $auth = new AuthMiddleware($pdo, $URL);
-$usuario = $auth->verificarRoles(['Administrador', 'Comprador', 'Vendedor']);
+$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']);
 
 include_once '../app/controllers/ventas/literal.php';
 
@@ -15,7 +15,7 @@ if (session_status() == PHP_SESSION_NONE)
     session_start();
 
 if (isset($_SESSION['sesion_email'])) {
-    // echo "Existe sesion de: " . $_SESSION['sesion_email'];
+
     $email_sesion = $_SESSION['sesion_email'];
     $sql = "SELECT nombres FROM tb_usuarios WHERE email = '$email_sesion'";
     $query = $pdo->prepare($sql);

@@ -59,9 +59,10 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                         $contador = 0;
                                         foreach ($compras_datos as $compra_dato) {
                                             $id_compra = $compra_dato['id_compra'];
+                                            $contador += 1;
                                         ?>
                                             <tr>
-                                                <td class="text-center"><?php echo $contador += 1; ?></td>
+                                                <td class="text-center"><?php echo $contador; ?></td>
                                                 <td class="text-center"><?php echo $compra_dato['nro_compra']; ?></td>
                                                 <td>
                                                     <div class="text-center">
@@ -70,11 +71,11 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                         </button>
                                                     </div>
                                                     <!-- Modal datos de productos -->
-                                                    <div class="modal fade" id="modal-producto<?php echo $id_compra; ?>">
-                                                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                                                    <div class="modal fade" id="modal-producto<?php echo $id_compra; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-header bg-warning">
-                                                                    <h4 class="modal-title">Detalle de producto</h4>
+                                                                    <h4 class="modal-title" id="exampleModalLabel">Detalle de producto</h4>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                         <span aria-hidden="true">&times;</span>
                                                                     </button>
@@ -178,11 +179,11 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                         </button>
                                                     </div>
                                                     <!-- Modal datos de proveedor -->
-                                                    <div class="modal fade" id="modal-proveedor<?php echo $id_compra; ?>" role="dialog" aria-hidden="true">
+                                                    <div class="modal fade" id="modal-proveedor<?php echo $id_compra; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog">
-                                                            <div class="modal-content">
+                                                            <div class="modal-content" role="document">
                                                                 <div class="modal-header bg-warning">
-                                                                    <h4 class="modal-title">Detalle de proveedor</h4>
+                                                                    <h4 class="modal-title" id="exampleModalLabel">Detalle de proveedor</h4>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                         <span aria-hidden="true">&times;</span>
                                                                     </button>

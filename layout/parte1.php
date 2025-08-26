@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?php echo $URL; ?>/public/css/style.css">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="<?php echo $URL; ?>/public/css/sweetalert2.min.css">
     <script src="<?php echo $URL; ?>/public/js/sweetalert2.min.js"></script>
@@ -35,7 +36,7 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Sistema de Ventas</a>
+                    <a href="<?php echo $URL; ?>" class="nav-link">Sistema de Ventas</a>
                 </li>
             </ul>
             <!-- Right navbar links -->
@@ -43,6 +44,11 @@
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                        <i class="fas fa-th-large"></i>
                     </a>
                 </li>
             </ul>

@@ -1,0 +1,86 @@
+# Archivos del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+error.log
+access.log
+
+# Configuración específica del entorno
+config/database.php
+.env
+.env.local
+.env.production
+
+# Archivos temporales de PHP
+*.tmp
+temp/
+tmp/
+
+# Cache
+cache/
+*.cache
+
+# Archivos subidos por usuarios
+uploads/
+almacen/img_productos/*.jpg
+almacen/img_productos/*.jpeg
+almacen/img_productos/*.png
+almacen/img_productos/*.gif
+almacen/img_productos/*.webp
+!almacen/img_productos/.gitkeep
+
+# Archivos de respaldo de base de datos (excepto el inicial)
+*.sql.backup
+*.sql.bak
+backup/
+
+# Vendor/dependencias (si usas Composer)
+vendor/
+
+# Archivos de sesión
+sessions/
+
+# CSS y JS compilados/minificados locales
+public/css/compiled/
+public/js/compiled/
+
+# Archivos de Windows
+*.bat
+*.cmd
+
+# Archivos de macOS
+.AppleDouble
+.LSOverride
+
+# Archivos de Linux
+*~
+
+# Archivos generados automáticamente
+sitemap.xml
+robots.txt
+
+# Certificados y claves privadas
+*.pem
+*.key
+*.crt
+*.p12
+
+# Archivos de configuración local
+local_config.php
+config_local.php

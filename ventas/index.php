@@ -67,7 +67,7 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
                                                         <i class="fas fa-shopping-bag"></i> Productos
                                                     </button>
 
-                                                    <!-- Modal -->
+                                                    <!-- Modal de datos del producto -->
                                                     <div class="modal fade" id="Modal-productos<?php echo $id_venta; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog modal-lg" role="document">
                                                             <div class="modal-content">
