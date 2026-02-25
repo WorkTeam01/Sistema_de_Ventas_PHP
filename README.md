@@ -1,157 +1,170 @@
-# 🛍️ Sistema de Ventas - PHP & MySQL
+<div align="center">
 
-Un sistema completo de gestión de ventas desarrollado con PHP, MySQL y AdminLTE, que incluye control de inventario, facturación, gestión de clientes y reportes.
+# Sistema de Ventas — PHP & MySQL
 
-## 🚀 Características Principales
+Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
-### 📦 Módulos del Sistema
-- **Almacén**: Gestión completa de productos e inventario
-- **Ventas**: Proceso de ventas con carrito y facturación PDF
-- **Compras**: Registro y control de compras a proveedores  
-- **Clientes**: Base de datos de clientes con historial
-- **Proveedores**: Gestión de proveedores y contactos
-- **Usuarios**: Sistema de usuarios con roles y permisos
-- **Reportes**: Dashboards y reportes en tiempo real
+![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
+![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-4-7952B3?logo=bootstrap&logoColor=white)
+![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
 
-### 🎨 Interfaz de Usuario
-- Diseño responsivo con **AdminLTE 3.2.0**
-- Tema oscuro/claro personalizable
-- Panel de control lateral con opciones de personalización
-- Alertas y notificaciones con **SweetAlert2**
+</div>
 
-### 🛡️ Seguridad y Control de Acceso
-- Sistema de autenticación con middleware
-- Control de roles y permisos por módulo
-- Validación de datos y protección contra inyección SQL
-- Sesiones seguras y logout automático
+---
 
-## 🛠️ Tecnologías Utilizadas
+## Módulos
 
-- **Backend**: PHP 7.4+
-- **Base de Datos**: MySQL 5.7+
-- **Frontend**: HTML5, CSS3, JavaScript, jQuery
-- **Framework CSS**: Bootstrap 4 (AdminLTE)
-- **Librerías**: 
-  - TCPDF (generación de PDFs)
-  - SweetAlert2 (notificaciones)
-  - DataTables (tablas interactivas)
+| Módulo | Descripción |
+|--------|-------------|
+| **Almacén** | Gestión de productos con stock, precios, imágenes y categorías |
+| **Ventas** | Carrito de compras, cálculo de totales y generación de facturas PDF |
+| **Compras** | Registro de compras a proveedores con actualización automática de stock |
+| **Clientes** | Base de datos de clientes con historial de compras |
+| **Proveedores** | Gestión de proveedores y datos de contacto |
+| **Usuarios** | Administración de cuentas con roles y permisos |
+| **Reportes** | Dashboard por rol con exportación a PDF, Excel y CSV |
 
-## 📋 Requisitos del Sistema
+---
 
-- **Servidor Web**: Apache 2.4+ o Nginx
-- **PHP**: 7.4 o superior
-- **MySQL**: 5.7 o superior
-- **Extensiones PHP requeridas**:
-  - mysqli
-  - pdo_mysql
-  - gd
-  - mbstring
-  - json
+## Requisitos
 
-## ⚙️ Instalación
+- PHP 7.4 o superior (extensiones: `pdo_mysql`, `gd`, `mbstring`, `json`)
+- MySQL 5.7+ / MariaDB 10.4+
+- Apache 2.4+ (incluido en XAMPP)
+
+---
+
+## Instalación
 
 ### 1. Clonar el repositorio
+
+Colocar el proyecto dentro del directorio `htdocs` de XAMPP:
+
 ```bash
-git clone [URL-del-repositorio]
-cd SistemaVentas
+# Linux
+git clone <url> /opt/lampp/htdocs/Sistema_de_Ventas_PHP
+
+# Windows
+git clone <url> C:\xampp\htdocs\Sistema_de_Ventas_PHP
+
+# macOS
+git clone <url> /Applications/XAMPP/htdocs/Sistema_de_Ventas_PHP
 ```
 
-### 2. Configurar la base de datos
-- Crear una base de datos MySQL
-- Importar el archivo `sistemadeventas.sql`
-- Configurar credenciales en `app/config.php`
+### 2. Crear e importar la base de datos
 
-### 3. Configurar permisos
+**Linux / macOS:**
+```bash
+mysql -u root -p -e "CREATE DATABASE sistemadeventas;"
+mysql -u root -p sistemadeventas < sistemadeventas.sql
+```
+
+**Windows** (desde `C:\xampp\mysql\bin\`):
+```bat
+mysql -u root -p -e "CREATE DATABASE sistemadeventas;"
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\sistemadeventas.sql
+```
+
+### 3. Configurar la conexión
+
+Editar [app/config.php](app/config.php):
+
+```php
+define('SERVIDOR', 'localhost');
+define('USUARIO', 'root');
+define('PASSWORD', '');         // Contraseña de MySQL
+define('BD', 'sistemadeventas');
+
+$URL = 'http://localhost/Sistema_de_Ventas_PHP'; // Ajustar al nombre del directorio
+```
+
+### 4. Configurar permisos (Linux / macOS)
+
 ```bash
 chmod 755 almacen/img_productos/
 chmod 644 app/config.php
 ```
 
-### 4. Acceder al sistema
-- URL: `http://localhost/SistemaVentas/`
-- Usuario por defecto: (consultar base de datos)
+### 5. Iniciar el servidor
 
-## 📁 Estructura del Proyecto
-
-```
-SistemaVentas/
-├── almacen/           # Gestión de productos
-├── app/               # Configuración y librerías
-│   ├── config.php     # Configuración de BD
-│   ├── controllers/   # Controladores por módulo
-│   └── TCPDF-main/    # Librería PDF
-├── clientes/          # Módulo de clientes
-├── compras/           # Módulo de compras
-├── layout/            # Plantillas y layouts
-├── proveedores/       # Gestión de proveedores
-├── public/            # Recursos estáticos
-│   ├── css/           # Estilos personalizados
-│   ├── js/            # Scripts JavaScript
-│   └── templates/     # AdminLTE
-├── usuarios/          # Gestión de usuarios
-└── ventas/            # Módulo de ventas
+**Linux:**
+```bash
+sudo /opt/lampp/lamppstart
 ```
 
-## 🔧 Configuración
+**Windows:** Abrir `xampp-control.exe` e iniciar Apache y MySQL.
 
-### Base de Datos
-Editar `app/config.php`:
-```php
-$servidor = "localhost";
-$usuario = "tu_usuario";
-$password = "tu_password";
-$bd = "sistemadeventas";
+**macOS:**
+```bash
+sudo /Applications/XAMPP/xamppfiles/xampp start
 ```
 
-### Personalización
-El sistema incluye un panel de control lateral (control-sidebar) que permite:
-- Cambiar entre tema claro/oscuro
-- Personalizar colores de la navbar
-- Configurar opciones del sidebar
-- Ajustar estilos de texto
+Acceder en: `http://localhost/Sistema_de_Ventas_PHP/`
 
-## 📊 Funcionalidades Detalladas
+---
 
-### Sistema de Ventas
-- Carrito de compras interactivo
-- Cálculo automático de totales e impuestos
-- Generación de facturas en PDF
-- Control de stock en tiempo real
-- Historial de ventas completo
+## Control de Acceso por Roles
 
-### Gestión de Inventario
-- Registro de productos con imágenes
-- Categorización y etiquetado
-- Control de stock mínimo
-- Alertas de inventario bajo
-- Reportes de movimientos
+El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol del usuario autenticado:
 
-### Sistema de Reportes
-- Dashboard con métricas clave
-- Reportes de ventas por período
-- Análisis de productos más vendidos
-- Reportes financieros
-- Exportación a PDF/Excel
+| Rol | Acceso |
+|-----|--------|
+| `Administrador` | Acceso completo a todos los módulos |
+| `Vendedor` | Ventas, clientes y consulta de inventario |
+| `Comprador` | Compras, proveedores y consulta de inventario |
 
-## 🤝 Contribuciones
+---
 
-Las contribuciones son bienvenidas. Por favor:
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -m 'Agregar nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abrir un Pull Request
+## Stack Tecnológico
 
-## 📝 Licencia
+**Backend:** PHP con PDO (prepared statements), TCPDF para generación de facturas.
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+**Frontend:** AdminLTE 3.2.0 sobre Bootstrap 4, jQuery, DataTables, SweetAlert2.
 
-## 📞 Soporte
+**Base de datos:** MySQL con relaciones entre productos, ventas, compras, clientes y usuarios.
 
-Para soporte y consultas:
-- Abrir un issue en GitHub
-- Revisar la documentación en `/docs`
+---
 
-## 🙏 Agradecimientos
+## Estructura del Proyecto
 
-Proyecto basado en los tutoriales del canal de YouTube **Hilari Web**.
+```
+Sistema_de_Ventas_PHP/
+├── app/
+│   ├── config.php          # Conexión PDO y configuración global
+│   ├── controllers/        # Lógica de negocio por módulo
+│   │   └── middleware/     # AuthMiddleware (autenticación y roles)
+│   └── TCPDF-main/         # Librería de generación de PDF
+├── layout/                 # Plantillas compartidas (header, footer, sesión)
+├── public/
+│   ├── css/                # Estilos personalizados
+│   ├── js/                 # Scripts personalizados
+│   └── templates/          # AdminLTE (no modificar)
+├── [modulo]/               # Vista de cada módulo (almacen, ventas, etc.)
+├── sistemadeventas.sql     # Esquema e datos iniciales de la base de datos
+└── index.php               # Dashboard principal
+```
+
+---
+
+## Contribuciones
+
+1. Crear una rama: `git checkout -b feature/nombre-funcionalidad`
+2. Realizar los cambios y hacer commit: `git commit -m 'Descripción del cambio'`
+3. Push a la rama: `git push origin feature/nombre-funcionalidad`
+4. Abrir un Pull Request
+
+---
+
+<div align="center">
+
+## Créditos
+
+Proyecto basado en los tutoriales del canal de YouTube **[Hilari Web](https://www.youtube.com/@hilariweb)**.
+
+---
+
+Distribuido bajo la [Licencia MIT](LICENSE).
+
+</div>
