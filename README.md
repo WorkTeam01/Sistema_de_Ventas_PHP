@@ -16,15 +16,15 @@ Sistema web de gestión de ventas con control de inventario, facturación en PDF
 
 ## Módulos
 
-| Módulo | Descripción |
-|--------|-------------|
-| **Almacén** | Gestión de productos con stock, precios, imágenes y categorías |
-| **Ventas** | Carrito de compras, cálculo de totales y generación de facturas PDF |
-| **Compras** | Registro de compras a proveedores con actualización automática de stock |
-| **Clientes** | Base de datos de clientes con historial de compras |
-| **Proveedores** | Gestión de proveedores y datos de contacto |
-| **Usuarios** | Administración de cuentas con roles y permisos |
-| **Reportes** | Dashboard por rol con exportación a PDF, Excel y CSV |
+| Módulo          | Descripción                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías          |
+| **Ventas**      | Carrito de compras, cálculo de totales y generación de facturas PDF     |
+| **Compras**     | Registro de compras a proveedores con actualización automática de stock |
+| **Clientes**    | Base de datos de clientes con historial de compras                      |
+| **Proveedores** | Gestión de proveedores y datos de contacto                              |
+| **Usuarios**    | Administración de cuentas con roles y permisos                          |
+| **Reportes**    | Dashboard por rol con exportación a PDF, Excel y CSV                    |
 
 ---
 
@@ -56,20 +56,42 @@ git clone <url> /Applications/XAMPP/htdocs/Sistema_de_Ventas_PHP
 ### 2. Crear e importar la base de datos
 
 **Linux / macOS:**
+
 ```bash
 mysql -u root -p -e "CREATE DATABASE sistemadeventas;"
-mysql -u root -p sistemadeventas < sistemadeventas.sql
+mysql -u root -p sistemadeventas < database/schema.sql
+mysql -u root -p sistemadeventas < database/seeder.sql
 ```
 
 **Windows** (desde `C:\xampp\mysql\bin\`):
+
 ```bat
 mysql -u root -p -e "CREATE DATABASE sistemadeventas;"
-mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\sistemadeventas.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\schema.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\seeder.sql
 ```
+
+### Credenciales por defecto
+
+El seeder crea los siguientes usuarios de prueba:
+
+| Rol             | Email                     | Contraseña     |
+| --------------- | ------------------------- | -------------- |
+| Administrador   | admin@sistema.com         | admin123       |
+| Vendedor        | vendedor@sistema.com      | vendedor123    |
+| Comprador       | comprador@sistema.com     | comprador123   |
+
+> **Importante:** Cambiar estas contraseñas antes de usar en producción.
 
 ### 3. Configurar la conexión
 
-Editar [app/config.php](app/config.php):
+Copiar el archivo de ejemplo y editarlo con tus credenciales:
+
+```bash
+cp app/config.example.php app/config.php
+```
+
+Luego editar [app/config.php](app/config.php):
 
 ```php
 define('SERVIDOR', 'localhost');
@@ -90,13 +112,15 @@ chmod 644 app/config.php
 ### 5. Iniciar el servidor
 
 **Linux:**
+
 ```bash
-sudo /opt/lampp/lamppstart
+sudo /opt/lampp/lampp start
 ```
 
 **Windows:** Abrir `xampp-control.exe` e iniciar Apache y MySQL.
 
 **macOS:**
+
 ```bash
 sudo /Applications/XAMPP/xamppfiles/xampp start
 ```
@@ -109,11 +133,11 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/`
 
 El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol del usuario autenticado:
 
-| Rol | Acceso |
-|-----|--------|
-| `Administrador` | Acceso completo a todos los módulos |
-| `Vendedor` | Ventas, clientes y consulta de inventario |
-| `Comprador` | Compras, proveedores y consulta de inventario |
+| Rol             | Acceso                                        |
+| --------------- | --------------------------------------------- |
+| `Administrador` | Acceso completo a todos los módulos           |
+| `Vendedor`      | Ventas, clientes y consulta de inventario     |
+| `Comprador`     | Compras, proveedores y consulta de inventario |
 
 ---
 
@@ -142,7 +166,9 @@ Sistema_de_Ventas_PHP/
 │   ├── js/                 # Scripts personalizados
 │   └── templates/          # AdminLTE (no modificar)
 ├── [modulo]/               # Vista de cada módulo (almacen, ventas, etc.)
-├── sistemadeventas.sql     # Esquema e datos iniciales de la base de datos
+├── database/
+│   ├── schema.sql          # Estructura de tablas
+│   └── seeder.sql          # Datos iniciales
 └── index.php               # Dashboard principal
 ```
 

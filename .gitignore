@@ -84,3 +84,4 @@ robots.txt
 # Archivos de configuración local
 local_config.php
 config_local.php
+app/config.php
