@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="../public/css/sweetalert2.min.css">
     <script src="../public/js/sweetalert2.min.js"></script>
     <!-- Icono del sitio -->
-    <link rel="icon" type="image/png" href="<?= $URL; ?>/public/img/logo.png">
+    <link rel="icon" type="image/png" href="../public/img/logo.png">
 </head>
 
 <body class="hold-transition login-page">
@@ -26,6 +26,9 @@
         <!-- /.login-logo -->
         <?php
         session_start();
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
         if (isset($_SESSION['mensaje'])) {
             $respuesta = $_SESSION['mensaje']; ?>
             <script>
@@ -42,7 +45,7 @@
                 });
                 Toast.fire({
                     icon: "error",
-                    title: "<?php echo $respuesta; ?>"
+                    title: "<?= $respuesta; ?>"
                 });
             </script>
         <?php
@@ -59,9 +62,10 @@
             <div class="card-body">
                 <h5 class="login-box-msg">Login</h5>
 
-                <form action="../app/controllers/login/ingreso.php" method="post">
+                <form action="../app/controllers/login/ingreso.php" method="post" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
                     <div class="input-group mb-3">
-                        <input type="email" name="email" class="form-control" placeholder="Ingrese su correo">
+                        <input type="email" name="email" class="form-control" placeholder="Ingrese su correo" autocomplete="off">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
@@ -69,7 +73,7 @@
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" name="password_user" class="form-control" placeholder="Ingrese su contraseña">
+                        <input type="password" name="password_user" class="form-control" placeholder="Ingrese su contraseña" autocomplete="new-password">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>

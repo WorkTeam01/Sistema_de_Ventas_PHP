@@ -44,6 +44,7 @@ include_once '../app/controllers/roles/listado_de_roles.php';
                             <div class="row">
                                 <div class="col-md-12">
                                     <form action="../app/controllers/usuarios/update.php" method="post">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
                                         <input type="text" name="id_usuario" class="form-control" value="<?php echo $id_usuario_get; ?>" hidden>
                                         <div class="form-group">

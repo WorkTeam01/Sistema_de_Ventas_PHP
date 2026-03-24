@@ -43,6 +43,7 @@ include_once '../app/controllers/usuarios/show_usuario.php';
                             <div class="row">
                                 <div class="col-md-12">
                                     <form action="<?php echo $URL; ?>/app/controllers/usuarios/delete_usuario.php" method="post">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                         <input type="text" name="id_usuario" value="<?php echo $id_usuario_get; ?>" class="form-control" hidden>
                                         <div class="form-group">
                                             <label for="">Nombres</label>

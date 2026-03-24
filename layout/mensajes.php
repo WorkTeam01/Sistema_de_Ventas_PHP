@@ -4,12 +4,20 @@ if ((isset($_SESSION['mensaje'])) && (isset($_SESSION['icono']))) {
     $respuesta = $_SESSION['mensaje'];
     $icono = $_SESSION['icono']; ?>
     <script>
-        Swal.fire({
-            position: 'top-end',
-            text: "<?php echo $respuesta; ?>",
-            icon: "<?php echo $icono; ?>",
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
             showConfirmButton: false,
-            timer: 3000
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+        Toast.fire({
+            icon: "<?= $icono; ?>",
+            title: "<?= $respuesta; ?>"
         });
     </script>
 <?php

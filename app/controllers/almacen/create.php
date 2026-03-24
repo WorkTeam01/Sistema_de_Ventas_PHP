@@ -1,18 +1,30 @@
 <?php
 
 include_once '../../config.php';
+session_start();
+if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    die("Error de seguridad: Token CSRF inválido.");
+}
 
-$codigo = $_POST['codigo'];
+$codigo = trim($_POST['codigo']);
 $id_categoria = $_POST['id_categoria'];
-$nombre = $_POST['nombre'];
+$nombre = trim($_POST['nombre']);
 $id_usuario = $_POST['id_usuario'];
-$descripcion = $_POST['descripcion'];
+$descripcion = trim($_POST['descripcion']);
 $stock = $_POST['stock'];
 $stock_minimo = $_POST['stock_minimo'];
 $stock_maximo = $_POST['stock_maximo'];
 $precio_compra = $_POST['precio_compra'];
 $precio_venta = $_POST['precio_venta'];
 $fecha_ingreso = $_POST['fecha_ingreso'];
+
+if (!is_numeric($stock) || !is_numeric($stock_minimo) || !is_numeric($stock_maximo) || !is_numeric($precio_compra) || !is_numeric($precio_venta)) {
+    session_start();
+    $_SESSION['mensaje'] = 'Los valores de stock y precios deben ser numéricos.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/almacen/create.php');
+    exit();
+}
 
 $extensiones_permitidas = ['jpg', 'jpeg', 'png', 'webp'];
 $mimes_permitidos = ['image/jpeg', 'image/png', 'image/webp'];

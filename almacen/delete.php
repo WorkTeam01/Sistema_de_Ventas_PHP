@@ -42,6 +42,7 @@ include_once '../app/controllers/almacen/cargar_producto.php';
                             <div class="row">
                                 <div class="col-md-12">
                                     <form action="<?php echo $URL; ?>/app/controllers/almacen/delete.php" method="post">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                         <input type="text" name="id_producto" value="<?php echo $id_producto_get; ?>" hidden>
                                         <div class="row">
                                             <div class="col-md-9">

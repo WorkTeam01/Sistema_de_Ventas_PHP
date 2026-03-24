@@ -43,6 +43,7 @@ include_once '../app/controllers/categorias/listado_de_categorias.php';
                             <div class="row">
                                 <div class="col-md-12">
                                     <form action="<?php echo $URL; ?>/app/controllers/almacen/create.php" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                         <div class="row">
                                             <div class="col-md-9">
                                                 <div class="row">

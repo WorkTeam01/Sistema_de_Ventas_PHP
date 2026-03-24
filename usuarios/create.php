@@ -43,6 +43,7 @@ include_once '../app/controllers/roles/listado_de_roles.php';
                             <div class="row">
                                 <div class="col-md-12">
                                     <form action="../app/controllers/usuarios/create.php" method="post">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                         <div class="form-group">
                                             <label for="">Nombres</label>
                                             <input type="text" name="nombres" class="form-control" placeholder="Ingrese los nombres de usuario" required>

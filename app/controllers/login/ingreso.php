@@ -1,6 +1,10 @@
 <?php
 
 include_once '../../config.php';
+session_start();
+if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    die("Error de seguridad: Token CSRF inválido.");
+}
 
 $email = $_POST['email'];
 $password_user = $_POST['password_user'];

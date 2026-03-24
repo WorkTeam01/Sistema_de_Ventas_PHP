@@ -247,6 +247,7 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                                                         </td>
                                                         <td class="text-center">
                                                             <form action="../app/controllers/ventas/borrar_carrito.php" method="post">
+                                                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                                                 <input type="text" name="id_carrito" value="<?php echo $id_carrito; ?>" hidden>
                                                                 <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</button>
                                                             </form>
@@ -440,44 +441,16 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                                             alert("Debe seleccionar a un cliente.");
                                             return;
                                         }
-                                        guardar_venta();
-                                        actualizar_stock();
-
-                                        function actualizar_stock() {
-                                            var i = 1;
-                                            var n = '<?php echo $contador_de_carritos; ?>';
-
-                                            for (i = 1; i <= n; i++) {
-                                                var stocks = '#stock_de_inventario' + i;
-                                                var stock_de_inventario = $(stocks).val();
-
-                                                var cantidades = '#cantidad_carrito' + i;
-                                                var cantidad_carrito = $(cantidades).html();
-
-                                                var id_productos = '#id_producto' + i;
-                                                var id_producto = $(id_productos).val();
-
-                                                var stock_calculado = parseFloat(stock_de_inventario - cantidad_carrito);
-
-                                                //alert(stock_de_inventario + " - " + cantidad_carrito + " - " + stock_calculado + " - " + id_producto);
-                                                var url2 = "../app/controllers/ventas/actualizar_stock.php";
-                                                $.get(url2, {
-                                                    id_producto: id_producto,
-                                                    stock_calculado: stock_calculado
-                                                }, function(datos) {});
-                                            }
-                                        }
-
-                                        function guardar_venta() {
-                                            var url = "../app/controllers/ventas/registro_de_ventas.php";
-                                            $.get(url, {
-                                                nro_venta: nro_venta,
-                                                id_cliente: id_cliente,
-                                                total_a_cancelar: total_a_cancelar
-                                            }, function(datos) {
-                                                $('#respuesta_registro_venta').html(datos);
-                                            });
-                                        }
+                                        
+                                        var url = "../app/controllers/ventas/registro_de_ventas.php";
+                                        $.post(url, {
+                                            nro_venta: nro_venta,
+                                            id_cliente: id_cliente,
+                                            total_a_cancelar: total_a_cancelar,
+                                            csrf_token: '<?php echo $_SESSION['csrf_token']; ?>'
+                                        }, function(datos) {
+                                            $('#respuesta_registro_venta').html(datos);
+                                        });
                                     });
                                 </script>
                             </div>
@@ -576,6 +549,7 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
             </div>
             <div class="modal-body">
                 <form action="../app/controllers/clientes/guardar_clientes.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <div class="form-group">
                         <label>Nombre del cliente</label>
                         <input type="text" class="form-control" name="nombre_cliente">

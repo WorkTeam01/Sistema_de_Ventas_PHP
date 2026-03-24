@@ -14,6 +14,19 @@ Sistema web de gestión de ventas con control de inventario, facturación en PDF
 
 ---
 
+## Seguridad y Buenas Prácticas Implementadas
+
+Este proyecto, a pesar de su estructura procedural clásica, ha sido refactorizado rigurosamente para alcanzar los estándares de seguridad web modernos:
+
+- **Prevención de Inyecciones SQL**: 100% migrado a `PDO Prepared Statements` con _placeholders_ para parametrización.
+- **Protección CSRF**: Intercepción de suplantaciones cruzadas mediante _tokens_ obligatorios en la sesión y formularios mutables.
+- **Escudos XSS**: Renderizado condicionado de entidades HTML (`htmlspecialchars()`) para neutralizar ejecución de _scripts_ reflejados/almacenados.
+- **Integridad Transaccional**: Operaciones de control de inventario/ventas están bajo control transaccional estricto (`PDO::beginTransaction()` / `commit` / `rollBack`), garantizando un stock 100% consistente ante fallas.
+- **Validaciones Back-End**: Todo envío por _POST_ recibe depuración estricta en el servidor para forzar cast a valores numéricos, tipados seguros y sanitización antes del contacto con la BDD.
+- **Encriptado Seguro**: Uso de API moderna de Hashes de contraseñas de PHP (`PASSWORD_DEFAULT` / BCRYPT).
+
+---
+
 ## Módulos
 
 | Módulo          | Descripción                                                             |
@@ -75,11 +88,11 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 
 El seeder crea los siguientes usuarios de prueba:
 
-| Rol             | Email                     | Contraseña     |
-| --------------- | ------------------------- | -------------- |
-| Administrador   | admin@sistema.com         | admin123       |
-| Vendedor        | vendedor@sistema.com      | vendedor123    |
-| Comprador       | comprador@sistema.com     | comprador123   |
+| Rol           | Email                 | Contraseña   |
+| ------------- | --------------------- | ------------ |
+| Administrador | admin@sistema.com     | admin123     |
+| Vendedor      | vendedor@sistema.com  | vendedor123  |
+| Comprador     | comprador@sistema.com | comprador123 |
 
 > **Importante:** Cambiar estas contraseñas antes de usar en producción.
 

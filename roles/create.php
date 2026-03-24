@@ -39,6 +39,7 @@ include_once '../layout/parte1.php';
                             <div class="row">
                                 <div class="col-md-12">
                                     <form action="<?php echo $URL; ?>/app/controllers/roles/create.php" method="post">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                                         <div class="form-group">
                                             <label for="rol">Nombre del rol</label>
                                             <input type="text" name="rol" class="form-control" placeholder="Ingrese el nombre del rol" required>
