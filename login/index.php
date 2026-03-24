@@ -17,6 +17,8 @@
     <!-- SweetAlert2-->
     <link rel="stylesheet" href="../public/css/sweetalert2.min.css">
     <script src="../public/js/sweetalert2.min.js"></script>
+    <!-- Icono del sitio -->
+    <link rel="icon" type="image/png" href="<?= $URL; ?>/public/img/logo.png">
 </head>
 
 <body class="hold-transition login-page">

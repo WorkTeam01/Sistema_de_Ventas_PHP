@@ -34,7 +34,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
         <div class="container-fluid">
             <div class="row">
                 <?php if ($rol_sesion == 'Administrador') : ?>
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjeta de usuarios -->
                         <div class="small-box bg-warning">
                             <div class="inner">
@@ -52,7 +52,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjeta de roles -->
                         <div class="small-box bg-info">
                             <div class="inner">
@@ -72,7 +72,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                 <?php endif; ?>
 
                 <?php if ($rol_sesion == 'Administrador' || $rol_sesion == 'Comprador' || $rol_sesion == 'Vendedor') : ?>
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjeta de categorias -->
                         <div class="small-box bg-success">
                             <div class="inner">
@@ -88,7 +88,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjeta de productos -->
                         <div class="small-box bg-primary">
                             <div class="inner">
@@ -108,7 +108,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                 <?php endif; ?>
 
                 <?php if ($rol_sesion == 'Administrador' || $rol_sesion == 'Comprador') : ?>
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjet de proveedores -->
                         <div class="small-box bg-secondary">
                             <div class="inner">
@@ -124,7 +124,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjet de compras -->
                         <div class="small-box bg-danger">
                             <div class="inner">
@@ -144,7 +144,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                 <?php endif; ?>
 
                 <?php if ($rol_sesion == 'Administrador' || $rol_sesion == 'Vendedor') : ?>
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjet de compras -->
                         <div class="small-box bg-indigo">
                             <div class="inner">
@@ -161,7 +161,7 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                             </a>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <!-- Tarjet de clientes -->
                         <div class="small-box bg-light">
                             <div class="inner">

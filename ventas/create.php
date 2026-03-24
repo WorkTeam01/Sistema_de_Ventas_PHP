@@ -97,10 +97,10 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                                                                                     var id_producto = '<?php echo $id_producto; ?>';
                                                                                     $('#id_producto').val(id_producto);
 
-                                                                                    var producto = '<?php echo $producto_dato['nombre']; ?>';
+                                                                                    var producto = <?php echo json_encode($producto_dato['nombre']); ?>;
                                                                                     $('#producto').val(producto);
 
-                                                                                    var descripcion = '<?php echo $producto_dato['descripcion']; ?>';
+                                                                                    var descripcion = <?php echo json_encode($producto_dato['descripcion']); ?>;
                                                                                     $('#descripcion').val(descripcion);
 
                                                                                     var precio_unitario = '<?php echo $producto_dato['precio_venta']; ?>';
@@ -214,9 +214,9 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                                                 $precio_total = 0;
                                                 $sql_carrito = "SELECT car.*, al.id_producto, al.nombre, al.descripcion, al.precio_venta, al.stock FROM tb_carrito car
                                                 INNER JOIN tb_almacen al on car.id_producto = al.id_producto
-                                                WHERE nro_venta = '$contador_de_ventas' ORDER BY id_carrito ASC";
+                                                WHERE nro_venta = ? ORDER BY id_carrito ASC";
                                                 $query_carrito = $pdo->prepare($sql_carrito);
-                                                $query_carrito->execute();
+                                                $query_carrito->execute([$contador_de_ventas]);
                                                 $carrito_datos = $query_carrito->fetchAll(PDO::FETCH_ASSOC);
 
                                                 foreach ($carrito_datos as $carrito_dato) {
@@ -329,16 +329,16 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                                                                             var id_cliente = <?php echo $id_cliente; ?>;
                                                                             $('#id_cliente').val(id_cliente);
 
-                                                                            var nombre_cliente = '<?php echo $clientes_dato['nombre_cliente'] ?>';
+                                                                            var nombre_cliente = <?php echo json_encode($clientes_dato['nombre_cliente']); ?>;
                                                                             $('#nombre_cliente').val(nombre_cliente);
 
-                                                                            var nit_ci_cliente = '<?php echo $clientes_dato['nit_ci_cliente'] ?>';
+                                                                            var nit_ci_cliente = <?php echo json_encode($clientes_dato['nit_ci_cliente']); ?>;
                                                                             $('#nit_ci_cliente').val(nit_ci_cliente);
 
-                                                                            var celular_cliente = '<?php echo $clientes_dato['celular_cliente'] ?>';
+                                                                            var celular_cliente = <?php echo json_encode($clientes_dato['celular_cliente']); ?>;
                                                                             $('#celular_cliente').val(celular_cliente);
 
-                                                                            var email_cliente = '<?php echo $clientes_dato['email_cliente'] ?>';
+                                                                            var email_cliente = <?php echo json_encode($clientes_dato['email_cliente']); ?>;
                                                                             $('#correo_cliente').val(email_cliente);
 
                                                                             $('#modal-buscar_cliente').modal('toggle');

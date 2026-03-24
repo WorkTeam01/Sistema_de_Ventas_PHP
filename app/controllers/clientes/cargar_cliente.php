@@ -1,9 +1,8 @@
 <?php
 
-$sql_clientes = "SELECT * FROM tb_clientes WHERE id_cliente = '$id_cliente'";
-
-$query_clientes = $pdo->query($sql_clientes);
-$query_clientes->execute();
+$sql_clientes = "SELECT * FROM tb_clientes WHERE id_cliente = ?";
+$query_clientes = $pdo->prepare($sql_clientes);
+$query_clientes->execute([$id_cliente]);
 $total_clientes = $query_clientes->rowCount();
 $clientes_datos = $query_clientes->fetchAll(PDO::FETCH_ASSOC);
 

@@ -5,9 +5,9 @@ if (session_status() == PHP_SESSION_NONE)
 if (isset($_SESSION['sesion_email'])) {
     $email_sesion = $_SESSION['sesion_email'];
     $sql = "SELECT us.id_usuario, us.nombres, us.email, rol.rol FROM tb_usuarios us
-                INNER JOIN tb_roles rol on us.id_rol = rol.id_rol WHERE email = '$email_sesion'";
+                INNER JOIN tb_roles rol on us.id_rol = rol.id_rol WHERE email = ?";
     $query = $pdo->prepare($sql);
-    $query->execute();
+    $query->execute([$email_sesion]);
 
     $usuarios = $query->fetchAll(PDO::FETCH_ASSOC);
 

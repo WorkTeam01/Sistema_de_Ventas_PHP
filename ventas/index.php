@@ -100,9 +100,9 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
                                                                                 $nro_venta = $ventas_dato['nro_venta'];
                                                                                 $sql_carrito = "SELECT car.*, al.id_producto, al.nombre, al.descripcion, al.precio_venta, al.stock FROM tb_carrito car
                                                                                 INNER JOIN tb_almacen al on car.id_producto = al.id_producto
-                                                                                WHERE nro_venta = '$nro_venta' ORDER BY id_carrito ASC";
+                                                                                WHERE nro_venta = ? ORDER BY id_carrito ASC";
                                                                                 $query_carrito = $pdo->prepare($sql_carrito);
-                                                                                $query_carrito->execute();
+                                                                                $query_carrito->execute([$nro_venta]);
                                                                                 $carrito_datos = $query_carrito->fetchAll(PDO::FETCH_ASSOC);
 
                                                                                 foreach ($carrito_datos as $carrito_dato) {
@@ -167,9 +167,9 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
                                                                     </button>
                                                                 </div>
                                                                 <?php
-                                                                $sql_clientes = "SELECT * FROM tb_clientes WHERE id_cliente = '$id_cliente'";
-                                                                $query_clientes = $pdo->query($sql_clientes);
-                                                                $query_clientes->execute();
+                                                                $sql_clientes = "SELECT * FROM tb_clientes WHERE id_cliente = ?";
+                                                                $query_clientes = $pdo->prepare($sql_clientes);
+                                                                $query_clientes->execute([$id_cliente]);
                                                                 $total_clientes = $query_clientes->rowCount();
                                                                 $clientes_datos = $query_clientes->fetchAll(PDO::FETCH_ASSOC);
 

@@ -38,12 +38,9 @@ cache/
 
 # Archivos subidos por usuarios
 uploads/
-almacen/img_productos/*.jpg
-almacen/img_productos/*.jpeg
-almacen/img_productos/*.png
-almacen/img_productos/*.gif
-almacen/img_productos/*.webp
+almacen/img_productos/*
 !almacen/img_productos/.gitkeep
+!almacen/img_productos/producto_default.png
 
 # Archivos de respaldo de base de datos (excepto el inicial)
 *.sql.backup

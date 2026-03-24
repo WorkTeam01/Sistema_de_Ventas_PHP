@@ -5,7 +5,7 @@
         System Ventas
     </div>
     <!-- Default to the left -->
-    <strong>Copyright &copy; <?php echo $Año; ?> <a href="https://adminlte.io">AdminLTE.io</a></strong> | Todos los derechos reservados
+    <strong>Copyright &copy; <?= $Año; ?> <a href="https://adminlte.io">AdminLTE.io</a></strong> | Todos los derechos reservados
 </footer>
 
 <!-- Control sidebar -->
@@ -14,7 +14,7 @@
     <div class="p-3 control-sidebar-content">
         <h5><i class="fas fa-cogs mr-2"></i>Personalizar Sistema</h5>
         <hr class="mb-2">
-        
+
         <!-- Configuración del Sistema -->
         <div class="mb-3">
             <h6><i class="fas fa-palette mr-1"></i>Tema General</h6>
@@ -45,7 +45,7 @@
             <h6><i class="fas fa-shoe-prints mr-1"></i>Opciones de Pie de Página</h6>
             <div class="mb-1"><input type="checkbox" id="footer-fixed" value="1" class="mr-1"><span style="cursor: pointer;">Fijo</span></div>
         </div>
-        
+
         <div class="mb-3">
             <h6><i class="fas fa-text-height mr-1"></i>Opciones de Texto Pequeño</h6>
             <div class="mb-1"><input type="checkbox" id="text-sm-body" value="1" class="mr-1"><span style="cursor: pointer;">Cuerpo</span></div>
@@ -83,97 +83,97 @@
             <h6><i class="fas fa-paint-brush mr-1"></i>Variantes de Color de Acento</h6>
             <select id="accent-variant-select" class="custom-select mb-3 border-0">
                 <option value="">Ninguna seleccionada</option>
-            <option value="primary" class="bg-primary">Primary</option>
-            <option value="warning" class="bg-warning">Warning</option>
-            <option value="info" class="bg-info">Info</option>
-            <option value="danger" class="bg-danger">Danger</option>
-            <option value="success" class="bg-success">Success</option>
-            <option value="indigo" class="bg-indigo">Indigo</option>
-            <option value="lightblue" class="bg-lightblue">Lightblue</option>
-            <option value="navy" class="bg-navy">Navy</option>
-            <option value="purple" class="bg-purple">Purple</option>
-            <option value="fuchsia" class="bg-fuchsia">Fuchsia</option>
-            <option value="pink" class="bg-pink">Pink</option>
-            <option value="maroon" class="bg-maroon">Maroon</option>
-            <option value="orange" class="bg-orange">Orange</option>
-            <option value="lime" class="bg-lime">Lime</option>
-            <option value="teal" class="bg-teal">Teal</option>
-            <option value="olive" class="bg-olive">Olive</option>
-        </select>
+                <option value="primary" class="bg-primary">Primary</option>
+                <option value="warning" class="bg-warning">Warning</option>
+                <option value="info" class="bg-info">Info</option>
+                <option value="danger" class="bg-danger">Danger</option>
+                <option value="success" class="bg-success">Success</option>
+                <option value="indigo" class="bg-indigo">Indigo</option>
+                <option value="lightblue" class="bg-lightblue">Lightblue</option>
+                <option value="navy" class="bg-navy">Navy</option>
+                <option value="purple" class="bg-purple">Purple</option>
+                <option value="fuchsia" class="bg-fuchsia">Fuchsia</option>
+                <option value="pink" class="bg-pink">Pink</option>
+                <option value="maroon" class="bg-maroon">Maroon</option>
+                <option value="orange" class="bg-orange">Orange</option>
+                <option value="lime" class="bg-lime">Lime</option>
+                <option value="teal" class="bg-teal">Teal</option>
+                <option value="olive" class="bg-olive">Olive</option>
+            </select>
         </div>
-        
+
         <div class="mb-3">
             <h6><i class="fas fa-moon mr-1"></i>Variantes Sidebar Oscuro</h6>
             <select id="dark-sidebar-variant-select" class="custom-select mb-3 text-light border-0 bg-primary">
                 <option value="">Ninguna seleccionada</option>
-            <option value="primary" class="bg-primary">Primary</option>
-            <option value="warning" class="bg-warning">Warning</option>
-            <option value="info" class="bg-info">Info</option>
-            <option value="danger" class="bg-danger">Danger</option>
-            <option value="success" class="bg-success">Success</option>
-            <option value="indigo" class="bg-indigo">Indigo</option>
-            <option value="lightblue" class="bg-lightblue">Lightblue</option>
-            <option value="navy" class="bg-navy">Navy</option>
-            <option value="purple" class="bg-purple">Purple</option>
-            <option value="fuchsia" class="bg-fuchsia">Fuchsia</option>
-            <option value="pink" class="bg-pink">Pink</option>
-            <option value="maroon" class="bg-maroon">Maroon</option>
-            <option value="orange" class="bg-orange">Orange</option>
-            <option value="lime" class="bg-lime">Lime</option>
-            <option value="teal" class="bg-teal">Teal</option>
-            <option value="olive" class="bg-olive">Olive</option>
-        </select>
+                <option value="primary" class="bg-primary">Primary</option>
+                <option value="warning" class="bg-warning">Warning</option>
+                <option value="info" class="bg-info">Info</option>
+                <option value="danger" class="bg-danger">Danger</option>
+                <option value="success" class="bg-success">Success</option>
+                <option value="indigo" class="bg-indigo">Indigo</option>
+                <option value="lightblue" class="bg-lightblue">Lightblue</option>
+                <option value="navy" class="bg-navy">Navy</option>
+                <option value="purple" class="bg-purple">Purple</option>
+                <option value="fuchsia" class="bg-fuchsia">Fuchsia</option>
+                <option value="pink" class="bg-pink">Pink</option>
+                <option value="maroon" class="bg-maroon">Maroon</option>
+                <option value="orange" class="bg-orange">Orange</option>
+                <option value="lime" class="bg-lime">Lime</option>
+                <option value="teal" class="bg-teal">Teal</option>
+                <option value="olive" class="bg-olive">Olive</option>
+            </select>
         </div>
-        
+
         <div class="mb-3">
             <h6><i class="fas fa-lightbulb mr-1"></i>Variantes Sidebar Claro</h6>
             <select id="light-sidebar-variant-select" class="custom-select mb-3 border-0">
                 <option value="">Ninguna seleccionada</option>
-            <option value="primary" class="bg-primary">Primary</option>
-            <option value="warning" class="bg-warning">Warning</option>
-            <option value="info" class="bg-info">Info</option>
-            <option value="danger" class="bg-danger">Danger</option>
-            <option value="success" class="bg-success">Success</option>
-            <option value="indigo" class="bg-indigo">Indigo</option>
-            <option value="lightblue" class="bg-lightblue">Lightblue</option>
-            <option value="navy" class="bg-navy">Navy</option>
-            <option value="purple" class="bg-purple">Purple</option>
-            <option value="fuchsia" class="bg-fuchsia">Fuchsia</option>
-            <option value="pink" class="bg-pink">Pink</option>
-            <option value="maroon" class="bg-maroon">Maroon</option>
-            <option value="orange" class="bg-orange">Orange</option>
-            <option value="lime" class="bg-lime">Lime</option>
-            <option value="teal" class="bg-teal">Teal</option>
-            <option value="olive" class="bg-olive">Olive</option>
-        </select>
+                <option value="primary" class="bg-primary">Primary</option>
+                <option value="warning" class="bg-warning">Warning</option>
+                <option value="info" class="bg-info">Info</option>
+                <option value="danger" class="bg-danger">Danger</option>
+                <option value="success" class="bg-success">Success</option>
+                <option value="indigo" class="bg-indigo">Indigo</option>
+                <option value="lightblue" class="bg-lightblue">Lightblue</option>
+                <option value="navy" class="bg-navy">Navy</option>
+                <option value="purple" class="bg-purple">Purple</option>
+                <option value="fuchsia" class="bg-fuchsia">Fuchsia</option>
+                <option value="pink" class="bg-pink">Pink</option>
+                <option value="maroon" class="bg-maroon">Maroon</option>
+                <option value="orange" class="bg-orange">Orange</option>
+                <option value="lime" class="bg-lime">Lime</option>
+                <option value="teal" class="bg-teal">Teal</option>
+                <option value="olive" class="bg-olive">Olive</option>
+            </select>
         </div>
-        
+
         <div class="mb-3">
             <h6><i class="fas fa-tags mr-1"></i>Variantes del Logo</h6>
             <select id="logo-variant-select" class="custom-select mb-3 border-0">
                 <option value="">Ninguna seleccionada</option>
-            <option value="primary" class="bg-primary">Primary</option>
-            <option value="secondary" class="bg-secondary">Secondary</option>
-            <option value="info" class="bg-info">Info</option>
-            <option value="success" class="bg-success">Success</option>
-            <option value="danger" class="bg-danger">Danger</option>
-            <option value="indigo" class="bg-indigo">Indigo</option>
-            <option value="purple" class="bg-purple">Purple</option>
-            <option value="pink" class="bg-pink">Pink</option>
-            <option value="navy" class="bg-navy">Navy</option>
-            <option value="lightblue" class="bg-lightblue">Lightblue</option>
-            <option value="teal" class="bg-teal">Teal</option>
-            <option value="cyan" class="bg-cyan">Cyan</option>
-            <option value="dark" class="bg-dark">Dark</option>
-            <option value="gray-dark" class="bg-gray-dark">Gray dark</option>
-            <option value="gray" class="bg-gray">Gray</option>
-            <option value="light" class="bg-light">Light</option>
-            <option value="warning" class="bg-warning">Warning</option>
-            <option value="white" class="bg-white">White</option>
-            <option value="orange" class="bg-orange">Orange</option>
-        </select>
+                <option value="primary" class="bg-primary">Primary</option>
+                <option value="secondary" class="bg-secondary">Secondary</option>
+                <option value="info" class="bg-info">Info</option>
+                <option value="success" class="bg-success">Success</option>
+                <option value="danger" class="bg-danger">Danger</option>
+                <option value="indigo" class="bg-indigo">Indigo</option>
+                <option value="purple" class="bg-purple">Purple</option>
+                <option value="pink" class="bg-pink">Pink</option>
+                <option value="navy" class="bg-navy">Navy</option>
+                <option value="lightblue" class="bg-lightblue">Lightblue</option>
+                <option value="teal" class="bg-teal">Teal</option>
+                <option value="cyan" class="bg-cyan">Cyan</option>
+                <option value="dark" class="bg-dark">Dark</option>
+                <option value="gray-dark" class="bg-gray-dark">Gray dark</option>
+                <option value="gray" class="bg-gray">Gray</option>
+                <option value="light" class="bg-light">Light</option>
+                <option value="warning" class="bg-warning">Warning</option>
+                <option value="white" class="bg-white">White</option>
+                <option value="orange" class="bg-orange">Orange</option>
+            </select>
         </div>
-        
+
         <!-- Botones de Control -->
         <div class="mb-3 text-center">
             <button type="button" class="btn btn-outline-warning btn-sm mr-2" id="reset-settings">
@@ -183,7 +183,7 @@
                 <i class="fas fa-save mr-1"></i>Guardar
             </button>
         </div>
-        
+
         <div class="text-center">
             <small class="text-muted">
                 <i class="fas fa-info-circle mr-1"></i>
@@ -211,47 +211,47 @@
         transition: right 0.3s ease-in-out;
         z-index: 1031;
     }
-    
+
     /* Cuando está abierto */
     .control-sidebar-slide-open .control-sidebar.control-sidebar-dark {
         right: 0;
     }
-    
+
     /* Mejoras específicas para el scrollbar del control-sidebar */
     .control-sidebar.control-sidebar-dark::-webkit-scrollbar {
         width: 6px;
     }
-    
+
     .control-sidebar.control-sidebar-dark::-webkit-scrollbar-track {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
     }
-    
+
     .control-sidebar.control-sidebar-dark::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.3);
+        background: rgba(255, 255, 255, 0.3);
         border-radius: 3px;
     }
-    
+
     .control-sidebar.control-sidebar-dark::-webkit-scrollbar-thumb:hover {
-        background: rgba(255,255,255,0.5);
+        background: rgba(255, 255, 255, 0.5);
     }
-    
+
     /* Contenido del control-sidebar con padding adecuado */
     .control-sidebar .control-sidebar-content {
         min-height: calc(100vh - 20px);
         padding: 15px;
         box-sizing: border-box;
     }
-    
+
     /* Estilos específicos para headers dentro del control-sidebar */
     .control-sidebar .control-sidebar-content h5 {
         color: #ffffff;
         font-weight: 600;
         margin-bottom: 15px;
         font-size: 1.1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         padding-bottom: 10px;
     }
-    
+
     .control-sidebar .control-sidebar-content h6 {
         color: #ffc107;
         font-weight: 600;
@@ -259,33 +259,33 @@
         margin-top: 5px;
         font-size: 0.875rem;
     }
-    
+
     /* Estilos específicos para botones dentro del control-sidebar */
     .control-sidebar .control-sidebar-content .btn {
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         border-width: 1px;
         font-size: 0.8rem;
     }
-    
+
     /* Espaciado para las secciones */
     .control-sidebar .control-sidebar-content .mb-3 {
         margin-bottom: 1.5rem;
     }
-    
+
     /* Estilo para los select dentro del control-sidebar */
     .control-sidebar .control-sidebar-content .custom-select {
         font-size: 0.85rem;
         padding: 0.375rem 0.75rem;
     }
-    
+
     /* Estilo para checkboxes */
     .control-sidebar .control-sidebar-content input[type="checkbox"] {
         margin-right: 8px;
     }
-    
+
     .control-sidebar .control-sidebar-content span {
         font-size: 0.85rem;
-        color: rgba(255,255,255,0.9);
+        color: rgba(255, 255, 255, 0.9);
     }
 </style>
 
@@ -591,17 +591,17 @@
                     if (confirm('¿Estás seguro de que deseas restablecer todas las configuraciones?')) {
                         // Limpiar localStorage
                         localStorage.clear();
-                        
+
                         // Restablecer checkboxes
                         document.querySelectorAll('.control-sidebar input[type="checkbox"]').forEach(checkbox => {
                             checkbox.checked = checkbox.id === 'sidebar-mini' ? true : false;
                         });
-                        
+
                         // Restablecer selects
                         document.querySelectorAll('.control-sidebar select').forEach(select => {
                             select.selectedIndex = 0;
                         });
-                        
+
                         // Recargar configuraciones por defecto
                         location.reload();
                     }
@@ -615,7 +615,7 @@
                     this.innerHTML = '<i class="fas fa-check mr-1"></i>Guardado';
                     this.classList.remove('btn-outline-info');
                     this.classList.add('btn-success');
-                    
+
                     setTimeout(() => {
                         this.innerHTML = originalText;
                         this.classList.remove('btn-success');
@@ -634,22 +634,22 @@
 </script>
 
 <!-- Bootstrap 4 -->
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/dist/js/adminlte.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/dist/js/adminlte.min.js"></script>
 <!-- DataTables  & Plugins -->
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/jszip/jszip.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="<?php echo $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/jszip/jszip.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 
 </body>
 

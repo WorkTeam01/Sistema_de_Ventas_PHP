@@ -14,10 +14,22 @@ $precio_compra = $_POST['precio_compra'];
 $precio_venta = $_POST['precio_venta'];
 $fecha_ingreso = $_POST['fecha_ingreso'];
 
-$image = $_POST['image'];
+$extensiones_permitidas = ['jpg', 'jpeg', 'png', 'webp'];
+$mimes_permitidos = ['image/jpeg', 'image/png', 'image/webp'];
+$extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+$mime_real = mime_content_type($_FILES['image']['tmp_name']);
+$tamanio_max = 2 * 1024 * 1024;
+
+if (!in_array($extension, $extensiones_permitidas) || !in_array($mime_real, $mimes_permitidos) || $_FILES['image']['size'] > $tamanio_max) {
+    session_start();
+    $_SESSION['mensaje'] = 'Imagen no válida. Solo se permiten JPG, PNG o WEBP de hasta 2MB.';
+    $_SESSION['icono'] = 'error';
+    header('Location: ' . $URL . '/almacen/create.php');
+    exit();
+}
 
 $nombreDelArchivo = date("Y-m-d-h-i-s");
-$filename = $nombreDelArchivo . "__" . $_FILES['image']['name'];
+$filename = $nombreDelArchivo . "__" . $extension;
 $location = "../../../almacen/img_productos/" . $filename;
 
 move_uploaded_file($_FILES['image']['tmp_name'], $location);

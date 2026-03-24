@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `tb_almacen` (
   `precio_compra` DECIMAL(10,2) NOT NULL,
   `precio_venta` DECIMAL(10,2) NOT NULL,
   `fecha_ingreso` date NOT NULL,
-  `imagen` text DEFAULT NULL,
+  `imagen` text NOT NULL DEFAULT 'producto_default.png',
   `id_usuario` int(11) NOT NULL,
   `id_categoria` int(11) NOT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

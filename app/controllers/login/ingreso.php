@@ -6,9 +6,9 @@ $email = $_POST['email'];
 $password_user = $_POST['password_user'];
 
 $contador = 0;
-$sql = "SELECT * FROM tb_usuarios WHERE email = '$email'";
+$sql = "SELECT * FROM tb_usuarios WHERE email = ?";
 $query = $pdo->prepare($sql);
-$query->execute();
+$query->execute([$email]);
 
 $usuarios = $query->fetchAll(PDO::FETCH_ASSOC);
 

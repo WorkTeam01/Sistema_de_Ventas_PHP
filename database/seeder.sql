@@ -56,12 +56,12 @@ INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `password_user`, `t
 -- -------------------------------------------------------------
 -- tb_almacen (depende de tb_usuarios y tb_categorias)
 -- -------------------------------------------------------------
-INSERT INTO `tb_almacen` (`id_producto`, `codigo`, `nombre`, `descripcion`, `stock`, `stock_minimo`, `stock_maximo`, `precio_compra`, `precio_venta`, `fecha_ingreso`, `imagen`, `id_usuario`, `id_categoria`) VALUES
-(1, 'ELEC-001', 'Laptop HP 15"', 'Laptop HP 15 pulgadas, 8GB RAM, 256GB SSD', 10, 2, 20, 2500.00, 3200.00, '2026-01-10', NULL, 1, 1),
-(2, 'ELEC-002', 'Mouse Inalámbrico', 'Mouse inalámbrico USB 2.4GHz', 50, 10, 100, 25.00, 45.00, '2026-01-10', NULL, 1, 1),
-(3, 'ALIM-001', 'Arroz Premium 5kg', 'Arroz grano largo premium', 100, 20, 200, 30.00, 45.00, '2026-01-15', NULL, 1, 2),
-(4, 'ROPA-001', 'Camiseta Polo', 'Camiseta polo talla M, algodón 100%', 30, 5, 60, 50.00, 85.00, '2026-01-20', NULL, 1, 3),
-(5, 'HERR-001', 'Destornillador Set', 'Set de 6 destornilladores planos y estrella', 25, 5, 50, 35.00, 60.00, '2026-02-01', NULL, 1, 4);
+INSERT INTO `tb_almacen` (`id_producto`, `codigo`, `nombre`, `descripcion`, `stock`, `stock_minimo`, `stock_maximo`, `precio_compra`, `precio_venta`, `fecha_ingreso`, `id_usuario`, `id_categoria`) VALUES
+(1, 'ELEC-001', 'Laptop HP 15"', 'Laptop HP 15 pulgadas, 8GB RAM, 256GB SSD', 10, 2, 20, 2500.00, 3200.00, '2026-01-10', 1, 1),
+(2, 'ELEC-002', 'Mouse Inalámbrico', 'Mouse inalámbrico USB 2.4GHz', 50, 10, 100, 25.00, 45.00, '2026-01-10', 1, 1),
+(3, 'ALIM-001', 'Arroz Premium 5kg', 'Arroz grano largo premium', 100, 20, 200, 30.00, 45.00, '2026-01-15', 1, 2),
+(4, 'ROPA-001', 'Camiseta Polo', 'Camiseta polo talla M, algodón 100%', 30, 5, 60, 50.00, 85.00, '2026-01-20', 1, 3),
+(5, 'HERR-001', 'Destornillador Set', 'Set de 6 destornilladores planos y estrella', 25, 5, 50, 35.00, 60.00, '2026-02-01', 1, 4);
 
 -- -------------------------------------------------------------
 -- tb_carrito (depende de tb_almacen)

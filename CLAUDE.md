@@ -113,7 +113,17 @@ Cada página incluye plantillas compartidas:
 
 ### Acceso a Base de Datos
 
-La conexión PDO se inicializa en `app/config.php` y está disponible como `$pdo`. Todas las consultas deben usar **sentencias preparadas** con `bindParam`/`execute` o marcadores `?`.
+La conexión PDO se inicializa en `app/config.php` y está disponible como `$pdo`. Todas las consultas deben usar **sentencias preparadas** con placeholders `?` — nunca interpolar variables directamente en el string SQL:
+
+```php
+// CORRECTO
+$query = $pdo->prepare("SELECT * FROM tb_usuarios WHERE email = ?");
+$query->execute([$email]);
+
+// INCORRECTO — vulnerable a SQL injection
+$query = $pdo->prepare("SELECT * FROM tb_usuarios WHERE email = '$email'");
+$query->execute();
+```
 
 ### Generación de PDF
 
@@ -158,6 +168,13 @@ Convenciones de columnas de auditoría:
 - `fyh_creacion` — `DEFAULT CURRENT_TIMESTAMP`; no insertar manualmente en los controllers
 - `fyh_actualizacion` — queda `NULL` al crear; se actualiza sola con `ON UPDATE CURRENT_TIMESTAMP`
 - Los precios se almacenan como `DECIMAL(10,2)`, no como VARCHAR
+
+## Convenciones de Seguridad
+
+- **SQL**: Siempre usar placeholders `?` con `execute([$var])`. Nunca interpolar variables en el string SQL.
+- **Subida de archivos**: Validar extensión (whitelist: jpg, jpeg, png, webp), MIME type real con `mime_content_type()` y tamaño máximo (2MB) antes de `move_uploaded_file()`.
+- **JavaScript**: Usar `json_encode()` para pasar strings PHP a variables JS — nunca interpolación directa con comillas simples.
+- **Output HTML**: Usar `htmlspecialchars()` al mostrar datos de usuario en HTML para prevenir XSS.
 
 ## Convenciones de Frontend
 
