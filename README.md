@@ -4,6 +4,7 @@
 
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
+![Versión](https://img.shields.io/badge/Versión-v1.0.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -24,6 +25,7 @@ Este proyecto, a pesar de su estructura procedural clásica, ha sido refactoriza
 - **Integridad Transaccional**: Operaciones de control de inventario/ventas están bajo control transaccional estricto (`PDO::beginTransaction()` / `commit` / `rollBack`), garantizando un stock 100% consistente ante fallas.
 - **Validaciones Back-End**: Todo envío por _POST_ recibe depuración estricta en el servidor para forzar cast a valores numéricos, tipados seguros y sanitización antes del contacto con la BDD.
 - **Encriptado Seguro**: Uso de API moderna de Hashes de contraseñas de PHP (`PASSWORD_DEFAULT` / BCRYPT).
+- **Optimizaciones de UI**: Control Sidebar de AdminLTE implementado de forma 100% nativa con un script dedicado, integrando persistencia automatizada en `localStorage` y mecanismos Anti-FOUC para prevenir "flashes" blancos al navegar con la temática oscura.
 
 ---
 

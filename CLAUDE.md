@@ -179,7 +179,8 @@ Convenciones de columnas de auditoría:
 ## Convenciones de Frontend
 
 - **DataTables** se inicializa en cada página de listado para búsqueda, ordenamiento y exportación (PDF/Excel/CSV/Imprimir)
-- **SweetAlert2** se usa para todas las confirmaciones de eliminación y alertas de éxito/error
+- **SweetAlert2** se usa para todas las confirmaciones de eliminación y alertas de éxito/error (Toast mixin para notificaciones globales)
+- **Control Sidebar:** La lógica de tema y colores usa `public/js/control_sidebar.js` (basado en API nativa de AdminLTE). Las selecciones se guardan en `localStorage` y se aplica un script Anti-FOUC directamente en `layout/parte1.php`.
 - **jQuery** es requerido y se carga vía la plantilla AdminLTE
 - CSS personalizado en [public/css/](public/css/), JS personalizado en [public/js/](public/js/)
 - Assets de AdminLTE servidos desde [public/templates/](public/templates/) — no modificar estos archivos
