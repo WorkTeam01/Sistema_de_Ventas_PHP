@@ -69,17 +69,17 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                         ?>
                                             <tr>
                                                 <td class="text-center"><?php echo $contador += 1; ?></td>
-                                                <td><?php echo $nombre_proveedor; ?></td>
+                                                <td><?php echo htmlspecialchars($nombre_proveedor, ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td class="text-center">
-                                                    <a href="http://wa.me/591<?php echo $celular; ?>" target="_blank" class="btn btn-success btn-sm">
+                                                    <a href="http://wa.me/591<?php echo htmlspecialchars($celular, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-success btn-sm">
                                                         <i class="fas fa-phone-alt"></i>
-                                                        <?php echo $celular; ?>
+                                                        <?php echo htmlspecialchars($celular, ENT_QUOTES, 'UTF-8'); ?>
                                                     </a>
                                                 </td>
-                                                <td><?php echo $telefono; ?></td>
-                                                <td><?php echo $empresa; ?></td>
-                                                <td><?php echo $email; ?></td>
-                                                <td><?php echo $direccion; ?></td>
+                                                <td><?php echo htmlspecialchars($telefono, ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars($empresa, ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars($direccion, ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td>
                                                     <div class="text-center">
                                                         <div class="btn-group">
@@ -107,14 +107,14 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="nombre_proveedor">Nombre del proveedor</label>
-                                                                                <input type="text" id="nombre_proveedor<?php echo $id_proveedor; ?>" value="<?php echo $nombre_proveedor; ?>" name="nombre_proveedor" class="form-control">
+                                                                                <input type="text" id="nombre_proveedor<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($nombre_proveedor, ENT_QUOTES, 'UTF-8'); ?>" name="nombre_proveedor" class="form-control">
                                                                                 <small class="text-danger d-none" id="lbl_nombre<?php echo $id_proveedor; ?>">* Este campo es requerido</small>
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="celular">Celular</label>
-                                                                                <input type="number" id="celular<?php echo $id_proveedor; ?>" value="<?php echo $celular; ?>" name="celular" class="form-control">
+                                                                                <input type="number" id="celular<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($celular, ENT_QUOTES, 'UTF-8'); ?>" name="celular" class="form-control">
                                                                                 <small class="text-danger d-none" id="lbl_celular<?php echo $id_proveedor; ?>">* Este campo es requerido</small>
                                                                             </div>
                                                                         </div>
@@ -123,13 +123,13 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="telefono">Telefono</label>
-                                                                                <input type="number" id="telefono<?php echo $id_proveedor; ?>" value="<?php echo $telefono; ?>" name="telefono" class="form-control">
+                                                                                <input type="number" id="telefono<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($telefono, ENT_QUOTES, 'UTF-8'); ?>" name="telefono" class="form-control">
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="empresa">Empresa</label>
-                                                                                <input type="text" id="empresa<?php echo $id_proveedor; ?>" value="<?php echo $empresa; ?>" name="empresa" class="form-control">
+                                                                                <input type="text" id="empresa<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($empresa, ENT_QUOTES, 'UTF-8'); ?>" name="empresa" class="form-control">
                                                                                 <small class="text-danger d-none" id="lbl_empresa<?php echo $id_proveedor; ?>">* Este campo es requerido</small>
                                                                             </div>
                                                                         </div>
@@ -138,14 +138,14 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="email">Email</label>
-                                                                                <input type="text" id="email<?php echo $id_proveedor; ?>" value="<?php echo $email; ?>" name="email" class="form-control">
+                                                                                <input type="text" id="email<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" name="email" class="form-control">
                                                                                 <small class="text-danger d-none" id="lbl_email<?php echo $id_proveedor; ?>">* Este campo es requerido</small>
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="direccion">Dirección</label>
-                                                                                <textarea type="text" rows="3" id="direccion<?php echo $id_proveedor; ?>" name="direccion" class="form-control"><?php echo $direccion; ?></textarea>
+                                                                                <textarea type="text" rows="3" id="direccion<?php echo $id_proveedor; ?>" name="direccion" class="form-control"><?php echo htmlspecialchars($direccion, ENT_QUOTES, 'UTF-8'); ?></textarea>
                                                                                 <small class="text-danger d-none" id="lbl_direccion<?php echo $id_proveedor; ?>">* Este campo es requerido</small>
                                                                             </div>
                                                                         </div>
@@ -228,13 +228,13 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="nombre_proveedor">Nombre del proveedor</label>
-                                                                                <input type="text" id="nombre_proveedor<?php echo $id_proveedor; ?>" value="<?php echo $nombre_proveedor; ?>" name="nombre_proveedor" class="form-control" disabled>
+                                                                                <input type="text" id="nombre_proveedor<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($nombre_proveedor, ENT_QUOTES, 'UTF-8'); ?>" name="nombre_proveedor" class="form-control" disabled>
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="celular">Celular</label>
-                                                                                <input type="number" id="celular<?php echo $id_proveedor; ?>" value="<?php echo $celular; ?>" name="celular" class="form-control" disabled>
+                                                                                <input type="number" id="celular<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($celular, ENT_QUOTES, 'UTF-8'); ?>" name="celular" class="form-control" disabled>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -242,13 +242,13 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="telefono">Telefono</label>
-                                                                                <input type="number" id="telefono<?php echo $id_proveedor; ?>" value="<?php echo $telefono; ?>" name="telefono" class="form-control" disabled>
+                                                                                <input type="number" id="telefono<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($telefono, ENT_QUOTES, 'UTF-8'); ?>" name="telefono" class="form-control" disabled>
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="empresa">Empresa</label>
-                                                                                <input type="text" id="empresa<?php echo $id_proveedor; ?>" value="<?php echo $empresa; ?>" name="empresa" class="form-control" disabled>
+                                                                                <input type="text" id="empresa<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($empresa, ENT_QUOTES, 'UTF-8'); ?>" name="empresa" class="form-control" disabled>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -256,7 +256,7 @@ include_once '../app/controllers/proveedores/listado_de_proveedores.php';
                                                                         <div class="col-md-6">
                                                                             <div class="form-group">
                                                                                 <label for="email">Email</label>
-                                                                                <input type="text" id="email<?php echo $id_proveedor; ?>" value="<?php echo $email; ?>" name="email" class="form-control" disabled>
+                                                                                <input type="text" id="email<?php echo $id_proveedor; ?>" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" name="email" class="form-control" disabled>
                                                                             </div>
                                                                         </div>
                                                                         <div class="col-md-6">

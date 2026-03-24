@@ -50,8 +50,8 @@ include_once '../app/controllers/almacen/cargar_producto.php';
                                                     <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label>Código</label>
-                                                            <input type="text" value="<?php echo $codigo; ?>" class="form-control" disabled>
-                                                            <input type="text" name="codigo" value="<?php echo $codigo; ?>" class="form-control" hidden>
+                                                            <input type="text" value="<?php echo htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                                            <input type="text" name="codigo" value="<?php echo htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -63,7 +63,7 @@ include_once '../app/controllers/almacen/cargar_producto.php';
                                                                     $id_categoria = $categorias_dato['id_categoria'];
                                                                 ?>
                                                                     <option value="<?php echo $id_categoria; ?>" <?php if ($nombre_categoria_tabla == $categoria) { ?> selected="selected" <?php } ?>>
-                                                                        <?php echo $nombre_categoria_tabla; ?>
+                                                                        <?php echo htmlspecialchars($nombre_categoria_tabla, ENT_QUOTES, 'UTF-8'); ?>
                                                                     </option>
                                                                 <?php } ?>
                                                             </select>
@@ -71,20 +71,20 @@ include_once '../app/controllers/almacen/cargar_producto.php';
                                                     </div>
                                                     <div class="col-md-4">
                                                         <label>Nombre del producto</label>
-                                                        <input type="text" name="nombre" value="<?php echo $nombre; ?>" class="form-control" required>
+                                                        <input type="text" name="nombre" value="<?php echo htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" required>
                                                     </div>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label>Usuario</label>
-                                                            <input type="text" value="<?php echo $usuario; ?>" class="form-control" disabled>
+                                                            <input type="text" value="<?php echo htmlspecialchars($usuario, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
                                                             <input type="text" name="id_usuario" value="<?php echo $id_usuario ?>" class="form-control" hidden>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-8">
                                                         <label>Descripción del producto</label>
-                                                        <textarea type="text" rows="2" name="descripcion" class="form-control"><?php echo $descripcion; ?></textarea>
+                                                        <textarea type="text" rows="2" name="descripcion" class="form-control"><?php echo htmlspecialchars($descripcion, ENT_QUOTES, 'UTF-8'); ?></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="row">

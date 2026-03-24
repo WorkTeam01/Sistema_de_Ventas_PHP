@@ -61,11 +61,11 @@ include_once '../app/controllers/roles/listado_de_roles.php';
                                         </div>
                                         <div class="form-group">
                                             <label for="">Contraseña</label>
-                                            <input type="text" name="password_user" class="form-control" placeholder="Ingrese la contraseña del usuario" required>
+                                            <input type="password" name="password_user" class="form-control" placeholder="Ingrese la contraseña del usuario" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="">Repita la contraseña</label>
-                                            <input type="text" name="password_repeat" class="form-control" placeholder="Vuelva a ingresar la contraseña" required>
+                                            <input type="password" name="password_repeat" class="form-control" placeholder="Vuelva a ingresar la contraseña" required>
                                         </div>
                                         <hr>
                                         <div class="form-group">

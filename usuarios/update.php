@@ -48,11 +48,11 @@ include_once '../app/controllers/roles/listado_de_roles.php';
                                         <input type="text" name="id_usuario" class="form-control" value="<?php echo $id_usuario_get; ?>" hidden>
                                         <div class="form-group">
                                             <label for="">Nombres</label>
-                                            <input type="text" name="nombres" class="form-control" value="<?php echo $nombres; ?>" required>
+                                            <input type="text" name="nombres" class="form-control" value="<?php echo htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="">Email</label>
-                                            <input type="email" name="email" class="form-control" value="<?php echo $email; ?>" required>
+                                            <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="">Rol</label>
@@ -68,11 +68,11 @@ include_once '../app/controllers/roles/listado_de_roles.php';
                                         </div>
                                         <div class="form-group">
                                             <label for="">Contraseña</label>
-                                            <input type="text" name="password_user" class="form-control">
+                                            <input type="password" name="password_user" class="form-control">
                                         </div>
                                         <div class="form-group">
                                             <label for="">Repita la contraseña</label>
-                                            <input type="text" name="password_repeat" class="form-control">
+                                            <input type="password" name="password_repeat" class="form-control">
                                         </div>
                                         <hr>
                                         <div class="form-group">

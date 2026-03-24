@@ -153,7 +153,7 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
                                                 <td class="text-center">
                                                     <!-- Button trigger modal -->
                                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Modal-cliente<?php echo $id_venta; ?>">
-                                                        <i class="fas fa-user"></i> <?php echo $ventas_dato['nombre_cliente']; ?>
+                                                        <i class="fas fa-user"></i> <?php echo htmlspecialchars($ventas_dato['nombre_cliente'], ENT_QUOTES, 'UTF-8'); ?>
                                                     </button>
 
                                                     <!-- Modal -->
@@ -180,19 +180,19 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
                                                                 <div class="modal-body">
                                                                     <div class="form-group">
                                                                         <label>Nombre del cliente</label>
-                                                                        <input type="text" class="form-control" value="<?php echo $clientes_dato['nombre_cliente']; ?>" disabled>
+                                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($clientes_dato['nombre_cliente'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label>Nit/CI del cliente</label>
-                                                                        <input type="text" class="form-control text-center" value="<?php echo $clientes_dato['nit_ci_cliente']; ?>" disabled>
+                                                                        <input type="text" class="form-control text-center" value="<?php echo htmlspecialchars($clientes_dato['nit_ci_cliente'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label>Celular del cliente</label>
-                                                                        <input type="text" class="form-control text-center" value="<?php echo $clientes_dato['celular_cliente']; ?>" disabled>
+                                                                        <input type="text" class="form-control text-center" value="<?php echo htmlspecialchars($clientes_dato['celular_cliente'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                     </div>
                                                                     <div class="form-group">
                                                                         <label>Correo del cliente</label>
-                                                                        <input type="email" class="form-control" value="<?php echo $clientes_dato['email_cliente']; ?>" disabled>
+                                                                        <input type="email" class="form-control" value="<?php echo htmlspecialchars($clientes_dato['email_cliente'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                     </div>
                                                                     <hr>
                                                                 </div>
@@ -209,7 +209,7 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
                                                 <td class="text-center">
                                                     <div class="btn-group">
                                                         <a href="show.php?id=<?php echo $id_venta; ?>" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
-                                                        <a href="delete.php?id=<?php echo $id_venta; ?>&nro_venta=<?php echo $nro_venta; ?>" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</a>
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('delete.php?id=<?php echo (int)$id_venta; ?>&nro_venta=<?php echo (int)$nro_venta; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
                                                         <a href="factura.php?id=<?php echo $id_venta; ?>&nro_venta=<?php echo $nro_venta; ?>" class="btn btn-success btn-sm"><i class="fas fa-print"></i> Imprimir</a>
                                                     </div>
                                                 </td>
@@ -290,4 +290,21 @@ include_once '../app/controllers/ventas/listado_de_ventas.php';
 
         }
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    function confirmarEliminar(url) {
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: 'No podrá recuperar este registro.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
 </script>

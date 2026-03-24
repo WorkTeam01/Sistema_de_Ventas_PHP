@@ -61,7 +61,7 @@ include_once '../app/controllers/usuarios/listado_de_usuarios.php';
                                                     <div class="btn-group">
                                                         <a href="show.php?id=<?php echo $id_usuario; ?>" type="button" class="btn btn-info"><i class="fas fa-eye"></i> Ver</a>
                                                         <a href="update.php?id=<?php echo $id_usuario; ?>" type="button" class="btn btn-success"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                        <a href="delete.php?id=<?php echo $id_usuario; ?>" type="button" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</a>
+                                                        <button type="button" class="btn btn-danger" onclick="confirmarEliminar('delete.php?id=<?php echo (int)$id_usuario; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -142,4 +142,21 @@ include_once '../app/controllers/usuarios/listado_de_usuarios.php';
 
         }
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    function confirmarEliminar(url) {
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: 'No podrá recuperar este registro.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
 </script>

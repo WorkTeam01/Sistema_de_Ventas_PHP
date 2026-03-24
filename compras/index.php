@@ -87,19 +87,19 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                                 <div class="col-md-2">
                                                                                     <div class="form-group">
                                                                                         <label>Código</label>
-                                                                                        <input type="text" value="<?php echo $compra_dato['codigo']; ?>" class="form-control" disabled>
+                                                                                        <input type="text" value="<?php echo htmlspecialchars($compra_dato['codigo'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-4">
                                                                                     <div class="form-group">
                                                                                         <label>Nombre</label>
-                                                                                        <input type="text" value="<?php echo $compra_dato['nombre']; ?>" class="form-control" disabled>
+                                                                                        <input type="text" value="<?php echo htmlspecialchars($compra_dato['nombre'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-6">
                                                                                     <div class="form-group">
                                                                                         <label>Descripción</label>
-                                                                                        <textarea rows="3" class="form-control" disabled><?php echo $compra_dato['descripcion']; ?></textarea>
+                                                                                        <textarea rows="3" class="form-control" disabled><?php echo htmlspecialchars($compra_dato['descripcion'], ENT_QUOTES, 'UTF-8'); ?></textarea>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -145,13 +145,13 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                                 <div class="col-md-3">
                                                                                     <div class="form-group">
                                                                                         <label>Categoría</label>
-                                                                                        <input type="text" value="<?php echo $compra_dato['nombre_categoria']; ?>" class="form-control" disabled>
+                                                                                        <input type="text" value="<?php echo htmlspecialchars($compra_dato['nombre_categoria'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-3">
                                                                                     <div class="form-group">
                                                                                         <label>Usuario</label>
-                                                                                        <input type="text" value="<?php echo $compra_dato['nombres']; ?>" class="form-control" disabled>
+                                                                                        <input type="text" value="<?php echo htmlspecialchars($compra_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -175,7 +175,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                 <td>
                                                     <div class="text-center">
                                                         <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modal-proveedor<?php echo $id_compra; ?>">
-                                                            <?php echo $compra_dato['nombre_proveedor']; ?>
+                                                            <?php echo htmlspecialchars($compra_dato['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?>
                                                         </button>
                                                     </div>
                                                     <!-- Modal datos de proveedor -->
@@ -195,16 +195,16 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                                 <div class="col-md-6">
                                                                                     <div class="form-group">
                                                                                         <label for="codigo">Nombres del proveedor</label>
-                                                                                        <input type="text" value="<?php echo $compra_dato['nombre_proveedor']; ?>" class="form-control" disabled>
+                                                                                        <input type="text" value="<?php echo htmlspecialchars($compra_dato['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-6">
                                                                                     <div class="form-group">
                                                                                         <label for="nombre">Celular del proveedor</label>
                                                                                         <div class="text-center">
-                                                                                            <a href="http://wa.me/591<?php echo $compra_dato['celular']; ?>" target="_blank" class="btn btn-success">
+                                                                                            <a href="http://wa.me/591<?php echo htmlspecialchars($compra_dato['celular'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-success">
                                                                                                 <i class="fas fa-phone-alt"></i>
-                                                                                                <?php echo $compra_dato['celular']; ?>
+                                                                                                <?php echo htmlspecialchars($compra_dato['celular'], ENT_QUOTES, 'UTF-8'); ?>
                                                                                             </a>
                                                                                         </div>
                                                                                     </div>
@@ -214,13 +214,13 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                                 <div class="col-md-6">
                                                                                     <div class="form-group">
                                                                                         <label for="descripcion">Empresa del proveedor</label>
-                                                                                        <input type="text" class="form-control" value="<?php echo $compra_dato['empresa']; ?>" disabled>
+                                                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($compra_dato['empresa'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-6">
                                                                                     <div class="form-group">
                                                                                         <label for="descripcion">Telefono del proveedor</label>
-                                                                                        <input type="text" class="form-control" value="<?php echo $compra_dato['telefono']; ?>" disabled>
+                                                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($compra_dato['telefono'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -228,13 +228,13 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                                 <div class="col-md-6">
                                                                                     <div class="form-group">
                                                                                         <label for="descripcion">Email del proveedor</label>
-                                                                                        <input type="text" class="form-control" value="<?php echo $compra_dato['email']; ?>" disabled>
+                                                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($compra_dato['email'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div class="col-md-6">
                                                                                     <div class="form-group">
                                                                                         <label for="descripcion">Dirección del proveedor</label>
-                                                                                        <input type="text" class="form-control" value="<?php echo $compra_dato['direccion']; ?>" disabled>
+                                                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($compra_dato['direccion'], ENT_QUOTES, 'UTF-8'); ?>" disabled>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -256,7 +256,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                     <div class="btn-group">
                                                         <a href="show.php?id=<?php echo $id_compra; ?>" type="button" class="btn btn-info"><i class="fas fa-eye"></i> Ver</a>
                                                         <a href="update.php?id=<?php echo $id_compra; ?>" type="button" class="btn btn-success"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                        <a href="delete.php?id=<?php echo $id_compra; ?>" type="button" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</a>
+                                                        <button type="button" class="btn btn-danger" onclick="confirmarEliminar('delete.php?id=<?php echo (int)$id_compra; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -276,6 +276,25 @@ include_once '../app/controllers/compras/listado_de_compras.php';
 
 <?php include_once '../layout/mensajes.php'; ?>
 <?php include_once '../layout/parte2.php'; ?>
+
+<script>
+    function confirmarEliminar(url) {
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: 'No podrá recuperar este registro.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+</script>
 
 <!-- Page specific script -->
 <script>

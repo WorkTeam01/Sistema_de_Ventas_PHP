@@ -64,13 +64,13 @@ include_once '../app/controllers/almacen/listado_de_productos.php';
                                         ?>
                                             <tr>
                                                 <td class="text-center"><?php echo $contador += 1; ?></td>
-                                                <td><?php echo $producto_dato['codigo']; ?></td>
-                                                <td><?php echo $producto_dato['nombre_categoria']; ?></td>
-                                                <td><?php echo $producto_dato['nombre']; ?></td>
+                                                <td><?php echo htmlspecialchars($producto_dato['codigo'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars($producto_dato['nombre_categoria'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars($producto_dato['nombre'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td>
-                                                    <img class="rounded mx-auto d-block" src="<?php echo $URL . "/almacen/img_productos/" . $producto_dato['imagen']; ?>" width="80" alt="">
+                                                    <img class="rounded mx-auto d-block" src="<?php echo $URL . "/almacen/img_productos/" . htmlspecialchars($producto_dato['imagen'], ENT_QUOTES, 'UTF-8'); ?>" width="80" alt="">
                                                 </td>
-                                                <td><?php echo $producto_dato['descripcion']; ?></td>
+                                                <td><?php echo htmlspecialchars($producto_dato['descripcion'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <?php
                                                 $stock_actual = $producto_dato['stock'];
                                                 $stock_minimo = $producto_dato['stock_minimo'];
@@ -88,12 +88,12 @@ include_once '../app/controllers/almacen/listado_de_productos.php';
                                                 <td><?php echo $producto_dato['precio_compra']; ?></td>
                                                 <td><?php echo $producto_dato['precio_venta']; ?></td>
                                                 <td class="text-center"><?php echo $producto_dato['fecha_ingreso']; ?></td>
-                                                <td><?php echo $producto_dato['email']; ?></td>
+                                                <td><?php echo htmlspecialchars($producto_dato['email'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td class="text-center">
                                                     <div class="btn-group">
                                                         <a href="show.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
                                                         <a href="update.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                        <a href="delete.php?id=<?php echo $id_producto; ?>" type="button" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Eliminar</a>
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('delete.php?id=<?php echo (int)$id_producto; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -173,4 +173,21 @@ include_once '../app/controllers/almacen/listado_de_productos.php';
 
         }
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+    function confirmarEliminar(url) {
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: 'No podrá recuperar este registro.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
 </script>
