@@ -10,14 +10,18 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 ## [Unreleased]
 
 ### Agregado
+
 - Composer con PSR-4 autoloading y `vlucas/phpdotenv ^5.6`
 - Credenciales movidas a `.env` (fuera del control de versiones); `.env.example` como plantilla
 - Clases Core MVC: `App\Core\Database` (singleton PDO), `App\Core\Router`, `App\Core\Controller`, `App\Core\Model` (base abstracta), `App\Core\Config` (wrapper .env), `App\Core\Middleware` (base abstracta)
+- Modelo `App\Models\User` (hereda de `App\Core\Model`) con métodos específicos `findByEmail()` y `verifyCredentials()` para autenticación
 - Entry point `public/index.php` con Router; `.htaccess` en raíz para soporte de rutas
 - `App\Controllers\AuthController` consolida login y logout; directorio `auth/` reemplaza `login/`
 
 ### Cambiado
+
 - `app/config.php` migrado a Dotenv + `Database::getInstance()`; mantiene `$pdo`, `$URL`, `$Año`, `$fechaHora` para compatibilidad con módulos existentes
+- `App\Controllers\AuthController::store()` deja de consultar SQL directo y delega validación de credenciales en `App\Models\User`
 - `login/index.php` reemplazado por redirect a `/auth/` (backward compat)
 - Link de cierre de sesión apunta a `/auth/logout` en lugar del controlador directo
 - Redirecciones de sesión expirada apuntan a `/auth` en `sesion.php` y `AuthMiddleware`
@@ -25,6 +29,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 ## [1.0.0] - 2026-03-24
 
 ### Agregado
+
 - `database/schema.sql` con la estructura de todas las tablas
 - `database/seeder.sql` con datos iniciales para todas las tablas: roles, categorías, proveedores, clientes, usuarios, productos, compras y ventas de ejemplo
 - Usuarios de prueba: `admin@sistema.com` / `admin123`, `vendedor@sistema.com` / `vendedor123`, `comprador@sistema.com` / `comprador123`
@@ -35,6 +40,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - **Validación Fuerte del Servidor**: Filtros integrados (`is_numeric`, `filter_var`) en controladores críticos de usuarios, almacén y ventas.
 
 ### Cambiado
+
 - **Refactorización de Verbos HTTP**: Las mutaciones lógicas como la creación de ventas ahora requieren estrictamente `POST` mitigando vulnerabilidades.
 - **Transacciones PDO Íntegras**: El carrito y la cabecera de la venta se procesan bajo un único bloque `$pdo->beginTransaction()` garantizando consistencia del stock.
 - `fyh_creacion` ahora tiene `DEFAULT CURRENT_TIMESTAMP` en todas las tablas — ya no es necesario insertarla manualmente
@@ -48,6 +54,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - `app/config.php` excluido del repositorio vía `.gitignore`
 
 ### Corregido
+
 - Advertencias en consola del navegador reparadas al forzar `autocomplete="off"` en los formularios de `login/index.php`.
 - Estandarización de `layout/mensajes.php` para usar Toasts globales de SweetAlert2 en lugar del modal intrusivo.
 - Campos de contraseña corregidos de `type="text"` a `type="password"` en `usuarios/create.php` y `usuarios/update.php` — la contraseña ya no se muestra en texto plano

@@ -18,6 +18,7 @@ class Router
 
     public function dispatch(string $method, string $uri): void
     {
+        $uri = '/' . trim($uri, '/');
         $handler = $this->routes[$method][$uri] ?? null;
 
         if (!$handler) {

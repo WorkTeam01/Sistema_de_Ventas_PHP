@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
-use App\Core\Database;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -13,13 +13,14 @@ class AuthController extends Controller
             session_start();
         }
 
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        $URL = rtrim($_ENV['APP_URL'], '/');
+
+        if (isset($_SESSION['sesion_email'])) {
+            $this->redirect($URL . '/index.php');
         }
 
-        // Redirigir al dashboard si ya hay sesión activa
-        if (isset($_SESSION['sesion_email'])) {
-            $this->redirect(rtrim($_ENV['APP_URL'], '/') . '/index.php');
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
         $respuesta = null;
@@ -28,7 +29,7 @@ class AuthController extends Controller
             unset($_SESSION['mensaje']);
         }
 
-        $this->view('auth/index.php', ['respuesta' => $respuesta]);
+        $this->view('views/auth/login.php', compact('URL', 'respuesta'));
     }
 
     public function store(): void
@@ -44,17 +45,15 @@ class AuthController extends Controller
             die("Error de seguridad: Token CSRF inválido.");
         }
 
-        $email        = $_POST['email'] ?? '';
+        $email        = trim($_POST['email'] ?? '');
         $password_user = $_POST['password_user'] ?? '';
 
-        $pdo   = Database::getInstance();
-        $stmt  = $pdo->prepare("SELECT * FROM tb_usuarios WHERE email = ?");
-        $stmt->execute([$email]);
-        $usuario = $stmt->fetch();
+        $userModel = new User();
+        $usuario = $userModel->verifyCredentials($email, $password_user);
 
-        if ($usuario && password_verify($password_user, $usuario['password_user'])) {
-            $_SESSION['sesion_email'] = $email;
-            $this->redirect($URL . '/index.php');
+        if ($usuario) {
+            $_SESSION['sesion_email'] = $usuario['email'];
+            $this->redirect($URL);
         } else {
             $_SESSION['mensaje'] = "Datos incorrectos";
             $this->redirect($URL . '/auth');

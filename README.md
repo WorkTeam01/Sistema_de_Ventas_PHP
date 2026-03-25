@@ -189,6 +189,16 @@ Sistema_de_Ventas_PHP/
 
 ---
 
+## Estado de Migración MVC (híbrido)
+
+El proyecto mantiene un esquema híbrido: módulos legacy (procedural) y componentes nuevos con PSR-4/MVC.
+
+- `App\Core\Model` provee métodos base reutilizables (`findAll`, `find`, `insert`, `delete`).
+- `App\Models\User` ya implementa métodos de dominio de autenticación (`findByEmail`, `verifyCredentials`).
+- `App\Controllers\AuthController` ya usa `User` en lugar de consulta SQL directa.
+
+---
+
 ## Contribuciones
 
 1. Crear una rama: `git checkout -b feature/nombre-funcionalidad`
