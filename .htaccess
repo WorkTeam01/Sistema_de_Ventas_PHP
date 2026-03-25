@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Servir archivos y directorios existentes directamente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # Rutas no-archivo van al entry point del router
+    RewriteRule ^(.*)$ public/index.php [QSA,L]
+</IfModule>
