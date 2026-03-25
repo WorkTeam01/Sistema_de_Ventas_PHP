@@ -1,13 +1,14 @@
 <?php
 
+use App\Controllers\AuthController;
+use App\Controllers\UserController;
 use App\Core\Router;
 
 /**
  * Rutas de la aplicación
  *
- * Módulo auth — las páginas de login/logout se sirven como archivos reales
- * (auth/index.php, auth/login.php, auth/logout.php) para compatibilidad XAMPP.
- * Las rutas aquí registradas son para futuros módulos que migren a MVC completo.
+ * Módulos migrados a MVC: auth y users.
+ * Las rutas aquí registradas se resuelven desde public/index.php.
  *
  * Ejemplo (descomentar cuando se migre un módulo):
  *
@@ -19,8 +20,18 @@ use App\Core\Router;
 $router = new Router();
 
 // Rutas del módulo auth (login/logout)
-$router->get('/auth',         'App\Controllers\AuthController@showLogin');
-$router->post('/auth/login',  'App\Controllers\AuthController@store');
-$router->get('/auth/logout',  'App\Controllers\AuthController@logout');
+$router->get('/auth',        [AuthController::class, 'showLogin'], ['guest']);
+$router->post('/auth/login', [AuthController::class, 'store'], ['guest']);
+$router->get('/auth/logout', [AuthController::class, 'logout'], ['auth']);
+
+// Rutas del módulo users (MVC)
+$router->get('/users',         [UserController::class, 'index'], ['auth', 'admin']);
+$router->get('/users/create',  [UserController::class, 'create'], ['auth', 'admin']);
+$router->post('/users',        [UserController::class, 'store'], ['auth', 'admin']);
+$router->get('/users/show/{id}', [UserController::class, 'show'], ['auth', 'admin']);
+$router->get('/users/edit/{id}', [UserController::class, 'edit'], ['auth', 'admin']);
+$router->post('/users/update', [UserController::class, 'update'], ['auth', 'admin']);
+$router->get('/users/delete/{id}', [UserController::class, 'delete'], ['auth', 'admin']);
+$router->post('/users/delete', [UserController::class, 'destroy'], ['auth', 'admin']);
 
 return $router;

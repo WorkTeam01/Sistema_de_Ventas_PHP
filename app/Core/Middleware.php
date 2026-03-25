@@ -2,7 +2,7 @@
 
 namespace App\Core;
 
-abstract class Middleware
+interface Middleware
 {
-    abstract public function handle(): void;
+    public function handle(): bool;
 }

@@ -17,6 +17,11 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Modelo `App\Models\User` (hereda de `App\Core\Model`) con métodos específicos `findByEmail()` y `verifyCredentials()` para autenticación
 - Entry point `public/index.php` con Router; `.htaccess` en raíz para soporte de rutas
 - `App\Controllers\AuthController` consolida login y logout; directorio `auth/` reemplaza `login/`
+- `App\Controllers\UserController` con CRUD del módulo users (listado, creación, edición, detalle y eliminación)
+- Nuevas vistas MVC del módulo users en `views/users/` (`index`, `create`, `edit`, `show`, `delete`)
+- `App\Core\Auth` para centralizar sesión, usuario actual y CSRF
+- `app/Middleware/` con middlewares namespaced: `AuthMiddleware`, `GuestMiddleware`, `AdminMiddleware`
+- `Controller::renderWithLayout()` para renderizar vistas con `parte1`/`mensajes`/`parte2` desde el controlador
 
 ### Cambiado
 
@@ -25,6 +30,20 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - `login/index.php` reemplazado por redirect a `/auth/` (backward compat)
 - Link de cierre de sesión apunta a `/auth/logout` en lugar del controlador directo
 - Redirecciones de sesión expirada apuntan a `/auth` en `sesion.php` y `AuthMiddleware`
+- `App\Core\Config` ahora soporta carga automática de `.env` vía `load()`
+- `App\Core\Database` refactorizado al patrón singleton por objeto con `getConnection()` (compatibilidad mantenida)
+- `App\Core\Middleware` pasa de clase abstracta a interfaz (`handle(): bool`)
+- `App\Core\Model` ampliado con estilo CRUD completo: `all/create/update/count/query/isReferenced` y métodos legacy compatibles
+- `App\Core\Router` actualizado con middlewares por ruta y rutas con parámetros (`/users/edit/{id}`, etc.)
+- `routes/web.php` migra a callbacks `[Controller::class, 'method']` y middleware por ruta
+- Rutas de users depuradas para usar endpoints canónicos sin duplicados
+- Vistas `users/edit` y `users/delete` refactorizadas para evitar includes/preprocesado PHP fuera del HTML
+- Variable `$Año` garantizada desde el controlador para el footer en vistas MVC
+
+### Eliminado
+
+- Vistas legacy del módulo `usuarios/` movidas/reemplazadas por `views/users/`
+- Controladores legacy de `app/controllers/usuarios/` eliminados tras la migración MVC
 
 ## [1.0.0] - 2026-03-24
 

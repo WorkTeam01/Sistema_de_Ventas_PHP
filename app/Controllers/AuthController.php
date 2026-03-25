@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\User;
 
@@ -9,19 +10,15 @@ class AuthController extends Controller
 {
     public function showLogin(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        Auth::startSession();
 
         $URL = rtrim($_ENV['APP_URL'], '/');
 
-        if (isset($_SESSION['sesion_email'])) {
+        if (Auth::check()) {
             $this->redirect($URL . '/index.php');
         }
 
-        if (empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
+        Auth::generateCsrfToken();
 
         $respuesta = null;
         if (isset($_SESSION['mensaje'])) {
@@ -34,14 +31,12 @@ class AuthController extends Controller
 
     public function store(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        Auth::startSession();
 
         $URL = rtrim($_ENV['APP_URL'], '/');
 
         // Validación CSRF
-        if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
             die("Error de seguridad: Token CSRF inválido.");
         }
 
@@ -52,7 +47,7 @@ class AuthController extends Controller
         $usuario = $userModel->verifyCredentials($email, $password_user);
 
         if ($usuario) {
-            $_SESSION['sesion_email'] = $usuario['email'];
+            Auth::login($usuario);
             $this->redirect($URL);
         } else {
             $_SESSION['mensaje'] = "Datos incorrectos";
@@ -62,11 +57,7 @@ class AuthController extends Controller
 
     public function logout(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        session_destroy();
+        Auth::logout();
         $this->redirect(rtrim($_ENV['APP_URL'], '/') . '/auth');
     }
 }

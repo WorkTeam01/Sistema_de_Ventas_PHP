@@ -53,6 +53,12 @@ Este proyecto, a pesar de su estructura procedural clásica, ha sido refactoriza
 
 ## Instalación
 
+### Dependencias (Composer)
+
+```bash
+composer install
+```
+
 ### 1. Clonar el repositorio
 
 Colocar el proyecto dentro del directorio `htdocs` de XAMPP:
@@ -100,21 +106,21 @@ El seeder crea los siguientes usuarios de prueba:
 
 ### 3. Configurar la conexión
 
-Copiar el archivo de ejemplo y editarlo con tus credenciales:
+Copiar el archivo de entorno de ejemplo y editarlo con tus credenciales:
 
 ```bash
-cp app/config.example.php app/config.php
+cp .env.example .env
 ```
 
-Luego editar [app/config.php](app/config.php):
+Variables mínimas en `.env`:
 
-```php
-define('SERVIDOR', 'localhost');
-define('USUARIO', 'root');
-define('PASSWORD', '');         // Contraseña de MySQL
-define('BD', 'sistemadeventas');
-
-$URL = 'http://localhost/Sistema_de_Ventas_PHP'; // Ajustar al nombre del directorio
+```dotenv
+DB_HOST=localhost
+DB_NAME=sistemadeventas
+DB_USER=root
+DB_PASS=
+APP_URL=http://localhost/Sistema_de_Ventas_PHP
+APP_TIMEZONE=America/La_Paz
 ```
 
 ### 4. Configurar permisos (Linux / macOS)
@@ -171,15 +177,21 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 ```
 Sistema_de_Ventas_PHP/
 ├── app/
-│   ├── config.php          # Conexión PDO y configuración global
-│   ├── controllers/        # Lógica de negocio por módulo
-│   │   └── middleware/     # AuthMiddleware (autenticación y roles)
+│   ├── config.php          # Bootstrap de entorno + backward compat ($pdo, $URL, $Año)
+│   ├── Controllers/        # Controladores MVC (AuthController, UserController, ...)
+│   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
+│   ├── Middleware/         # Middlewares namespaced (auth, guest, admin)
+│   ├── Models/             # Modelos de dominio
+│   ├── controllers/        # Legacy procedural (módulos aún no migrados)
 │   └── TCPDF-main/         # Librería de generación de PDF
-├── layout/                 # Plantillas compartidas (header, footer, sesión)
+├── views/
+│   ├── auth/
+│   └── users/
+├── routes/
+│   └── web.php             # Registro de rutas MVC
 ├── public/
-│   ├── css/                # Estilos personalizados
-│   ├── js/                 # Scripts personalizados
-│   └── templates/          # AdminLTE (no modificar)
+│   └── index.php           # Front controller del Router MVC
+├── layout/                 # Plantillas compartidas (header, footer, sesión)
 ├── [modulo]/               # Vista de cada módulo (almacen, ventas, etc.)
 ├── database/
 │   ├── schema.sql          # Estructura de tablas
@@ -193,9 +205,12 @@ Sistema_de_Ventas_PHP/
 
 El proyecto mantiene un esquema híbrido: módulos legacy (procedural) y componentes nuevos con PSR-4/MVC.
 
-- `App\Core\Model` provee métodos base reutilizables (`findAll`, `find`, `insert`, `delete`).
-- `App\Models\User` ya implementa métodos de dominio de autenticación (`findByEmail`, `verifyCredentials`).
-- `App\Controllers\AuthController` ya usa `User` en lugar de consulta SQL directa.
+- `auth` y `users` ya están migrados al Router MVC (`routes/web.php` + `public/index.php`).
+- `App\Core\Router` soporta middlewares por ruta y parámetros (`/users/edit/{id}`).
+- `App\Core\Controller` incluye `renderWithLayout()` para que las vistas no necesiten includes manuales.
+- `App\Core\Model` fue ampliado con CRUD completo (`all/create/update/delete/count/query`) y compatibilidad legacy.
+- `App\Models\User` concentra lógica de autenticación y CRUD del módulo users.
+- Vistas de users viven en `views/users/`; el directorio legacy `usuarios/` fue retirado.
 
 ---
 

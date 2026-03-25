@@ -110,13 +110,13 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= $URL; ?>/usuarios" class="nav-link">
+                                        <a href="<?= $URL; ?>/users" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Lista de usuarios</p>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="<?= $URL; ?>/usuarios/create.php" class="nav-link">
+                                        <a href="<?= $URL; ?>/users/create" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Crear usuarios</p>
                                         </a>

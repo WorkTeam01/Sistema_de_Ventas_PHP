@@ -4,7 +4,6 @@ include_once 'layout/sesion.php';
 
 include_once 'layout/parte1.php';
 
-include_once 'app/controllers/usuarios/listado_de_usuarios.php';
 include_once 'app/controllers/roles/listado_de_roles.php';
 include_once 'app/controllers/categorias/listado_de_categorias.php';
 include_once 'app/controllers/almacen/listado_de_productos.php';
@@ -12,6 +11,9 @@ include_once 'app/controllers/proveedores/listado_de_proveedores.php';
 include_once 'app/controllers/compras/listado_de_compras.php';
 include_once 'app/controllers/ventas/listado_de_ventas.php';
 include_once 'app/controllers/clientes/listado_de_clientes.php';
+
+$userModel = new App\Models\User();
+$total_user = $userModel->countAll();
 
 ?>
 
@@ -41,12 +43,12 @@ include_once 'app/controllers/clientes/listado_de_clientes.php';
                                 <h3><?php echo $total_user; ?></h3>
                                 <p>Usuarios registrados</p>
                             </div>
-                            <a href="<?php echo $URL; ?>/usuarios/create.php">
+                            <a href="<?php echo $URL; ?>/users/create">
                                 <div class="icon">
                                     <i class="fas fa-user-plus"></i>
                                 </div>
                             </a>
-                            <a href="<?php echo $URL; ?>/usuarios" class="small-box-footer">
+                            <a href="<?php echo $URL; ?>/users" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

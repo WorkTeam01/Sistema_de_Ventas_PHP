@@ -1,25 +1,23 @@
 <?php
-require_once '../app/config.php';
-require_once '../layout/sesion.php';
-require_once '../app/controllers/middleware/AuthMiddleware.php';
-
-$auth = new AuthMiddleware($pdo, $URL);
-$usuario = $auth->verificarPermiso('Administrador');
-
-include_once '../layout/parte1.php';
-include_once '../app/controllers/usuarios/listado_de_usuarios.php';
+include_once __DIR__ . '/../../layout/parte1.php';
 ?>
 <!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
+<section class="content-wrapper">
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-12">
+                <div class="col-sm-6">
                     <h1 class="m-0">Lista de usuarios</h1>
-                </div><!-- /.col -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="<?= $URL ?>/dashboard"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item active">Usuarios</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- /.content-header -->
 
@@ -30,14 +28,21 @@ include_once '../app/controllers/usuarios/listado_de_usuarios.php';
                 <div class="col-md-12">
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title">Usuarios registrados</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"> <i class="fas fa-minus"></i></button>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                                <h3 class="card-title">Listado de Usuarios</h3>
+                                <div class="card-tools">
+                                    <a href="<?= $URL; ?>/users/create" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus"></i> Nuevo Usuario
+                                    </a>
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body" style="display: block;">
                             <div class="table-responsive">
-                                <table id="example1" class="table table-bordered table-hover table-striped table-sm">
+                                <table id="example1" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
                                     <thead>
                                         <tr>
                                             <th class="text-center">Nro</th>
@@ -53,15 +58,15 @@ include_once '../app/controllers/usuarios/listado_de_usuarios.php';
                                         foreach ($usuarios_datos as $usuarios_dato) {
                                             $id_usuario = $usuarios_dato['id_usuario']; ?>
                                             <tr>
-                                                <td class="text-center"><?php echo $contador += 1; ?></td>
-                                                <td><?php echo $usuarios_dato['nombres']; ?></td>
-                                                <td><?php echo $usuarios_dato['email']; ?></td>
-                                                <td><?php echo $usuarios_dato['rol']; ?></td>
+                                                <td class="text-center"><?= $contador += 1; ?></td>
+                                                <td><?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?= htmlspecialchars($usuarios_dato['email'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?= htmlspecialchars($usuarios_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td class="text-center">
                                                     <div class="btn-group">
-                                                        <a href="show.php?id=<?php echo $id_usuario; ?>" type="button" class="btn btn-info"><i class="fas fa-eye"></i> Ver</a>
-                                                        <a href="update.php?id=<?php echo $id_usuario; ?>" type="button" class="btn btn-success"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                        <button type="button" class="btn btn-danger" onclick="confirmarEliminar('delete.php?id=<?php echo (int)$id_usuario; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
+                                                        <a href="<?= $URL ?>/users/show/<?= $id_usuario ?>" type="button" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
+                                                        <a href="<?= $URL ?>/users/edit/<?= $id_usuario ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('<?= $URL; ?>/users/delete/<?= $id_usuario; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -77,11 +82,11 @@ include_once '../app/controllers/usuarios/listado_de_usuarios.php';
         </div><!-- /.container-fluid -->
     </div>
     <!-- /.content -->
-</div>
+</section>
 <!-- /.content-wrapper -->
 
-<?php include_once '../layout/mensajes.php'; ?>
-<?php include_once '../layout/parte2.php'; ?>
+<?php include_once __DIR__ . '/../../layout/mensajes.php'; ?>
+<?php include_once __DIR__ . '/../../layout/parte2.php'; ?>
 
 <!-- Page specific script -->
 <script>
@@ -140,7 +145,11 @@ include_once '../app/controllers/usuarios/listado_de_usuarios.php';
                 "sSortDescending": ": Activar para ordenar la columna de manera descendente"
             }
 
+        },
+        initComplete: function() {
+            $(this.api().table().node()).css('visibility', 'visible');
         }
+
     }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
     function confirmarEliminar(url) {

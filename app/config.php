@@ -5,7 +5,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
 // Backward compat: $pdo para todos los controladores existentes
-$pdo = App\Core\Database::getInstance();
+$pdo = App\Core\Database::getInstance()->getConnection();
 
 $URL = rtrim($_ENV['APP_URL'], '/');
 $Año = date('Y');
