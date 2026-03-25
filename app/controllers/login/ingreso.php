@@ -1,36 +1,5 @@
 <?php
-
-include_once '../../config.php';
-session_start();
-if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-    die("Error de seguridad: Token CSRF inválido.");
-}
-
-$email = $_POST['email'];
-$password_user = $_POST['password_user'];
-
-$contador = 0;
-$sql = "SELECT * FROM tb_usuarios WHERE email = ?";
-$query = $pdo->prepare($sql);
-$query->execute([$email]);
-
-$usuarios = $query->fetchAll(PDO::FETCH_ASSOC);
-
-foreach ($usuarios as $usuario) {
-    $contador += 1;
-    $email_tabla = $usuario['email'];
-    $nombres = $usuario['nombres'];
-    $password_user_tabla = $usuario['password_user'];
-}
-
-if (($contador > 0 && password_verify($password_user, $password_user_tabla))) {
-    echo "Datos correctos";
-    session_start();
-    $_SESSION['sesion_email'] = $email;
-    header('Location:' . $URL . '/index.php');
-} else {
-    echo "Datos incorrectos";
-    session_start();
-    $_SESSION['mensaje'] = "Datos incorrectos";
-    header('Location:' . $URL . '/login');
-}
+// Consolidado en AuthController — redirige a la nueva ruta
+require_once '../../config.php';
+header('Location: ' . $URL . '/auth/login');
+exit();

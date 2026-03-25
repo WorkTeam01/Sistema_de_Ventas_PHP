@@ -288,7 +288,7 @@
                                 </ul>
                             </li>
                             <li class="nav-item">
-                                <a href="<?= $URL; ?>/app/controllers/login/cerrar_sesion.php" class="nav-link bg-danger">
+                                <a href="<?= $URL; ?>/auth/logout" class="nav-link bg-danger">
                                     <i class="nav-icon fas fa-door-closed"></i>
                                     <p>Cerrar sesión</p>
                                 </a>

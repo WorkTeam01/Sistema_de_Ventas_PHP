@@ -9,6 +9,19 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Agregado
+- Composer con PSR-4 autoloading y `vlucas/phpdotenv ^5.6`
+- Credenciales movidas a `.env` (fuera del control de versiones); `.env.example` como plantilla
+- Clases Core MVC: `App\Core\Database` (singleton PDO), `App\Core\Router`, `App\Core\Controller`, `App\Core\Model` (base abstracta), `App\Core\Config` (wrapper .env), `App\Core\Middleware` (base abstracta)
+- Entry point `public/index.php` con Router; `.htaccess` en raíz para soporte de rutas
+- `App\Controllers\AuthController` consolida login y logout; directorio `auth/` reemplaza `login/`
+
+### Cambiado
+- `app/config.php` migrado a Dotenv + `Database::getInstance()`; mantiene `$pdo`, `$URL`, `$Año`, `$fechaHora` para compatibilidad con módulos existentes
+- `login/index.php` reemplazado por redirect a `/auth/` (backward compat)
+- Link de cierre de sesión apunta a `/auth/logout` en lugar del controlador directo
+- Redirecciones de sesión expirada apuntan a `/auth` en `sesion.php` y `AuthMiddleware`
+
 ## [1.0.0] - 2026-03-24
 
 ### Agregado

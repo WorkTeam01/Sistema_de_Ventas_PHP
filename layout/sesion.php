@@ -22,6 +22,6 @@ if (isset($_SESSION['sesion_email'])) {
         $rol_sesion = $usuario['rol'];
     }
 } else {
-    echo "No existe sesion";
-    header('Location:' . $URL . '/login');
+    header('Location:' . $URL . '/auth');
+    exit();
 }

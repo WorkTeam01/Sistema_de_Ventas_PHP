@@ -8,7 +8,15 @@ Sistema de Ventas es un sistema de gestión de ventas en PHP/MySQL con control d
 
 ## Ejecutar la Aplicación
 
-Proyecto basado en XAMPP. No hay proceso de compilación — Apache sirve los archivos directamente.
+Proyecto basado en XAMPP. Apache sirve los archivos directamente. Requiere Composer para PSR-4 autoloading y phpdotenv.
+
+**Instalación de dependencias (primera vez):**
+
+```bash
+composer install
+cp .env.example .env
+# Editar .env con las credenciales reales
+```
 
 **Linux** — directorio del proyecto: `/opt/lampp/htdocs/Sistema_de_Ventas_PHP/`
 
@@ -37,7 +45,7 @@ sudo /Applications/XAMPP/xamppfiles/bin/mysql.server start
 
 **Acceder a la app:** `http://localhost/Sistema_de_Ventas_PHP/`
 
-> Ajustar `$URL` en `app/config.php` si el nombre del directorio difiere.
+> Ajustar `APP_URL` en `.env` si el nombre del directorio difiere.
 
 **Configuración de base de datos (primera vez):**
 
@@ -61,32 +69,56 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 
 ## Configuración
 
-Toda la configuración está en [app/config.php](app/config.php):
+Las credenciales están en `.env` (no se commitea — copiar de `.env.example`):
 
-- Credenciales de base de datos: `SERVIDOR`, `USUARIO`, `PASSWORD`, `BD`
-- URL base: `$URL = 'http://localhost/Sistema_de_Ventas_PHP'` — debe coincidir con la ruta real del servidor
-- Zona horaria: `America/La_Paz`
+```
+DB_HOST=localhost
+DB_NAME=sistemadeventas
+DB_USER=root
+DB_PASS=root
+APP_URL=http://localhost/Sistema_de_Ventas_PHP
+APP_TIMEZONE=America/La_Paz
+```
 
-No hay archivo `.env` — las credenciales están en `app/config.php`.
+`app/config.php` carga `.env` vía phpdotenv y expone `$pdo`, `$URL`, `$Año`, `$fechaHora` para compatibilidad con los módulos existentes. No contiene credenciales.
 
 ## Arquitectura
 
 ### Enrutamiento
 
-El ruteo URL→archivo es **implícito** — las URLs mapean directamente a rutas de archivos PHP:
+El ruteo es **híbrido**:
 
-- `GET /almacen/` → `almacen/index.php`
-- `POST /app/controllers/login/ingreso.php` → procesa el formulario de login
+- **Módulos existentes** — ruteo implícito (archivo directo): `GET /almacen/` → `almacen/index.php`
+- **Nuevas rutas** — pasan por `public/index.php` vía `.htaccess` → `App\Core\Router` → Controller
 
-No hay router ni controlador frontal. Cada página es un archivo PHP independiente.
+Rutas activas en el Router (`public/index.php`):
+- `GET /auth` → `AuthController::showLogin()`
+- `POST /auth/login` → `AuthController::store()`
+- `GET /auth/logout` → `AuthController::logout()`
 
-### Patrón MVC simplificado
+### Clases Core MVC (`app/Core/`)
+
+| Clase | Descripción |
+|---|---|
+| `App\Core\Database` | Singleton PDO — usar `Database::getInstance()` |
+| `App\Core\Router` | Registra y despacha rutas GET/POST |
+| `App\Core\Controller` | Base: `view(path, data)` y `redirect(url)` |
+| `App\Core\Model` | Base abstracta: `findAll()`, `find()`, `insert()`, `delete()` |
+| `App\Core\Config` | Wrapper de `.env`: `Config::get('KEY', $default)` |
+| `App\Core\Middleware` | Base abstracta para middlewares futuros |
+
+Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`).
+Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`).
+
+### Patrón MVC simplificado (módulos existentes)
 
 - **Vistas**: Directorios de módulos en la raíz (`almacen/`, `ventas/`, `compras/`, etc.)
 - **Controladores**: Lógica de negocio en `app/controllers/[modulo]/` — son incluidos/requeridos por las vistas
 - **Sin capa de modelos**: Las consultas SQL se escriben directamente en los controladores usando PDO
 
 ### Autenticación y Autorización
+
+El login usa `App\Controllers\AuthController` (vía Router). La vista está en `auth/index.php`.
 
 Cada página protegida debe instanciar `AuthMiddleware` desde [app/controllers/middleware/AuthMiddleware.php](app/controllers/middleware/AuthMiddleware.php):
 
@@ -107,7 +139,7 @@ Roles disponibles (almacenados en `tb_roles`): `Administrador`, `Vendedor`, `Com
 
 Cada página incluye plantillas compartidas:
 
-- [layout/sesion.php](layout/sesion.php) — valida que exista sesión activa, redirige al login si no
+- [layout/sesion.php](layout/sesion.php) — valida que exista sesión activa, redirige a `/auth` si no
 - [layout/parte1.php](layout/parte1.php) — head HTML, navbar, sidebar
 - [layout/parte2.php](layout/parte2.php) — scripts de cierre, footer
 

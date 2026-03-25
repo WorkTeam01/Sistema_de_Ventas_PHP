@@ -19,7 +19,7 @@ class AuthMiddleware
         if (!isset($_SESSION['sesion_email'])) {
             $_SESSION['mensaje'] = 'Debes iniciar sesión para acceder a esta página.';
             $_SESSION['icono'] = 'warning';
-            header('Location: ' . $this->URL . '/login');
+            header('Location: ' . $this->URL . '/auth');
             exit();
         }
     }
