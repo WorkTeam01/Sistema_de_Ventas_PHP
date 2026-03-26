@@ -26,6 +26,8 @@ config/database.php
 .env
 .env.local
 .env.production
+.mcp.json
+.claude
 
 # Archivos temporales de PHP
 *.tmp

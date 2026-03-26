@@ -7,7 +7,8 @@ $dotenv->load();
 // Backward compat: $pdo para todos los controladores existentes
 $pdo = App\Core\Database::getInstance()->getConnection();
 
-$URL = rtrim($_ENV['APP_URL'], '/');
+define('BASE_URL', rtrim($_ENV['APP_URL'], '/'));
+$URL = BASE_URL; // alias backward-compat para módulos legacy
 $Año = date('Y');
 date_default_timezone_set($_ENV['APP_TIMEZONE']);
 $fechaHora = date("Y-m-d H:i:s");

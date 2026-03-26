@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\DashboardController;
 use App\Controllers\UserController;
 use App\Core\Router;
 
@@ -18,6 +19,9 @@ use App\Core\Router;
  */
 
 $router = new Router();
+
+// Dashboard
+$router->get('/', [DashboardController::class, 'index'], ['auth']);
 
 // Rutas del módulo auth (login/logout)
 $router->get('/auth',        [AuthController::class, 'showLogin'], ['guest']);
