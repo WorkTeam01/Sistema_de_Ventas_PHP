@@ -1,12 +1,12 @@
 <?php
 require_once '../app/config.php';
-require_once '../layout/sesion.php';
+require_once '../views/layout/sesion.php';
 require_once '../app/controllers/middleware/AuthMiddleware.php';
 
 $auth = new AuthMiddleware($pdo, $URL);
 $usuario = $auth->verificarRoles(['Administrador', 'Comprador', 'Vendedor']);
 
-include_once '../layout/parte1.php';
+include_once '../views/layout/parte1.php';
 
 include_once '../app/controllers/categorias/listado_de_categorias.php';
 include_once '../app/controllers/almacen/cargar_producto.php';
@@ -179,5 +179,5 @@ include_once '../app/controllers/almacen/cargar_producto.php';
 <!-- /.content -->
 <!-- /.content-wrapper -->
 
-<?php include_once '../layout/mensajes.php'; ?>
-<?php include_once '../layout/parte2.php'; ?>
+<?php include_once '../views/layout/mensajes.php'; ?>
+<?php include_once '../views/layout/parte2.php'; ?>

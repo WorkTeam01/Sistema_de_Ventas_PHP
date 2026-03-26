@@ -43,9 +43,9 @@ sudo /Applications/XAMPP/xamppfiles/bin/apachectl start
 sudo /Applications/XAMPP/xamppfiles/bin/mysql.server start
 ```
 
-**Acceder a la app:** `http://localhost/Sistema_de_Ventas_PHP/`
+**Acceder a la app:** `http://localhost/Sistema_de_Ventas_PHP/public/`
 
-> Ajustar `APP_URL` en `.env` si el nombre del directorio difiere.
+> Ajustar `APP_URL` en `.env` si el nombre del directorio difiere. El valor debe incluir `/public`.
 
 **Configuración de base de datos (primera vez):**
 
@@ -76,11 +76,14 @@ DB_HOST=localhost
 DB_NAME=sistemadeventas
 DB_USER=root
 DB_PASS=root
-APP_URL=http://localhost/Sistema_de_Ventas_PHP
+APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
 APP_TIMEZONE=America/La_Paz
 ```
 
-`app/config.php` carga `.env` vía phpdotenv y expone `$pdo`, `$URL`, `$Año`, `$fechaHora` para compatibilidad con los módulos existentes. No contiene credenciales.
+`app/config.php` carga `.env` vía phpdotenv y expone:
+- `BASE_URL` — constante PHP global con la URL base (sin trailing slash), disponible en cualquier archivo sin necesidad de pasarla como variable
+- `$URL = BASE_URL` — alias backward-compat para módulos legacy
+- `$pdo`, `$Año`, `$fechaHora` — compatibilidad con módulos existentes
 
 ## Arquitectura
 
@@ -91,21 +94,34 @@ El ruteo es **híbrido**:
 - **Módulos existentes** — ruteo implícito (archivo directo): `GET /almacen/` → `almacen/index.php`
 - **Nuevas rutas** — pasan por `public/index.php` vía `.htaccess` → `App\Core\Router` → Controller
 
-Rutas activas en el Router (`public/index.php`):
-- `GET /auth` → `AuthController::showLogin()`
-- `POST /auth/login` → `AuthController::store()`
-- `GET /auth/logout` → `AuthController::logout()`
+Rutas activas en `routes/web.php`:
+
+| Método | Ruta | Controller | Middleware |
+|---|---|---|---|
+| GET | `/` | `DashboardController::index()` | `auth` |
+| GET | `/auth` | `AuthController::showLogin()` | `guest` |
+| POST | `/auth/login` | `AuthController::store()` | `guest` |
+| GET | `/auth/logout` | `AuthController::logout()` | `auth` |
+| GET | `/users` | `UserController::index()` | `auth`, `admin` |
+| GET | `/users/create` | `UserController::create()` | `auth`, `admin` |
+| POST | `/users` | `UserController::store()` | `auth`, `admin` |
+| GET | `/users/show/{id}` | `UserController::show()` | `auth`, `admin` |
+| GET | `/users/edit/{id}` | `UserController::edit()` | `auth`, `admin` |
+| POST | `/users/update` | `UserController::update()` | `auth`, `admin` |
+| GET | `/users/delete/{id}` | `UserController::delete()` | `auth`, `admin` |
+| POST | `/users/delete` | `UserController::destroy()` | `auth`, `admin` |
 
 ### Clases Core MVC (`app/Core/`)
 
 | Clase | Descripción |
 |---|---|
-| `App\Core\Database` | Singleton PDO — usar `Database::getInstance()` |
-| `App\Core\Router` | Registra y despacha rutas GET/POST |
-| `App\Core\Controller` | Base: `view(path, data)` y `redirect(url)` |
-| `App\Core\Model` | Base abstracta: `findAll()`, `find()`, `insert()`, `delete()` |
+| `App\Core\Database` | Singleton PDO — `Database::getInstance()->getConnection()` |
+| `App\Core\Router` | Registra y despacha rutas GET/POST con middleware |
+| `App\Core\Controller` | Base: `view()`, `renderWithLayout()`, `redirect()`, `json()`, `input()`, `validate()` |
+| `App\Core\Model` | Base abstracta: `all()`, `find()`, `create()`, `update()`, `delete()`, `count()`, `query()` |
+| `App\Core\Auth` | Sesión y CSRF: `check()`, `user()`, `role()`, `login()`, `logout()`, `generateCsrfToken()` |
 | `App\Core\Config` | Wrapper de `.env`: `Config::get('KEY', $default)` |
-| `App\Core\Middleware` | Base abstracta para middlewares futuros |
+| `App\Core\Middleware` | Interfaz: `handle(): bool` |
 
 Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`).
 Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`).
@@ -118,20 +134,27 @@ Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`).
 
 ### Autenticación y Autorización
 
-El login usa `App\Controllers\AuthController` (vía Router). La vista está en `auth/index.php`.
+El login usa `App\Controllers\AuthController` (vía Router). La vista está en `views/auth/login.php`.
 
-Cada página protegida debe instanciar `AuthMiddleware` desde [app/controllers/middleware/AuthMiddleware.php](app/controllers/middleware/AuthMiddleware.php):
+**Módulos MVC** — las rutas se protegen con middleware en `routes/web.php`:
+```php
+$router->get('/ruta', [Controller::class, 'method'], ['auth']);         // cualquier rol
+$router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']); // solo Administrador
+```
 
+Los middlewares PSR-4 viven en `app/Middleware/`: `AuthMiddleware`, `AdminMiddleware`, `GuestMiddleware`.
+
+**Módulos legacy** — cada página protegida sigue usando [app/controllers/middleware/AuthMiddleware.php](app/controllers/middleware/AuthMiddleware.php):
 ```php
 require_once('../app/config.php');
 require_once('../app/controllers/middleware/AuthMiddleware.php');
 
 $auth = new AuthMiddleware($pdo, $URL);
-// Un solo rol:
-$usuario = $auth->verificarPermiso('Administrador');
-// Múltiples roles:
-$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']);
+$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']); // múltiples roles
+$usuario = $auth->verificarPermiso('Administrador');             // un solo rol
 ```
+
+Para obtener datos del usuario en sesión en cualquier contexto MVC: `Auth::user()`.
 
 Roles disponibles (almacenados en `tb_roles`): `Administrador`, `Vendedor`, `Comprador`.
 

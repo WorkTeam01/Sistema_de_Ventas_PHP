@@ -1,12 +1,3 @@
-<?php
-include_once __DIR__ . '/../../layout/parte1.php';
-
-$id_usuario = (int) ($usuario_data['id_usuario'] ?? 0);
-$nombres = $usuario_data['nombres'] ?? '';
-$email = $usuario_data['email'] ?? '';
-$rol = $usuario_data['rol'] ?? '';
-?>
-
 <!-- Content Wrapper. Contains page content -->
 <section class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -18,8 +9,8 @@ $rol = $usuario_data['rol'] ?? '';
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= $URL ?>/dashboard"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= $URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
                         <li class="breadcrumb-item active">Detalles</li>
                     </ol>
                 </div>
@@ -48,7 +39,7 @@ $rol = $usuario_data['rol'] ?? '';
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                                         </div>
-                                        <input type="text" id="nombres" value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                        <input type="text" id="nombres" value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" autocomplete="off" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -59,7 +50,7 @@ $rol = $usuario_data['rol'] ?? '';
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                         </div>
-                                        <input type="email" id="email" value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                        <input type="email" id="email" value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" autocomplete="off" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -72,7 +63,7 @@ $rol = $usuario_data['rol'] ?? '';
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
                                         </div>
-                                        <input type="text" id="rol" value="<?= htmlspecialchars($rol, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                        <input type="text" id="rol" value="<?= htmlspecialchars($rol, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" autocomplete="off" disabled>
                                     </div>
                                 </div>
                             </div>
@@ -90,9 +81,17 @@ $rol = $usuario_data['rol'] ?? '';
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="<?= $URL; ?>/users" class="btn btn-default mr-1"><i class="fas fa-arrow-left"></i> Volver</a>
-                        <a href="<?= $URL; ?>/users/edit/<?= $id_usuario; ?>" class="btn btn-info mr-1"><i class="fas fa-pencil-alt"></i> Editar</a>
-                        <a href="<?= $URL; ?>/users/delete/<?= $id_usuario; ?>" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</a>
+                        <div class="row">
+                            <div class="col-12 col-sm-auto mb-2 mb-sm-0">
+                                <a href="<?= BASE_URL; ?>/users" class="btn btn-default w-100"><i class="fas fa-arrow-left"></i> Volver</a>
+                            </div>
+                            <div class="col-12 col-sm-auto mb-2 mb-sm-0">
+                                <a href="<?= BASE_URL; ?>/users/edit/<?= $id_usuario; ?>" class="btn btn-success w-100"><i class="fas fa-pencil-alt"></i> Editar</a>
+                            </div>
+                            <div class="col-12 col-sm-auto">
+                                <a href="<?= BASE_URL; ?>/users/delete/<?= $id_usuario; ?>" class="btn btn-danger w-100"><i class="fas fa-trash"></i> Eliminar</a>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -108,7 +107,7 @@ $rol = $usuario_data['rol'] ?? '';
                     </div>
                     <div class="card-body box-profile">
                         <div class="text-center mb-3">
-                            <img class="profile-user-img img-fluid img-circle" src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/dist/img/user2-160x160.jpg" alt="User profile picture">
+                            <img class="profile-user-img img-fluid img-circle" src="<?= BASE_URL; ?>/templates/AdminLTE-3.2.0/dist/img/user2-160x160.jpg" alt="User profile picture">
                         </div>
                         <h3 class="profile-username text-center"><?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?></h3>
                         <p class="text-muted text-center"><?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></p>
@@ -139,10 +138,5 @@ $rol = $usuario_data['rol'] ?? '';
         </div>
     </div>
 </section>
-</div><!-- /.container-fluid -->
-</div>
 <!-- /.content -->
 <!-- /.content-wrapper -->
-
-<?php include_once __DIR__ . '/../../layout/mensajes.php'; ?>
-<?php include_once __DIR__ . '/../../layout/parte2.php'; ?>

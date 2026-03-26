@@ -1,7 +1,3 @@
-<?php
-include_once __DIR__ . '/../../layout/parte1.php';
-?>
-
 <!-- Content Wrapper. Contains page content -->
 <section class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -13,8 +9,8 @@ include_once __DIR__ . '/../../layout/parte1.php';
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= $URL ?>/dashboard"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= $URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
                         <li class="breadcrumb-item active">Crear usuario</li>
                     </ol>
                 </div>
@@ -28,7 +24,7 @@ include_once __DIR__ . '/../../layout/parte1.php';
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-8">
-                    <form action="<?= $URL; ?>/users" method="post">
+                    <form action="<?= BASE_URL; ?>/users" method="post">
                         <div class="card card-primary">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fas fa-user-plus"></i> Ingrese los datos del usuario</h3>
@@ -82,7 +78,7 @@ include_once __DIR__ . '/../../layout/parte1.php';
                             <div class="card-footer">
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
-                                        <a href="<?= $URL; ?>/users" class="btn btn-default w-100">
+                                        <a href="<?= BASE_URL; ?>/users" class="btn btn-default w-100">
                                             <i class="fas fa-times"></i> Cancelar
                                         </a>
                                     </div>
@@ -121,6 +117,3 @@ include_once __DIR__ . '/../../layout/parte1.php';
 </section>
 <!-- /.content -->
 <!-- /.content-wrapper -->
-
-<?php include_once __DIR__ . '/../../layout/mensajes.php'; ?>
-<?php include_once __DIR__ . '/../../layout/parte2.php'; ?>

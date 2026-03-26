@@ -1,12 +1,12 @@
 <?php
 require_once '../app/config.php';
-require_once '../layout/sesion.php';
+require_once '../views/layout/sesion.php';
 require_once '../app/controllers/middleware/AuthMiddleware.php';
 
 $auth = new AuthMiddleware($pdo, $URL);
 $usuario = $auth->verificarPermiso('Administrador');
 
-include_once '../layout/parte1.php';
+include_once '../views/layout/parte1.php';
 
 include_once '../app/controllers/roles/listado_de_roles.php';
 ?>
@@ -74,8 +74,8 @@ include_once '../app/controllers/roles/listado_de_roles.php';
 </div>
 <!-- /.content-wrapper -->
 
-<?php include_once '../layout/mensajes.php'; ?>
-<?php include_once '../layout/parte2.php'; ?>
+<?php include_once '../views/layout/mensajes.php'; ?>
+<?php include_once '../views/layout/parte2.php'; ?>
 
 <!-- Page specific script -->
 <script>

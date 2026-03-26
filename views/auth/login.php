@@ -9,16 +9,16 @@
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
     <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
     <!-- SweetAlert2-->
-    <link rel="stylesheet" href="<?= $URL; ?>/public/css/sweetalert2.min.css">
-    <script src="<?= $URL; ?>/public/js/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/sweetalert2.min.css">
+    <script src="<?= BASE_URL ?>/js/sweetalert2.min.js"></script>
     <!-- Icono del sitio -->
-    <link rel="icon" type="image/png" href="<?= $URL; ?>/public/img/logo.png">
+    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/img/logo.png">
 </head>
 
 <body class="hold-transition login-page">
@@ -53,7 +53,7 @@
             <div class="card-body">
                 <h5 class="login-box-msg">Login</h5>
 
-                <form action="<?= $URL; ?>/auth/login" method="post" autocomplete="off">
+                <form action="<?= BASE_URL ?>/auth/login" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
                     <div class="input-group mb-3">
                         <input type="email" name="email" class="form-control" placeholder="Ingrese su correo" autocomplete="off">
@@ -82,11 +82,11 @@
         </div>
 
         <!-- jQuery -->
-        <script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
+        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
         <!-- Bootstrap 4 -->
-        <script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
         <!-- AdminLTE App -->
-        <script src="<?= $URL; ?>/public/templates/AdminLTE-3.2.0/dist/js/adminlte.min.js"></script>
+        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/js/adminlte.min.js"></script>
 </body>
 
 </html>

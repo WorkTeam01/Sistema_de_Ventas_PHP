@@ -1,6 +1,3 @@
-<?php
-include_once __DIR__ . '/../../layout/parte1.php';
-?>
 <!-- Content Wrapper. Contains page content -->
 <section class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -12,7 +9,7 @@ include_once __DIR__ . '/../../layout/parte1.php';
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= $URL ?>/dashboard"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
                         <li class="breadcrumb-item active">Usuarios</li>
                     </ol>
                 </div>
@@ -31,7 +28,7 @@ include_once __DIR__ . '/../../layout/parte1.php';
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h3 class="card-title">Listado de Usuarios</h3>
                                 <div class="card-tools">
-                                    <a href="<?= $URL; ?>/users/create" class="btn btn-primary btn-sm">
+                                    <a href="<?= BASE_URL ?>/users/create" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Nuevo Usuario
                                     </a>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -85,72 +82,69 @@ include_once __DIR__ . '/../../layout/parte1.php';
 </section>
 <!-- /.content-wrapper -->
 
-<?php include_once __DIR__ . '/../../layout/mensajes.php'; ?>
-<?php include_once __DIR__ . '/../../layout/parte2.php'; ?>
-
 <!-- Page specific script -->
 <script>
-    $("#example1").DataTable({
-        "responsive": true,
-        "autoWidth": false,
-        buttons: [{
-                extend: 'collection',
-                text: 'Reportes',
-                orientation: 'landscape',
-                buttons: [{
-                    text: 'Copiar',
-                    extend: 'copy'
-                }, {
-                    extend: 'pdf',
-                }, {
-                    extend: 'csv',
-                }, {
-                    extend: 'excel',
-                }, {
-                    text: 'Imprimir',
-                    extend: 'print'
-                }]
+    $(document).ready(function() {
+        $("#example1").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+            buttons: [{
+                    extend: 'collection',
+                    text: 'Reportes',
+                    orientation: 'landscape',
+                    buttons: [{
+                        text: 'Copiar',
+                        extend: 'copy'
+                    }, {
+                        extend: 'pdf',
+                    }, {
+                        extend: 'csv',
+                    }, {
+                        extend: 'excel',
+                    }, {
+                        text: 'Imprimir',
+                        extend: 'print'
+                    }]
+                },
+                {
+                    extend: 'colvis',
+                    text: 'Visualización de columnas'
+                }
+            ],
+            "pageLength": 5,
+            lengthMenu: [
+                [3, 5, 10, 25, 50],
+                [3, 5, 10, 25, 50]
+            ],
+            "language": {
+                "sProcessing": "Procesando...",
+                "sLengthMenu": "Mostrar _MENU_ registros",
+                "sZeroRecords": "No se encontraron resultados",
+                "sEmptyTable": "Ningún dato disponible en esta tabla",
+                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ Usuarios",
+                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 Usuarios",
+                "sInfoFiltered": "(filtrado de un total de _MAX_ Usuarios)",
+                "sInfoPostFix": "",
+                "sSearch": "Buscar:",
+                "sUrl": "",
+                "sInfoThousands": ",",
+                "sLoadingRecords": "Cargando...",
+                "oPaginate": {
+                    "sFirst": "Primero",
+                    "sLast": "Último",
+                    "sNext": "Siguiente",
+                    "sPrevious": "Anterior"
+                },
+                "oAria": {
+                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                }
             },
-            {
-                extend: 'colvis',
-                text: 'Visualización de columnas'
+            initComplete: function() {
+                $(this.api().table().node()).css('visibility', 'visible');
             }
-        ],
-        "pageLength": 5,
-        lengthMenu: [
-            [3, 5, 10, 25, 50],
-            [3, 5, 10, 25, 50]
-        ],
-        "language": {
-            "sProcessing": "Procesando...",
-            "sLengthMenu": "Mostrar _MENU_ registros",
-            "sZeroRecords": "No se encontraron resultados",
-            "sEmptyTable": "Ningún dato disponible en esta tabla",
-            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ Usuarios",
-            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 Usuarios",
-            "sInfoFiltered": "(filtrado de un total de _MAX_ Usuarios)",
-            "sInfoPostFix": "",
-            "sSearch": "Buscar:",
-            "sUrl": "",
-            "sInfoThousands": ",",
-            "sLoadingRecords": "Cargando...",
-            "oPaginate": {
-                "sFirst": "Primero",
-                "sLast": "Último",
-                "sNext": "Siguiente",
-                "sPrevious": "Anterior"
-            },
-            "oAria": {
-                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
-                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-            }
-
-        },
-        initComplete: function() {
-            $(this.api().table().node()).css('visibility', 'visible');
-        }
-
-    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    });
 
     function confirmarEliminar(url) {
         Swal.fire({

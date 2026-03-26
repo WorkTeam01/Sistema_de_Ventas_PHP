@@ -3,7 +3,7 @@
 // Include the main TCPDF library (search for installation path).
 require_once('../app/TCPDF-main/tcpdf.php');
 require_once '../app/config.php';
-require_once '../layout/sesion.php';
+require_once '../views/layout/sesion.php';
 require_once '../app/controllers/middleware/AuthMiddleware.php';
 
 $auth = new AuthMiddleware($pdo, $URL);

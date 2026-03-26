@@ -25,14 +25,14 @@ class Controller
             $Año = date('Y');
         }
 
-        require __DIR__ . '/../../layout/parte1.php';
+        require __DIR__ . '/../../views/layout/parte1.php';
         require __DIR__ . '/../../' . ltrim($viewPath, '/');
 
         if ($withMessages) {
-            require __DIR__ . '/../../layout/mensajes.php';
+            require __DIR__ . '/../../views/layout/mensajes.php';
         }
 
-        require __DIR__ . '/../../layout/parte2.php';
+        require __DIR__ . '/../../views/layout/parte2.php';
     }
 
     protected function redirect(string $url): void

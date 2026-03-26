@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-v1.0.0-blue)
+![Versión](https://img.shields.io/badge/Versión-v1.1.0--wip-orange)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -17,7 +17,7 @@ Sistema web de gestión de ventas con control de inventario, facturación en PDF
 
 ## Seguridad y Buenas Prácticas Implementadas
 
-Este proyecto, a pesar de su estructura procedural clásica, ha sido refactorizado rigurosamente para alcanzar los estándares de seguridad web modernos:
+Este proyecto está siendo migrado progresivamente a una arquitectura MVC con PSR-4. Los módulos `auth`, `users` y `dashboard` ya están completamente migrados; el resto migra incrementalmente. A pesar de la transición, mantiene los estándares de seguridad web modernos:
 
 - **Prevención de Inyecciones SQL**: 100% migrado a `PDO Prepared Statements` con _placeholders_ para parametrización.
 - **Protección CSRF**: Intercepción de suplantaciones cruzadas mediante _tokens_ obligatorios en la sesión y formularios mutables.
@@ -119,9 +119,11 @@ DB_HOST=localhost
 DB_NAME=sistemadeventas
 DB_USER=root
 DB_PASS=
-APP_URL=http://localhost/Sistema_de_Ventas_PHP
+APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
 APP_TIMEZONE=America/La_Paz
 ```
+
+> `APP_URL` debe incluir `/public` — es la ruta al front controller.
 
 ### 4. Configurar permisos (Linux / macOS)
 
@@ -146,7 +148,7 @@ sudo /opt/lampp/lampp start
 sudo /Applications/XAMPP/xamppfiles/xampp start
 ```
 
-Acceder en: `http://localhost/Sistema_de_Ventas_PHP/`
+Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 
 ---
 
@@ -177,40 +179,57 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 ```
 Sistema_de_Ventas_PHP/
 ├── app/
-│   ├── config.php          # Bootstrap de entorno + backward compat ($pdo, $URL, $Año)
-│   ├── Controllers/        # Controladores MVC (AuthController, UserController, ...)
+│   ├── config.php          # Bootstrap: Dotenv, BASE_URL, $pdo, $URL, $Año
+│   ├── Controllers/        # Controladores MVC (AuthController, UserController, DashboardController)
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
-│   ├── Middleware/         # Middlewares namespaced (auth, guest, admin)
-│   ├── Models/             # Modelos de dominio
-│   ├── controllers/        # Legacy procedural (módulos aún no migrados)
+│   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware)
+│   ├── Models/             # Modelos de dominio (User, ...)
+│   ├── controllers/        # Legacy procedural (módulos pendientes de migración)
 │   └── TCPDF-main/         # Librería de generación de PDF
 ├── views/
-│   ├── auth/
-│   └── users/
+│   ├── layout/             # Plantillas compartidas (parte1, parte2, mensajes, sesion)
+│   ├── auth/               # Vista de login
+│   ├── dashboard/          # Vista del dashboard
+│   └── users/              # Vistas CRUD del módulo users
 ├── routes/
 │   └── web.php             # Registro de rutas MVC
 ├── public/
-│   └── index.php           # Front controller del Router MVC
-├── layout/                 # Plantillas compartidas (header, footer, sesión)
-├── [modulo]/               # Vista de cada módulo (almacen, ventas, etc.)
-├── database/
-│   ├── schema.sql          # Estructura de tablas
-│   └── seeder.sql          # Datos iniciales
-└── index.php               # Dashboard principal
+│   ├── index.php           # Front controller
+│   ├── css/                # Estilos personalizados
+│   ├── js/                 # Scripts personalizados
+│   └── templates/          # Assets AdminLTE
+├── [modulo]/               # Módulos legacy pendientes de migración (almacen, ventas, etc.)
+└── database/
+    ├── schema.sql          # Estructura de tablas
+    └── seeder.sql          # Datos iniciales
 ```
 
 ---
 
-## Estado de Migración MVC (híbrido)
+## Estado de Migración MVC
 
-El proyecto mantiene un esquema híbrido: módulos legacy (procedural) y componentes nuevos con PSR-4/MVC.
+El proyecto mantiene un esquema híbrido mientras avanza la migración incremental:
 
-- `auth` y `users` ya están migrados al Router MVC (`routes/web.php` + `public/index.php`).
-- `App\Core\Router` soporta middlewares por ruta y parámetros (`/users/edit/{id}`).
-- `App\Core\Controller` incluye `renderWithLayout()` para que las vistas no necesiten includes manuales.
-- `App\Core\Model` fue ampliado con CRUD completo (`all/create/update/delete/count/query`) y compatibilidad legacy.
-- `App\Models\User` concentra lógica de autenticación y CRUD del módulo users.
-- Vistas de users viven en `views/users/`; el directorio legacy `usuarios/` fue retirado.
+| Módulo | Estado |
+|---|---|
+| `auth` (login/logout) | ✅ Migrado |
+| `users` (usuarios) | ✅ Migrado |
+| `dashboard` | ✅ Migrado |
+| `roles` | 🔄 Pendiente |
+| `categorias` | 🔄 Pendiente |
+| `proveedores` | 🔄 Pendiente |
+| `clientes` | 🔄 Pendiente |
+| `almacen` | 🔄 Pendiente |
+| `compras` | 🔄 Pendiente |
+| `ventas` | 🔄 Pendiente |
+
+**Núcleo MVC disponible:**
+- `public/index.php` — front controller único; `.htaccess` redirige todo al Router
+- `routes/web.php` — registro de rutas con middleware
+- `App\Core\{Router, Controller, Model, Database, Auth, Config}` — clases base
+- `App\Middleware\{AuthMiddleware, GuestMiddleware, AdminMiddleware}` — guards de ruta
+- `views/layout/` — plantillas compartidas (`parte1`, `parte2`, `mensajes`, `sesion`)
+- `BASE_URL` — constante global definida en `app/config.php`
 
 ---
 

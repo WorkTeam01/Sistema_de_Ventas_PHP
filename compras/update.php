@@ -1,12 +1,12 @@
 <?php
 require_once '../app/config.php';
-require_once '../layout/sesion.php';
+require_once '../views/layout/sesion.php';
 require_once '../app/controllers/middleware/AuthMiddleware.php';
 
 $auth = new AuthMiddleware($pdo, $URL);
 $usuario = $auth->verificarRoles(['Administrador', 'Comprador']);
 
-include_once '../layout/parte1.php';
+include_once '../views/layout/parte1.php';
 
 include_once '../app/controllers/almacen/listado_de_productos.php';
 include_once '../app/controllers/proveedores/listado_de_proveedores.php';
@@ -569,8 +569,8 @@ include_once '../app/controllers/compras/cargar_compra.php';
 <!-- /.content -->
 <!-- /.content-wrapper -->
 
-<?php include_once '../layout/mensajes.php'; ?>
-<?php include_once '../layout/parte2.php'; ?>
+<?php include_once '../views/layout/mensajes.php'; ?>
+<?php include_once '../views/layout/parte2.php'; ?>
 
 <script>
     $("#example1").DataTable({

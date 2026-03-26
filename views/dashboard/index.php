@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1 class="m-0">Bienvenido al Sistema - <?php echo $rol_sesion; ?></h1>
+                    <h1 class="m-0">Bienvenido al Sistema - <?= $rol_sesion; ?></h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -21,15 +21,15 @@
                         <!-- Tarjeta de usuarios -->
                         <div class="small-box bg-warning">
                             <div class="inner">
-                                <h3><?php echo $total_user; ?></h3>
+                                <h3><?= $total_user; ?></h3>
                                 <p>Usuarios registrados</p>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/users/create">
+                            <a href="<?= BASE_URL; ?>/users/create">
                                 <div class="icon">
                                     <i class="fas fa-user-plus"></i>
                                 </div>
                             </a>
-                            <a href="<?php echo BASE_URL; ?>/users" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/users" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -39,15 +39,15 @@
                         <!-- Tarjeta de roles -->
                         <div class="small-box bg-info">
                             <div class="inner">
-                                <h3><?php echo $total_roles; ?></h3>
+                                <h3><?= $total_roles; ?></h3>
                                 <p>Roles registrados</p>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/roles/create.php">
+                            <a href="<?= BASE_URL; ?>/roles/create.php">
                                 <div class="icon">
                                     <i class="fas fa-id-card-alt"></i>
                                 </div>
                             </a>
-                            <a href="<?php echo BASE_URL; ?>/roles" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/roles" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -59,13 +59,13 @@
                         <!-- Tarjeta de categorias -->
                         <div class="small-box bg-success">
                             <div class="inner">
-                                <h3><?php echo $total_categorias; ?></h3>
+                                <h3><?= $total_categorias; ?></h3>
                                 <p>Categorias registradas</p>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-tag"></i>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/categorias" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/categorias" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -75,15 +75,15 @@
                         <!-- Tarjeta de productos -->
                         <div class="small-box bg-primary">
                             <div class="inner">
-                                <h3><?php echo $total_productos_dashboard; ?></h3>
+                                <h3><?= $total_productos_dashboard; ?></h3>
                                 <p>Productos registrados</p>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/almacen/create.php">
+                            <a href="<?= BASE_URL; ?>/almacen/create.php">
                                 <div class="icon">
                                     <i class="fas fa-clipboard-list"></i>
                                 </div>
                             </a>
-                            <a href="<?php echo BASE_URL; ?>/almacen" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/almacen" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -95,13 +95,13 @@
                         <!-- Tarjeta de proveedores -->
                         <div class="small-box bg-secondary">
                             <div class="inner">
-                                <h3><?php echo $total_proveedores; ?></h3>
+                                <h3><?= $total_proveedores; ?></h3>
                                 <p>Proveedores registrados</p>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-truck-moving"></i>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/proveedores" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/proveedores" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -111,15 +111,15 @@
                         <!-- Tarjeta de compras -->
                         <div class="small-box bg-danger">
                             <div class="inner">
-                                <h3><?php echo $total_compras; ?></h3>
+                                <h3><?= $total_compras; ?></h3>
                                 <p>Compras registradas</p>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/compras/create.php">
+                            <a href="<?= BASE_URL; ?>/compras/create.php">
                                 <div class="icon">
                                     <i class="fas fa-cart-arrow-down"></i>
                                 </div>
                             </a>
-                            <a href="<?php echo BASE_URL; ?>/compras" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/compras" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -131,15 +131,15 @@
                         <!-- Tarjeta de ventas -->
                         <div class="small-box bg-indigo">
                             <div class="inner">
-                                <h3><?php echo $total_ventas; ?></h3>
+                                <h3><?= $total_ventas; ?></h3>
                                 <p>Ventas registradas</p>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/ventas/create.php">
+                            <a href="<?= BASE_URL; ?>/ventas/create.php">
                                 <div class="icon">
                                     <i class="fas fa-shopping-bag"></i>
                                 </div>
                             </a>
-                            <a href="<?php echo BASE_URL; ?>/ventas" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/ventas" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>
@@ -148,13 +148,13 @@
                         <!-- Tarjeta de clientes -->
                         <div class="small-box bg-light">
                             <div class="inner">
-                                <h3><?php echo $total_clientes; ?></h3>
+                                <h3><?= $total_clientes; ?></h3>
                                 <p>Clientes registrados</p>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-user-tag"></i>
                             </div>
-                            <a href="<?php echo BASE_URL; ?>/clientes" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/clientes" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

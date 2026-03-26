@@ -9,41 +9,45 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-26
+
 ### Agregado
 
 - Composer con PSR-4 autoloading y `vlucas/phpdotenv ^5.6`
 - Credenciales movidas a `.env` (fuera del control de versiones); `.env.example` como plantilla
-- Clases Core MVC: `App\Core\Database` (singleton PDO), `App\Core\Router`, `App\Core\Controller`, `App\Core\Model` (base abstracta), `App\Core\Config` (wrapper .env), `App\Core\Middleware` (base abstracta)
-- Modelo `App\Models\User` (hereda de `App\Core\Model`) con métodos específicos `findByEmail()` y `verifyCredentials()` para autenticación
-- Entry point `public/index.php` con Router; `.htaccess` en raíz para soporte de rutas
+- Clases Core MVC: `App\Core\Database` (singleton PDO con `getConnection()`), `App\Core\Router`, `App\Core\Controller`, `App\Core\Model` (base abstracta), `App\Core\Config` (wrapper .env), `App\Core\Middleware` (interfaz)
+- `App\Core\Auth` para centralizar sesión, usuario actual, login/logout y CSRF
+- `app/Middleware/` con middlewares namespaced PSR-4: `AuthMiddleware`, `GuestMiddleware`, `AdminMiddleware`
+- Modelo `App\Models\User` (hereda de `App\Core\Model`) con métodos de autenticación y CRUD de usuarios
+- Entry point `public/index.php` con Router; `.htaccess` en raíz para soporte de rutas; `routes/web.php` para registro de rutas
 - `App\Controllers\AuthController` consolida login y logout; directorio `auth/` reemplaza `login/`
-- `App\Controllers\UserController` con CRUD del módulo users (listado, creación, edición, detalle y eliminación)
-- Nuevas vistas MVC del módulo users en `views/users/` (`index`, `create`, `edit`, `show`, `delete`)
-- `App\Core\Auth` para centralizar sesión, usuario actual y CSRF
-- `app/Middleware/` con middlewares namespaced: `AuthMiddleware`, `GuestMiddleware`, `AdminMiddleware`
-- `Controller::renderWithLayout()` para renderizar vistas con `parte1`/`mensajes`/`parte2` desde el controlador
+- `App\Controllers\UserController` con CRUD completo del módulo users
+- `App\Controllers\DashboardController` — ruta `GET /` con conteos de todos los módulos
+- Nuevas vistas MVC en `views/auth/login.php`, `views/users/` (index, create, edit, show, delete), `views/dashboard/index.php`
+- `Controller::renderWithLayout()` para renderizar vistas envueltas en `parte1`/`mensajes`/`parte2` desde el controlador
+- Constante `BASE_URL` definida en `app/config.php` — disponible globalmente sin necesidad de pasar como variable
 
 ### Cambiado
 
-- `app/config.php` migrado a Dotenv + `Database::getInstance()`; mantiene `$pdo`, `$URL`, `$Año`, `$fechaHora` para compatibilidad con módulos existentes
-- `App\Controllers\AuthController::store()` deja de consultar SQL directo y delega validación de credenciales en `App\Models\User`
+- `APP_URL` en `.env` ahora incluye `/public` (`http://localhost/Sistema_de_Ventas_PHP/public`) — todas las rutas MVC apuntan al front controller
+- `app/config.php`: agrega `define('BASE_URL', ...)` y mantiene `$URL = BASE_URL` como alias backward-compat para módulos legacy
+- `App\Core\Model` ampliado con CRUD completo: `all/create/update/count/query/isReferenced` y aliases de compatibilidad `findAll/insert`; propiedad canonical `$db` (con `$pdo` como alias)
+- `App\Models\User` actualizado para usar `$this->db` (propiedad canonical de Model)
+- `App\Controllers\AuthController` usa `BASE_URL` directamente; redirige a `BASE_URL . '/'` tras login exitoso
+- `App\Controllers\UserController` refactorizado: helper `sessionData()` centraliza variables de sesión para todas las vistas; todos los métodos usan `renderWithLayout()`
 - `login/index.php` reemplazado por redirect a `/auth/` (backward compat)
-- Link de cierre de sesión apunta a `/auth/logout` en lugar del controlador directo
-- Redirecciones de sesión expirada apuntan a `/auth` en `sesion.php` y `AuthMiddleware`
-- `App\Core\Config` ahora soporta carga automática de `.env` vía `load()`
-- `App\Core\Database` refactorizado al patrón singleton por objeto con `getConnection()` (compatibilidad mantenida)
-- `App\Core\Middleware` pasa de clase abstracta a interfaz (`handle(): bool`)
-- `App\Core\Model` ampliado con estilo CRUD completo: `all/create/update/count/query/isReferenced` y métodos legacy compatibles
-- `App\Core\Router` actualizado con middlewares por ruta y rutas con parámetros (`/users/edit/{id}`, etc.)
-- `routes/web.php` migra a callbacks `[Controller::class, 'method']` y middleware por ruta
+- Root `index.php` reemplazado por redirect stub a `BASE_URL . '/'`
 - Rutas de users depuradas para usar endpoints canónicos sin duplicados
-- Vistas `users/edit` y `users/delete` refactorizadas para evitar includes/preprocesado PHP fuera del HTML
-- Variable `$Año` garantizada desde el controlador para el footer en vistas MVC
+- `App\Core\Router` actualizado con middlewares por ruta y soporte de parámetros dinámicos (`/users/edit/{id}`)
+
+### Corregido
+
+- `$(document).ready()` en DataTables init de `views/users/index.php` — prevenía `DataTable is not a function` al ejecutar el script antes de que `parte2.php` cargara la librería
+- Atributos `autocomplete` añadidos en formularios de usuarios (edit: `name`, `email`, `new-password`; show: `off`) — elimina error `autofillFieldData.autoCompleteType is null` del browser
 
 ### Eliminado
 
-- Vistas legacy del módulo `usuarios/` movidas/reemplazadas por `views/users/`
-- Controladores legacy de `app/controllers/usuarios/` eliminados tras la migración MVC
+- Vistas legacy del módulo `usuarios/` y controladores `app/controllers/usuarios/` reemplazados por `views/users/` y `UserController`
 
 ## [1.0.0] - 2026-03-24
 
