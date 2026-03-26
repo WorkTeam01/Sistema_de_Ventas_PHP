@@ -17,7 +17,7 @@ Sistema web de gestión de ventas con control de inventario, facturación en PDF
 
 ## Seguridad y Buenas Prácticas Implementadas
 
-Este proyecto está siendo migrado progresivamente a una arquitectura MVC con PSR-4. Los módulos `auth`, `users` y `dashboard` ya están completamente migrados; el resto migra incrementalmente. A pesar de la transición, mantiene los estándares de seguridad web modernos:
+Este proyecto está siendo migrado progresivamente a una arquitectura MVC con PSR-4. Los módulos `auth`, `users`, `dashboard` y `roles` ya están completamente migrados; el resto migra incrementalmente. A pesar de la transición, mantiene los estándares de seguridad web modernos:
 
 - **Prevención de Inyecciones SQL**: 100% migrado a `PDO Prepared Statements` con _placeholders_ para parametrización.
 - **Protección CSRF**: Intercepción de suplantaciones cruzadas mediante _tokens_ obligatorios en la sesión y formularios mutables.
@@ -180,17 +180,18 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 Sistema_de_Ventas_PHP/
 ├── app/
 │   ├── config.php          # Bootstrap: Dotenv, BASE_URL, $pdo, $URL, $Año
-│   ├── Controllers/        # Controladores MVC (AuthController, UserController, DashboardController)
+│   ├── Controllers/        # Controladores MVC (AuthController, DashboardController, UserController, RoleController)
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
 │   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware)
-│   ├── Models/             # Modelos de dominio (User, ...)
+│   ├── Models/             # Modelos de dominio (User, Role)
 │   ├── controllers/        # Legacy procedural (módulos pendientes de migración)
 │   └── TCPDF-main/         # Librería de generación de PDF
 ├── views/
 │   ├── layout/             # Plantillas compartidas (parte1, parte2, mensajes, sesion)
 │   ├── auth/               # Vista de login
 │   ├── dashboard/          # Vista del dashboard
-│   └── users/              # Vistas CRUD del módulo users
+│   ├── users/              # Vistas CRUD del módulo users
+│   └── roles/              # Vistas CRUD del módulo roles
 ├── routes/
 │   └── web.php             # Registro de rutas MVC
 ├── public/
@@ -215,7 +216,7 @@ El proyecto mantiene un esquema híbrido mientras avanza la migración increment
 | `auth` (login/logout) | ✅ Migrado |
 | `users` (usuarios) | ✅ Migrado |
 | `dashboard` | ✅ Migrado |
-| `roles` | 🔄 Pendiente |
+| `roles` | ✅ Migrado |
 | `categorias` | 🔄 Pendiente |
 | `proveedores` | 🔄 Pendiente |
 | `clientes` | 🔄 Pendiente |

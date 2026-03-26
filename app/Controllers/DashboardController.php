@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Models\Role;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -21,9 +22,11 @@ class DashboardController extends Controller
         $userModel  = new User();
         $total_user = $userModel->countAll();
 
+        $roleModel   = new Role();
+        $total_roles = $roleModel->count();
+
         // Los listado files legacy necesitan $pdo en scope local
         $pdo = Database::getInstance()->getConnection();
-        require_once __DIR__ . '/../../app/controllers/roles/listado_de_roles.php';
         require_once __DIR__ . '/../../app/controllers/categorias/listado_de_categorias.php';
         require_once __DIR__ . '/../../app/controllers/almacen/listado_de_productos.php';
         require_once __DIR__ . '/../../app/controllers/proveedores/listado_de_proveedores.php';

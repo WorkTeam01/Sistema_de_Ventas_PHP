@@ -2,6 +2,7 @@
 
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
+use App\Controllers\RoleController;
 use App\Controllers\UserController;
 use App\Core\Router;
 
@@ -37,5 +38,12 @@ $router->get('/users/edit/{id}', [UserController::class, 'edit'], ['auth', 'admi
 $router->post('/users/update', [UserController::class, 'update'], ['auth', 'admin']);
 $router->get('/users/delete/{id}', [UserController::class, 'delete'], ['auth', 'admin']);
 $router->post('/users/delete', [UserController::class, 'destroy'], ['auth', 'admin']);
+
+// Rutas del módulo roles (MVC)
+$router->get('/roles',           [RoleController::class, 'index'],  ['auth', 'admin']);
+$router->get('/roles/create',    [RoleController::class, 'create'], ['auth', 'admin']);
+$router->post('/roles',          [RoleController::class, 'store'],  ['auth', 'admin']);
+$router->get('/roles/edit/{id}', [RoleController::class, 'edit'],   ['auth', 'admin']);
+$router->post('/roles/update',   [RoleController::class, 'update'], ['auth', 'admin']);
 
 return $router;

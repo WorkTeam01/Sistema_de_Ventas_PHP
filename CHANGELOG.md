@@ -9,6 +9,22 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Agregado
+
+- Modelo `App\Models\Role` (hereda de `App\Core\Model`) — `$table = 'tb_roles'`, `$primaryKey = 'id_rol'`; métodos CRUD heredados del base
+- `App\Controllers\RoleController` con CRUD parcial (index, create, store, edit, update); sin delete por ser datos de sistema
+- Vistas MVC en `views/roles/` (index, create, edit) con DataTables, breadcrumb, card info lateral y badge de total en header
+- Rutas `/roles`, `/roles/create`, `/roles/edit/{id}` (GET/POST) en `routes/web.php` con middleware `auth` + `admin`
+
+### Cambiado
+
+- `DashboardController` reemplaza `require_once listado_de_roles.php` por `Role::count()` — elimina dependencia de archivo legacy
+
+### Eliminado
+
+- Vistas legacy `roles/index.php`, `roles/create.php`, `roles/update.php`
+- Controladores legacy `app/controllers/roles/` (listado_de_roles, create, update, update_roles)
+
 ## [1.1.0] - 2026-03-26
 
 ### Agregado

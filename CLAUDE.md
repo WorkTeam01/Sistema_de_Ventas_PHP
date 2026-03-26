@@ -110,6 +110,11 @@ Rutas activas en `routes/web.php`:
 | POST | `/users/update` | `UserController::update()` | `auth`, `admin` |
 | GET | `/users/delete/{id}` | `UserController::delete()` | `auth`, `admin` |
 | POST | `/users/delete` | `UserController::destroy()` | `auth`, `admin` |
+| GET | `/roles` | `RoleController::index()` | `auth`, `admin` |
+| GET | `/roles/create` | `RoleController::create()` | `auth`, `admin` |
+| POST | `/roles` | `RoleController::store()` | `auth`, `admin` |
+| GET | `/roles/edit/{id}` | `RoleController::edit()` | `auth`, `admin` |
+| POST | `/roles/update` | `RoleController::update()` | `auth`, `admin` |
 
 ### Clases Core MVC (`app/Core/`)
 
@@ -123,8 +128,8 @@ Rutas activas en `routes/web.php`:
 | `App\Core\Config` | Wrapper de `.env`: `Config::get('KEY', $default)` |
 | `App\Core\Middleware` | Interfaz: `handle(): bool` |
 
-Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`).
-Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`).
+Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`.
+Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`.
 
 ### Patrón MVC simplificado (módulos existentes)
 
@@ -162,9 +167,9 @@ Roles disponibles (almacenados en `tb_roles`): `Administrador`, `Vendedor`, `Com
 
 Cada página incluye plantillas compartidas:
 
-- [layout/sesion.php](layout/sesion.php) — valida que exista sesión activa, redirige a `/auth` si no
-- [layout/parte1.php](layout/parte1.php) — head HTML, navbar, sidebar
-- [layout/parte2.php](layout/parte2.php) — scripts de cierre, footer
+- [views/layout/sesion.php](views/layout/sesion.php) — valida que exista sesión activa, redirige a `/auth` si no
+- [views/layout/parte1.php](views/layout/parte1.php) — head HTML, navbar, sidebar
+- [views/layout/parte2.php](views/layout/parte2.php) — scripts de cierre, footer
 
 ### Acceso a Base de Datos
 

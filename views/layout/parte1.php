@@ -141,7 +141,7 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/roles/create.php" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/roles/create" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Crear rol</p>
                                         </a>
