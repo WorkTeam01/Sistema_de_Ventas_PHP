@@ -162,9 +162,15 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/categorias" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/categories" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Lista de categorias</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="<?= BASE_URL ?>/categories/create" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Crear categoría</p>
                                         </a>
                                     </li>
                                 </ul>

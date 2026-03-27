@@ -15,15 +15,22 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - `App\Controllers\RoleController` con CRUD parcial (index, create, store, edit, update); sin delete por ser datos de sistema
 - Vistas MVC en `views/roles/` (index, create, edit) con DataTables, breadcrumb, card info lateral y badge de total en header
 - Rutas `/roles`, `/roles/create`, `/roles/edit/{id}` (GET/POST) en `routes/web.php` con middleware `auth` + `admin`
+- Modelo `App\Models\Category` (hereda de `App\Core\Model`) — `$table = 'tb_categorias'`, `$primaryKey = 'id_categoria'`
+- `App\Controllers\CategoryController` con CRUD parcial (index, create, store, edit, update); accesible a todos los roles autenticados
+- Vistas MVC en `views/categories/` (index, create, edit) con DataTables, breadcrumb y card info lateral
+- Rutas `/categories`, `/categories/create`, `/categories/edit/{id}` (GET/POST) en `routes/web.php` con middleware `auth`
 
 ### Cambiado
 
 - `DashboardController` reemplaza `require_once listado_de_roles.php` por `Role::count()` — elimina dependencia de archivo legacy
+- `DashboardController` reemplaza `require_once listado_de_categorias.php` por `Category::count()` — elimina dependencia de archivo legacy
 
 ### Eliminado
 
 - Vistas legacy `roles/index.php`, `roles/create.php`, `roles/update.php`
 - Controladores legacy `app/controllers/roles/` (listado_de_roles, create, update, update_roles)
+- Vista legacy `categorias/index.php`
+- Controladores legacy `app/controllers/categorias/` (listado_de_categorias, registro_categorias, update_de_categorias)
 
 ## [1.1.0] - 2026-03-26
 

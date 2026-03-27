@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\CategoryController;
 use App\Controllers\DashboardController;
 use App\Controllers\RoleController;
 use App\Controllers\UserController;
@@ -45,5 +46,12 @@ $router->get('/roles/create',    [RoleController::class, 'create'], ['auth', 'ad
 $router->post('/roles',          [RoleController::class, 'store'],  ['auth', 'admin']);
 $router->get('/roles/edit/{id}', [RoleController::class, 'edit'],   ['auth', 'admin']);
 $router->post('/roles/update',   [RoleController::class, 'update'], ['auth', 'admin']);
+
+// Rutas del módulo categories (MVC)
+$router->get('/categories',           [CategoryController::class, 'index'],  ['auth']);
+$router->get('/categories/create',    [CategoryController::class, 'create'], ['auth']);
+$router->post('/categories',          [CategoryController::class, 'store'],  ['auth']);
+$router->get('/categories/edit/{id}', [CategoryController::class, 'edit'],   ['auth']);
+$router->post('/categories/update',   [CategoryController::class, 'update'], ['auth']);
 
 return $router;

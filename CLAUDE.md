@@ -115,6 +115,11 @@ Rutas activas en `routes/web.php`:
 | POST | `/roles` | `RoleController::store()` | `auth`, `admin` |
 | GET | `/roles/edit/{id}` | `RoleController::edit()` | `auth`, `admin` |
 | POST | `/roles/update` | `RoleController::update()` | `auth`, `admin` |
+| GET | `/categories` | `CategoryController::index()` | `auth` |
+| GET | `/categories/create` | `CategoryController::create()` | `auth` |
+| POST | `/categories` | `CategoryController::store()` | `auth` |
+| GET | `/categories/edit/{id}` | `CategoryController::edit()` | `auth` |
+| POST | `/categories/update` | `CategoryController::update()` | `auth` |
 
 ### Clases Core MVC (`app/Core/`)
 
@@ -128,8 +133,8 @@ Rutas activas en `routes/web.php`:
 | `App\Core\Config` | Wrapper de `.env`: `Config::get('KEY', $default)` |
 | `App\Core\Middleware` | Interfaz: `handle(): bool` |
 
-Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`.
-Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`.
+Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`, `CategoryController`.
+Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`, `Category`.
 
 ### Patrón MVC simplificado (módulos existentes)
 
