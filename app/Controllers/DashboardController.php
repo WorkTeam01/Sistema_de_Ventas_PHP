@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\Category;
 use App\Models\Role;
+use App\Models\Supplier;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -27,9 +28,11 @@ class DashboardController extends Controller
         $sessionData = $this->sessionData();
         $pdo = $sessionData['pdo'];
 
+        $supplierModel    = new Supplier();
+        $total_proveedores = $supplierModel->count();
+
         // Los listado files legacy necesitan $pdo en scope local
         require_once __DIR__ . '/../../app/controllers/almacen/listado_de_productos.php';
-        require_once __DIR__ . '/../../app/controllers/proveedores/listado_de_proveedores.php';
         require_once __DIR__ . '/../../app/controllers/compras/listado_de_compras.php';
         require_once __DIR__ . '/../../app/controllers/ventas/listado_de_ventas.php';
         require_once __DIR__ . '/../../app/controllers/clientes/listado_de_clientes.php';

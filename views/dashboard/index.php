@@ -101,7 +101,7 @@
                             <div class="icon">
                                 <i class="fas fa-truck-moving"></i>
                             </div>
-                            <a href="<?= BASE_URL; ?>/proveedores" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/suppliers" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

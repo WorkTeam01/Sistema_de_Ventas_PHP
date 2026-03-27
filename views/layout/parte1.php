@@ -205,7 +205,7 @@
                             <!-- Modulo de proveedores -->
                             <li class="nav-item">
                                 <a href="#" class="nav-link active">
-                                    <i class="nav-icon fas fa-solid fa-truck"></i>
+                                    <i class="nav-icon fas fa-truck"></i>
                                     <p>
                                         Proveedores
                                         <i class="right fas fa-angle-left"></i>
@@ -213,9 +213,15 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/proveedores" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/suppliers" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Lista de proveedores</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="<?= BASE_URL ?>/suppliers/create" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Crear proveedor</p>
                                         </a>
                                     </li>
                                 </ul>
