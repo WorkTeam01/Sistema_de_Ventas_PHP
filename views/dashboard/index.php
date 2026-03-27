@@ -65,7 +65,7 @@
                             <div class="icon">
                                 <i class="fas fa-tag"></i>
                             </div>
-                            <a href="<?= BASE_URL; ?>/categorias" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/categories" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

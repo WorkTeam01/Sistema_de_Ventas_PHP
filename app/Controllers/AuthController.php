@@ -8,6 +8,10 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Muestra la vista de inicio de sesión.
+     * Si el usuario ya tiene sesión activa lo redirige al dashboard.
+     */
     public function showLogin(): void
     {
         Auth::startSession();
@@ -27,13 +31,15 @@ class AuthController extends Controller
         $this->view('views/auth/login.php', ['URL' => BASE_URL, 'respuesta' => $respuesta]);
     }
 
+    /**
+     * Procesa el formulario de inicio de sesión.
+     * Valida CSRF, verifica credenciales e inicia la sesión.
+     */
     public function store(): void
     {
         Auth::startSession();
 
-        if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
-            die("Error de seguridad: Token CSRF inválido.");
-        }
+        $this->validateCsrfOrFail();
 
         $email         = trim($_POST['email'] ?? '');
         $password_user = $_POST['password_user'] ?? '';
@@ -50,6 +56,9 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Cierra la sesión activa y redirige al login.
+     */
     public function logout(): void
     {
         Auth::logout();

@@ -37,41 +37,38 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body" style="display: block;">
-                            <div class="table-responsive">
-                                <table id="example1" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
-                                    <thead>
+                        <div class="card-body">
+                            <table id="userTable" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Nro</th>
+                                        <th class="text-center">Nombres</th>
+                                        <th class="text-center">Email</th>
+                                        <th class="text-center">Rol</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $contador = 0;
+                                    foreach ($usuarios_datos as $usuarios_dato) :
+                                        $id_usuario = $usuarios_dato['id_usuario']; ?>
                                         <tr>
-                                            <th class="text-center">Nro</th>
-                                            <th class="text-center">Nombres</th>
-                                            <th class="text-center">Email</th>
-                                            <th class="text-center">Rol</th>
-                                            <th class="text-center">Acciones</th>
+                                            <td class="text-center"><?= $contador += 1; ?></td>
+                                            <td><?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?= htmlspecialchars($usuarios_dato['email'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?= htmlspecialchars($usuarios_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center">
+                                                <div class="btn-group">
+                                                    <a href="<?= BASE_URL ?>/users/show/<?= $id_usuario ?>" type="button" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
+                                                    <a href="<?= BASE_URL ?>/users/edit/<?= $id_usuario ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('<?= BASE_URL ?>/users/delete/<?= $id_usuario; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $contador = 0;
-                                        foreach ($usuarios_datos as $usuarios_dato) {
-                                            $id_usuario = $usuarios_dato['id_usuario']; ?>
-                                            <tr>
-                                                <td class="text-center"><?= $contador += 1; ?></td>
-                                                <td><?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                                <td><?= htmlspecialchars($usuarios_dato['email'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                                <td><?= htmlspecialchars($usuarios_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                                <td class="text-center">
-                                                    <div class="btn-group">
-                                                        <a href="<?= $URL ?>/users/show/<?= $id_usuario ?>" type="button" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
-                                                        <a href="<?= $URL ?>/users/edit/<?= $id_usuario ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('<?= $URL; ?>/users/delete/<?= $id_usuario; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
-
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -85,7 +82,7 @@
 <!-- Page specific script -->
 <script>
     $(document).ready(function() {
-        $("#example1").DataTable({
+        $("#userTable").DataTable({
             "responsive": true,
             "autoWidth": false,
             buttons: [{
@@ -143,7 +140,7 @@
             initComplete: function() {
                 $(this.api().table().node()).css('visibility', 'visible');
             }
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        }).buttons().container().appendTo('#userTable_wrapper .col-md-6:eq(0)');
     });
 
     function confirmarEliminar(url) {

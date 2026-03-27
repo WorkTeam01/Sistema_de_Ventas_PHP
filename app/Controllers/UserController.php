@@ -4,38 +4,13 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
-use App\Core\Database;
 use App\Models\User;
 
 class UserController extends Controller
 {
-    private function sessionData(): array
-    {
-        Auth::startSession();
-        $usuario = Auth::user() ?? [];
-        return [
-            'URL'               => BASE_URL,
-            'pdo'               => Database::getInstance()->getConnection(),
-            'id_usuario_sesion' => (int) ($usuario['id_usuario'] ?? 0),
-            'nombres_sesion'    => $usuario['nombres'] ?? '',
-            'rol_sesion'        => $usuario['rol'] ?? '',
-        ];
-    }
-
-    private function flash(string $mensaje, string $icono = 'success'): void
-    {
-        Auth::startSession();
-        $_SESSION['mensaje'] = $mensaje;
-        $_SESSION['icono']   = $icono;
-    }
-
-    private function validateCsrfOrFail(): void
-    {
-        if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
-            die('Error de seguridad: Token CSRF inválido.');
-        }
-    }
-
+    /**
+     * Muestra el listado de todos los usuarios con su rol asignado.
+     */
     public function index(): void
     {
         $userModel     = new User();
@@ -47,6 +22,9 @@ class UserController extends Controller
         ));
     }
 
+    /**
+     * Muestra el formulario para registrar un nuevo usuario.
+     */
     public function create(): void
     {
         $userModel   = new User();
@@ -61,6 +39,9 @@ class UserController extends Controller
         ));
     }
 
+    /**
+     * Procesa el formulario de creación, valida datos y guarda el nuevo usuario.
+     */
     public function store(): void
     {
         $this->validateCsrfOrFail();
@@ -103,6 +84,11 @@ class UserController extends Controller
         $this->redirect(BASE_URL . '/users/create');
     }
 
+    /**
+     * Muestra el detalle de un usuario específico.
+     *
+     * @param int|null $id ID del usuario
+     */
     public function show(?int $id = null): void
     {
         $id = $id ?? (int) ($_GET['id'] ?? 0);
@@ -130,6 +116,11 @@ class UserController extends Controller
         ));
     }
 
+    /**
+     * Muestra el formulario de edición para un usuario existente.
+     *
+     * @param int|null $id ID del usuario a editar
+     */
     public function edit(?int $id = null): void
     {
         $id = $id ?? (int) ($_GET['id'] ?? 0);
@@ -162,6 +153,10 @@ class UserController extends Controller
         ));
     }
 
+    /**
+     * Procesa el formulario de edición y actualiza los datos del usuario.
+     * El cambio de contraseña es opcional; solo se aplica si se envía un valor.
+     */
     public function update(): void
     {
         $this->validateCsrfOrFail();
@@ -207,6 +202,11 @@ class UserController extends Controller
         $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
     }
 
+    /**
+     * Muestra la pantalla de confirmación antes de eliminar un usuario.
+     *
+     * @param int|null $id ID del usuario a eliminar
+     */
     public function delete(?int $id = null): void
     {
         $id = $id ?? (int) ($_GET['id'] ?? 0);
@@ -235,6 +235,9 @@ class UserController extends Controller
         ));
     }
 
+    /**
+     * Elimina definitivamente un usuario de la base de datos.
+     */
     public function destroy(): void
     {
         $this->validateCsrfOrFail();

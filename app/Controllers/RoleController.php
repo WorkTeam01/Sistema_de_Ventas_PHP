@@ -4,38 +4,13 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
-use App\Core\Database;
 use App\Models\Role;
 
 class RoleController extends Controller
 {
-    private function sessionData(): array
-    {
-        Auth::startSession();
-        $usuario = Auth::user() ?? [];
-        return [
-            'URL'               => BASE_URL,
-            'pdo'               => Database::getInstance()->getConnection(),
-            'id_usuario_sesion' => (int) ($usuario['id_usuario'] ?? 0),
-            'nombres_sesion'    => $usuario['nombres'] ?? '',
-            'rol_sesion'        => $usuario['rol'] ?? '',
-        ];
-    }
-
-    private function flash(string $mensaje, string $icono = 'success'): void
-    {
-        Auth::startSession();
-        $_SESSION['mensaje'] = $mensaje;
-        $_SESSION['icono']   = $icono;
-    }
-
-    private function validateCsrfOrFail(): void
-    {
-        if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
-            die('Error de seguridad: Token CSRF inválido.');
-        }
-    }
-
+    /**
+     * Muestra el listado de todos los roles registrados en el sistema.
+     */
     public function index(): void
     {
         $roleModel   = new Role();
@@ -47,6 +22,9 @@ class RoleController extends Controller
         ));
     }
 
+    /**
+     * Muestra el formulario para crear un nuevo rol.
+     */
     public function create(): void
     {
         $this->renderWithLayout('views/roles/create.php', array_merge(
@@ -55,6 +33,9 @@ class RoleController extends Controller
         ));
     }
 
+    /**
+     * Procesa el formulario de creación y guarda el nuevo rol.
+     */
     public function store(): void
     {
         $this->validateCsrfOrFail();
@@ -77,6 +58,11 @@ class RoleController extends Controller
         $this->redirect(BASE_URL . '/roles/create');
     }
 
+    /**
+     * Muestra el formulario de edición para un rol existente.
+     *
+     * @param int|null $id ID del rol a editar
+     */
     public function edit(?int $id = null): void
     {
         $id = $id ?? (int) ($_GET['id'] ?? 0);
@@ -103,6 +89,9 @@ class RoleController extends Controller
         ));
     }
 
+    /**
+     * Procesa el formulario de edición y actualiza el rol.
+     */
     public function update(): void
     {
         $this->validateCsrfOrFail();

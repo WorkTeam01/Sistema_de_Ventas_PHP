@@ -2,6 +2,9 @@
 
 namespace App\Core;
 
+use App\Core\Auth;
+use App\Core\Database;
+
 class Controller
 {
     public string $action = '';
@@ -105,5 +108,32 @@ class Controller
         }
 
         return empty($errors) ? true : $errors;
+    }
+
+    protected function sessionData(): array
+    {
+        Auth::startSession();
+        $usuario = Auth::user() ?? [];
+        return [
+            'URL'               => BASE_URL,
+            'pdo'               => Database::getInstance()->getConnection(),
+            'id_usuario_sesion' => (int) ($usuario['id_usuario'] ?? 0),
+            'nombres_sesion'    => $usuario['nombres'] ?? '',
+            'rol_sesion'        => $usuario['rol'] ?? '',
+        ];
+    }
+
+    protected function flash(string $mensaje, string $icono = 'success'): void
+    {
+        Auth::startSession();
+        $_SESSION['mensaje'] = $mensaje;
+        $_SESSION['icono']   = $icono;
+    }
+
+    protected function validateCsrfOrFail(): void
+    {
+        if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            die('Error de seguridad: Token CSRF inválido.');
+        }
     }
 }

@@ -38,37 +38,35 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="example1" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
-                                    <thead>
+                            <table id="roleTable" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Nro</th>
+                                        <th class="text-center">Nombre rol</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $contador = 0;
+                                    foreach ($roles_datos as $roles_dato) :
+                                        $id_rol = $roles_dato['id_rol']; ?>
                                         <tr>
-                                            <th class="text-center">Nro</th>
-                                            <th class="text-center">Nombre rol</th>
-                                            <th class="text-center">Acciones</th>
+                                            <td class="text-center"><?= $contador += 1; ?></td>
+                                            <td><?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center">
+                                                <div class="btn-group">
+                                                    <a href="<?= BASE_URL ?>/roles/edit/<?= $id_rol ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $contador = 0;
-                                        foreach ($roles_datos as $roles_dato) {
-                                            $id_rol = $roles_dato['id_rol']; ?>
-                                            <tr>
-                                                <td class="text-center"><?= $contador += 1; ?></td>
-                                                <td><?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                                <td class="text-center">
-                                                    <div class="btn-group">
-                                                        <a href="<?= BASE_URL ?>/roles/edit/<?= $id_rol ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-md-4">
                     <div class="card card-outline card-info">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-info-circle"></i> Información</h3>
@@ -99,7 +97,7 @@
 <!-- Page specific script -->
 <script>
     $(document).ready(function() {
-        $("#example1").DataTable({
+        $("#roleTable").DataTable({
             "responsive": true,
             "autoWidth": false,
             buttons: [{
@@ -157,6 +155,6 @@
             initComplete: function() {
                 $(this.api().table().node()).css('visibility', 'visible');
             }
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        }).buttons().container().appendTo('#roleTable_wrapper .col-md-6:eq(0)');
     });
 </script>

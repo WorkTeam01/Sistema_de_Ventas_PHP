@@ -4,38 +4,13 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
-use App\Core\Database;
 use App\Models\Category;
 
 class CategoryController extends Controller
 {
-    private function sessionData(): array
-    {
-        Auth::startSession();
-        $usuario = Auth::user() ?? [];
-        return [
-            'URL'               => BASE_URL,
-            'pdo'               => Database::getInstance()->getConnection(),
-            'id_usuario_sesion' => (int) ($usuario['id_usuario'] ?? 0),
-            'nombres_sesion'    => $usuario['nombres'] ?? '',
-            'rol_sesion'        => $usuario['rol'] ?? '',
-        ];
-    }
-
-    private function flash(string $mensaje, string $icono = 'success'): void
-    {
-        Auth::startSession();
-        $_SESSION['mensaje'] = $mensaje;
-        $_SESSION['icono']   = $icono;
-    }
-
-    private function validateCsrfOrFail(): void
-    {
-        if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
-            die('Error de seguridad: Token CSRF inválido.');
-        }
-    }
-
+    /**
+     * Muestra el listado de todas las categorías registradas.
+     */
     public function index(): void
     {
         $categoryModel    = new Category();
@@ -47,6 +22,9 @@ class CategoryController extends Controller
         ));
     }
 
+    /**
+     * Muestra el formulario para crear una nueva categoría.
+     */
     public function create(): void
     {
         $this->renderWithLayout('views/categories/create.php', array_merge(
@@ -55,6 +33,9 @@ class CategoryController extends Controller
         ));
     }
 
+    /**
+     * Procesa el formulario de creación y guarda la nueva categoría.
+     */
     public function store(): void
     {
         $this->validateCsrfOrFail();
@@ -79,6 +60,11 @@ class CategoryController extends Controller
         $this->redirect(BASE_URL . '/categories/create');
     }
 
+    /**
+     * Muestra el formulario de edición para una categoría existente.
+     *
+     * @param int|null $id ID de la categoría a editar
+     */
     public function edit(?int $id = null): void
     {
         $id = $id ?? (int) ($_GET['id'] ?? 0);
@@ -108,6 +94,9 @@ class CategoryController extends Controller
         ));
     }
 
+    /**
+     * Procesa el formulario de edición y actualiza la categoría.
+     */
     public function update(): void
     {
         $this->validateCsrfOrFail();

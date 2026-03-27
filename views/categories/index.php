@@ -38,7 +38,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table id="example1" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <table id="categoryTable" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
                                 <thead>
                                     <tr>
                                         <th class="text-center">Nro</th>
@@ -49,7 +49,7 @@
                                 <tbody>
                                     <?php
                                     $contador = 0;
-                                    foreach ($categories_datos as $category) {
+                                    foreach ($categories_datos as $category) :
                                         $id_categoria = $category['id_categoria']; ?>
                                         <tr>
                                             <td class="text-center"><?= $contador += 1; ?></td>
@@ -62,7 +62,7 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    <?php } ?>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -99,7 +99,7 @@
 <!-- Page specific script -->
 <script>
     $(document).ready(function() {
-        $("#example1").DataTable({
+        $("#categoryTable").DataTable({
             "responsive": true,
             "autoWidth": false,
             buttons: [{
@@ -157,6 +157,6 @@
             initComplete: function() {
                 $(this.api().table().node()).css('visibility', 'visible');
             }
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+        }).buttons().container().appendTo('#categoryTable_wrapper .col-md-6:eq(0)');
     });
 </script>
