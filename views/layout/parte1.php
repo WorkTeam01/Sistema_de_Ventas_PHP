@@ -175,26 +175,26 @@
                                     </li>
                                 </ul>
                             </li>
-                            <!-- Modulo de almacen-->
+                            <!-- Modulo de almacen (MVC) -->
                             <li class="nav-item">
                                 <a href="#" class="nav-link active">
-                                    <i class="nav-icon fas fa-list"></i>
+                                    <i class="nav-icon fas fa-boxes"></i>
                                     <p>
-                                        Almacen
+                                        Almacén
                                         <i class="right fas fa-angle-left"></i>
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/almacen" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/products" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Lista de productos</p>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/almacen/create.php" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/products/create" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
-                                            <p>Crear producto</p>
+                                            <p>Registrar producto</p>
                                         </a>
                                     </li>
                                 </ul>

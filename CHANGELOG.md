@@ -30,12 +30,22 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Vistas MVC en `views/clients/` (index, create, edit) con DataTables, breadcrumb, card info lateral y confirmación SweetAlert2 para eliminar
 - Rutas `/clients`, `/clients/create`, `/clients/edit/{id}`, `/clients/delete` (GET/POST) en `routes/web.php` con middleware `auth`
 
+- Modelo `App\Models\Product` (hereda de `App\Core\Model`) — `$table = 'tb_almacen'`, `$primaryKey = 'id_producto'`; `allWithCategories()` con JOIN a `tb_categorias` y `tb_usuarios`; `nextCode()` genera código `P-XXXXX`; `isReferenced()` verifica dependencias en `tb_carrito` y `tb_compras`
+- `App\Controllers\ProductController` con CRUD completo (index, create, store, edit, update, destroy) más `show()`; método privado `handleImageUpload()` con validación de MIME type, extensión whitelist y límite 2MB
+- Vistas MVC en `views/products/`: `index.php` (8 columnas con alerta visual de stock por colores), `create.php`, `edit.php`, `show.php` (detalle completo con tabla de auditoría)
+- Rutas `/products`, `/products/show/{id}`, `/products/create`, `/products/edit/{id}`, `/products/delete` (GET/POST) en `routes/web.php` con middleware `auth`
+- Directorio `public/uploads/products/` para imágenes de productos; `producto_default.png` y `.gitkeep` trackeados en git; resto de imágenes subidas ignoradas con regla específica en `.gitignore`
+
 ### Cambiado
 
 - `DashboardController` reemplaza `require_once listado_de_roles.php` por `Role::count()` — elimina dependencia de archivo legacy
 - `DashboardController` reemplaza `require_once listado_de_categorias.php` por `Category::count()` — elimina dependencia de archivo legacy
 - `DashboardController` reemplaza `require_once listado_de_proveedores.php` por `Supplier::count()` — elimina dependencia de archivo legacy
 - `DashboardController` reemplaza `require_once listado_de_clientes.php` por `Client::count()` — elimina dependencia de archivo legacy
+- `DashboardController` reemplaza `require_once listado_de_productos.php` por `Product::count()` — elimina dependencia de archivo legacy
+- Sidebar en `views/layout/parte1.php` actualizado al bloque MVC de Almacén (rutas `/products`, `/products/create`) con icono `fa-boxes`
+- Referencias de imágenes en `compras/` y `ventas/create.php` actualizadas de `/almacen/img_productos/` a `/uploads/products/`
+- `.gitignore` corregido para trackear sólo `producto_default.png` y `.gitkeep` en `public/uploads/products/`; eliminada regla genérica `uploads/` que bloqueaba las excepciones con `!`
 
 ### Eliminado
 
@@ -47,6 +57,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Controladores legacy `app/controllers/proveedores/` (listado_de_proveedores, create, update, delete)
 - Vista legacy `clientes/index.php`
 - Controladores legacy `app/controllers/clientes/` (listado_de_clientes, cargar_cliente, guardar_clientes)
+- Vistas legacy `almacen/index.php`, `almacen/create.php`, `almacen/update.php`, `almacen/delete.php`, `almacen/show.php`
+- Controladores legacy `app/controllers/almacen/` (listado_de_productos, create, update, delete, cargar_producto)
 
 ## [1.1.0] - 2026-03-26
 

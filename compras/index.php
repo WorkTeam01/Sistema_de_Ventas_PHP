@@ -159,7 +159,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                         <div class="col-md-3">
                                                                             <div class="form-group">
                                                                                 <label>Imagen del producto</label>
-                                                                                <img src="<?php echo $URL . "/almacen/img_productos/" . $compra_dato['imagen']; ?>" width="100%">
+                                                                                <img src="<?php echo $URL . "/uploads/products/" . $compra_dato['imagen']; ?>" width="100%">
                                                                             </div>
                                                                         </div>
                                                                     </div>

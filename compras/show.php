@@ -122,7 +122,7 @@ include_once '../app/controllers/compras/cargar_compra.php';
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Imagen del producto</label>
-                                                <img class="rounded mx-auto d-block" src="<?php echo $URL . "/almacen/img_productos/" . $imagen; ?>" width="60%" alt="">
+                                                <img class="rounded mx-auto d-block" src="<?php echo $URL . "/uploads/products/" . $imagen; ?>" width="60%" alt="">
                                             </div>
                                         </div>
                                     </div>

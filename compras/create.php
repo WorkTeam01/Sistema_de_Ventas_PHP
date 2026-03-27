@@ -131,7 +131,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                                         var fecha_ingreso = "<?php echo $producto_dato['fecha_ingreso']; ?>";
                                                                                         $('#fecha_ingreso').val(fecha_ingreso);
 
-                                                                                        var ruta_img = "<?php echo $URL . '/almacen/img_productos/' . $producto_dato['imagen']; ?>";
+                                                                                        var ruta_img = "<?php echo $URL . '/uploads/products/' . $producto_dato['imagen']; ?>";
                                                                                         $('#img_producto').attr({
                                                                                             src: ruta_img
                                                                                         });
@@ -144,7 +144,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                                                             <td><?php echo $producto_dato['nombre_categoria']; ?></td>
                                                                             <td><?php echo $producto_dato['nombre']; ?></td>
                                                                             <td>
-                                                                                <img class="rounded mx-auto d-block" src="<?php echo $URL . "/almacen/img_productos/" . $producto_dato['imagen']; ?>" width="80" alt="">
+                                                                                <img class="rounded mx-auto d-block" src="<?php echo $URL . "/uploads/products/" . $producto_dato['imagen']; ?>" width="80" alt="">
                                                                             </td>
                                                                             <td><?php echo $producto_dato['descripcion']; ?></td>
                                                                             <td><?php echo $producto_dato['stock']; ?></td>
@@ -242,7 +242,7 @@ include_once '../app/controllers/compras/listado_de_compras.php';
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Imagen del producto</label>
-                                                <img class="rounded mx-auto d-block" id="img_producto" src="<?php echo $URL . "/almacen/img_productos/" . $imagen; ?>" width="50%" alt="">
+                                                <img class="rounded mx-auto d-block" id="img_producto" src="<?php echo $URL . "/uploads/products/" . $imagen; ?>" width="50%" alt="">
                                             </div>
                                         </div>
                                     </div>

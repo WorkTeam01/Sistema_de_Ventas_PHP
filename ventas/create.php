@@ -116,7 +116,7 @@ include_once '../app/controllers/clientes/listado_de_clientes.php';
                                                                         <td><?php echo $producto_dato['nombre_categoria']; ?></td>
                                                                         <td><?php echo $producto_dato['nombre']; ?></td>
                                                                         <td>
-                                                                            <img class="rounded mx-auto d-block" src="<?php echo $URL . "/almacen/img_productos/" . $producto_dato['imagen']; ?>" width="80" alt="">
+                                                                            <img class="rounded mx-auto d-block" src="<?php echo $URL . "/uploads/products/" . $producto_dato['imagen']; ?>" width="80" alt="">
                                                                         </td>
                                                                         <td><?php echo $producto_dato['descripcion']; ?></td>
                                                                         <td><?php echo $producto_dato['stock']; ?></td>

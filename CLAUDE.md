@@ -164,8 +164,8 @@ Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Ro
 | `categories` | ✅ Migrado | `CategoryController`, `Category` |
 | `suppliers` | ✅ Migrado | `SupplierController`, `Supplier` — `isReferenced()` → `tb_compras` |
 | `clients` | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas` |
-| `almacen` | ⏳ Pendiente | Siguiente en migrar |
-| `compras` | ⏳ Pendiente | |
+| `almacen` | ✅ Migrado | `ProductController`, `Product` — imágenes en `public/uploads/products/`; incluye vista `show` |
+| `compras` | ⏳ Pendiente | Siguiente en migrar |
 | `ventas` | ⏳ Pendiente | Más complejo — incluye carrito y TCPDF |
 
 ### Workflow de Migración MVC

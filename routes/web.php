@@ -4,6 +4,7 @@ use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
 use App\Controllers\ClientController;
 use App\Controllers\DashboardController;
+use App\Controllers\ProductController;
 use App\Controllers\RoleController;
 use App\Controllers\SupplierController;
 use App\Controllers\UserController;
@@ -71,5 +72,14 @@ $router->post('/clients',            [ClientController::class, 'store'],   ['aut
 $router->get('/clients/edit/{id}',   [ClientController::class, 'edit'],    ['auth']);
 $router->post('/clients/update',     [ClientController::class, 'update'],  ['auth']);
 $router->post('/clients/delete',     [ClientController::class, 'destroy'], ['auth']);
+
+// Rutas del módulo products/almacen (MVC)
+$router->get('/products',              [ProductController::class, 'index'],   ['auth']);
+$router->get('/products/show/{id}',    [ProductController::class, 'show'],    ['auth']);
+$router->get('/products/create',       [ProductController::class, 'create'],  ['auth']);
+$router->post('/products',            [ProductController::class, 'store'],   ['auth']);
+$router->get('/products/edit/{id}',   [ProductController::class, 'edit'],    ['auth']);
+$router->post('/products/update',     [ProductController::class, 'update'],  ['auth']);
+$router->post('/products/delete',     [ProductController::class, 'destroy'], ['auth']);
 
 return $router;

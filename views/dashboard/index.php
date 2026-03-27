@@ -78,12 +78,12 @@
                                 <h3><?= $total_productos_dashboard; ?></h3>
                                 <p>Productos registrados</p>
                             </div>
-                            <a href="<?= BASE_URL; ?>/almacen/create.php">
+                            <a href="<?= BASE_URL; ?>/products/create">
                                 <div class="icon">
                                     <i class="fas fa-clipboard-list"></i>
                                 </div>
                             </a>
-                            <a href="<?= BASE_URL; ?>/almacen" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/products" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

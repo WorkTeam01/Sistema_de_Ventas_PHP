@@ -17,7 +17,7 @@ Sistema web de gestión de ventas con control de inventario, facturación en PDF
 
 ## Seguridad y Buenas Prácticas Implementadas
 
-Este proyecto está siendo migrado progresivamente a una arquitectura MVC con PSR-4. Los módulos `auth`, `users`, `dashboard`, `roles`, `categories`, `suppliers` y `clients` ya están completamente migrados; el resto migra incrementalmente. A pesar de la transición, mantiene los estándares de seguridad web modernos:
+Este proyecto está siendo migrado progresivamente a una arquitectura MVC con PSR-4. Los módulos `auth`, `users`, `dashboard`, `roles`, `categories`, `suppliers`, `clients` y `almacen` ya están completamente migrados; el resto migra incrementalmente. A pesar de la transición, mantiene los estándares de seguridad web modernos:
 
 - **Prevención de Inyecciones SQL**: 100% migrado a `PDO Prepared Statements` con _placeholders_ para parametrización.
 - **Protección CSRF**: Intercepción de suplantaciones cruzadas mediante _tokens_ obligatorios en la sesión y formularios mutables.
@@ -128,7 +128,7 @@ APP_TIMEZONE=America/La_Paz
 ### 4. Configurar permisos (Linux / macOS)
 
 ```bash
-chmod 755 almacen/img_productos/
+chmod 755 public/uploads/products/
 chmod 644 app/config.php
 ```
 
@@ -180,10 +180,10 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 Sistema_de_Ventas_PHP/
 ├── app/
 │   ├── config.php          # Bootstrap: Dotenv, BASE_URL, $pdo, $URL, $Año
-│   ├── Controllers/        # Controladores MVC (AuthController, DashboardController, UserController, RoleController, CategoryController, SupplierController, ClientController)
+│   ├── Controllers/        # Controladores MVC (AuthController, DashboardController, UserController, RoleController, CategoryController, SupplierController, ClientController, ProductController)
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
 │   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware)
-│   ├── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client)
+│   ├── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product)
 │   ├── controllers/        # Legacy procedural (módulos pendientes de migración)
 │   └── TCPDF-main/         # Librería de generación de PDF
 ├── views/
@@ -194,15 +194,17 @@ Sistema_de_Ventas_PHP/
 │   ├── roles/              # Vistas CRUD del módulo roles
 │   ├── categories/         # Vistas CRUD del módulo categories
 │   ├── suppliers/          # Vistas CRUD del módulo suppliers
-│   └── clients/            # Vistas CRUD del módulo clients
+│   ├── clients/            # Vistas CRUD del módulo clients
+│   └── products/           # Vistas CRUD del módulo almacen (index, create, edit, show)
 ├── routes/
 │   └── web.php             # Registro de rutas MVC
 ├── public/
 │   ├── index.php           # Front controller
 │   ├── css/                # Estilos personalizados
 │   ├── js/                 # Scripts personalizados
+│   ├── uploads/products/   # Imágenes de productos (producto_default.png trackeado; resto ignorado)
 │   └── templates/          # Assets AdminLTE
-├── [modulo]/               # Módulos legacy pendientes de migración (almacen, ventas, etc.)
+├── [modulo]/               # Módulos legacy pendientes de migración (ventas, compras)
 └── database/
     ├── schema.sql          # Estructura de tablas
     └── seeder.sql          # Datos iniciales
@@ -223,7 +225,7 @@ El proyecto mantiene un esquema híbrido mientras avanza la migración increment
 | `categories`              | ✅ Migrado   |
 | `suppliers` (proveedores) | ✅ Migrado   |
 | `clients` (clientes)      | ✅ Migrado   |
-| `almacen`                 | 🔄 Pendiente |
+| `almacen` (products)      | ✅ Migrado   |
 | `compras`                 | 🔄 Pendiente |
 | `ventas`                  | 🔄 Pendiente |
 
