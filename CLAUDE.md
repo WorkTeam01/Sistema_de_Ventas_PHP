@@ -81,6 +81,7 @@ APP_TIMEZONE=America/La_Paz
 ```
 
 `app/config.php` carga `.env` vía phpdotenv y expone:
+
 - `BASE_URL` — constante PHP global con la URL base (sin trailing slash), disponible en cualquier archivo sin necesidad de pasarla como variable
 - `$URL = BASE_URL` — alias backward-compat para módulos legacy
 - `$pdo`, `$Año`, `$fechaHora` — compatibilidad con módulos existentes
@@ -96,51 +97,57 @@ El ruteo es **híbrido**:
 
 Rutas activas en `routes/web.php`:
 
-| Método | Ruta | Controller | Middleware |
-|---|---|---|---|
-| GET | `/` | `DashboardController::index()` | `auth` |
-| GET | `/auth` | `AuthController::showLogin()` | `guest` |
-| POST | `/auth/login` | `AuthController::store()` | `guest` |
-| GET | `/auth/logout` | `AuthController::logout()` | `auth` |
-| GET | `/users` | `UserController::index()` | `auth`, `admin` |
-| GET | `/users/create` | `UserController::create()` | `auth`, `admin` |
-| POST | `/users` | `UserController::store()` | `auth`, `admin` |
-| GET | `/users/show/{id}` | `UserController::show()` | `auth`, `admin` |
-| GET | `/users/edit/{id}` | `UserController::edit()` | `auth`, `admin` |
-| POST | `/users/update` | `UserController::update()` | `auth`, `admin` |
-| GET | `/users/delete/{id}` | `UserController::delete()` | `auth`, `admin` |
-| POST | `/users/delete` | `UserController::destroy()` | `auth`, `admin` |
-| GET | `/roles` | `RoleController::index()` | `auth`, `admin` |
-| GET | `/roles/create` | `RoleController::create()` | `auth`, `admin` |
-| POST | `/roles` | `RoleController::store()` | `auth`, `admin` |
-| GET | `/roles/edit/{id}` | `RoleController::edit()` | `auth`, `admin` |
-| POST | `/roles/update` | `RoleController::update()` | `auth`, `admin` |
-| GET | `/categories` | `CategoryController::index()` | `auth` |
-| GET | `/categories/create` | `CategoryController::create()` | `auth` |
-| POST | `/categories` | `CategoryController::store()` | `auth` |
-| GET | `/categories/edit/{id}` | `CategoryController::edit()` | `auth` |
-| POST | `/categories/update` | `CategoryController::update()` | `auth` |
-| GET | `/suppliers` | `SupplierController::index()` | `auth` |
-| GET | `/suppliers/create` | `SupplierController::create()` | `auth` |
-| POST | `/suppliers` | `SupplierController::store()` | `auth` |
-| GET | `/suppliers/edit/{id}` | `SupplierController::edit()` | `auth` |
-| POST | `/suppliers/update` | `SupplierController::update()` | `auth` |
-| POST | `/suppliers/delete` | `SupplierController::destroy()` | `auth` |
+| Método | Ruta                    | Controller                      | Middleware      |
+| ------ | ----------------------- | ------------------------------- | --------------- |
+| GET    | `/`                     | `DashboardController::index()`  | `auth`          |
+| GET    | `/auth`                 | `AuthController::showLogin()`   | `guest`         |
+| POST   | `/auth/login`           | `AuthController::store()`       | `guest`         |
+| GET    | `/auth/logout`          | `AuthController::logout()`      | `auth`          |
+| GET    | `/users`                | `UserController::index()`       | `auth`, `admin` |
+| GET    | `/users/create`         | `UserController::create()`      | `auth`, `admin` |
+| POST   | `/users`                | `UserController::store()`       | `auth`, `admin` |
+| GET    | `/users/show/{id}`      | `UserController::show()`        | `auth`, `admin` |
+| GET    | `/users/edit/{id}`      | `UserController::edit()`        | `auth`, `admin` |
+| POST   | `/users/update`         | `UserController::update()`      | `auth`, `admin` |
+| GET    | `/users/delete/{id}`    | `UserController::delete()`      | `auth`, `admin` |
+| POST   | `/users/delete`         | `UserController::destroy()`     | `auth`, `admin` |
+| GET    | `/roles`                | `RoleController::index()`       | `auth`, `admin` |
+| GET    | `/roles/create`         | `RoleController::create()`      | `auth`, `admin` |
+| POST   | `/roles`                | `RoleController::store()`       | `auth`, `admin` |
+| GET    | `/roles/edit/{id}`      | `RoleController::edit()`        | `auth`, `admin` |
+| POST   | `/roles/update`         | `RoleController::update()`      | `auth`, `admin` |
+| GET    | `/categories`           | `CategoryController::index()`   | `auth`          |
+| GET    | `/categories/create`    | `CategoryController::create()`  | `auth`          |
+| POST   | `/categories`           | `CategoryController::store()`   | `auth`          |
+| GET    | `/categories/edit/{id}` | `CategoryController::edit()`    | `auth`          |
+| POST   | `/categories/update`    | `CategoryController::update()`  | `auth`          |
+| GET    | `/suppliers`            | `SupplierController::index()`   | `auth`          |
+| GET    | `/suppliers/create`     | `SupplierController::create()`  | `auth`          |
+| POST   | `/suppliers`            | `SupplierController::store()`   | `auth`          |
+| GET    | `/suppliers/edit/{id}`  | `SupplierController::edit()`    | `auth`          |
+| POST   | `/suppliers/update`     | `SupplierController::update()`  | `auth`          |
+| POST   | `/suppliers/delete`     | `SupplierController::destroy()` | `auth`          |
+| GET    | `/clients`              | `ClientController::index()`     | `auth`          |
+| GET    | `/clients/create`       | `ClientController::create()`    | `auth`          |
+| POST   | `/clients`              | `ClientController::store()`     | `auth`          |
+| GET    | `/clients/edit/{id}`    | `ClientController::edit()`      | `auth`          |
+| POST   | `/clients/update`       | `ClientController::update()`    | `auth`          |
+| POST   | `/clients/delete`       | `ClientController::destroy()`   | `auth`          |
 
 ### Clases Core MVC (`app/Core/`)
 
-| Clase | Descripción |
-|---|---|
-| `App\Core\Database` | Singleton PDO — `Database::getInstance()->getConnection()` |
-| `App\Core\Router` | Registra y despacha rutas GET/POST con middleware |
-| `App\Core\Controller` | Base: `view()`, `renderWithLayout()`, `redirect()`, `json()`, `input()`, `validate()` |
-| `App\Core\Model` | Base abstracta: `all()`, `find()`, `create()`, `update()`, `delete()`, `count()`, `query()` |
-| `App\Core\Auth` | Sesión y CSRF: `check()`, `user()`, `role()`, `login()`, `logout()`, `generateCsrfToken()` |
-| `App\Core\Config` | Wrapper de `.env`: `Config::get('KEY', $default)` |
-| `App\Core\Middleware` | Interfaz: `handle(): bool` |
+| Clase                 | Descripción                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------- |
+| `App\Core\Database`   | Singleton PDO — `Database::getInstance()->getConnection()`                                  |
+| `App\Core\Router`     | Registra y despacha rutas GET/POST con middleware                                           |
+| `App\Core\Controller` | Base: `view()`, `renderWithLayout()`, `redirect()`, `json()`, `input()`, `validate()`       |
+| `App\Core\Model`      | Base abstracta: `all()`, `find()`, `create()`, `update()`, `delete()`, `count()`, `query()` |
+| `App\Core\Auth`       | Sesión y CSRF: `check()`, `user()`, `role()`, `login()`, `logout()`, `generateCsrfToken()`  |
+| `App\Core\Config`     | Wrapper de `.env`: `Config::get('KEY', $default)`                                           |
+| `App\Core\Middleware` | Interfaz: `handle(): bool`                                                                  |
 
-Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`, `CategoryController`, `SupplierController`.
-Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`, `Category`, `Supplier`.
+Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`, `CategoryController`, `SupplierController`, `ClientController`.
+Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`, `Category`, `Supplier`, `Client`.
 
 ### Patrón MVC simplificado (módulos existentes)
 
@@ -153,6 +160,7 @@ Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Ro
 El login usa `App\Controllers\AuthController` (vía Router). La vista está en `views/auth/login.php`.
 
 **Módulos MVC** — las rutas se protegen con middleware en `routes/web.php`:
+
 ```php
 $router->get('/ruta', [Controller::class, 'method'], ['auth']);         // cualquier rol
 $router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']); // solo Administrador
@@ -161,6 +169,7 @@ $router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']); // solo
 Los middlewares PSR-4 viven en `app/Middleware/`: `AuthMiddleware`, `AdminMiddleware`, `GuestMiddleware`.
 
 **Módulos legacy** — cada página protegida sigue usando [app/controllers/middleware/AuthMiddleware.php](app/controllers/middleware/AuthMiddleware.php):
+
 ```php
 require_once('../app/config.php');
 require_once('../app/controllers/middleware/AuthMiddleware.php');
@@ -236,6 +245,7 @@ app/controllers/[modulo]/
 El stock se actualiza automáticamente al crear/eliminar ventas y al registrar compras.
 
 Convenciones de columnas de auditoría:
+
 - `fyh_creacion` — `DEFAULT CURRENT_TIMESTAMP`; no insertar manualmente en los controllers
 - `fyh_actualizacion` — queda `NULL` al crear; se actualiza sola con `ON UPDATE CURRENT_TIMESTAMP`
 - Los precios se almacenan como `DECIMAL(10,2)`, no como VARCHAR

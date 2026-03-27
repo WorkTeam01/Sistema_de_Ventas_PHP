@@ -281,24 +281,34 @@
                                     </li>
                                 </ul>
                             </li>
+
                             <!-- Modulo de clientes -->
-                            <li class="nav-item">
-                                <a href="#" class="nav-link active">
-                                    <i class="nav-icon fas fa-user-friends"></i>
-                                    <p>
-                                        Clientes
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/clientes" class="nav-link">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Lista de clientes</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
+                            <?php if ($rol_sesion == 'Administrador' || $rol_sesion == 'Vendedor') : ?>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link active">
+                                        <i class="nav-icon fas fa-user-friends"></i>
+                                        <p>
+                                            Clientes
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="<?= BASE_URL ?>/clients" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Lista de clientes</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="<?= BASE_URL ?>/clients/create" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Crear cliente</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            <?php endif; ?>
+
                             <li class="nav-item">
                                 <a href="<?= BASE_URL ?>/auth/logout" class="nav-link bg-danger">
                                     <i class="nav-icon fas fa-door-closed"></i>

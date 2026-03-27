@@ -25,11 +25,17 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Vistas MVC en `views/suppliers/` (index, create, edit) con DataTables, breadcrumb, card info lateral y confirmación SweetAlert2 para eliminar
 - Rutas `/suppliers`, `/suppliers/create`, `/suppliers/edit/{id}`, `/suppliers/delete` (GET/POST) en `routes/web.php` con middleware `auth`
 
+- Modelo `App\Models\Client` (hereda de `App\Core\Model`) — `$table = 'tb_clientes'`, `$primaryKey = 'id_cliente'`; sobreescribe `isReferenced()` para verificar dependencias en `tb_ventas`
+- `App\Controllers\ClientController` con CRUD completo (index, create, store, edit, update, destroy); accesible a roles `Administrador` y `Vendedor`
+- Vistas MVC en `views/clients/` (index, create, edit) con DataTables, breadcrumb, card info lateral y confirmación SweetAlert2 para eliminar
+- Rutas `/clients`, `/clients/create`, `/clients/edit/{id}`, `/clients/delete` (GET/POST) en `routes/web.php` con middleware `auth`
+
 ### Cambiado
 
 - `DashboardController` reemplaza `require_once listado_de_roles.php` por `Role::count()` — elimina dependencia de archivo legacy
 - `DashboardController` reemplaza `require_once listado_de_categorias.php` por `Category::count()` — elimina dependencia de archivo legacy
 - `DashboardController` reemplaza `require_once listado_de_proveedores.php` por `Supplier::count()` — elimina dependencia de archivo legacy
+- `DashboardController` reemplaza `require_once listado_de_clientes.php` por `Client::count()` — elimina dependencia de archivo legacy
 
 ### Eliminado
 
@@ -39,6 +45,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Controladores legacy `app/controllers/categorias/` (listado_de_categorias, registro_categorias, update_de_categorias)
 - Vista legacy `proveedores/index.php`
 - Controladores legacy `app/controllers/proveedores/` (listado_de_proveedores, create, update, delete)
+- Vista legacy `clientes/index.php`
+- Controladores legacy `app/controllers/clientes/` (listado_de_clientes, cargar_cliente, guardar_clientes)
 
 ## [1.1.0] - 2026-03-26
 

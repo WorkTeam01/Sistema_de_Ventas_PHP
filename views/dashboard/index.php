@@ -154,7 +154,7 @@
                             <div class="icon">
                                 <i class="fas fa-user-tag"></i>
                             </div>
-                            <a href="<?= BASE_URL; ?>/clientes" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/clients" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

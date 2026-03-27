@@ -2,6 +2,7 @@
 
 use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
+use App\Controllers\ClientController;
 use App\Controllers\DashboardController;
 use App\Controllers\RoleController;
 use App\Controllers\SupplierController;
@@ -62,5 +63,13 @@ $router->post('/suppliers',             [SupplierController::class, 'store'],   
 $router->get('/suppliers/edit/{id}',    [SupplierController::class, 'edit'],    ['auth']);
 $router->post('/suppliers/update',      [SupplierController::class, 'update'],  ['auth']);
 $router->post('/suppliers/delete',      [SupplierController::class, 'destroy'], ['auth']);
+
+// Rutas del módulo clients (MVC)
+$router->get('/clients',             [ClientController::class, 'index'],   ['auth']);
+$router->get('/clients/create',      [ClientController::class, 'create'],  ['auth']);
+$router->post('/clients',            [ClientController::class, 'store'],   ['auth']);
+$router->get('/clients/edit/{id}',   [ClientController::class, 'edit'],    ['auth']);
+$router->post('/clients/update',     [ClientController::class, 'update'],  ['auth']);
+$router->post('/clients/delete',     [ClientController::class, 'destroy'], ['auth']);
 
 return $router;
