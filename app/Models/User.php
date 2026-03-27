@@ -4,17 +4,34 @@ namespace App\Models;
 
 use App\Core\Model;
 
+/**
+ * Modelo para la tabla tb_usuarios.
+ *
+ * Extiende Model con métodos específicos de autenticación,
+ * consultas con join de rol y gestión de contraseñas.
+ */
 class User extends Model
 {
     protected string $table = 'tb_usuarios';
     protected string $primaryKey = 'id_usuario';
 
+    /**
+     * Cuenta el total de usuarios registrados en la tabla.
+     *
+     * @return int Total de usuarios.
+     */
     public function countAll(): int
     {
         $stmt = $this->db->query("SELECT COUNT(*) FROM {$this->table}");
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Busca un usuario por su dirección de email.
+     *
+     * @param string $email Email a buscar.
+     * @return array|false Datos del usuario o false si no existe.
+     */
     public function findByEmail(string $email): array|false
     {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE email = ? LIMIT 1");
@@ -23,6 +40,13 @@ class User extends Model
         return $stmt->fetch();
     }
 
+    /**
+     * Verifica las credenciales de login comparando el password con el hash almacenado.
+     *
+     * @param string $email         Email del usuario.
+     * @param string $plainPassword Contraseña en texto plano.
+     * @return array|false Datos del usuario si las credenciales son correctas, false si no.
+     */
     public function verifyCredentials(string $email, string $plainPassword): array|false
     {
         $user = $this->findByEmail($email);
@@ -38,6 +62,12 @@ class User extends Model
         return $user;
     }
 
+    /**
+     * Devuelve todos los usuarios con el nombre de su rol (JOIN con tb_roles),
+     * ordenados por id_usuario descendente.
+     *
+     * @return array Lista de usuarios con columnas id_usuario, nombres, email, id_rol, rol.
+     */
     public function findAllWithRole(): array
     {
         $stmt = $this->db->query(
@@ -50,6 +80,12 @@ class User extends Model
         return $stmt->fetchAll();
     }
 
+    /**
+     * Busca un usuario por ID incluyendo el nombre de su rol.
+     *
+     * @param int $id ID del usuario.
+     * @return array|false Datos del usuario con su rol, o false si no existe.
+     */
     public function findWithRoleById(int $id): array|false
     {
         $stmt = $this->db->prepare(
@@ -64,12 +100,25 @@ class User extends Model
         return $stmt->fetch();
     }
 
+    /**
+     * Devuelve todos los roles disponibles para poblar selectores de formulario.
+     *
+     * @return array Lista de roles con columnas id_rol y rol.
+     */
     public function findAllRoles(): array
     {
         $stmt = $this->db->query("SELECT id_rol, rol FROM tb_roles ORDER BY id_rol ASC");
         return $stmt->fetchAll();
     }
 
+    /**
+     * Verifica si un email ya está registrado, opcionalmente excluyendo un usuario específico.
+     * Útil para validar unicidad tanto en creación como en edición.
+     *
+     * @param string   $email         Email a verificar.
+     * @param int|null $excludeUserId ID del usuario a excluir de la búsqueda (para edición).
+     * @return bool True si el email ya está en uso por otro usuario.
+     */
     public function emailExists(string $email, ?int $excludeUserId = null): bool
     {
         if ($excludeUserId !== null) {
@@ -83,6 +132,15 @@ class User extends Model
         return (int) $stmt->fetchColumn() > 0;
     }
 
+    /**
+     * Crea un nuevo usuario con los datos proporcionados.
+     *
+     * @param string $nombres      Nombre completo del usuario.
+     * @param string $email        Email del usuario.
+     * @param int    $idRol        ID del rol asignado.
+     * @param string $passwordHash Contraseña ya hasheada con password_hash().
+     * @return bool True si la inserción fue exitosa.
+     */
     public function createUser(string $nombres, string $email, int $idRol, string $passwordHash): bool
     {
         return $this->insert([
@@ -93,6 +151,16 @@ class User extends Model
         ]);
     }
 
+    /**
+     * Actualiza los datos de un usuario. Si $passwordHash es null, no modifica la contraseña.
+     *
+     * @param int         $id           ID del usuario a actualizar.
+     * @param string      $nombres      Nuevo nombre completo.
+     * @param string      $email        Nuevo email.
+     * @param int         $idRol        Nuevo ID de rol.
+     * @param string|null $passwordHash Nueva contraseña hasheada, o null para no cambiarla.
+     * @return bool True si la actualización fue exitosa.
+     */
     public function updateUser(int $id, string $nombres, string $email, int $idRol, ?string $passwordHash = null): bool
     {
         if ($passwordHash === null) {

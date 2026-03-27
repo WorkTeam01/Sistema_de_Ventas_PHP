@@ -2,8 +2,16 @@
 
 namespace App\Core;
 
+/**
+ * Gestiona la sesión de usuario y los tokens CSRF.
+ *
+ * Todos los métodos son estáticos; no requiere instanciación.
+ */
 class Auth
 {
+    /**
+     * Inicia la sesión PHP si aún no está activa.
+     */
     public static function startSession(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -11,18 +19,28 @@ class Auth
         }
     }
 
+    /**
+     * Indica si existe una sesión activa (email guardado en sesión).
+     */
     public static function check(): bool
     {
         self::startSession();
         return !empty($_SESSION['sesion_email']);
     }
 
+    /**
+     * Devuelve el email del usuario en sesión, o null si no hay sesión.
+     */
     public static function email(): ?string
     {
         self::startSession();
         return $_SESSION['sesion_email'] ?? null;
     }
 
+    /**
+     * Devuelve los datos completos del usuario en sesión consultando la BD,
+     * incluyendo su rol. Devuelve null si no hay sesión activa.
+     */
     public static function user(): ?array
     {
         $email = self::email();
@@ -44,18 +62,29 @@ class Auth
         return $user ?: null;
     }
 
+    /**
+     * Devuelve el nombre del rol del usuario en sesión, o null si no hay sesión.
+     */
     public static function role(): ?string
     {
         $user = self::user();
         return $user['rol'] ?? null;
     }
 
+    /**
+     * Devuelve el nombre del usuario en sesión, o null si no hay sesión.
+     */
     public static function name(): ?string
     {
         $user = self::user();
         return $user['nombres'] ?? null;
     }
 
+    /**
+     * Inicia sesión: regenera el ID de sesión y guarda el email del usuario.
+     *
+     * @param array $user Datos del usuario; debe contener la clave 'email'.
+     */
     public static function login(array $user): void
     {
         self::startSession();
@@ -63,6 +92,9 @@ class Auth
         $_SESSION['sesion_email'] = $user['email'] ?? null;
     }
 
+    /**
+     * Cierra la sesión: limpia $_SESSION, elimina la cookie de sesión y destruye la sesión.
+     */
     public static function logout(): void
     {
         self::startSession();
@@ -84,6 +116,12 @@ class Auth
         session_destroy();
     }
 
+    /**
+     * Genera un token CSRF de 64 caracteres hexadecimales y lo almacena en sesión.
+     * Si ya existe un token en la sesión, lo devuelve sin generar uno nuevo.
+     *
+     * @return string Token CSRF activo.
+     */
     public static function generateCsrfToken(): string
     {
         self::startSession();
@@ -95,6 +133,12 @@ class Auth
         return $_SESSION['csrf_token'];
     }
 
+    /**
+     * Valida el token CSRF recibido contra el almacenado en sesión usando comparación segura.
+     *
+     * @param string $token Token recibido desde el formulario.
+     * @return bool True si el token es válido.
+     */
     public static function validateCsrfToken(string $token): bool
     {
         self::startSession();

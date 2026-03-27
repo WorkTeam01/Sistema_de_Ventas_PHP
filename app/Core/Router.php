@@ -2,23 +2,49 @@
 
 namespace App\Core;
 
+/**
+ * Enrutador HTTP simple que resuelve rutas GET/POST con soporte de parámetros dinámicos y middleware.
+ */
 class Router
 {
+    /** Rutas registradas indexadas por método HTTP y path. */
     private array $routes = [];
+    /** Middleware asociado a cada ruta, indexado igual que $routes. */
     private array $middlewares = [];
 
+    /**
+     * Registra una ruta GET.
+     *
+     * @param string                    $path       Patrón de ruta (ej. '/users/{id}').
+     * @param callable|array|string     $handler    Handler: closure, [Class, 'method'] o 'Class@method'.
+     * @param array                     $middleware Claves de middleware a ejecutar ('auth', 'guest', 'admin').
+     */
     public function get(string $path, callable|array|string $handler, array $middleware = []): void
     {
         $this->routes['GET'][$path] = $handler;
         $this->middlewares['GET'][$path] = $middleware;
     }
 
+    /**
+     * Registra una ruta POST.
+     *
+     * @param string                $path       Patrón de ruta.
+     * @param callable|array|string $handler    Handler de la ruta.
+     * @param array                 $middleware Claves de middleware a ejecutar.
+     */
     public function post(string $path, callable|array|string $handler, array $middleware = []): void
     {
         $this->routes['POST'][$path] = $handler;
         $this->middlewares['POST'][$path] = $middleware;
     }
 
+    /**
+     * Despacha la petición: resuelve la URI contra las rutas registradas,
+     * ejecuta el middleware y luego el handler. Devuelve 404 si no hay coincidencia.
+     *
+     * @param string $method Método HTTP ('GET', 'POST').
+     * @param string $uri    URI de la petición (sin query string).
+     */
     public function dispatch(string $method, string $uri): void
     {
         $uri = '/' . trim($uri, '/');
@@ -61,6 +87,13 @@ class Router
         require_once __DIR__ . '/../../error/error.php';
     }
 
+    /**
+     * Invoca el handler de ruta con los parámetros capturados.
+     * Soporta closure, [Class, 'method'] y 'Class@method'.
+     *
+     * @param callable|array|string $handler Handler a ejecutar.
+     * @param array                 $params  Parámetros de ruta capturados.
+     */
     private function executeHandler(callable|array|string $handler, array $params = []): void
     {
         if (is_callable($handler) && !is_string($handler)) {
@@ -91,6 +124,12 @@ class Router
         throw new \RuntimeException('Handler de ruta inválido.');
     }
 
+    /**
+     * Resuelve la clase de middleware por su clave e invoca handle().
+     * Lanza RuntimeException si la clave no está registrada.
+     *
+     * @param string $key Clave del middleware ('auth', 'guest', 'admin').
+     */
     private function executeMiddleware(string $key): void
     {
         $map = [

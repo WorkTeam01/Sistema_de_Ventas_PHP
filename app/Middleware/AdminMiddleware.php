@@ -6,8 +6,17 @@ use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Middleware;
 
+/**
+ * Middleware que restringe el acceso a usuarios con rol Administrador.
+ * Redirige a /auth si no hay sesión, o a la página de error si no tiene permisos.
+ */
 class AdminMiddleware implements Middleware
 {
+    /**
+     * Permite el acceso si el usuario tiene rol 'Administrador'; redirige si no.
+     *
+     * @return bool True si el usuario es Administrador.
+     */
     public function handle(): bool
     {
         if (!Auth::check()) {
