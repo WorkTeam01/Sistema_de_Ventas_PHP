@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Archivos de referencia del equipo
+
+| Archivo | Propósito |
+| ------- | --------- |
+| [AGENT.md](AGENT.md) | Context persistente para agentes IA — arquitectura completa, convenciones, prohibiciones |
+| [PROMPTS.md](PROMPTS.md) | Plantillas de prompts para el equipo — migración, debugging, code review, arquitectura |
+
 ## Descripción del Proyecto
 
 Sistema de Ventas es un sistema de gestión de ventas en PHP/MySQL con control de inventario, facturación, gestión de clientes y acceso por roles. La interfaz usa AdminLTE 3.2.0 (Bootstrap 4).
@@ -149,6 +156,33 @@ Rutas activas en `routes/web.php`:
 Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`, `CategoryController`, `SupplierController`, `ClientController`.
 Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`, `Category`, `Supplier`, `Client`.
 
+### Estado de Migración MVC
+
+| Módulo | Estado | Notas |
+| ------ | ------ | ----- |
+| `roles` | ✅ Migrado | `RoleController`, `Role` |
+| `categories` | ✅ Migrado | `CategoryController`, `Category` |
+| `suppliers` | ✅ Migrado | `SupplierController`, `Supplier` — `isReferenced()` → `tb_compras` |
+| `clients` | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas` |
+| `almacen` | ⏳ Pendiente | Siguiente en migrar |
+| `compras` | ⏳ Pendiente | |
+| `ventas` | ⏳ Pendiente | Más complejo — incluye carrito y TCPDF |
+
+### Workflow de Migración MVC
+
+Al migrar un módulo legacy, seguir este orden exacto:
+
+1. Crear `app/Models/[Nombre].php` — extender `Model`, definir `$table` y `$primaryKey`, sobreescribir `isReferenced()` si la tabla tiene FKs en otras tablas
+2. Crear `app/Controllers/[Nombre]Controller.php` — 6 métodos: `index`, `create`, `store`, `edit`, `update`, `destroy`
+3. Crear `views/[modulo]/index.php`, `create.php`, `edit.php`
+4. Registrar 6 rutas en `routes/web.php`
+5. Actualizar sidebar en `views/layout/parte1.php` con control de rol
+6. Actualizar `DashboardController` para usar el nuevo Model en lugar del `require_once` legacy
+7. Eliminar archivos legacy del módulo
+8. Actualizar `CHANGELOG.md`, `README.md`, `CLAUDE.md`
+
+Los commits van separados: `feat(modulo)` para archivos MVC + `chore(modulo)` para eliminación de legacy.
+
 ### Patrón MVC simplificado (módulos existentes)
 
 - **Vistas**: Directorios de módulos en la raíz (`almacen/`, `ventas/`, `compras/`, etc.)
@@ -272,3 +306,13 @@ Convenciones de columnas de auditoría:
 chmod 755 almacen/img_productos/   # Directorio de carga de imágenes de productos
 chmod 644 app/config.php
 ```
+
+## Prohibiciones Explícitas
+
+- **SQL**: Nunca concatenar variables en queries — siempre `?` con `execute([$var])`
+- **Borrado**: Este proyecto usa borrado **físico** con `isReferenced()` — nunca borrado lógico con `is_active`
+- **Controladores**: Solo los 6 métodos estándar (`index`, `create`, `store`, `edit`, `update`, `destroy`) — no inventar `toggle()`, `activate()`, `complete()`, etc.
+- **JavaScript**: Nunca `alert()` nativo — usar SweetAlert2 con el patrón de formulario oculto `#formEliminar`
+- **PHP → JS**: Nunca interpolar strings PHP en JS con comillas simples — usar `json_encode()`
+- **Templates**: No modificar archivos en `public/templates/` (AdminLTE)
+- **Vistas**: No llamar `Auth::` directamente en vistas — pasar los datos desde el controlador vía `renderWithLayout()`
