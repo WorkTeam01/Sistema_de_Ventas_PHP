@@ -229,25 +229,20 @@
                             <!-- Modulo de compras -->
                             <li class="nav-item">
                                 <a href="#" class="nav-link active">
-                                    <i class="nav-icon fas fa-solid fa-cart-plus"></i>
-                                    <p>
-                                        Compras
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
+                                    <i class="nav-icon fas fa-shopping-cart"></i>
+                                    <p>Compras <i class="right fas fa-angle-left"></i></p>
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/compras" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/purchases" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Lista de compras</p>
                                         </a>
                                     </li>
-                                </ul>
-                                <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/compras/create.php" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/purchases/create" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
-                                            <p>Crear compra</p>
+                                            <p>Registrar compra</p>
                                         </a>
                                     </li>
                                 </ul>

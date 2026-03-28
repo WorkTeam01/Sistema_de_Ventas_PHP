@@ -36,6 +36,11 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Rutas `/products`, `/products/show/{id}`, `/products/create`, `/products/edit/{id}`, `/products/delete` (GET/POST) en `routes/web.php` con middleware `auth`
 - Directorio `public/uploads/products/` para imágenes de productos; `producto_default.png` y `.gitkeep` trackeados en git; resto de imágenes subidas ignoradas con regla específica en `.gitignore`
 
+- Modelo `App\Models\Purchase` (hereda de `App\Core\Model`) — `$table = 'tb_compras'`, `$primaryKey = 'id_compra'`; operaciones de escritura transaccionales: `storeWithStock()`, `updateWithStock()` (maneja cambio de producto), `destroyWithStock()`; consultas con JOIN: `allWithDetails()`, `findWithDetails()`; `nextNumber()` para nro_compra auto
+- `App\Controllers\PurchaseController` con CRUD completo (index, create, store, show, edit, update, destroy); `id_usuario` tomado de `Auth::user()` — nunca del POST; validación de campos en servidor
+- Vistas MVC en `views/purchases/`: `index.php` (DataTables + SweetAlert2 con stock revert en eliminar), `create.php`, `edit.php` (campos hidden `old_id_producto` y `old_cantidad` para ajuste de stock), `show.php` (detalle con secciones producto, proveedor, compra y auditoría)
+- Rutas `/purchases`, `/purchases/show/{id}`, `/purchases/create`, `/purchases/edit/{id}`, `/purchases/update`, `/purchases/delete` (GET/POST) en `routes/web.php` con middleware `auth`
+
 ### Cambiado
 
 - `DashboardController` reemplaza `require_once listado_de_roles.php` por `Role::count()` — elimina dependencia de archivo legacy
@@ -43,7 +48,9 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - `DashboardController` reemplaza `require_once listado_de_proveedores.php` por `Supplier::count()` — elimina dependencia de archivo legacy
 - `DashboardController` reemplaza `require_once listado_de_clientes.php` por `Client::count()` — elimina dependencia de archivo legacy
 - `DashboardController` reemplaza `require_once listado_de_productos.php` por `Product::count()` — elimina dependencia de archivo legacy
+- `DashboardController` reemplaza `require_once listado_de_compras.php` por `Purchase::count()` — elimina dependencia de archivo legacy
 - Sidebar en `views/layout/parte1.php` actualizado al bloque MVC de Almacén (rutas `/products`, `/products/create`) con icono `fa-boxes`
+- Sidebar en `views/layout/parte1.php` actualizado al bloque MVC de Compras (rutas `/purchases`, `/purchases/create`) con icono `fa-shopping-cart`
 - Referencias de imágenes en `compras/` y `ventas/create.php` actualizadas de `/almacen/img_productos/` a `/uploads/products/`
 - `.gitignore` corregido para trackear sólo `producto_default.png` y `.gitkeep` en `public/uploads/products/`; eliminada regla genérica `uploads/` que bloqueaba las excepciones con `!`
 
@@ -59,6 +66,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Controladores legacy `app/controllers/clientes/` (listado_de_clientes, cargar_cliente, guardar_clientes)
 - Vistas legacy `almacen/index.php`, `almacen/create.php`, `almacen/update.php`, `almacen/delete.php`, `almacen/show.php`
 - Controladores legacy `app/controllers/almacen/` (listado_de_productos, create, update, delete, cargar_producto)
+- Vistas legacy `compras/index.php`, `compras/create.php`, `compras/update.php`, `compras/delete.php`, `compras/show.php`
+- Controladores legacy `app/controllers/compras/` (listado_de_compras, create, update, delete, cargar_compra)
 
 ## [1.1.0] - 2026-03-26
 

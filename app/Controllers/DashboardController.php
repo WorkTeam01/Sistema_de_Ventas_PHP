@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Models\Category;
 use App\Models\Client;
 use App\Models\Product;
+use App\Models\Purchase;
 use App\Models\Role;
 use App\Models\Supplier;
 use App\Models\User;
@@ -39,8 +40,10 @@ class DashboardController extends Controller
         $productModel              = new Product();
         $total_productos_dashboard = $productModel->count();
 
+        $purchaseModel = new Purchase();
+        $total_compras = $purchaseModel->count();
+
         // Los listado files legacy necesitan $pdo en scope local
-        require_once __DIR__ . '/../../app/controllers/compras/listado_de_compras.php';
         require_once __DIR__ . '/../../app/controllers/ventas/listado_de_ventas.php';
 
         $this->renderWithLayout('views/dashboard/index.php', array_merge($sessionData, [

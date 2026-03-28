@@ -114,12 +114,12 @@
                                 <h3><?= $total_compras; ?></h3>
                                 <p>Compras registradas</p>
                             </div>
-                            <a href="<?= BASE_URL; ?>/compras/create.php">
+                            <a href="<?= BASE_URL; ?>/purchases/create">
                                 <div class="icon">
                                     <i class="fas fa-cart-arrow-down"></i>
                                 </div>
                             </a>
-                            <a href="<?= BASE_URL; ?>/compras" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/purchases" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

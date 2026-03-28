@@ -5,6 +5,7 @@ use App\Controllers\CategoryController;
 use App\Controllers\ClientController;
 use App\Controllers\DashboardController;
 use App\Controllers\ProductController;
+use App\Controllers\PurchaseController;
 use App\Controllers\RoleController;
 use App\Controllers\SupplierController;
 use App\Controllers\UserController;
@@ -81,5 +82,14 @@ $router->post('/products',            [ProductController::class, 'store'],   ['a
 $router->get('/products/edit/{id}',   [ProductController::class, 'edit'],    ['auth']);
 $router->post('/products/update',     [ProductController::class, 'update'],  ['auth']);
 $router->post('/products/delete',     [ProductController::class, 'destroy'], ['auth']);
+
+// Rutas del módulo purchases/compras (MVC)
+$router->get('/purchases',             [PurchaseController::class, 'index'],   ['auth']);
+$router->get('/purchases/create',      [PurchaseController::class, 'create'],  ['auth']);
+$router->post('/purchases',            [PurchaseController::class, 'store'],   ['auth']);
+$router->get('/purchases/show/{id}',   [PurchaseController::class, 'show'],    ['auth']);
+$router->get('/purchases/edit/{id}',   [PurchaseController::class, 'edit'],    ['auth']);
+$router->post('/purchases/update',     [PurchaseController::class, 'update'],  ['auth']);
+$router->post('/purchases/delete',     [PurchaseController::class, 'destroy'], ['auth']);
 
 return $router;
