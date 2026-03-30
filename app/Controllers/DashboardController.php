@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Role;
+use App\Models\Sale;
 use App\Models\Supplier;
 use App\Models\User;
 
@@ -15,7 +16,6 @@ class DashboardController extends Controller
 {
     /**
      * Muestra el dashboard principal con totales de cada módulo.
-     * Los módulos aún no migrados a MVC inyectan su total vía require_once legacy.
      */
     public function index(): void
     {
@@ -29,7 +29,6 @@ class DashboardController extends Controller
         $total_categorias = $categoryModel->count();
 
         $sessionData = $this->sessionData();
-        $pdo = $sessionData['pdo'];
 
         $supplierModel    = new Supplier();
         $total_proveedores = $supplierModel->count();
@@ -43,8 +42,8 @@ class DashboardController extends Controller
         $purchaseModel = new Purchase();
         $total_compras = $purchaseModel->count();
 
-        // Los listado files legacy necesitan $pdo en scope local
-        require_once __DIR__ . '/../../app/controllers/ventas/listado_de_ventas.php';
+        $saleModel    = new Sale();
+        $total_ventas = $saleModel->count();
 
         $this->renderWithLayout('views/dashboard/index.php', array_merge($sessionData, [
             'total_user'                => $total_user,

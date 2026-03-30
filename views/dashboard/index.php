@@ -134,12 +134,12 @@
                                 <h3><?= $total_ventas; ?></h3>
                                 <p>Ventas registradas</p>
                             </div>
-                            <a href="<?= BASE_URL; ?>/ventas/create.php">
+                            <a href="<?= BASE_URL; ?>/sales/create">
                                 <div class="icon">
                                     <i class="fas fa-shopping-bag"></i>
                                 </div>
                             </a>
-                            <a href="<?= BASE_URL; ?>/ventas" class="small-box-footer">
+                            <a href="<?= BASE_URL; ?>/sales" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>
                         </div>

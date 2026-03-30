@@ -133,9 +133,10 @@ class Router
     private function executeMiddleware(string $key): void
     {
         $map = [
-            'auth' => \App\Middleware\AuthMiddleware::class,
-            'guest' => \App\Middleware\GuestMiddleware::class,
-            'admin' => \App\Middleware\AdminMiddleware::class,
+            'auth'   => \App\Middleware\AuthMiddleware::class,
+            'guest'  => \App\Middleware\GuestMiddleware::class,
+            'admin'  => \App\Middleware\AdminMiddleware::class,
+            'seller' => \App\Middleware\SellerMiddleware::class,
         ];
 
         if (!isset($map[$key])) {

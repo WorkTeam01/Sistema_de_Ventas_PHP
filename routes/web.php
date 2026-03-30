@@ -6,6 +6,7 @@ use App\Controllers\ClientController;
 use App\Controllers\DashboardController;
 use App\Controllers\ProductController;
 use App\Controllers\PurchaseController;
+use App\Controllers\SaleController;
 use App\Controllers\RoleController;
 use App\Controllers\SupplierController;
 use App\Controllers\UserController;
@@ -91,5 +92,16 @@ $router->get('/purchases/show/{id}',   [PurchaseController::class, 'show'],    [
 $router->get('/purchases/edit/{id}',   [PurchaseController::class, 'edit'],    ['auth']);
 $router->post('/purchases/update',     [PurchaseController::class, 'update'],  ['auth']);
 $router->post('/purchases/delete',     [PurchaseController::class, 'destroy'], ['auth']);
+
+// Rutas del módulo sales/ventas (MVC) — literales antes de paramétricas
+$router->get('/sales',                [SaleController::class, 'index'],         ['auth', 'seller']);
+$router->get('/sales/create',         [SaleController::class, 'create'],        ['auth', 'seller']);
+$router->post('/sales/cart/add',      [SaleController::class, 'addToCart'],     ['auth', 'seller']);
+$router->post('/sales/cart/remove',   [SaleController::class, 'removeFromCart'],['auth', 'seller']);
+$router->post('/sales',               [SaleController::class, 'store'],         ['auth', 'seller']);
+$router->get('/sales/show/{id}',      [SaleController::class, 'show'],          ['auth', 'seller']);
+$router->get('/sales/delete/{id}',    [SaleController::class, 'confirmDelete'], ['auth', 'seller']);
+$router->get('/sales/invoice/{id}',   [SaleController::class, 'invoice'],       ['auth', 'seller']);
+$router->post('/sales/delete',        [SaleController::class, 'destroy'],       ['auth', 'seller']);
 
 return $router;

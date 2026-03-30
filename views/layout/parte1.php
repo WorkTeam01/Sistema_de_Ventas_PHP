@@ -261,17 +261,15 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/ventas" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/sales" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Lista de ventas</p>
                                         </a>
                                     </li>
-                                </ul>
-                                <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/ventas/create.php" class="nav-link">
+                                        <a href="<?= BASE_URL ?>/sales/create" class="nav-link">
                                             <i class="far fa-circle nav-icon"></i>
-                                            <p>Crear ventas</p>
+                                            <p>Crear venta</p>
                                         </a>
                                     </li>
                                 </ul>
