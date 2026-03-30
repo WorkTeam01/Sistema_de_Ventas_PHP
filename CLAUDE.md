@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Archivos de referencia del equipo
 
-| Archivo | Propósito |
-| ------- | --------- |
-| [AGENT.md](AGENT.md) | Context persistente para agentes IA — arquitectura completa, convenciones, prohibiciones |
-| [PROMPTS.md](PROMPTS.md) | Plantillas de prompts para el equipo — migración, debugging, code review, arquitectura |
+| Archivo                  | Propósito                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| [AGENT.md](AGENT.md)     | Context persistente para agentes IA — arquitectura completa, convenciones, prohibiciones |
+| [PROMPTS.md](PROMPTS.md) | Plantillas de prompts para el equipo — migración, debugging, code review, arquitectura   |
 
 ## Descripción del Proyecto
 
@@ -101,65 +101,65 @@ Todas las rutas pasan por `public/index.php` vía `.htaccess` → `App\Core\Rout
 
 Rutas activas en `routes/web.php`:
 
-| Método | Ruta                    | Controller                      | Middleware      |
-| ------ | ----------------------- | ------------------------------- | --------------- |
-| GET    | `/`                     | `DashboardController::index()`  | `auth`          |
-| GET    | `/auth`                 | `AuthController::showLogin()`   | `guest`         |
-| POST   | `/auth/login`           | `AuthController::store()`       | `guest`         |
-| GET    | `/auth/logout`          | `AuthController::logout()`      | `auth`          |
-| GET    | `/users`                | `UserController::index()`       | `auth`, `admin` |
-| GET    | `/users/create`         | `UserController::create()`      | `auth`, `admin` |
-| POST   | `/users`                | `UserController::store()`       | `auth`, `admin` |
-| GET    | `/users/show/{id}`      | `UserController::show()`        | `auth`, `admin` |
-| GET    | `/users/edit/{id}`      | `UserController::edit()`        | `auth`, `admin` |
-| POST   | `/users/update`         | `UserController::update()`      | `auth`, `admin` |
-| GET    | `/users/delete/{id}`    | `UserController::delete()`      | `auth`, `admin` |
-| POST   | `/users/delete`         | `UserController::destroy()`     | `auth`, `admin` |
-| GET    | `/roles`                | `RoleController::index()`       | `auth`, `admin` |
-| GET    | `/roles/create`         | `RoleController::create()`      | `auth`, `admin` |
-| POST   | `/roles`                | `RoleController::store()`       | `auth`, `admin` |
-| GET    | `/roles/edit/{id}`      | `RoleController::edit()`        | `auth`, `admin` |
-| POST   | `/roles/update`         | `RoleController::update()`      | `auth`, `admin` |
-| GET    | `/categories`           | `CategoryController::index()`   | `auth`          |
-| GET    | `/categories/create`    | `CategoryController::create()`  | `auth`          |
-| POST   | `/categories`           | `CategoryController::store()`   | `auth`          |
-| GET    | `/categories/edit/{id}` | `CategoryController::edit()`    | `auth`          |
-| POST   | `/categories/update`    | `CategoryController::update()`  | `auth`          |
-| GET    | `/suppliers`            | `SupplierController::index()`   | `auth`          |
-| GET    | `/suppliers/create`     | `SupplierController::create()`  | `auth`          |
-| POST   | `/suppliers`            | `SupplierController::store()`   | `auth`          |
-| GET    | `/suppliers/edit/{id}`  | `SupplierController::edit()`    | `auth`          |
-| POST   | `/suppliers/update`     | `SupplierController::update()`  | `auth`          |
-| POST   | `/suppliers/delete`     | `SupplierController::destroy()` | `auth`          |
-| GET    | `/clients`              | `ClientController::index()`     | `auth`          |
-| GET    | `/clients/create`       | `ClientController::create()`    | `auth`          |
-| POST   | `/clients`              | `ClientController::store()`     | `auth`          |
-| GET    | `/clients/edit/{id}`    | `ClientController::edit()`      | `auth`          |
-| POST   | `/clients/update`       | `ClientController::update()`    | `auth`          |
-| POST   | `/clients/delete`       | `ClientController::destroy()`   | `auth`          |
-| GET    | `/products`             | `ProductController::index()`    | `auth`          |
-| GET    | `/products/show/{id}`   | `ProductController::show()`     | `auth`          |
-| GET    | `/products/create`      | `ProductController::create()`   | `auth`          |
-| POST   | `/products`             | `ProductController::store()`    | `auth`          |
-| GET    | `/products/edit/{id}`   | `ProductController::edit()`     | `auth`          |
-| POST   | `/products/update`      | `ProductController::update()`   | `auth`          |
-| POST   | `/products/delete`      | `ProductController::destroy()`  | `auth`          |
-| GET    | `/purchases`            | `PurchaseController::index()`   | `auth`          |
-| GET    | `/purchases/create`     | `PurchaseController::create()`  | `auth`          |
-| POST   | `/purchases`            | `PurchaseController::store()`   | `auth`          |
-| GET    | `/purchases/show/{id}`  | `PurchaseController::show()`    | `auth`          |
-| GET    | `/purchases/edit/{id}`  | `PurchaseController::edit()`    | `auth`          |
-| POST   | `/purchases/update`     | `PurchaseController::update()`  | `auth`          |
-| POST   | `/purchases/delete`     | `PurchaseController::destroy()` | `auth`          |
-| GET    | `/sales`                | `SaleController::index()`       | `auth`, `seller` |
-| GET    | `/sales/create`         | `SaleController::create()`      | `auth`, `seller` |
-| POST   | `/sales/cart/add`       | `SaleController::addToCart()`   | `auth`, `seller` |
+| Método | Ruta                    | Controller                         | Middleware       |
+| ------ | ----------------------- | ---------------------------------- | ---------------- |
+| GET    | `/`                     | `DashboardController::index()`     | `auth`           |
+| GET    | `/auth`                 | `AuthController::showLogin()`      | `guest`          |
+| POST   | `/auth/login`           | `AuthController::store()`          | `guest`          |
+| GET    | `/auth/logout`          | `AuthController::logout()`         | `auth`           |
+| GET    | `/users`                | `UserController::index()`          | `auth`, `admin`  |
+| GET    | `/users/create`         | `UserController::create()`         | `auth`, `admin`  |
+| POST   | `/users`                | `UserController::store()`          | `auth`, `admin`  |
+| GET    | `/users/show/{id}`      | `UserController::show()`           | `auth`, `admin`  |
+| GET    | `/users/edit/{id}`      | `UserController::edit()`           | `auth`, `admin`  |
+| POST   | `/users/update`         | `UserController::update()`         | `auth`, `admin`  |
+| GET    | `/users/delete/{id}`    | `UserController::delete()`         | `auth`, `admin`  |
+| POST   | `/users/delete`         | `UserController::destroy()`        | `auth`, `admin`  |
+| GET    | `/roles`                | `RoleController::index()`          | `auth`, `admin`  |
+| GET    | `/roles/create`         | `RoleController::create()`         | `auth`, `admin`  |
+| POST   | `/roles`                | `RoleController::store()`          | `auth`, `admin`  |
+| GET    | `/roles/edit/{id}`      | `RoleController::edit()`           | `auth`, `admin`  |
+| POST   | `/roles/update`         | `RoleController::update()`         | `auth`, `admin`  |
+| GET    | `/categories`           | `CategoryController::index()`      | `auth`           |
+| GET    | `/categories/create`    | `CategoryController::create()`     | `auth`           |
+| POST   | `/categories`           | `CategoryController::store()`      | `auth`           |
+| GET    | `/categories/edit/{id}` | `CategoryController::edit()`       | `auth`           |
+| POST   | `/categories/update`    | `CategoryController::update()`     | `auth`           |
+| GET    | `/suppliers`            | `SupplierController::index()`      | `auth`           |
+| GET    | `/suppliers/create`     | `SupplierController::create()`     | `auth`           |
+| POST   | `/suppliers`            | `SupplierController::store()`      | `auth`           |
+| GET    | `/suppliers/edit/{id}`  | `SupplierController::edit()`       | `auth`           |
+| POST   | `/suppliers/update`     | `SupplierController::update()`     | `auth`           |
+| POST   | `/suppliers/delete`     | `SupplierController::destroy()`    | `auth`           |
+| GET    | `/clients`              | `ClientController::index()`        | `auth`           |
+| GET    | `/clients/create`       | `ClientController::create()`       | `auth`           |
+| POST   | `/clients`              | `ClientController::store()`        | `auth`           |
+| GET    | `/clients/edit/{id}`    | `ClientController::edit()`         | `auth`           |
+| POST   | `/clients/update`       | `ClientController::update()`       | `auth`           |
+| POST   | `/clients/delete`       | `ClientController::destroy()`      | `auth`           |
+| GET    | `/products`             | `ProductController::index()`       | `auth`           |
+| GET    | `/products/show/{id}`   | `ProductController::show()`        | `auth`           |
+| GET    | `/products/create`      | `ProductController::create()`      | `auth`           |
+| POST   | `/products`             | `ProductController::store()`       | `auth`           |
+| GET    | `/products/edit/{id}`   | `ProductController::edit()`        | `auth`           |
+| POST   | `/products/update`      | `ProductController::update()`      | `auth`           |
+| POST   | `/products/delete`      | `ProductController::destroy()`     | `auth`           |
+| GET    | `/purchases`            | `PurchaseController::index()`      | `auth`           |
+| GET    | `/purchases/create`     | `PurchaseController::create()`     | `auth`           |
+| POST   | `/purchases`            | `PurchaseController::store()`      | `auth`           |
+| GET    | `/purchases/show/{id}`  | `PurchaseController::show()`       | `auth`           |
+| GET    | `/purchases/edit/{id}`  | `PurchaseController::edit()`       | `auth`           |
+| POST   | `/purchases/update`     | `PurchaseController::update()`     | `auth`           |
+| POST   | `/purchases/delete`     | `PurchaseController::destroy()`    | `auth`           |
+| GET    | `/sales`                | `SaleController::index()`          | `auth`, `seller` |
+| GET    | `/sales/create`         | `SaleController::create()`         | `auth`, `seller` |
+| POST   | `/sales/cart/add`       | `SaleController::addToCart()`      | `auth`, `seller` |
 | POST   | `/sales/cart/remove`    | `SaleController::removeFromCart()` | `auth`, `seller` |
-| POST   | `/sales`                | `SaleController::store()`       | `auth`, `seller` |
-| GET    | `/sales/show/{id}`      | `SaleController::show()`        | `auth`, `seller` |
-| GET    | `/sales/delete/{id}`    | `SaleController::confirmDelete()` | `auth`, `seller` |
-| GET    | `/sales/invoice/{id}`   | `SaleController::invoice()`     | `auth`, `seller` |
-| POST   | `/sales/delete`         | `SaleController::destroy()`     | `auth`, `seller` |
+| POST   | `/sales`                | `SaleController::store()`          | `auth`, `seller` |
+| GET    | `/sales/show/{id}`      | `SaleController::show()`           | `auth`, `seller` |
+| GET    | `/sales/delete/{id}`    | `SaleController::confirmDelete()`  | `auth`, `seller` |
+| GET    | `/sales/invoice/{id}`   | `SaleController::invoice()`        | `auth`, `seller` |
+| POST   | `/sales/delete`         | `SaleController::destroy()`        | `auth`, `seller` |
 
 ### Clases Core MVC (`app/Core/`)
 
@@ -179,15 +179,15 @@ Helper en `app/Helpers/` (PSR-4, namespace `App\Helpers`): `NumberToWords`.
 
 ### Estado de Migración MVC
 
-| Módulo | Estado | Notas |
-| ------ | ------ | ----- |
-| `roles` | ✅ Migrado | `RoleController`, `Role` |
-| `categories` | ✅ Migrado | `CategoryController`, `Category` |
-| `suppliers` | ✅ Migrado | `SupplierController`, `Supplier` — `isReferenced()` → `tb_compras` |
-| `clients` | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas` |
-| `almacen` | ✅ Migrado | `ProductController`, `Product` — imágenes en `public/uploads/products/`; incluye vista `show` |
-| `compras` | ✅ Migrado | `PurchaseController`, `Purchase` — operaciones transaccionales con stock; incluye vista `show` |
-| `ventas` | ✅ Migrado | `SaleController`, `Sale`, `CartItem` — carrito en BD, TCPDF inline, `SellerMiddleware`; incluye vistas `show`, `delete`, `invoice` |
+| Módulo       | Estado     | Notas                                                                                                                                                   |
+| ------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `roles`      | ✅ Migrado | `RoleController`, `Role`                                                                                                                                |
+| `categories` | ✅ Migrado | `CategoryController`, `Category`                                                                                                                        |
+| `suppliers`  | ✅ Migrado | `SupplierController`, `Supplier` — `isReferenced()` → `tb_compras`                                                                                      |
+| `clients`    | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas`                                                                                           |
+| `almacen`    | ✅ Migrado | `ProductController`, `Product` — imágenes en `public/uploads/products/`; incluye vista `show`                                                           |
+| `compras`    | ✅ Migrado | `PurchaseController`, `Purchase` — operaciones transaccionales con stock; incluye vista `show`                                                          |
+| `ventas`     | ✅ Migrado | `SaleController`, `Sale`, `CartItem` — carrito en BD, TCPDF inline (`tecnickcom/tcpdf`), `SellerMiddleware`; incluye vistas `show`, `delete`, `invoice` |
 
 ### Workflow para nuevos módulos MVC
 
@@ -242,7 +242,7 @@ $query->execute();
 
 ### Generación de PDF
 
-Las facturas de ventas usan TCPDF en [app/TCPDF-main/](app/TCPDF-main/). El método `SaleController::invoice()` emite el PDF directamente (inline) sin pasar por `renderWithLayout()`.
+Las facturas de ventas usan TCPDF (`tecnickcom/tcpdf` vía Composer). El método `SaleController::invoice()` emite el PDF directamente (inline) sin pasar por `renderWithLayout()`.
 
 ## Estructura de Módulos MVC
 

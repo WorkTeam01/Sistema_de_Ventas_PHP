@@ -104,4 +104,9 @@ $router->get('/sales/delete/{id}',    [SaleController::class, 'confirmDelete'], 
 $router->get('/sales/invoice/{id}',   [SaleController::class, 'invoice'],       ['auth', 'seller']);
 $router->post('/sales/delete',        [SaleController::class, 'destroy'],       ['auth', 'seller']);
 
+// Error pages
+$router->get('/errors/403', function () {
+    require_once __DIR__ . '/../views/errors/403.php';
+});
+
 return $router;

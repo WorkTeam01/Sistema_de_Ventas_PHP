@@ -19,7 +19,7 @@ Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir 
 - **Backend:** PHP 8.x (sin framework — MVC custom con PSR-4 via Composer)
 - **Frontend:** AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2
 - **Base de datos:** MySQL / MariaDB (PDO)
-- **PDF:** TCPDF (`app/TCPDF-main/`)
+- **PDF:** TCPDF (`tecnickcom/tcpdf` vía Composer)
 - **Control de versiones:** Git + GitHub (`WorkTeam01/Sistema_de_Ventas_PHP`)
 
 ---
@@ -61,13 +61,13 @@ Sistema_de_Ventas_PHP/
 │   │   ├── Sale.php
 │   │   └── CartItem.php
 │   ├── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
-│   ├── TCPDF-main/           ← Generación de facturas PDF
 │   └── config.php            ← Carga .env, expone $pdo, BASE_URL, $URL
 ├── views/
 │   ├── layout/
 │   │   ├── parte1.php        ← Head HTML, navbar, sidebar
 │   │   ├── parte2.php        ← Scripts de cierre, footer
 │   │   └── sesion.php        ← Valida sesión activa, redirige a /auth si no
+│   ├── errors/               ← Páginas de error standalone (404, 403, 500)
 │   ├── auth/
 │   ├── dashboard/
 │   ├── users/

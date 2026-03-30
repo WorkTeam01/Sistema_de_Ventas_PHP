@@ -34,7 +34,8 @@ class AdminMiddleware implements Middleware
         Auth::startSession();
         $_SESSION['mensaje'] = 'No tienes permisos para acceder a esta página.';
         $_SESSION['icono'] = 'error';
-        header('Location: ' . rtrim(Config::get('APP_URL', ''), '/') . '/error/error.php');
+        http_response_code(403);
+        header('Location: ' . rtrim(Config::get('APP_URL', ''), '/') . '/errors/403');
         exit();
     }
 }

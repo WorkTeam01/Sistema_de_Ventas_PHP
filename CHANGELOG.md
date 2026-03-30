@@ -7,6 +7,29 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.1] - 2026-03-30
+
+### Agregado
+
+- Vistas de error dedicadas en `views/errors/`: `404.php` (headline amarillo), `403.php` (headline rojo + SweetAlert2 con flash message), `500.php` (headline rojo) — páginas standalone con contenido completamente centrado, sin header ni footer
+- Ruta `GET /errors/403` en `routes/web.php` como closure sin middleware para servir la página 403
+
+### Corregido
+
+- Redirect 403 de `AdminMiddleware` y `SellerMiddleware` apuntaba a `APP_URL . '/error/error.php'` — URL inválida porque `APP_URL` termina en `/public` y el archivo estaba fuera de ese directorio; corregido a `APP_URL . '/errors/403'`
+- `Router::dispatch()` ahora incluye `views/errors/404.php` en lugar del archivo legacy `error/error.php`
+
+### Cambiado
+
+- TCPDF gestionado vía Composer (`tecnickcom/tcpdf ^6.7`, instalado como `6.11.2`) en lugar de la copia manual en `app/TCPDF-main/`; eliminada la línea `require_once` en `SaleController::invoice()`
+
+### Eliminado
+
+- Directorio `error/` con el archivo legacy `error/error.php`
+- Directorio `app/TCPDF-main/` reemplazado por `vendor/tecnickcom/tcpdf/`
+
+---
+
 ## [1.1.0] - 2026-03-30
 
 ### Agregado

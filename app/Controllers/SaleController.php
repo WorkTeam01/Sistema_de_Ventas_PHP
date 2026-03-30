@@ -263,7 +263,6 @@ class SaleController extends Controller
         $fecha          = date('d/m/Y', strtotime($sale['fyh_creacion']));
         $items          = $sale['items'];
 
-        require_once __DIR__ . '/../../app/TCPDF-main/tcpdf.php';
 
         $pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, [215, 279], true, 'UTF-8', false);
         $pdf->setCreator(PDF_CREATOR);

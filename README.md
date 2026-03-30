@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-v1.1.0-blue)
+![Versión](https://img.shields.io/badge/Versión-v1.1.1-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -39,7 +39,6 @@ Este proyecto implementa una arquitectura MVC con PSR-4. Todos los módulos est�
 | **Clientes**    | Base de datos de clientes con historial de compras                      |
 | **Proveedores** | Gestión de proveedores y datos de contacto                              |
 | **Usuarios**    | Administración de cuentas con roles y permisos                          |
-| **Reportes**    | Dashboard por rol con exportación a PDF, Excel y CSV                    |
 
 ---
 
@@ -52,12 +51,6 @@ Este proyecto implementa una arquitectura MVC con PSR-4. Todos los módulos est�
 ---
 
 ## Instalación
-
-### Dependencias (Composer)
-
-```bash
-composer install
-```
 
 ### 1. Clonar el repositorio
 
@@ -74,7 +67,13 @@ git clone <url> C:\xampp\htdocs\Sistema_de_Ventas_PHP
 git clone <url> /Applications/XAMPP/htdocs/Sistema_de_Ventas_PHP
 ```
 
-### 2. Crear e importar la base de datos
+### 2. Instalar dependencias (Composer)
+
+```bash
+composer install
+```
+
+### 3. Crear e importar la base de datos
 
 **Linux / macOS:**
 
@@ -92,7 +91,7 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\seeder.sql
 ```
 
-### Credenciales por defecto
+#### Credenciales por defecto
 
 El seeder crea los siguientes usuarios de prueba:
 
@@ -104,7 +103,7 @@ El seeder crea los siguientes usuarios de prueba:
 
 > **Importante:** Cambiar estas contraseñas antes de usar en producción.
 
-### 3. Configurar la conexión
+### 4. Configurar la conexión
 
 Copiar el archivo de entorno de ejemplo y editarlo con tus credenciales:
 
@@ -125,14 +124,14 @@ APP_TIMEZONE=America/La_Paz
 
 > `APP_URL` debe incluir `/public` — es la ruta al front controller.
 
-### 4. Configurar permisos (Linux / macOS)
+### 5. Configurar permisos (Linux / macOS)
 
 ```bash
 chmod 755 public/uploads/products/
 chmod 644 app/config.php
 ```
 
-### 5. Iniciar el servidor
+### 6. Iniciar el servidor
 
 **Linux:**
 
@@ -166,7 +165,7 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 
 ## Stack Tecnológico
 
-**Backend:** PHP con PDO (prepared statements), TCPDF para generación de facturas.
+**Backend:** PHP con PDO (prepared statements), TCPDF (`tecnickcom/tcpdf` vía Composer) para generación de facturas.
 
 **Frontend:** AdminLTE 3.2.0 sobre Bootstrap 4, jQuery, DataTables, SweetAlert2.
 
@@ -184,10 +183,10 @@ Sistema_de_Ventas_PHP/
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
 │   ├── Helpers/            # Helpers PSR-4 (NumberToWords)
 │   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware, SellerMiddleware)
-│   ├── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem)
-│   └── TCPDF-main/         # Librería de generación de PDF
+│   └── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem)
 ├── views/
 │   ├── layout/             # Plantillas compartidas (parte1, parte2, mensajes, sesion)
+│   ├── errors/             # Páginas de error standalone (404, 403, 500)
 │   ├── auth/               # Vista de login
 │   ├── dashboard/          # Vista del dashboard
 │   ├── users/              # Vistas CRUD del módulo users
@@ -210,35 +209,6 @@ Sistema_de_Ventas_PHP/
     ├── schema.sql          # Estructura de tablas
     └── seeder.sql          # Datos iniciales
 ```
-
----
-
-## Estado de Migración MVC
-
-Todos los módulos están migrados a MVC con PSR-4:
-
-| Módulo                    | Estado     |
-| ------------------------- | ---------- |
-| `auth` (login/logout)     | ✅ Migrado |
-| `users` (usuarios)        | ✅ Migrado |
-| `dashboard`               | ✅ Migrado |
-| `roles`                   | ✅ Migrado |
-| `categories`              | ✅ Migrado |
-| `suppliers` (proveedores) | ✅ Migrado |
-| `clients` (clientes)      | ✅ Migrado |
-| `almacen` (products)      | ✅ Migrado |
-| `compras` (purchases)     | ✅ Migrado |
-| `ventas` (sales)          | ✅ Migrado |
-
-**Núcleo MVC:**
-
-- `public/index.php` — front controller único; `.htaccess` redirige todo al Router
-- `routes/web.php` — registro de rutas con middleware
-- `App\Core\{Router, Controller, Model, Database, Auth, Config}` — clases base
-- `App\Middleware\{AuthMiddleware, GuestMiddleware, AdminMiddleware, SellerMiddleware}` — guards de ruta
-- `App\Helpers\NumberToWords` — conversión de números a palabras para facturas PDF
-- `views/layout/` — plantillas compartidas (`parte1`, `parte2`, `mensajes`, `sesion`)
-- `BASE_URL` — constante global definida en `app/config.php`
 
 ---
 
