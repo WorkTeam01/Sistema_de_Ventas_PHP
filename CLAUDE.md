@@ -90,17 +90,14 @@ APP_TIMEZONE=America/La_Paz
 `app/config.php` carga `.env` vía phpdotenv y expone:
 
 - `BASE_URL` — constante PHP global con la URL base (sin trailing slash), disponible en cualquier archivo sin necesidad de pasarla como variable
-- `$URL = BASE_URL` — alias backward-compat para módulos legacy
+- `$URL = BASE_URL` — alias backward-compat
 - `$pdo`, `$Año`, `$fechaHora` — compatibilidad con módulos existentes
 
 ## Arquitectura
 
 ### Enrutamiento
 
-El ruteo es **híbrido**:
-
-- **Módulos existentes** — ruteo implícito (archivo directo): `GET /almacen/` → `almacen/index.php`
-- **Nuevas rutas** — pasan por `public/index.php` vía `.htaccess` → `App\Core\Router` → Controller
+Todas las rutas pasan por `public/index.php` vía `.htaccess` → `App\Core\Router` → Controller.
 
 Rutas activas en `routes/web.php`:
 
@@ -140,6 +137,29 @@ Rutas activas en `routes/web.php`:
 | GET    | `/clients/edit/{id}`    | `ClientController::edit()`      | `auth`          |
 | POST   | `/clients/update`       | `ClientController::update()`    | `auth`          |
 | POST   | `/clients/delete`       | `ClientController::destroy()`   | `auth`          |
+| GET    | `/products`             | `ProductController::index()`    | `auth`          |
+| GET    | `/products/show/{id}`   | `ProductController::show()`     | `auth`          |
+| GET    | `/products/create`      | `ProductController::create()`   | `auth`          |
+| POST   | `/products`             | `ProductController::store()`    | `auth`          |
+| GET    | `/products/edit/{id}`   | `ProductController::edit()`     | `auth`          |
+| POST   | `/products/update`      | `ProductController::update()`   | `auth`          |
+| POST   | `/products/delete`      | `ProductController::destroy()`  | `auth`          |
+| GET    | `/purchases`            | `PurchaseController::index()`   | `auth`          |
+| GET    | `/purchases/create`     | `PurchaseController::create()`  | `auth`          |
+| POST   | `/purchases`            | `PurchaseController::store()`   | `auth`          |
+| GET    | `/purchases/show/{id}`  | `PurchaseController::show()`    | `auth`          |
+| GET    | `/purchases/edit/{id}`  | `PurchaseController::edit()`    | `auth`          |
+| POST   | `/purchases/update`     | `PurchaseController::update()`  | `auth`          |
+| POST   | `/purchases/delete`     | `PurchaseController::destroy()` | `auth`          |
+| GET    | `/sales`                | `SaleController::index()`       | `auth`, `seller` |
+| GET    | `/sales/create`         | `SaleController::create()`      | `auth`, `seller` |
+| POST   | `/sales/cart/add`       | `SaleController::addToCart()`   | `auth`, `seller` |
+| POST   | `/sales/cart/remove`    | `SaleController::removeFromCart()` | `auth`, `seller` |
+| POST   | `/sales`                | `SaleController::store()`       | `auth`, `seller` |
+| GET    | `/sales/show/{id}`      | `SaleController::show()`        | `auth`, `seller` |
+| GET    | `/sales/delete/{id}`    | `SaleController::confirmDelete()` | `auth`, `seller` |
+| GET    | `/sales/invoice/{id}`   | `SaleController::invoice()`     | `auth`, `seller` |
+| POST   | `/sales/delete`         | `SaleController::destroy()`     | `auth`, `seller` |
 
 ### Clases Core MVC (`app/Core/`)
 
@@ -153,8 +173,9 @@ Rutas activas en `routes/web.php`:
 | `App\Core\Config`     | Wrapper de `.env`: `Config::get('KEY', $default)`                                           |
 | `App\Core\Middleware` | Interfaz: `handle(): bool`                                                                  |
 
-Nuevos controladores van en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`, `CategoryController`, `SupplierController`, `ClientController`.
-Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`, `Category`, `Supplier`, `Client`.
+Controladores en `app/Controllers/` (PSR-4, namespace `App\Controllers`): `AuthController`, `DashboardController`, `UserController`, `RoleController`, `CategoryController`, `SupplierController`, `ClientController`, `ProductController`, `PurchaseController`, `SaleController`.
+Modelos en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Role`, `Category`, `Supplier`, `Client`, `Product`, `Purchase`, `Sale`, `CartItem`.
+Helper en `app/Helpers/` (PSR-4, namespace `App\Helpers`): `NumberToWords`.
 
 ### Estado de Migración MVC
 
@@ -166,54 +187,34 @@ Nuevos modelos van en `app/Models/` (PSR-4, namespace `App\Models`): `User`, `Ro
 | `clients` | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas` |
 | `almacen` | ✅ Migrado | `ProductController`, `Product` — imágenes en `public/uploads/products/`; incluye vista `show` |
 | `compras` | ✅ Migrado | `PurchaseController`, `Purchase` — operaciones transaccionales con stock; incluye vista `show` |
-| `ventas` | ⏳ Pendiente | Siguiente en migrar — más complejo (carrito y TCPDF) |
+| `ventas` | ✅ Migrado | `SaleController`, `Sale`, `CartItem` — carrito en BD, TCPDF inline, `SellerMiddleware`; incluye vistas `show`, `delete`, `invoice` |
 
-### Workflow de Migración MVC
+### Workflow para nuevos módulos MVC
 
-Al migrar un módulo legacy, seguir este orden exacto:
+Para agregar un nuevo módulo, seguir este orden:
 
 1. Crear `app/Models/[Nombre].php` — extender `Model`, definir `$table` y `$primaryKey`, sobreescribir `isReferenced()` si la tabla tiene FKs en otras tablas
 2. Crear `app/Controllers/[Nombre]Controller.php` — 6 métodos: `index`, `create`, `store`, `edit`, `update`, `destroy`
 3. Crear `views/[modulo]/index.php`, `create.php`, `edit.php`
-4. Registrar 6 rutas en `routes/web.php`
+4. Registrar rutas en `routes/web.php`
 5. Actualizar sidebar en `views/layout/parte1.php` con control de rol
-6. Actualizar `DashboardController` para usar el nuevo Model en lugar del `require_once` legacy
-7. Eliminar archivos legacy del módulo
-8. Actualizar `CHANGELOG.md`, `README.md`, `CLAUDE.md`
-
-Los commits van separados: `feat(modulo)` para archivos MVC + `chore(modulo)` para eliminación de legacy.
-
-### Patrón MVC simplificado (módulos existentes)
-
-- **Vistas**: Directorios de módulos en la raíz (`almacen/`, `ventas/`, `compras/`, etc.)
-- **Controladores**: Lógica de negocio en `app/controllers/[modulo]/` — son incluidos/requeridos por las vistas
-- **Sin capa de modelos**: Las consultas SQL se escriben directamente en los controladores usando PDO
+6. Actualizar `CHANGELOG.md`, `README.md`, `CLAUDE.md`
 
 ### Autenticación y Autorización
 
 El login usa `App\Controllers\AuthController` (vía Router). La vista está en `views/auth/login.php`.
 
-**Módulos MVC** — las rutas se protegen con middleware en `routes/web.php`:
+Las rutas se protegen con middleware en `routes/web.php`:
 
 ```php
-$router->get('/ruta', [Controller::class, 'method'], ['auth']);         // cualquier rol
-$router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']); // solo Administrador
+$router->get('/ruta', [Controller::class, 'method'], ['auth']);          // cualquier rol
+$router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']);  // solo Administrador
+$router->get('/ruta', [Controller::class, 'method'], ['auth', 'seller']); // Administrador o Vendedor
 ```
 
-Los middlewares PSR-4 viven en `app/Middleware/`: `AuthMiddleware`, `AdminMiddleware`, `GuestMiddleware`.
+Los middlewares PSR-4 viven en `app/Middleware/`: `AuthMiddleware`, `AdminMiddleware`, `GuestMiddleware`, `SellerMiddleware`.
 
-**Módulos legacy** — cada página protegida sigue usando [app/controllers/middleware/AuthMiddleware.php](app/controllers/middleware/AuthMiddleware.php):
-
-```php
-require_once('../app/config.php');
-require_once('../app/controllers/middleware/AuthMiddleware.php');
-
-$auth = new AuthMiddleware($pdo, $URL);
-$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']); // múltiples roles
-$usuario = $auth->verificarPermiso('Administrador');             // un solo rol
-```
-
-Para obtener datos del usuario en sesión en cualquier contexto MVC: `Auth::user()`.
+Para obtener datos del usuario en sesión: `Auth::user()`.
 
 Roles disponibles (almacenados en `tb_roles`): `Administrador`, `Vendedor`, `Comprador`.
 
@@ -241,25 +242,21 @@ $query->execute();
 
 ### Generación de PDF
 
-Las facturas de ventas usan TCPDF en [app/TCPDF-main/](app/TCPDF-main/). El controlador de factura está en [app/controllers/ventas/factura_venta.php](app/controllers/ventas/factura_venta.php).
+Las facturas de ventas usan TCPDF en [app/TCPDF-main/](app/TCPDF-main/). El método `SaleController::invoice()` emite el PDF directamente (inline) sin pasar por `renderWithLayout()`.
 
-## Estructura de Módulos
+## Estructura de Módulos MVC
 
-Cada módulo sigue el mismo patrón CRUD:
+Cada módulo sigue el patrón CRUD estándar:
 
 ```
-[modulo]/
+views/[modulo]/
 ├── index.php      # Vista de listado (DataTables)
 ├── create.php     # Formulario de creación
-├── update.php     # Formulario de edición
-├── delete.php     # Manejador de eliminación
-└── show.php       # Vista de detalle (algunos módulos)
+├── edit.php       # Formulario de edición
+└── show.php       # Vista de detalle (donde aplique)
 
-app/controllers/[modulo]/
-├── listado_de_[modulo].php   # Obtener datos del listado
-├── registro_de_[modulo].php  # Lógica de INSERT
-├── actualizar_[modulo].php   # Lógica de UPDATE
-└── eliminar_[modulo].php     # Lógica de DELETE
+app/Controllers/[Nombre]Controller.php   # 6 métodos: index, create, store, edit, update, destroy
+app/Models/[Nombre].php                  # Extiende App\Core\Model
 ```
 
 ## Tablas Principales de Base de Datos
@@ -303,7 +300,7 @@ Convenciones de columnas de auditoría:
 ## Permisos de Archivos
 
 ```bash
-chmod 755 almacen/img_productos/   # Directorio de carga de imágenes de productos
+chmod 755 public/uploads/products/  # Directorio de carga de imágenes de productos
 chmod 644 app/config.php
 ```
 

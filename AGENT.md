@@ -10,8 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** Migración MVC en curso — módulos `roles`, `categories`, `suppliers`, `clients` migrados.
-Pendientes: `almacen` → `compras` → `ventas`.
+**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC.
 
 ---
 
@@ -45,19 +44,23 @@ Sistema_de_Ventas_PHP/
 │   │   ├── RoleController.php
 │   │   ├── CategoryController.php
 │   │   ├── SupplierController.php
-│   │   └── ClientController.php
+│   │   ├── ClientController.php
+│   │   ├── ProductController.php
+│   │   ├── PurchaseController.php
+│   │   └── SaleController.php
+│   ├── Helpers/              ← PSR-4, namespace App\Helpers
+│   │   └── NumberToWords.php
 │   ├── Models/               ← PSR-4, namespace App\Models
 │   │   ├── User.php
 │   │   ├── Role.php
 │   │   ├── Category.php
 │   │   ├── Supplier.php
-│   │   └── Client.php
-│   ├── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware
-│   ├── controllers/          ← Controladores legacy (módulos no migrados)
-│   │   ├── middleware/AuthMiddleware.php  ← Middleware legacy
-│   │   ├── almacen/
-│   │   ├── compras/
-│   │   └── ventas/
+│   │   ├── Client.php
+│   │   ├── Product.php
+│   │   ├── Purchase.php
+│   │   ├── Sale.php
+│   │   └── CartItem.php
+│   ├── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
 │   ├── TCPDF-main/           ← Generación de facturas PDF
 │   └── config.php            ← Carga .env, expone $pdo, BASE_URL, $URL
 ├── views/
@@ -71,18 +74,18 @@ Sistema_de_Ventas_PHP/
 │   ├── roles/
 │   ├── categories/
 │   ├── suppliers/
-│   └── clients/
+│   ├── clients/
+│   ├── products/
+│   ├── purchases/
+│   └── sales/
 ├── routes/
 │   └── web.php               ← Todas las rutas MVC registradas
 ├── public/
 │   ├── index.php             ← Entry point único (front controller MVC)
-│   ├── .htaccess             ← Redirige al Router, excluye módulos legacy
+│   ├── .htaccess             ← Redirige al Router
 │   ├── css/                  ← CSS personalizado
 │   ├── js/                   ← JS personalizado (control_sidebar.js)
 │   └── templates/            ← Assets AdminLTE (no modificar)
-├── almacen/                  ← Módulo legacy (pendiente migración)
-├── compras/                  ← Módulo legacy (pendiente migración)
-├── ventas/                   ← Módulo legacy (pendiente migración)
 └── database/
     ├── schema.sql
     └── seeder.sql
@@ -94,12 +97,11 @@ Sistema_de_Ventas_PHP/
 
 El proyecto usa **dos sistemas de ruteo en paralelo**:
 
-| Tipo       | Cómo funciona                              | Módulos                                                       |
-| ---------- | ------------------------------------------ | ------------------------------------------------------------- |
-| **MVC**    | `public/index.php` → `Router` → Controller | roles, categories, suppliers, clients, users, auth, dashboard |
-| **Legacy** | Acceso directo al archivo PHP              | almacen, compras, ventas                                      |
+| Tipo    | Cómo funciona                              | Módulos                                                                                           |
+| ------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales (todos) |
 
-Las rutas MVC se registran en `routes/web.php`. Los módulos legacy no pasan por el Router.
+Todos los módulos están migrados. No quedan módulos legacy.
 
 ---
 
@@ -161,12 +163,7 @@ fyh_actualizacion ON UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 $router->get('/ruta', [Controller::class, 'method'], ['auth']);          // cualquier rol
 $router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']); // solo Administrador
 
-// En módulos legacy:
-require_once('../app/controllers/middleware/AuthMiddleware.php');
-$auth    = new AuthMiddleware($pdo, $URL);
-$usuario = $auth->verificarRoles(['Administrador', 'Vendedor']);
-
-// Datos del usuario en sesión (contexto MVC):
+// Datos del usuario en sesión:
 Auth::user()   // array con datos del usuario
 Auth::role()   // nombre del rol
 Auth::check()  // bool
@@ -187,29 +184,9 @@ Auth::check()  // bool
 - Layout de formularios: col-md-8 (form) + col-md-4 (tarjeta informativa)
 - Breadcrumb obligatorio en cada vista (`<section class="content-header">`)
 
-### Módulos Legacy
-
-- La lógica de negocio vive en `app/controllers/[modulo]/`
-- Las vistas son los archivos PHP en el directorio raíz del módulo (`almacen/`, `compras/`, `ventas/`)
-- Usar `$URL` (alias de `BASE_URL`) para construir links internos
-- Incluir `app/config.php` y el middleware legacy al inicio de cada página
-
 ---
 
-## Flujo de Migración MVC
-
-Al migrar un módulo legacy a MVC, el orden es:
-
-1. Crear `app/Models/[Nombre].php` — extender `Model`, definir `$table` y `$primaryKey`, sobreescribir `isReferenced()` si aplica
-2. Crear `app/Controllers/[Nombre]Controller.php` — 6 métodos: `index`, `create`, `store`, `edit`, `update`, `destroy`
-3. Crear `views/[modulo]/index.php`, `create.php`, `edit.php`
-4. Registrar 6 rutas en `routes/web.php`
-5. Actualizar sidebar en `views/layout/parte1.php` — bloque con control de rol
-6. Actualizar `DashboardController` para usar el nuevo Model en lugar del require legacy
-7. Eliminar archivos legacy del módulo
-8. Actualizar CHANGELOG.md, README.md, CLAUDE.md
-
-Orden de migración pendiente: **`almacen`** → `compras` → `ventas`
+Migración MVC completada. No quedan módulos legacy pendientes.
 
 ---
 
@@ -243,5 +220,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-03-27 — migración MVC en curso (v1.1.0-wip)_
-_Mantener este archivo actualizado al completar cada módulo migrado._
+_Última actualización: 2026-03-30 — v1.1.0 (migración MVC completada)_

@@ -7,69 +7,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
-## [Unreleased]
-
-### Agregado
-
-- Modelo `App\Models\Role` (hereda de `App\Core\Model`) — `$table = 'tb_roles'`, `$primaryKey = 'id_rol'`; métodos CRUD heredados del base
-- `App\Controllers\RoleController` con CRUD parcial (index, create, store, edit, update); sin delete por ser datos de sistema
-- Vistas MVC en `views/roles/` (index, create, edit) con DataTables, breadcrumb, card info lateral y badge de total en header
-- Rutas `/roles`, `/roles/create`, `/roles/edit/{id}` (GET/POST) en `routes/web.php` con middleware `auth` + `admin`
-- Modelo `App\Models\Category` (hereda de `App\Core\Model`) — `$table = 'tb_categorias'`, `$primaryKey = 'id_categoria'`
-- `App\Controllers\CategoryController` con CRUD parcial (index, create, store, edit, update); accesible a todos los roles autenticados
-- Vistas MVC en `views/categories/` (index, create, edit) con DataTables, breadcrumb y card info lateral
-- Rutas `/categories`, `/categories/create`, `/categories/edit/{id}` (GET/POST) en `routes/web.php` con middleware `auth`
-
-- Modelo `App\Models\Supplier` (hereda de `App\Core\Model`) — `$table = 'tb_proveedores'`, `$primaryKey = 'id_proveedor'`; sobreescribe `isReferenced()` para verificar dependencias en `tb_compras`
-- `App\Controllers\SupplierController` con CRUD completo (index, create, store, edit, update, destroy); accesible a roles `Administrador` y `Comprador`
-- Vistas MVC en `views/suppliers/` (index, create, edit) con DataTables, breadcrumb, card info lateral y confirmación SweetAlert2 para eliminar
-- Rutas `/suppliers`, `/suppliers/create`, `/suppliers/edit/{id}`, `/suppliers/delete` (GET/POST) en `routes/web.php` con middleware `auth`
-
-- Modelo `App\Models\Client` (hereda de `App\Core\Model`) — `$table = 'tb_clientes'`, `$primaryKey = 'id_cliente'`; sobreescribe `isReferenced()` para verificar dependencias en `tb_ventas`
-- `App\Controllers\ClientController` con CRUD completo (index, create, store, edit, update, destroy); accesible a roles `Administrador` y `Vendedor`
-- Vistas MVC en `views/clients/` (index, create, edit) con DataTables, breadcrumb, card info lateral y confirmación SweetAlert2 para eliminar
-- Rutas `/clients`, `/clients/create`, `/clients/edit/{id}`, `/clients/delete` (GET/POST) en `routes/web.php` con middleware `auth`
-
-- Modelo `App\Models\Product` (hereda de `App\Core\Model`) — `$table = 'tb_almacen'`, `$primaryKey = 'id_producto'`; `allWithCategories()` con JOIN a `tb_categorias` y `tb_usuarios`; `nextCode()` genera código `P-XXXXX`; `isReferenced()` verifica dependencias en `tb_carrito` y `tb_compras`
-- `App\Controllers\ProductController` con CRUD completo (index, create, store, edit, update, destroy) más `show()`; método privado `handleImageUpload()` con validación de MIME type, extensión whitelist y límite 2MB
-- Vistas MVC en `views/products/`: `index.php` (8 columnas con alerta visual de stock por colores), `create.php`, `edit.php`, `show.php` (detalle completo con tabla de auditoría)
-- Rutas `/products`, `/products/show/{id}`, `/products/create`, `/products/edit/{id}`, `/products/delete` (GET/POST) en `routes/web.php` con middleware `auth`
-- Directorio `public/uploads/products/` para imágenes de productos; `producto_default.png` y `.gitkeep` trackeados en git; resto de imágenes subidas ignoradas con regla específica en `.gitignore`
-
-- Modelo `App\Models\Purchase` (hereda de `App\Core\Model`) — `$table = 'tb_compras'`, `$primaryKey = 'id_compra'`; operaciones de escritura transaccionales: `storeWithStock()`, `updateWithStock()` (maneja cambio de producto), `destroyWithStock()`; consultas con JOIN: `allWithDetails()`, `findWithDetails()`; `nextNumber()` para nro_compra auto
-- `App\Controllers\PurchaseController` con CRUD completo (index, create, store, show, edit, update, destroy); `id_usuario` tomado de `Auth::user()` — nunca del POST; validación de campos en servidor
-- Vistas MVC en `views/purchases/`: `index.php` (DataTables + SweetAlert2 con stock revert en eliminar), `create.php`, `edit.php` (campos hidden `old_id_producto` y `old_cantidad` para ajuste de stock), `show.php` (detalle con secciones producto, proveedor, compra y auditoría)
-- Rutas `/purchases`, `/purchases/show/{id}`, `/purchases/create`, `/purchases/edit/{id}`, `/purchases/update`, `/purchases/delete` (GET/POST) en `routes/web.php` con middleware `auth`
-
-### Cambiado
-
-- `DashboardController` reemplaza `require_once listado_de_roles.php` por `Role::count()` — elimina dependencia de archivo legacy
-- `DashboardController` reemplaza `require_once listado_de_categorias.php` por `Category::count()` — elimina dependencia de archivo legacy
-- `DashboardController` reemplaza `require_once listado_de_proveedores.php` por `Supplier::count()` — elimina dependencia de archivo legacy
-- `DashboardController` reemplaza `require_once listado_de_clientes.php` por `Client::count()` — elimina dependencia de archivo legacy
-- `DashboardController` reemplaza `require_once listado_de_productos.php` por `Product::count()` — elimina dependencia de archivo legacy
-- `DashboardController` reemplaza `require_once listado_de_compras.php` por `Purchase::count()` — elimina dependencia de archivo legacy
-- Sidebar en `views/layout/parte1.php` actualizado al bloque MVC de Almacén (rutas `/products`, `/products/create`) con icono `fa-boxes`
-- Sidebar en `views/layout/parte1.php` actualizado al bloque MVC de Compras (rutas `/purchases`, `/purchases/create`) con icono `fa-shopping-cart`
-- Referencias de imágenes en `compras/` y `ventas/create.php` actualizadas de `/almacen/img_productos/` a `/uploads/products/`
-- `.gitignore` corregido para trackear sólo `producto_default.png` y `.gitkeep` en `public/uploads/products/`; eliminada regla genérica `uploads/` que bloqueaba las excepciones con `!`
-
-### Eliminado
-
-- Vistas legacy `roles/index.php`, `roles/create.php`, `roles/update.php`
-- Controladores legacy `app/controllers/roles/` (listado_de_roles, create, update, update_roles)
-- Vista legacy `categorias/index.php`
-- Controladores legacy `app/controllers/categorias/` (listado_de_categorias, registro_categorias, update_de_categorias)
-- Vista legacy `proveedores/index.php`
-- Controladores legacy `app/controllers/proveedores/` (listado_de_proveedores, create, update, delete)
-- Vista legacy `clientes/index.php`
-- Controladores legacy `app/controllers/clientes/` (listado_de_clientes, cargar_cliente, guardar_clientes)
-- Vistas legacy `almacen/index.php`, `almacen/create.php`, `almacen/update.php`, `almacen/delete.php`, `almacen/show.php`
-- Controladores legacy `app/controllers/almacen/` (listado_de_productos, create, update, delete, cargar_producto)
-- Vistas legacy `compras/index.php`, `compras/create.php`, `compras/update.php`, `compras/delete.php`, `compras/show.php`
-- Controladores legacy `app/controllers/compras/` (listado_de_compras, create, update, delete, cargar_compra)
-
-## [1.1.0] - 2026-03-26
+## [1.1.0] - 2026-03-30
 
 ### Agregado
 
@@ -77,7 +15,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Credenciales movidas a `.env` (fuera del control de versiones); `.env.example` como plantilla
 - Clases Core MVC: `App\Core\Database` (singleton PDO con `getConnection()`), `App\Core\Router`, `App\Core\Controller`, `App\Core\Model` (base abstracta), `App\Core\Config` (wrapper .env), `App\Core\Middleware` (interfaz)
 - `App\Core\Auth` para centralizar sesión, usuario actual, login/logout y CSRF
-- `app/Middleware/` con middlewares namespaced PSR-4: `AuthMiddleware`, `GuestMiddleware`, `AdminMiddleware`
+- `app/Middleware/` con middlewares namespaced PSR-4: `AuthMiddleware`, `GuestMiddleware`, `AdminMiddleware`, `SellerMiddleware` (permite `Administrador` y `Vendedor`; registrado como `'seller'` en Router)
 - Modelo `App\Models\User` (hereda de `App\Core\Model`) con métodos de autenticación y CRUD de usuarios
 - Entry point `public/index.php` con Router; `.htaccess` en raíz para soporte de rutas; `routes/web.php` para registro de rutas
 - `App\Controllers\AuthController` consolida login y logout; directorio `auth/` reemplaza `login/`
@@ -86,6 +24,33 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Nuevas vistas MVC en `views/auth/login.php`, `views/users/` (index, create, edit, show, delete), `views/dashboard/index.php`
 - `Controller::renderWithLayout()` para renderizar vistas envueltas en `parte1`/`mensajes`/`parte2` desde el controlador
 - Constante `BASE_URL` definida en `app/config.php` — disponible globalmente sin necesidad de pasar como variable
+- Modelo `App\Models\Role` — `$table = 'tb_roles'`; CRUD heredado; sin delete por ser datos de sistema
+- `App\Controllers\RoleController` (index, create, store, edit, update); vistas `views/roles/` con DataTables y badge de total
+- Rutas `/roles` en `routes/web.php` con middleware `['auth', 'admin']`
+- Modelo `App\Models\Category` — `$table = 'tb_categorias'`
+- `App\Controllers\CategoryController` (index, create, store, edit, update); vistas `views/categories/`
+- Rutas `/categories` en `routes/web.php` con middleware `auth`
+- Modelo `App\Models\Supplier` — `$table = 'tb_proveedores'`; `isReferenced()` verifica `tb_compras`
+- `App\Controllers\SupplierController` con CRUD completo; vistas `views/suppliers/` con SweetAlert2 para eliminar
+- Rutas `/suppliers` en `routes/web.php` con middleware `auth`
+- Modelo `App\Models\Client` — `$table = 'tb_clientes'`; `isReferenced()` verifica `tb_ventas`
+- `App\Controllers\ClientController` con CRUD completo; vistas `views/clients/` con SweetAlert2 para eliminar
+- Rutas `/clients` en `routes/web.php` con middleware `auth`
+- Modelo `App\Models\Product` — `$table = 'tb_almacen'`; `allWithCategories()` con JOIN; `nextCode()` genera código `P-XXXXX`; `isReferenced()` verifica `tb_carrito` y `tb_compras`
+- `App\Controllers\ProductController` con CRUD completo más `show()`; `handleImageUpload()` con validación MIME, extensión whitelist y límite 2MB
+- Vistas `views/products/` con alerta visual de stock por colores; vista `show.php` con auditoría
+- Rutas `/products` en `routes/web.php` con middleware `auth`
+- Directorio `public/uploads/products/` para imágenes; `producto_default.png` y `.gitkeep` trackeados; resto ignorado en `.gitignore`
+- Modelo `App\Models\Purchase` — `$table = 'tb_compras'`; `storeWithStock()`, `updateWithStock()`, `destroyWithStock()` transaccionales; `allWithDetails()`, `findWithDetails()`, `nextNumber()`
+- `App\Controllers\PurchaseController` con CRUD completo; `id_usuario` de `Auth::user()` — nunca del POST
+- Vistas `views/purchases/` con campos hidden `old_id_producto`/`old_cantidad` para ajuste de stock en edición
+- Rutas `/purchases` en `routes/web.php` con middleware `auth`
+- Helper estático `App\Helpers\NumberToWords::convert(float)` — convierte número a palabras en español para facturas PDF
+- Modelo `App\Models\Sale` — `$table = 'tb_ventas'`; `allWithDetails()`, `findWithDetails()`, `nextNumber()` con `MAX()+1`; `storeWithStock()` y `destroyWithStock()` transaccionales (DELETE `tb_ventas` antes que `tb_carrito` por FK)
+- Modelo `App\Models\CartItem` — `$table = 'tb_carrito'`; `addItem()` con validación de stock, `getByNroVenta()`, `removeItem()`, `countByNroVenta()`
+- `App\Controllers\SaleController` con 9 métodos: `index`, `create`, `addToCart`, `removeFromCart`, `store`, `show`, `confirmDelete`, `invoice` (TCPDF inline), `destroy`
+- Vistas `views/sales/`: `index.php` (DataTables), `create.php` (POS: carrito + modales de producto y cliente + panel pago), `show.php`, `delete.php` (confirmación SweetAlert2)
+- Rutas `/sales` en `routes/web.php` con middleware `['auth', 'seller']`
 
 ### Cambiado
 
@@ -99,6 +64,10 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - Root `index.php` reemplazado por redirect stub a `BASE_URL . '/'`
 - Rutas de users depuradas para usar endpoints canónicos sin duplicados
 - `App\Core\Router` actualizado con middlewares por ruta y soporte de parámetros dinámicos (`/users/edit/{id}`)
+- `DashboardController` reemplaza todos los `require_once listado_de_*.php` por llamadas a `Model::count()` (roles, categories, suppliers, clients, products, purchases, sales)
+- Sidebar `views/layout/parte1.php` actualizado con bloques MVC para todos los módulos migrados
+- Dashboard `views/dashboard/index.php` actualiza links a rutas MVC (`/sales`, `/sales/create`, etc.)
+- `.gitignore` corregido para trackear solo `producto_default.png` y `.gitkeep` en `public/uploads/products/`
 
 ### Corregido
 
@@ -108,6 +77,11 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 ### Eliminado
 
 - Vistas legacy del módulo `usuarios/` y controladores `app/controllers/usuarios/` reemplazados por `views/users/` y `UserController`
+- Vistas legacy `roles/`, `categorias/`, `proveedores/`, `clientes/` y sus controladores en `app/controllers/`
+- Vistas legacy `almacen/` y controladores `app/controllers/almacen/`
+- Vistas legacy `compras/` y controladores `app/controllers/compras/`
+- Vistas legacy `ventas/` y controladores `app/controllers/ventas/` (incluido `literal.php`)
+- Directorio `app/controllers/` completo — incluyendo `middleware/AuthMiddleware.php` legacy; no queda ningún archivo fuera de la arquitectura MVC
 
 ## [1.0.0] - 2026-03-24
 
