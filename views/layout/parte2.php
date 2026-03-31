@@ -16,7 +16,7 @@
 </div>
 <!-- ./wrapper -->
 
-<script src="<?= BASE_URL ?>/js/control_sidebar.js"></script>
+<script src="<?= BASE_URL ?>/js/core/control_sidebar.js"></script>
 
 <!-- Bootstrap 4 -->
 <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>

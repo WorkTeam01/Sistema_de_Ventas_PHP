@@ -25,7 +25,8 @@
             <div class="row">
                 <div class="col-md-8">
                     <form action="<?= BASE_URL; ?>/users" method="post">
-                        <div class="card card-primary">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                        <div class="card card-outline card-primary">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="fas fa-user-plus"></i> Ingrese los datos del usuario</h3>
                                 <div class="card-tools">
@@ -35,7 +36,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+
                                         <div class="form-group">
                                             <label for="nombres">Nombres <span class="text-danger">*</span></label>
                                             <input type="text" id="nombres" name="nombres" class="form-control" placeholder="Ingrese los nombres de usuario" required>
@@ -60,6 +61,17 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="card card-outline card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-lock"></i> Seguridad</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"> <i class="fas fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">

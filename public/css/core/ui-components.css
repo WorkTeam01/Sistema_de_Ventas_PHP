@@ -1,0 +1,393 @@
+/**
+ * UI Components Custom Styles
+ * 
+ * Estilos personalizados para mejorar los componentes UI
+ * como Select2, Tooltips, y otros elementos.
+ */
+
+/* ============================================
+   SELECT2 - Animación de flecha
+   ============================================ */
+
+/* Transición suave para la flecha */
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b {
+    transition: transform 0.3s ease-in-out;
+    transform-origin: center;
+}
+
+/* Rotar flecha cuando el dropdown está abierto */
+.select2-container--bootstrap4.select2-container--open .select2-selection--single .select2-selection__arrow b,
+.select2-container--bootstrap4.select2-container--arrow-up .select2-selection--single .select2-selection__arrow b {
+    transform: rotate(180deg);
+}
+
+/* Mejorar la apariencia de la flecha en el estado abierto */
+.select2-container--bootstrap4.select2-container--open .select2-selection--single,
+.select2-container--bootstrap4.select2-container--focus .select2-selection--single {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* ============================================
+   SELECT2 - Dropdown mejorado
+   ============================================ */
+
+/* Animación de entrada del dropdown */
+.select2-container--bootstrap4 .select2-dropdown {
+    animation: select2SlideDown 0.2s ease-out;
+    border-color: #80bdff;
+}
+
+@keyframes select2SlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mejorar el highlight de opciones */
+.select2-container--bootstrap4 .select2-results__option--highlighted {
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.15s ease-in-out;
+}
+
+/* Scroll suave en el dropdown */
+.select2-container--bootstrap4 .select2-results__options {
+    scroll-behavior: smooth;
+}
+
+/* ============================================
+   SELECT2 - Estados de validación
+   ============================================ */
+
+/* Estado inválido - cuando el select original tiene la clase */
+.is-invalid+.select2-container--bootstrap4 .select2-selection {
+    border-color: #dc3545;
+}
+
+.is-invalid+.select2-container--bootstrap4.select2-container--focus .select2-selection,
+.is-invalid+.select2-container--bootstrap4.select2-container--open .select2-selection {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Estado inválido - cuando el contenedor Select2 tiene la clase directamente */
+.select2-container--bootstrap4.is-invalid .select2-selection {
+    border-color: #dc3545 !important;
+}
+
+.select2-container--bootstrap4.is-invalid.select2-container--focus .select2-selection,
+.select2-container--bootstrap4.is-invalid.select2-container--open .select2-selection {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+/* Estado válido - cuando el select original tiene la clase */
+.is-valid+.select2-container--bootstrap4 .select2-selection {
+    border-color: #28a745;
+}
+
+.is-valid+.select2-container--bootstrap4.select2-container--focus .select2-selection,
+.is-valid+.select2-container--bootstrap4.select2-container--open .select2-selection {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Estado válido - cuando el contenedor Select2 tiene la clase directamente */
+.select2-container--bootstrap4.is-valid .select2-selection {
+    border-color: #28a745 !important;
+}
+
+.select2-container--bootstrap4.is-valid.select2-container--focus .select2-selection,
+.select2-container--bootstrap4.is-valid.select2-container--open .select2-selection {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+/* ============================================
+   SELECT2 - Modo oscuro
+   ============================================ */
+
+/* Estilos para modo oscuro */
+.dark-mode .select2-container--bootstrap4 .select2-selection {
+    background-color: #343a40;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.dark-mode .select2-container--bootstrap4 .select2-selection__rendered {
+    color: #fff;
+}
+
+.dark-mode .select2-container--bootstrap4 .select2-dropdown {
+    background-color: #343a40;
+    border-color: #6c757d;
+}
+
+.dark-mode .select2-container--bootstrap4 .select2-results__option {
+    color: #fff;
+}
+
+.dark-mode .select2-container--bootstrap4 .select2-results__option--highlighted {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.dark-mode .select2-container--bootstrap4 .select2-search__field {
+    background-color: #454d55;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+/* ============================================
+   TOOLTIPS - Mejoras
+   ============================================ */
+
+/* Transición suave */
+.tooltip {
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Tooltip con fondo primario para progress-bar */
+.tooltip .tooltip-inner.bg-primary {
+    background-color: #007bff;
+    font-weight: 500;
+}
+
+/* Modo oscuro para tooltips */
+.dark-mode .tooltip .tooltip-inner {
+    background-color: #454d55;
+    color: #fff;
+}
+
+.dark-mode .tooltip .arrow::before {
+    border-top-color: #454d55;
+}
+
+/* ============================================
+   INPUT GROUPS - Animaciones de foco
+   ============================================ */
+
+/* Animación del icono del input-group al hacer foco */
+.input-group-text {
+    transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus~.input-group-append .input-group-text,
+.form-control:focus~.input-group-prepend .input-group-text {
+    border-color: #80bdff;
+    background-color: #e7f3ff;
+}
+
+/* ============================================
+   VALIDACIÓN - Animaciones
+   ============================================ */
+
+/* Animación suave al mostrar errores */
+.invalid-feedback {
+    animation: fadeInError 0.3s ease-out;
+}
+
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animación al validar correctamente */
+.is-valid {
+    animation: validPulse 0.3s ease-out;
+}
+
+@keyframes validPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0);
+    }
+}
+
+/* ============================================
+   RESPONSIVE - Mejoras mobile
+   ============================================ */
+
+/* Mejorar select2 en móviles */
+@media (max-width: 576px) {
+    .select2-container--bootstrap4 .select2-dropdown {
+        font-size: 0.9rem;
+    }
+
+    .select2-container--bootstrap4 .select2-results__option {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Utilidades de border responsivo (Bootstrap 4 no las incluye) */
+@media (min-width: 768px) {
+    .border-md-right {
+        border-right: 1px solid #dee2e6 !important;
+    }
+
+    .border-md-left {
+        border-left: 1px solid #dee2e6 !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .border-lg-right {
+        border-right: 1px solid #dee2e6 !important;
+    }
+
+    .border-lg-left {
+        border-left: 1px solid #dee2e6 !important;
+    }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+/* Mejorar el foco para accesibilidad */
+.select2-container--bootstrap4.select2-container--focus .select2-selection,
+.select2-container--bootstrap4.select2-container--open .select2-selection {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+/* Indicador de foco para teclado */
+.select2-container--bootstrap4 .select2-selection:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* ============================================
+   BOTONES - Spinner en estado deshabilitado
+   ============================================ */
+
+/* Mejorar cursor y opacidad de botones deshabilitados */
+.btn:disabled,
+.btn.disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* Animación del spinner en botones */
+.btn:disabled .fa-spinner,
+.btn.disabled .fa-spinner {
+    animation: fa-spin 1s infinite linear;
+}
+
+/* Asegurar que el spinner gire suavemente */
+@keyframes fa-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   FOOTER - Versión responsiva
+   ============================================ */
+
+/* En pantallas pequeñas, centrar el contenido cuando la versión se oculta */
+@media (max-width: 575.98px) {
+    .main-footer .footer-content {
+        text-align: center;
+        width: 100%;
+    }
+}
+
+/* En pantallas grandes, mantener alineación a la izquierda */
+@media (min-width: 576px) {
+    .main-footer .footer-content {
+        text-align: left;
+    }
+}
+
+/* Estilo adicional para el ícono de versión */
+.main-footer .fas.fa-tag {
+    font-size: 0.8em;
+    margin-right: 3px;
+}
+
+/* ============================================
+   CARD OUTLINE TABS - Estilos globales
+   ============================================ */
+
+/**
+ * Estilos para tabs dentro de cards con outline.
+ * Uso: <div class="card card-{color} card-outline card-outline-tabs">
+ * Colores soportados: info, success, primary, warning, danger
+ */
+
+/* Tabs activos - color neutro para todos (alta especificidad para override) */
+.card-outline-tabs .nav-link.active,
+.card-info.card-outline-tabs .nav-link.active,
+.card-success.card-outline-tabs .nav-link.active,
+.card-primary.card-outline-tabs .nav-link.active,
+.card-warning.card-outline-tabs .nav-link.active,
+.card-danger.card-outline-tabs .nav-link.active {
+    color: #495057;
+}
+
+/* --- Info (para vistas show) --- */
+.card-info.card-outline-tabs .nav-link {
+    color: #17a2b8;
+}
+
+.card-info.card-outline-tabs .nav-link:hover {
+    color: #117a8b;
+}
+
+/* --- Success (para vistas edit) --- */
+.card-success.card-outline-tabs .nav-link {
+    color: #28a745;
+}
+
+.card-success.card-outline-tabs .nav-link:hover {
+    color: #1e7e34;
+}
+
+/* --- Primary (para vistas create) --- */
+.card-primary.card-outline-tabs .nav-link {
+    color: #007bff;
+}
+
+.card-primary.card-outline-tabs .nav-link:hover {
+    color: #0056b3;
+}
+
+/* --- Warning --- */
+.card-warning.card-outline-tabs .nav-link {
+    color: #ffc107;
+}
+
+.card-warning.card-outline-tabs .nav-link:hover {
+    color: #d39e00;
+}
+
+/* --- Danger --- */
+.card-danger.card-outline-tabs .nav-link {
+    color: #dc3545;
+}
+
+.card-danger.card-outline-tabs .nav-link:hover {
+    color: #bd2130;
+}

@@ -13,9 +13,11 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/core/ui-components.css">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/sweetalert2.min.css">
     <script src="<?= BASE_URL ?>/js/sweetalert2.min.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js"></script>
     <!-- DataTables -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
