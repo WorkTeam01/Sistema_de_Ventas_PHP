@@ -60,8 +60,7 @@ Sistema_de_Ventas_PHP/
 │   │   ├── Purchase.php
 │   │   ├── Sale.php
 │   │   └── CartItem.php
-│   ├── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
-│   └── config.php            ← Carga .env, expone $pdo, BASE_URL, $URL
+│   └── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
 ├── views/
 │   ├── layout/
 │   │   ├── parte1.php        ← Head HTML, navbar, sidebar
@@ -83,8 +82,12 @@ Sistema_de_Ventas_PHP/
 ├── public/
 │   ├── index.php             ← Entry point único (front controller MVC)
 │   ├── .htaccess             ← Redirige al Router
-│   ├── css/                  ← CSS personalizado
-│   ├── js/                   ← JS personalizado (control_sidebar.js)
+│   ├── css/
+│   │   ├── core/             ← Utilitarios globales (ui-components.css)
+│   │   └── modules/          ← CSS por módulo (auth/login.css, …)
+│   ├── js/
+│   │   ├── core/             ← Utilitarios globales (sweetalert-utils.js, control_sidebar.js)
+│   │   └── modules/          ← JS por módulo (auth/login.js, users/users-index.js, …)
 │   └── templates/            ← Assets AdminLTE (no modificar)
 └── database/
     ├── schema.sql
@@ -220,4 +223,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-03-30 — v1.1.0 (migración MVC completada)_
+_Última actualización: 2026-03-31 — v1.1.2 (login rediseñado, assets core, JS por módulos)_

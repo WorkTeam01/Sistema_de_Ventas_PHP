@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-v1.1.1-blue)
+![Versión](https://img.shields.io/badge/Versión-v1.1.2-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -128,7 +128,6 @@ APP_TIMEZONE=America/La_Paz
 
 ```bash
 chmod 755 public/uploads/products/
-chmod 644 app/config.php
 ```
 
 ### 6. Iniciar el servidor
@@ -178,7 +177,6 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 ```
 Sistema_de_Ventas_PHP/
 ├── app/
-│   ├── config.php          # Bootstrap: Dotenv, BASE_URL, $pdo, $URL, $Año
 │   ├── Controllers/        # Controladores MVC (Auth, Dashboard, User, Role, Category, Supplier, Client, Product, Purchase, Sale)
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
 │   ├── Helpers/            # Helpers PSR-4 (NumberToWords)
@@ -200,9 +198,13 @@ Sistema_de_Ventas_PHP/
 ├── routes/
 │   └── web.php             # Registro de rutas MVC
 ├── public/
-│   ├── index.php           # Front controller
-│   ├── css/                # Estilos personalizados
-│   ├── js/                 # Scripts personalizados
+│   ├── index.php           # Front controller (bootstrap: Dotenv, BASE_URL, BASE_PATH, $pdo)
+│   ├── css/
+│   │   ├── core/           # Utilitarios globales (ui-components.css)
+│   │   └── modules/        # Estilos por módulo (auth/login.css, …)
+│   ├── js/
+│   │   ├── core/           # Utilitarios globales (sweetalert-utils.js, control_sidebar.js)
+│   │   └── modules/        # Scripts por módulo (auth/login.js, users/users-index.js, …)
 │   ├── uploads/products/   # Imágenes de productos (producto_default.png trackeado; resto ignorado)
 │   └── templates/          # Assets AdminLTE
 └── database/

@@ -7,6 +7,35 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.2] - 2026-03-31
+
+### Agregado
+
+- `public/css/core/ui-components.css` y `public/js/core/sweetalert-utils.js` — utilitarios compartidos con `sistema-hielo-cambita`; `sweetalert-utils.js` provee `ToastUtils`, `AlertUtils` y funciones legacy (`showToast()`, `confirmDelete()`, etc.); se carga en `<head>` (parte1) para que `showToast()` esté disponible antes de que ejecute `mensajes.php`
+- `public/js/modules/users/users-index.js` — DataTable y `confirmarEliminar()` del módulo usuarios extraídos de JS inline en la vista
+- `public/css/modules/auth/login.css` — estilos personalizados del login: gradiente de fondo, card con hover/sombra, inputs redondeados, `btn-custom` azul
+- `public/js/modules/auth/login.js` — toggle de visibilidad de contraseña, jQuery Validate con mensajes en español, spinner de submit con `ToastUtils.loadingWithMinTime()`
+- `define('BASE_PATH', dirname(__DIR__))` en `public/index.php` — constante de ruta absoluta para referencias internas
+- `$_SESSION['welcome_user']` en `AuthController::store()` — activa el popup de bienvenida al llegar al dashboard tras login exitoso
+
+### Cambiado
+
+- `public/index.php` — inicialización bootstrappeada inline (antes delegada a `app/config.php`); agrega `BASE_PATH`
+- `views/layout/mensajes.php` — simplificado con `showToast()` de `sweetalert-utils.js`; agrega manejo de `$_SESSION['welcome_user']` con `AlertUtils.welcome()`
+- `views/layout/parte1.php` — agrega `ui-components.css` y `sweetalert-utils.js` en `<head>`
+- `views/layout/parte2.php` — ruta de `control_sidebar.js` actualizada a `js/core/control_sidebar.js`
+- `views/auth/login.php` — rediseño con patrón de `sistema-hielo-cambita`: logo local, toggle contraseña, jQuery Validate, `btn-custom`, toast via `showToast()`; sin JS inline
+- `views/users/index.php` — JS inline extraído a `users-index.js`
+- `views/users/create.php` — CSRF al inicio del form; formulario dividido en dos tarjetas ("Información de la cuenta" y "Seguridad")
+
+### Eliminado
+
+- `app/config.php` — lógica inlineada en `public/index.php`
+- `app/config.example.php` — archivo legacy de credenciales pre-MVC
+- `public/js/control_sidebar.js` — movido a `public/js/core/control_sidebar.js`
+
+---
+
 ## [1.1.1] - 2026-03-30
 
 ### Agregado

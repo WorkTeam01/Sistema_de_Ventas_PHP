@@ -49,6 +49,7 @@ class AuthController extends Controller
 
         if ($usuario) {
             Auth::login($usuario);
+            $_SESSION['welcome_user'] = $usuario['nombres'];
             $this->redirect(BASE_URL . '/');
         } else {
             $_SESSION['mensaje'] = "Datos incorrectos";

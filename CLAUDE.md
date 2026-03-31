@@ -87,8 +87,9 @@ APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
 APP_TIMEZONE=America/La_Paz
 ```
 
-`app/config.php` carga `.env` vía phpdotenv y expone:
+`public/index.php` carga `.env` vía phpdotenv y expone:
 
+- `BASE_PATH` — constante PHP con la ruta absoluta al directorio raíz del proyecto
 - `BASE_URL` — constante PHP global con la URL base (sin trailing slash), disponible en cualquier archivo sin necesidad de pasarla como variable
 - `$URL = BASE_URL` — alias backward-compat
 - `$pdo`, `$Año`, `$fechaHora` — compatibilidad con módulos existentes
@@ -228,7 +229,7 @@ Cada página incluye plantillas compartidas:
 
 ### Acceso a Base de Datos
 
-La conexión PDO se inicializa en `app/config.php` y está disponible como `$pdo`. Todas las consultas deben usar **sentencias preparadas** con placeholders `?` — nunca interpolar variables directamente en el string SQL:
+La conexión PDO se inicializa en `public/index.php` y está disponible como `$pdo`. Todas las consultas deben usar **sentencias preparadas** con placeholders `?` — nunca interpolar variables directamente en el string SQL:
 
 ```php
 // CORRECTO
@@ -291,17 +292,19 @@ Convenciones de columnas de auditoría:
 ## Convenciones de Frontend
 
 - **DataTables** se inicializa en cada página de listado para búsqueda, ordenamiento y exportación (PDF/Excel/CSV/Imprimir)
-- **SweetAlert2** se usa para todas las confirmaciones de eliminación y alertas de éxito/error (Toast mixin para notificaciones globales)
-- **Control Sidebar:** La lógica de tema y colores usa `public/js/control_sidebar.js` (basado en API nativa de AdminLTE). Las selecciones se guardan en `localStorage` y se aplica un script Anti-FOUC directamente en `layout/parte1.php`.
+- **SweetAlert2** se usa para todas las confirmaciones de eliminación y alertas de éxito/error
+- `public/js/core/sweetalert-utils.js` — provee `ToastUtils`, `AlertUtils` y `showToast()` (legacy); se carga en `<head>` de `parte1.php` y del layout del login para que esté disponible antes de `mensajes.php`
+- `views/layout/mensajes.php` — muestra `$_SESSION['welcome_user']` con `AlertUtils.welcome()` tras login, y toasts estándar con `showToast()` para CRUD
+- **Control Sidebar:** La lógica de tema y colores usa `public/js/core/control_sidebar.js` (basado en API nativa de AdminLTE). Las selecciones se guardan en `localStorage` y se aplica un script Anti-FOUC directamente en `layout/parte1.php`.
 - **jQuery** es requerido y se carga vía la plantilla AdminLTE
-- CSS personalizado en [public/css/](public/css/), JS personalizado en [public/js/](public/js/)
+- CSS personalizado en [public/css/](public/css/) — estructura: `core/` (utilitarios globales), `modules/[modulo]/` (estilos por módulo)
+- JS personalizado en [public/js/](public/js/) — estructura: `core/` (utilitarios globales), `modules/[modulo]/` (JS por módulo)
 - Assets de AdminLTE servidos desde [public/templates/](public/templates/) — no modificar estos archivos
 
 ## Permisos de Archivos
 
 ```bash
 chmod 755 public/uploads/products/  # Directorio de carga de imágenes de productos
-chmod 644 app/config.php
 ```
 
 ## Prohibiciones Explícitas
