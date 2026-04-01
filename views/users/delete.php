@@ -9,8 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= $URL ?>/dashboard"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= $URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
                         <li class="breadcrumb-item active">Eliminar usuario</li>
                     </ol>
                 </div>
@@ -24,7 +24,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-8">
-                    <form action="<?= $URL; ?>/users/delete" method="post">
+                    <form id="formEliminar" action="<?= BASE_URL; ?>/users/delete" method="post">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id_usuario" value="<?= $id_usuario; ?>">
 
@@ -96,10 +96,10 @@
                             <div class="card-footer">
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
-                                        <a href="<?= $URL; ?>/users" class="btn btn-default w-100"><i class="fas fa-times"></i> Cancelar</a>
+                                        <a href="<?= BASE_URL; ?>/users" class="btn btn-default w-100"><i class="fas fa-times"></i> Cancelar</a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="submit" class="btn btn-danger w-100"><i class="fas fa-trash"></i> Eliminar usuario</button>
+                                        <button type="button" class="btn btn-danger w-100" onclick="confirmarEliminar()"><i class="fas fa-trash"></i> Eliminar usuario</button>
                                     </div>
                                 </div>
                             </div>
@@ -126,5 +126,24 @@
         </div><!-- /.container-fluid -->
     </div>
 </section>
-<!-- /.content -->
 <!-- /.content-wrapper -->
+
+<script>
+    function confirmarEliminar() {
+        Swal.fire({
+            title: '¿Eliminar usuario?',
+            html: 'Se eliminará permanentemente a <strong><?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?></strong>.<br>Esta acción no se puede deshacer.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('formEliminar').submit();
+            }
+        });
+    }
+</script>

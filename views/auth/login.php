@@ -28,11 +28,13 @@
 <body class="hold-transition login-page">
     <div class="login-box">
         <?php if ($respuesta): ?>
-            <script>showToast(<?= json_encode('error') ?>, <?= json_encode($respuesta) ?>);</script>
+            <script>
+                showToast(<?= json_encode('error') ?>, <?= json_encode($respuesta) ?>);
+            </script>
         <?php endif; ?>
 
         <div class="login-logo">
-            <img src="<?= BASE_URL ?>/img/logo.png" class="img-circle" width="150" height="150" alt="Logo Sistema de Ventas">
+            <img src="<?= BASE_URL ?>/img/logo_2.png" class="img-circle" width="150" height="150" alt="Logo Sistema de Ventas">
         </div>
         <div class="card card-outline card-primary">
             <div class="card-header text-center">

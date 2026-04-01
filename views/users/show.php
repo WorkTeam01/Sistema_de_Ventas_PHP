@@ -21,6 +21,7 @@
 
     <!-- Main content -->
     <div class="content">
+        <div class="container-fluid">
         <div class="row">
             <div class="col-md-8">
                 <div class="card card-info card-outline">
@@ -136,7 +137,7 @@
 
             </div>
         </div>
+        </div><!-- /.container-fluid -->
     </div>
 </section>
-<!-- /.content -->
 <!-- /.content-wrapper -->

@@ -203,6 +203,34 @@ class UserController extends Controller
     }
 
     /**
+     * Verifica si el usuario tiene registros asociados en otras tablas.
+     * Responde JSON: { referenced: bool, productos: int, compras: int }
+     *
+     * @param int|null $id ID del usuario a verificar
+     */
+    public function check(?int $id = null): void
+    {
+        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->json(['error' => 'Usuario inválido.'], 400);
+        }
+
+        $userModel = new User();
+
+        if (!$userModel->find($id)) {
+            $this->json(['error' => 'Usuario no encontrado.'], 404);
+        }
+
+        $counts = $userModel->getReferenceCount($id);
+
+        $this->json([
+            'referenced' => ($counts['productos'] + $counts['compras']) > 0,
+            'productos'  => $counts['productos'],
+            'compras'    => $counts['compras'],
+        ]);
+    }
+
+    /**
      * Muestra la pantalla de confirmación antes de eliminar un usuario.
      *
      * @param int|null $id ID del usuario a eliminar

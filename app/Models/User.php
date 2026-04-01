@@ -152,6 +152,53 @@ class User extends Model
     }
 
     /**
+     * Indica si el usuario está referenciado en productos (tb_almacen) o compras (tb_compras).
+     * Usado antes de eliminar para evitar violar restricciones de FK.
+     *
+     * @param int|string $id ID del usuario.
+     * @return bool true si existe al menos un producto o compra asociado.
+     */
+    public function isReferenced(int|string $id): bool
+    {
+        $productos = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_almacen WHERE id_usuario = ?",
+            [$id]
+        );
+        if (($productos[0]['total'] ?? 0) > 0) {
+            return true;
+        }
+
+        $compras = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_compras WHERE id_usuario = ?",
+            [$id]
+        );
+        return ($compras[0]['total'] ?? 0) > 0;
+    }
+
+    /**
+     * Devuelve un desglose de cuántos registros tiene el usuario en cada tabla referenciada.
+     *
+     * @param int $id ID del usuario.
+     * @return array{productos: int, compras: int}
+     */
+    public function getReferenceCount(int $id): array
+    {
+        $productos = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_almacen WHERE id_usuario = ?",
+            [$id]
+        );
+        $compras = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_compras WHERE id_usuario = ?",
+            [$id]
+        );
+
+        return [
+            'productos' => (int) ($productos[0]['total'] ?? 0),
+            'compras'   => (int) ($compras[0]['total'] ?? 0),
+        ];
+    }
+
+    /**
      * Actualiza los datos de un usuario. Si $passwordHash es null, no modifica la contraseña.
      *
      * @param int         $id           ID del usuario a actualizar.

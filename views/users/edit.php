@@ -15,93 +15,76 @@
                     </ol>
                 </div>
             </div>
-        </div><!-- /.container-fluid -->
+        </div>
     </div>
+    <!-- /.content-header -->
+
     <div class="content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-8">
-                    <div class="card card-widget widget-user-2">
-                        <div class="widget-user-header bg-success">
-                            <div class="widget-user-image">
-                                <img class="img-circle elevation-2" src="<?= BASE_URL; ?>/templates/AdminLTE-3.2.0/dist/img/user2-160x160.jpg" alt="User Avatar">
-                            </div>
-                            <h3 class="widget-user-username">Modificar usuario: <?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?></h3>
-                            <h5 class="widget-user-desc"><?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></h5>
-                        </div>
-                    </div>
-
-                    <form action="<?= BASE_URL; ?>/users/update" method="post">
+                    <form id="userEditForm" action="<?= BASE_URL ?>/users/update" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id_usuario" value="<?= $id_usuario; ?>">
 
-                        <div class="card card-success card-outline">
+                        <div class="card card-success">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-user"></i> Información de la cuenta</h3>
+                                <h3 class="card-title">
+                                    Datos para modificar
+                                    <span class="badge badge-secondary ml-1">ID #<?= $id_usuario ?></span>
+                                </h3>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <p class="text-muted">Actualiza la información principal del usuario.</p>
 
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label for="nombres">Nombres <span class="text-danger">*</span></label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                                </div>
-                                                <input type="text" id="nombres" name="nombres" class="form-control" value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="name" required>
-                                            </div>
+                                <div class="form-group">
+                                    <label for="nombres">Nombres <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
                                         </div>
+                                        <input type="text" id="nombres" name="nombres" class="form-control"
+                                            value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label for="email">Email <span class="text-danger">*</span></label>
+                                            <label for="email">Correo electrónico <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                                 </div>
-                                                <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="email" required>
+                                                <input type="email" id="email" name="email" class="form-control"
+                                                    value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="rol">Rol <span class="text-danger">*</span></label>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
-                                                </div>
-                                                <select id="rol" name="rol" class="form-control" required>
-                                                    <?php foreach ($roles_datos as $roles_dato) {
-                                                        $idRol = (int) $roles_dato['id_rol']; ?>
-                                                        <option value="<?= $idRol; ?>" <?= $idRol === $idRolActual ? 'selected' : ''; ?>>
-                                                            <?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8'); ?>
-                                                        </option>
-                                                    <?php } ?>
-                                                </select>
-                                            </div>
+                                            <select id="rol" name="rol" class="form-control select2">
+                                                <?php foreach ($roles_datos as $roles_dato) :
+                                                    $idRol = (int) $roles_dato['id_rol']; ?>
+                                                    <option value="<?= $idRol; ?>" <?= $idRol === $idRolActual ? 'selected' : ''; ?>>
+                                                        <?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8'); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="card card-success card-outline">
-                            <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-lock"></i> Seguridad</h3>
-                                <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <p class="text-muted">Cambio de contraseña (opcional).</p>
+                                <hr>
+
+                                <p class="text-muted mb-3"><i class="fas fa-lock mr-1"></i> Cambio de contraseña <small>(opcional)</small></p>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -110,7 +93,13 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-key"></i></span>
                                                 </div>
-                                                <input type="password" id="password_user" name="password_user" class="form-control" placeholder="Dejar en blanco para mantener actual" autocomplete="new-password">
+                                                <input type="password" id="password_user" name="password_user" class="form-control"
+                                                    placeholder="Dejar en blanco para mantener actual" autocomplete="new-password">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -121,7 +110,13 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-key"></i></span>
                                                 </div>
-                                                <input type="password" id="password_repeat" name="password_repeat" class="form-control" placeholder="Repita la contraseña" autocomplete="new-password">
+                                                <input type="password" id="password_repeat" name="password_repeat" class="form-control"
+                                                    placeholder="Repita la contraseña" autocomplete="new-password">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-secondary" id="togglePasswordRepeat">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -134,10 +129,14 @@
                             <div class="card-footer">
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
-                                        <a href="<?= BASE_URL; ?>/users" class="btn btn-default w-100"><i class="fas fa-times"></i> Cancelar</a>
+                                        <a href="<?= BASE_URL ?>/users" class="btn btn-default w-100">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="submit" class="btn btn-success w-100"><i class="fas fa-save"></i> Guardar cambios</button>
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fas fa-save"></i> Guardar cambios
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -150,21 +149,27 @@
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-id-badge"></i> Resumen</h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="card-body box-profile">
                             <div class="text-center mb-3">
-                                <img class="profile-user-img img-fluid img-circle" src="<?= BASE_URL; ?>/templates/AdminLTE-3.2.0/dist/img/user2-160x160.jpg" alt="User profile picture">
+                                <img class="profile-user-img img-fluid img-circle"
+                                    src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/img/user2-160x160.jpg"
+                                    alt="User profile picture">
                             </div>
                             <h3 class="profile-username text-center"><?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?></h3>
                             <p class="text-muted text-center"><?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></p>
                             <ul class="list-group list-group-unbordered mb-0">
                                 <li class="list-group-item">
-                                    <b><i class="fas fa-hashtag text-primary"></i> ID</b> <span class="float-right badge badge-primary"><?= $id_usuario; ?></span>
+                                    <b><i class="fas fa-hashtag text-primary"></i> ID</b>
+                                    <span class="float-right badge badge-primary"><?= $id_usuario; ?></span>
                                 </li>
                                 <li class="list-group-item">
-                                    <b><i class="fas fa-user-tag text-info"></i> Rol actual</b> <span class="float-right"><?= htmlspecialchars($rolActual, ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <b><i class="fas fa-user-tag text-info"></i> Rol actual</b>
+                                    <span class="float-right"><?= htmlspecialchars($rolActual, ENT_QUOTES, 'UTF-8'); ?></span>
                                 </li>
                             </ul>
                         </div>
@@ -174,12 +179,14 @@
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-lightbulb"></i> Recomendaciones</h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
                             <p class="text-sm text-muted mb-2">Valida que el correo sea único y vigente.</p>
-                            <p class="text-sm text-muted mb-2">Cambia contraseña solo cuando sea necesario.</p>
+                            <p class="text-sm text-muted mb-2">Cambia la contraseña solo cuando sea necesario.</p>
                             <p class="text-sm text-muted mb-0">Confirma que el rol asignado coincide con los permisos esperados.</p>
                         </div>
                     </div>
@@ -188,5 +195,6 @@
         </div>
     </div>
 </section>
-<!-- /.content -->
 <!-- /.content-wrapper -->
+
+<script src="<?= BASE_URL ?>/js/modules/users/users-edit.js"></script>

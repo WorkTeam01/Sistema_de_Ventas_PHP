@@ -22,10 +22,17 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     <!-- jQuery -->
     <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
     <!-- Icono del sitio -->
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>/img/logo.png">
+
+    <script>
+        const BASE_URL = '<?= BASE_URL ?>';
+    </script>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -55,7 +62,7 @@
                 <!-- Logo visible solo en móvil -->
                 <li class="nav-item d-sm-none">
                     <a href="<?= BASE_URL ?>" class="nav-link d-flex align-items-center">
-                        <img src="<?= BASE_URL ?>/img/logo.png" alt="Logo Hielo Cambita"
+                        <img src="<?= BASE_URL ?>/img/logo_2.png" alt="Logo Hielo Cambita"
                             class="img-circle" style="width: 25px; height: 25px; margin-right: 8px;">
                         <span class="brand-text inter-brand-text">Sistema de Ventas</span>
                     </a>
@@ -81,7 +88,7 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-2">
             <!-- Brand Logo -->
             <a href="<?= BASE_URL ?>" class="brand-link">
-                <img src="<?= BASE_URL ?>/img/logo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-1" style="opacity: .8">
+                <img src="<?= BASE_URL ?>/img/logo_2.png" alt="Logo" loading="eager" class="brand-image img-circle elevation-1" style="opacity: .8">
                 <span class="brand-text font-weight-light">Pagina principal</span>
             </a>
 

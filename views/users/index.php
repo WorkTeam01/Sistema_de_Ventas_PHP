@@ -26,10 +26,10 @@
                     <div class="card card-outline card-primary">
                         <div class="card-header">
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
-                                <h3 class="card-title">Listado de Usuarios</h3>
+                                <h3 class="card-title">Usuarios registrados</h3>
                                 <div class="card-tools">
                                     <a href="<?= BASE_URL ?>/users/create" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-plus"></i> Nuevo Usuario
+                                        <i class="fas fa-plus"></i> Nuevo usuario
                                     </a>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -60,9 +60,16 @@
                                             <td><?= htmlspecialchars($usuarios_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a href="<?= BASE_URL ?>/users/show/<?= $id_usuario ?>" type="button" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Ver</a>
-                                                    <a href="<?= BASE_URL ?>/users/edit/<?= $id_usuario ?>" type="button" class="btn btn-success btn-sm"><i class="fas fa-pencil-alt"></i> Editar</a>
-                                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar('<?= BASE_URL ?>/users/delete/<?= $id_usuario; ?>')"><i class="fas fa-trash"></i> Eliminar</button>
+                                                    <a href="<?= BASE_URL ?>/users/show/<?= $id_usuario ?>" class="btn btn-info btn-sm">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                    <a href="<?= BASE_URL ?>/users/edit/<?= $id_usuario ?>" class="btn btn-success btn-sm">
+                                                        <i class="fas fa-pencil-alt"></i> Editar
+                                                    </a>
+                                                    <button type="button" class="btn btn-danger btn-sm"
+                                                        onclick="confirmarEliminar(<?= $id_usuario ?>, '<?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?>')">
+                                                        <i class="fas fa-trash"></i> Eliminar
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -78,5 +85,6 @@
     <!-- /.content -->
 </section>
 <!-- /.content-wrapper -->
+
 
 <script src="<?= BASE_URL ?>/js/modules/users/users-index.js"></script>

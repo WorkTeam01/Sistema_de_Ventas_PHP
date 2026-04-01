@@ -35,6 +35,13 @@
 <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- Select2 -->
+<script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2/js/select2.min.js"></script>
+<!-- Jquery.validate -->
+<script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/jquery.validate.min.js"></script>
+<script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/localization/messages_es.min.js"></script>
+<!-- UI Components Utils (General UI Helpers) -->
+<script src="<?= BASE_URL; ?>/js/core/ui-components.js"></script>
 
 </body>
 

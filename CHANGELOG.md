@@ -7,6 +7,33 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.3] - 2026-03-31
+
+### Agregado
+
+- `public/js/modules/users/users-create.js` — jQuery Validate para el formulario de creación: nombres (requerido, mín. 3 chars), email (requerido, formato), rol (requerido), contraseña (requerida, mín. 6 chars), confirmación con `equalTo`; toggle de visibilidad de contraseña; spinner en submit con `ToastUtils.loadingWithMinTime()`
+- `public/js/modules/users/users-edit.js` — jQuery Validate para el formulario de edición: mismas reglas que create pero contraseña opcional (si se llena, mín. 6 chars y repeat debe coincidir); spinner con "Actualizando..."
+- `User::isReferenced(int $id)` en `app/Models/User.php` — verifica si el usuario tiene productos (`tb_almacen`) o compras (`tb_compras`) asociadas antes de permitir la eliminación
+- `User::getReferenceCount(int $id)` en `app/Models/User.php` — devuelve desglose `{productos, compras}` para mostrar en el mensaje de error
+- `UserController::check()` en `app/Controllers/UserController.php` — endpoint JSON `GET /users/check/{id}` que responde `{referenced, productos, compras}`; usado por AJAX antes de redirigir a la página de eliminación
+- Ruta `GET /users/check/{id}` en `routes/web.php` con middleware `auth, admin`
+- Constante JS `BASE_URL` en `views/layout/parte1.php` — disponible globalmente en todos los módulos JS que necesiten construir URLs dinámicas
+
+### Cambiado
+
+- `views/users/index.php` — botón Eliminar ahora hace verificación AJAX (`/users/check/{id}`) antes de redirigir; si el usuario tiene referencias muestra alerta de error con detalle de productos/compras; si está libre redirige a `/users/delete/{id}`
+- `views/users/create.php` — reestructurado a un solo `card-primary`; campos con `input-group` e íconos FontAwesome; `autocomplete="off"`; botones toggle de contraseña; carga `users-create.js`
+- `views/users/edit.php` — eliminado el bloque `widget-user-2` (header con fondo verde e imagen); reemplazado por `card-success` simple con badge de ID (patrón estándar del sistema); un solo card unificado datos+contraseña; carga `users-edit.js`
+- `views/users/delete.php` — botón "Eliminar usuario" ahora abre SweetAlert2 de confirmación con nombre del usuario antes de hacer submit; corregido `$URL` → `BASE_URL` en todos los enlaces y acciones
+- `views/users/show.php` — agregado `container-fluid` faltante que causaba desbordamiento del layout
+
+### Corregido
+
+- `views/users/delete.php` — variable `$URL` indefinida reemplazada por constante `BASE_URL`; enlace de inicio apuntaba a `/dashboard` en lugar de `/`
+- `views/users/index.php` — `json_encode()` en `onclick` generaba comillas dobles dentro de atributo HTML con comillas dobles, rompiendo el JS; corregido con `htmlspecialchars(..., ENT_QUOTES)`
+
+---
+
 ## [1.1.2] - 2026-03-31
 
 ### Agregado
