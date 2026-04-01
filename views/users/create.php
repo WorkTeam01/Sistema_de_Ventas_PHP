@@ -24,19 +24,20 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-8">
-                    <div class="card card-primary">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-user-plus"></i> Ingrese los datos del usuario</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <form id="userCreateForm" action="<?= BASE_URL ?>/users" method="post" autocomplete="off">
-                            <div class="card-body">
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                    <form id="userCreateForm" action="<?= BASE_URL ?>/users" method="post" autocomplete="off">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
+                        <!-- Card 1: Datos del usuario -->
+                        <div class="card card-primary card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-user mr-1"></i> Datos del usuario</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
                                 <div class="form-group">
                                     <label for="nombres">Nombres <span class="text-danger">*</span></label>
                                     <div class="input-group">
@@ -75,18 +76,27 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <hr>
-
-                                <p class="text-muted mb-3"><i class="fas fa-lock mr-1"></i> Seguridad</p>
-
+                        <!-- Card 2: Credenciales de acceso -->
+                        <div class="card card-primary card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-key mr-1"></i> Credenciales de acceso</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="password_user">Contraseña <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
                                                 <input type="password" id="password_user" name="password_user" class="form-control"
                                                     placeholder="Mínimo 6 caracteres">
@@ -103,7 +113,7 @@
                                             <label for="password_repeat">Repita la contraseña <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
                                                 <input type="password" id="password_repeat" name="password_repeat" class="form-control"
                                                     placeholder="Repita la contraseña">
@@ -121,21 +131,22 @@
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
                                         <a href="<?= BASE_URL ?>/users" class="btn btn-default w-100">
-                                            <i class="fas fa-times"></i> Cancelar
+                                            <i class="fas fa-times mr-1"></i> Cancelar
                                         </a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            <i class="fas fa-save"></i> Guardar
+                                        <button type="submit" id="btnCreateUser" class="btn btn-primary w-100">
+                                            <i class="fas fa-save mr-1"></i> Guardar
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="col-md-4">
+                    <!-- Información adicional -->
                     <div class="card card-outline card-info">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-info-circle"></i> Información adicional</h3>
@@ -153,6 +164,31 @@
                                 <li class="mb-1"><i class="fas fa-lock text-warning mr-1"></i> La contraseña debe tener al menos 6 caracteres.</li>
                             </ul>
                             <p class="text-muted mb-0"><small>El correo electrónico debe ser único en el sistema.</small></p>
+                        </div>
+                    </div>
+
+                    <!-- Vista previa -->
+                    <div class="card card-outline card-success">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-eye"></i> Vista previa</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body box-profile">
+                            <div class="text-center">
+                                <i class="fas fa-user-circle fa-5x text-secondary mb-2"></i>
+                            </div>
+                            <h3 class="profile-username text-center" id="preview-nombre">Nombre del Usuario</h3>
+                            <p class="text-muted text-center" id="preview-email">email@ejemplo.com</p>
+                            <ul class="list-group list-group-unbordered mb-0">
+                                <li class="list-group-item">
+                                    <b><i class="fas fa-user-tag text-info"></i> Rol</b>
+                                    <span class="float-right" id="preview-rol">— Sin rol —</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>

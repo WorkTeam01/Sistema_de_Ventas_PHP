@@ -25,12 +25,13 @@
                 <div class="col-md-8">
                     <form id="userEditForm" action="<?= BASE_URL ?>/users/update" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
-                        <input type="hidden" name="id_usuario" value="<?= $id_usuario; ?>">
+                        <input type="hidden" id="id_usuario" name="id_usuario" value="<?= $id_usuario; ?>">
 
-                        <div class="card card-success">
+                        <!-- Card 1: Información de la cuenta -->
+                        <div class="card card-success card-outline">
                             <div class="card-header">
                                 <h3 class="card-title">
-                                    Datos para modificar
+                                    <i class="fas fa-user mr-1"></i> Información de la cuenta
                                     <span class="badge badge-secondary ml-1">ID #<?= $id_usuario ?></span>
                                 </h3>
                                 <div class="card-tools">
@@ -40,8 +41,6 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <p class="text-muted">Actualiza la información principal del usuario.</p>
-
                                 <div class="form-group">
                                     <label for="nombres">Nombres <span class="text-danger">*</span></label>
                                     <div class="input-group">
@@ -80,11 +79,21 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <hr>
-
-                                <p class="text-muted mb-3"><i class="fas fa-lock mr-1"></i> Cambio de contraseña <small>(opcional)</small></p>
-
+                        <!-- Card 2: Seguridad -->
+                        <div class="card card-success card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-lock mr-1"></i> Seguridad</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Cambio de contraseña <small>(opcional)</small></p>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -121,7 +130,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="alert alert-info mb-0">
                                     <i class="fas fa-info-circle"></i> Deje ambos campos vacíos si no desea cambiar la contraseña.
                                 </div>
@@ -130,12 +138,12 @@
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
                                         <a href="<?= BASE_URL ?>/users" class="btn btn-default w-100">
-                                            <i class="fas fa-times"></i> Cancelar
+                                            <i class="fas fa-times mr-1"></i> Cancelar
                                         </a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="submit" class="btn btn-success w-100">
-                                            <i class="fas fa-save"></i> Guardar cambios
+                                        <button type="submit" id="btnEditUser" class="btn btn-success w-100">
+                                            <i class="fas fa-save mr-1"></i> Guardar cambios
                                         </button>
                                     </div>
                                 </div>
@@ -156,9 +164,7 @@
                         </div>
                         <div class="card-body box-profile">
                             <div class="text-center mb-3">
-                                <img class="profile-user-img img-fluid img-circle"
-                                    src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/img/user2-160x160.jpg"
-                                    alt="User profile picture">
+                                <i class="fas fa-user-circle fa-5x text-secondary"></i>
                             </div>
                             <h3 class="profile-username text-center"><?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?></h3>
                             <p class="text-muted text-center"><?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?></p>

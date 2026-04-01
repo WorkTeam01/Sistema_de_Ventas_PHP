@@ -231,6 +231,29 @@ class UserController extends Controller
     }
 
     /**
+     * Verifica vía AJAX si un email ya está registrado.
+     * Responde true (libre) o string de error (ocupado) para jquery.validate remote.
+     */
+    public function checkEmail(): void
+    {
+        $email = trim($_POST['email'] ?? '');
+        $id    = $_POST['id_usuario'] ?? null;
+
+        if ($id === '' || $id === 'null') {
+            $id = null;
+        } elseif ($id !== null) {
+            $id = (int) $id;
+        }
+
+        $userModel = new User();
+        if ($userModel->emailExists($email, $id)) {
+            echo json_encode('El correo electrónico ya está registrado en el sistema');
+        } else {
+            echo json_encode(true);
+        }
+    }
+
+    /**
      * Muestra la pantalla de confirmación antes de eliminar un usuario.
      *
      * @param int|null $id ID del usuario a eliminar

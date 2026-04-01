@@ -42,6 +42,7 @@ $router->post('/users',        [UserController::class, 'store'], ['auth', 'admin
 $router->get('/users/show/{id}', [UserController::class, 'show'], ['auth', 'admin']);
 $router->get('/users/edit/{id}', [UserController::class, 'edit'], ['auth', 'admin']);
 $router->post('/users/update', [UserController::class, 'update'], ['auth', 'admin']);
+$router->post('/users/check-email', [UserController::class, 'checkEmail'], ['auth', 'admin']);
 $router->get('/users/check/{id}', [UserController::class, 'check'], ['auth', 'admin']);
 $router->get('/users/delete/{id}', [UserController::class, 'delete'], ['auth', 'admin']);
 $router->post('/users/delete', [UserController::class, 'destroy'], ['auth', 'admin']);

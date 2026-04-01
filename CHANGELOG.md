@@ -7,6 +7,25 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.4] - 2026-04-01
+
+### Agregado
+
+- `UserController::checkEmail()` en `app/Controllers/UserController.php` — endpoint `POST /users/check-email` que responde `true` (email libre) o string de error (ya registrado); utilizado por jquery.validate `remote` en create y edit
+- Ruta `POST /users/check-email` en `routes/web.php` con middleware `auth, admin`
+- Validación AJAX de email en tiempo real en `users-create.js` — regla `remote` que consulta `/users/check-email`; impide submit si el correo ya existe en el sistema sin necesidad de reload
+- Validación AJAX de email en tiempo real en `users-edit.js` — igual que create pero envía `id_usuario` para excluir al usuario actual de la comprobación de duplicados
+- Card "Vista previa" en sidebar de `views/users/create.php` — muestra nombre, email y rol actualizándose en tiempo real mientras el usuario completa el formulario (via listeners JS en `users-create.js`)
+- Loading toast "Redirigiendo..." en `users-index.js` — aparece tras confirmar que el usuario no tiene referencias, antes de navegar a la vista de eliminación
+
+### Cambiado
+
+- `views/users/create.php` — formulario dividido en dos cards colapsables `card-primary card-outline` ("Datos del usuario" y "Credenciales de acceso"); `id="btnCreateUser"` en botón submit para control de spinner
+- `views/users/edit.php` — formulario dividido en dos cards colapsables `card-success card-outline` ("Información de la cuenta" y "Seguridad"); `id="id_usuario"` agregado al input hidden para que el validador remote lo referencie; `id="btnEditUser"` en botón submit
+- `users-index.js` — `confirmarEliminar()` ahora usa `ToastUtils.loadingWithMinTime('Verificando usuario...')` durante el AJAX y deshabilita todos los botones de eliminar mientras la verificación está en curso
+
+---
+
 ## [1.1.3] - 2026-03-31
 
 ### Agregado

@@ -25,7 +25,15 @@ $(document).ready(function () {
             },
             email: {
                 required: true,
-                email: true
+                email: true,
+                remote: {
+                    url: BASE_URL + '/users/check-email',
+                    type: 'POST',
+                    data: {
+                        email: function () { return $('#email').val(); },
+                        id_usuario: function () { return $('#id_usuario').val(); }
+                    }
+                }
             },
             rol: {
                 required: true
@@ -46,7 +54,8 @@ $(document).ready(function () {
             },
             email: {
                 required: 'El correo electrónico es requerido',
-                email: 'Por favor, ingresa un correo electrónico válido'
+                email: 'Por favor, ingresa un correo electrónico válido',
+                remote: 'El correo electrónico ya está registrado en el sistema'
             },
             rol: {
                 required: 'Debe seleccionar un rol'
@@ -71,8 +80,8 @@ $(document).ready(function () {
             $(element).removeClass('is-invalid').addClass('is-valid');
         },
         submitHandler: function (form) {
-            const $btn = $(form).find('[type="submit"]');
-            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Actualizando...');
+            const $btn = $('#btnEditUser');
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Guardando...');
 
             if (typeof ToastUtils !== 'undefined') {
                 ToastUtils.loadingWithMinTime('Actualizando usuario...', () => {

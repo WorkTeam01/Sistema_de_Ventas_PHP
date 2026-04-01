@@ -25,7 +25,14 @@ $(document).ready(function () {
             },
             email: {
                 required: true,
-                email: true
+                email: true,
+                remote: {
+                    url: BASE_URL + '/users/check-email',
+                    type: 'POST',
+                    data: {
+                        email: function () { return $('#email').val(); }
+                    }
+                }
             },
             rol: {
                 required: true
@@ -46,7 +53,8 @@ $(document).ready(function () {
             },
             email: {
                 required: 'El correo electrónico es requerido',
-                email: 'Por favor, ingresa un correo electrónico válido'
+                email: 'Por favor, ingresa un correo electrónico válido',
+                remote: 'El correo electrónico ya está registrado en el sistema'
             },
             rol: {
                 required: 'Debe seleccionar un rol'
@@ -73,7 +81,7 @@ $(document).ready(function () {
             $(element).removeClass('is-invalid').addClass('is-valid');
         },
         submitHandler: function (form) {
-            const $btn = $(form).find('[type="submit"]');
+            const $btn = $('#btnCreateUser');
             $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Guardando...');
 
             if (typeof ToastUtils !== 'undefined') {
@@ -84,5 +92,19 @@ $(document).ready(function () {
                 form.submit();
             }
         }
+    });
+
+    // Listeners de live preview en sidebar
+    $('#nombres').on('input', function () {
+        $('#preview-nombre').text($(this).val() || 'Nombre del Usuario');
+    });
+
+    $('#email').on('input', function () {
+        $('#preview-email').text($(this).val() || 'email@ejemplo.com');
+    });
+
+    $('#rol').on('change', function () {
+        const texto = $(this).find('option:selected').text().trim();
+        $('#preview-rol').text(texto || '— Sin rol —');
     });
 });

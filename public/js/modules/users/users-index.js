@@ -61,34 +61,40 @@ $(document).ready(function () {
 });
 
 function confirmarEliminar(id, nombre) {
-    // 1. Verificar si el usuario tiene registros asociados
-    fetch(`${BASE_URL}/users/check/${id}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.referenced) {
-                // Construir detalle de referencias
-                let detalles = '';
-                if (data.productos > 0) {
-                    detalles += `<li>${data.productos} producto(s) registrado(s) en almacén</li>`;
-                }
-                if (data.compras > 0) {
-                    detalles += `<li>${data.compras} compra(s) registrada(s)</li>`;
+    const $btns = $('button[onclick*="confirmarEliminar"]');
+    $btns.prop('disabled', true);
+
+    ToastUtils.loadingWithMinTime('Verificando usuario...', function (toast) {
+        fetch(BASE_URL + '/users/check/' + id)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                toast.close();
+                $btns.prop('disabled', false);
+
+                if (data.referenced) {
+                    let detalles = '';
+                    if (data.productos > 0) detalles += '<li>' + data.productos + ' producto(s) registrado(s) en almacén</li>';
+                    if (data.compras > 0) detalles += '<li>' + data.compras + ' compra(s) registrada(s)</li>';
+
+                    Swal.fire({
+                        title: 'No se puede eliminar',
+                        html: 'El usuario <strong>' + nombre + '</strong> tiene registros asociados:<ul class="text-left mt-2">' + detalles + '</ul>Elimina primero esos registros antes de continuar.',
+                        icon: 'error',
+                        confirmButtonText: 'Entendido',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    return;
                 }
 
-                Swal.fire({
-                    title: 'No se puede eliminar',
-                    html: `El usuario <strong>${nombre}</strong> tiene registros asociados:<ul class="text-left mt-2">${detalles}</ul>Elimina primero esos registros antes de continuar.`,
-                    icon: 'error',
-                    confirmButtonText: 'Entendido',
-                    confirmButtonColor: '#3085d6'
-                });
-                return;
-            }
-
-            // 2. Sin referencias — redirigir a la página de confirmación
-            window.location.href = `${BASE_URL}/users/delete/${id}`;
-        })
-        .catch(() => {
-            ToastUtils.error('Error de conexión', 'No se pudo verificar el usuario.');
-        });
+                // Sin referencias — mostrar loading y redirigir a la página de confirmación
+                ToastUtils.loadingWithMinTime('Redirigiendo...', function () {
+                    window.location.href = BASE_URL + '/users/delete/' + id;
+                }, 1200);
+            })
+            .catch(function () {
+                if (toast) toast.close();
+                $btns.prop('disabled', false);
+                ToastUtils.error('Error de conexión', 'No se pudo verificar el usuario.');
+            });
+    }, 1500);
 }
