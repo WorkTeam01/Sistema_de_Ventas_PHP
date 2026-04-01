@@ -34,7 +34,7 @@ class Controller
     }
 
     /**
-     * Renderiza una vista envuelta en el layout completo (parte1 + mensajes + parte2).
+     * Renderiza una vista envuelta en el layout completo (header + messages + footer).
      *
      * @param string $viewPath     Ruta relativa a la raíz del proyecto.
      * @param array  $data         Variables a inyectar en la vista.
@@ -48,14 +48,14 @@ class Controller
             $Año = date('Y');
         }
 
-        require __DIR__ . '/../../views/layout/parte1.php';
+        require __DIR__ . '/../../views/layouts/header.php';
         require __DIR__ . '/../../' . ltrim($viewPath, '/');
 
         if ($withMessages) {
-            require __DIR__ . '/../../views/layout/mensajes.php';
+            require __DIR__ . '/../../views/layouts/messages.php';
         }
 
-        require __DIR__ . '/../../views/layout/parte2.php';
+        require __DIR__ . '/../../views/layouts/footer.php';
     }
 
     /**

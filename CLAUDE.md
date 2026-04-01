@@ -198,7 +198,7 @@ Para agregar un nuevo módulo, seguir este orden:
 2. Crear `app/Controllers/[Nombre]Controller.php` — 6 métodos: `index`, `create`, `store`, `edit`, `update`, `destroy`
 3. Crear `views/[modulo]/index.php`, `create.php`, `edit.php`
 4. Registrar rutas en `routes/web.php`
-5. Actualizar sidebar en `views/layout/parte1.php` con control de rol
+5. Actualizar sidebar en `views/layouts/partials/_sidebar.php` con control de rol
 6. Actualizar `CHANGELOG.md`, `README.md`, `CLAUDE.md`
 
 ### Autenticación y Autorización
@@ -223,9 +223,10 @@ Roles disponibles (almacenados en `tb_roles`): `Administrador`, `Vendedor`, `Com
 
 Cada página incluye plantillas compartidas:
 
-- [views/layout/sesion.php](views/layout/sesion.php) — valida que exista sesión activa, redirige a `/auth` si no
-- [views/layout/parte1.php](views/layout/parte1.php) — head HTML, navbar, sidebar
-- [views/layout/parte2.php](views/layout/parte2.php) — scripts de cierre, footer
+- [views/layouts/header.php](views/layouts/header.php) — head HTML, navbar; incluye el sidebar partial
+- [views/layouts/partials/_sidebar.php](views/layouts/partials/_sidebar.php) — sidebar con control de rol
+- [views/layouts/footer.php](views/layouts/footer.php) — scripts de cierre, footer
+- [views/layouts/messages.php](views/layouts/messages.php) — mensajes flash (welcome y toasts CRUD)
 
 ### Acceso a Base de Datos
 
@@ -293,9 +294,9 @@ Convenciones de columnas de auditoría:
 
 - **DataTables** se inicializa en cada página de listado para búsqueda, ordenamiento y exportación (PDF/Excel/CSV/Imprimir)
 - **SweetAlert2** se usa para todas las confirmaciones de eliminación y alertas de éxito/error
-- `public/js/core/sweetalert-utils.js` — provee `ToastUtils`, `AlertUtils` y `showToast()` (legacy); se carga en `<head>` de `parte1.php` y del layout del login para que esté disponible antes de `mensajes.php`
-- `views/layout/mensajes.php` — muestra `$_SESSION['welcome_user']` con `AlertUtils.welcome()` tras login, y toasts estándar con `showToast()` para CRUD
-- **Control Sidebar:** La lógica de tema y colores usa `public/js/core/control_sidebar.js` (basado en API nativa de AdminLTE). Las selecciones se guardan en `localStorage` y se aplica un script Anti-FOUC directamente en `layout/parte1.php`.
+- `public/js/core/sweetalert-utils.js` — provee `ToastUtils`, `AlertUtils` y `showToast()` (legacy); se carga en `<head>` de `layouts/header.php` y del layout del login para que esté disponible antes de `messages.php`
+- `views/layouts/messages.php` — muestra `$_SESSION['welcome_user']` con `AlertUtils.welcome()` tras login, y toasts estándar con `showToast()` para CRUD
+- **Control Sidebar:** La lógica de tema y colores usa `public/js/core/control_sidebar.js` (basado en API nativa de AdminLTE). Las selecciones se guardan en `localStorage` y se aplica un script Anti-FOUC directamente en `layouts/header.php`.
 - **jQuery** es requerido y se carga vía la plantilla AdminLTE
 - CSS personalizado en [public/css/](public/css/) — estructura: `core/` (utilitarios globales), `modules/[modulo]/` (estilos por módulo)
 - JS personalizado en [public/js/](public/js/) — estructura: `core/` (utilitarios globales), `modules/[modulo]/` (JS por módulo)

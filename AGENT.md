@@ -62,10 +62,12 @@ Sistema_de_Ventas_PHP/
 │   │   └── CartItem.php
 │   └── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
 ├── views/
-│   ├── layout/
-│   │   ├── parte1.php        ← Head HTML, navbar, sidebar
-│   │   ├── parte2.php        ← Scripts de cierre, footer
-│   │   └── sesion.php        ← Valida sesión activa, redirige a /auth si no
+│   ├── layouts/
+│   │   ├── header.php        ← Head HTML, navbar; incluye sidebar partial
+│   │   ├── footer.php        ← Scripts de cierre, footer
+│   │   ├── messages.php      ← Mensajes flash (welcome y toasts CRUD)
+│   │   └── partials/
+│   │       └── _sidebar.php  ← Sidebar con control de rol
 │   ├── errors/               ← Páginas de error standalone (404, 403, 500)
 │   ├── auth/
 │   ├── dashboard/
@@ -177,11 +179,11 @@ Auth::check()  // bool
 - jQuery para DOM y eventos
 - **DataTables** sin AJAX: datos cargados desde PHP en la vista, sin filtros server-side
 - **SweetAlert2** para confirmaciones de eliminación — patrón: formulario oculto `#formEliminar` con CSRF + campo hidden del ID, disparado tras confirmación
-- Anti-FOUC del sidebar/tema: script inline en `parte1.php`, preferencias en `localStorage`
+- Anti-FOUC del sidebar/tema: script inline en `layouts/header.php`, preferencias en `localStorage`
 
 ### Vistas MVC
 
-- Todas usan `renderWithLayout()` del Controller base (compone parte1 + contenido + parte2)
+- Todas usan `renderWithLayout()` del Controller base (compone header + contenido + footer)
 - Constante `BASE_URL` disponible globalmente — usar para construir URLs en PHP y JS
 - Layout de páginas de listado: full width, DataTables con export (PDF/Excel/CSV/Imprimir)
 - Layout de formularios: col-md-8 (form) + col-md-4 (tarjeta informativa)
