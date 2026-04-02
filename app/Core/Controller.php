@@ -36,11 +36,12 @@ class Controller
     /**
      * Renderiza una vista envuelta en el layout completo (header + messages + footer).
      *
-     * @param string $viewPath     Ruta relativa a la raíz del proyecto.
-     * @param array  $data         Variables a inyectar en la vista.
-     * @param bool   $withMessages Si es true incluye el bloque de mensajes flash.
+     * @param string   $viewPath     Ruta relativa a la raíz del proyecto.
+     * @param array    $data         Variables a inyectar en la vista.
+     * @param bool     $withMessages Si es true incluye el bloque de mensajes flash.
+     * @param string[] $assets       Plugins a cargar: 'datatable', 'select2', 'validation'.
      */
-    protected function renderWithLayout(string $viewPath, array $data = [], bool $withMessages = true): void
+    protected function renderWithLayout(string $viewPath, array $data = [], bool $withMessages = true, array $assets = []): void
     {
         extract($data);
 

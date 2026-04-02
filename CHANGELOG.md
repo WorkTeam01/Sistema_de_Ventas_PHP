@@ -7,6 +7,35 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.6] - 2026-04-02
+
+### Cambiado
+
+- `renderWithLayout()` en `app/Core/Controller.php` — nuevo 4° parámetro `array $assets = []`; los plugins (`datatable`, `select2`, `validation`) solo se cargan en las páginas que los declaran explícitamente
+- `views/layouts/header.php` — CSS de DataTables y Select2 envueltos en bloques `in_array()` condicionales
+- `views/layouts/footer.php` — JS de DataTables (11 archivos), Select2 y jQuery Validate envueltos en bloques `in_array()` condicionales
+- Controllers actualizados con `$assets` apropiados: `['datatable']` en todos los `index()`; `['select2', 'validation']` en `UserController::create()` y `edit()`; `['datatable']` en `SaleController::create()` por las tablas del modal POS
+
+---
+
+## [1.1.5] - 2026-04-01
+
+### Cambiado
+
+- Directorio `views/layout/` renombrado a `views/layouts/` — convención plural consistente con frameworks PHP modernos
+- `views/layout/parte1.php` → `views/layouts/header.php`
+- `views/layout/parte2.php` → `views/layouts/footer.php`
+- `views/layout/mensajes.php` → `views/layouts/messages.php`
+- Sidebar extraído de `header.php` a `views/layouts/partials/_sidebar.php` — partial independiente incluido desde `header.php`
+- `app/Core/Controller.php` — 3 rutas de `require` actualizadas a `views/layouts/`
+- `CLAUDE.md` y `AGENT.md` — referencias a archivos de layout actualizadas
+
+### Eliminado
+
+- `views/layout/sesion.php` — código muerto; la sesión se gestiona enteramente via `Auth` + `sessionData()`
+
+---
+
 ## [1.1.4] - 2026-04-01
 
 ### Agregado

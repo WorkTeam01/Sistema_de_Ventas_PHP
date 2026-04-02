@@ -22,7 +22,7 @@ class ClientController extends Controller
                 'clients_datos' => $clients_datos,
                 'csrf_token'    => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['datatable']);
     }
 
     /**

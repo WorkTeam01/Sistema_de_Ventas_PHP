@@ -23,7 +23,7 @@ class ProductController extends Controller
                 'products_datos' => $products_datos,
                 'csrf_token'     => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['datatable']);
     }
 
     /**

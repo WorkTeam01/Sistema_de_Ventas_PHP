@@ -24,7 +24,7 @@ class PurchaseController extends Controller
                 'purchases_datos' => $purchases_datos,
                 'csrf_token'      => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['datatable']);
     }
 
     /**

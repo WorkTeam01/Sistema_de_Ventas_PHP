@@ -19,7 +19,7 @@ class RoleController extends Controller
         $this->renderWithLayout('views/roles/index.php', array_merge(
             $this->sessionData(),
             ['roles_datos' => $roles_datos]
-        ));
+        ), true, ['datatable']);
     }
 
     /**

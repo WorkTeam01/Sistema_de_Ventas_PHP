@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.1.4-blue)
+![Versión](https://img.shields.io/badge/Versión-1.1.6-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -183,7 +183,7 @@ Sistema_de_Ventas_PHP/
 │   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware, SellerMiddleware)
 │   └── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem)
 ├── views/
-│   ├── layout/             # Plantillas compartidas (parte1, parte2, mensajes, sesion)
+│   ├── layouts/            # Plantillas compartidas (header, footer, messages) + partials/_sidebar.php
 │   ├── errors/             # Páginas de error standalone (404, 403, 500)
 │   ├── auth/               # Vista de login
 │   ├── dashboard/          # Vista del dashboard

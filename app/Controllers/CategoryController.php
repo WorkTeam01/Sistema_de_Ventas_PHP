@@ -19,7 +19,7 @@ class CategoryController extends Controller
         $this->renderWithLayout('views/categories/index.php', array_merge(
             $this->sessionData(),
             ['categories_datos' => $categories_datos]
-        ));
+        ), true, ['datatable']);
     }
 
     /**

@@ -26,7 +26,7 @@ class SaleController extends Controller
                 'sales_data'  => $sales_data,
                 'csrf_token'  => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['datatable']);
     }
 
     /**
@@ -51,7 +51,7 @@ class SaleController extends Controller
                 'clients'     => $clientModel->all(),
                 'csrf_token'  => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['datatable']);
     }
 
     /**

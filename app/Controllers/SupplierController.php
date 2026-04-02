@@ -22,7 +22,7 @@ class SupplierController extends Controller
                 'suppliers_datos' => $suppliers_datos,
                 'csrf_token'      => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['datatable']);
     }
 
     /**

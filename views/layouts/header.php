@@ -18,13 +18,17 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/sweetalert2.min.css">
     <script src="<?= BASE_URL ?>/js/sweetalert2.min.js"></script>
     <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js"></script>
-    <!-- DataTables -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
-    <!-- Select2 -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2/css/select2.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <?php if (in_array('datatable', $assets ?? [])) : ?>
+        <!-- DataTables -->
+        <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+        <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+        <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <?php endif; ?>
+    <?php if (in_array('select2', $assets ?? [])) : ?>
+        <!-- Select2 -->
+        <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2/css/select2.min.css">
+        <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <?php endif; ?>
     <!-- jQuery -->
     <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
     <!-- Icono del sitio -->

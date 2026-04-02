@@ -19,7 +19,7 @@ class UserController extends Controller
         $this->renderWithLayout('views/users/index.php', array_merge(
             $this->sessionData(),
             ['usuarios_datos' => $usuarios_datos]
-        ));
+        ), true, ['datatable']);
     }
 
     /**
@@ -36,7 +36,7 @@ class UserController extends Controller
                 'roles_datos' => $roles_datos,
                 'csrf_token'  => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['select2', 'validation']);
     }
 
     /**
@@ -150,7 +150,7 @@ class UserController extends Controller
                 'roles_datos' => $roles_datos,
                 'csrf_token'  => Auth::generateCsrfToken(),
             ]
-        ));
+        ), true, ['select2', 'validation']);
     }
 
     /**
