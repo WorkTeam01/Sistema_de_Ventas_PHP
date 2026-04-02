@@ -49,27 +49,10 @@
 
                             <!-- Modulo de roles-->
                             <li class="nav-item">
-                                <a href="#" class="nav-link active">
+                                <a href="<?= BASE_URL ?>/roles" class="nav-link active">
                                     <i class="nav-icon fas fa-address-card"></i>
-                                    <p>
-                                        Roles
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
+                                    <p>Roles</p>
                                 </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/roles" class="nav-link">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Lista de roles</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/roles/create" class="nav-link">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Crear rol</p>
-                                        </a>
-                                    </li>
-                                </ul>
                             </li>
                         <?php endif; ?>
 

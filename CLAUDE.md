@@ -117,10 +117,10 @@ Rutas activas en `routes/web.php`:
 | GET    | `/users/delete/{id}`    | `UserController::delete()`         | `auth`, `admin`  |
 | POST   | `/users/delete`         | `UserController::destroy()`        | `auth`, `admin`  |
 | GET    | `/roles`                | `RoleController::index()`          | `auth`, `admin`  |
-| GET    | `/roles/create`         | `RoleController::create()`         | `auth`, `admin`  |
-| POST   | `/roles`                | `RoleController::store()`          | `auth`, `admin`  |
-| GET    | `/roles/edit/{id}`      | `RoleController::edit()`           | `auth`, `admin`  |
-| POST   | `/roles/update`         | `RoleController::update()`         | `auth`, `admin`  |
+| POST   | `/roles/store`          | `RoleController::store()`          | `auth`, `admin`  |
+| GET    | `/roles/show/{id}`      | `RoleController::show()`           | `auth`, `admin`  |
+| POST   | `/roles/update/{id}`    | `RoleController::update()`         | `auth`, `admin`  |
+| POST   | `/roles/check-nombre`   | `RoleController::checkNombre()`    | `auth`, `admin`  |
 | GET    | `/categories`           | `CategoryController::index()`      | `auth`           |
 | GET    | `/categories/create`    | `CategoryController::create()`     | `auth`           |
 | POST   | `/categories`           | `CategoryController::store()`      | `auth`           |

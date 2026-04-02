@@ -48,11 +48,11 @@ $router->get('/users/delete/{id}', [UserController::class, 'delete'], ['auth', '
 $router->post('/users/delete', [UserController::class, 'destroy'], ['auth', 'admin']);
 
 // Rutas del módulo roles (MVC)
-$router->get('/roles',           [RoleController::class, 'index'],  ['auth', 'admin']);
-$router->get('/roles/create',    [RoleController::class, 'create'], ['auth', 'admin']);
-$router->post('/roles',          [RoleController::class, 'store'],  ['auth', 'admin']);
-$router->get('/roles/edit/{id}', [RoleController::class, 'edit'],   ['auth', 'admin']);
-$router->post('/roles/update',   [RoleController::class, 'update'], ['auth', 'admin']);
+$router->get('/roles',                 [RoleController::class, 'index'],      ['auth', 'admin']);
+$router->post('/roles/store',          [RoleController::class, 'store'],      ['auth', 'admin']);
+$router->get('/roles/show/{id}',       [RoleController::class, 'show'],       ['auth', 'admin']);
+$router->post('/roles/update/{id}',    [RoleController::class, 'update'],     ['auth', 'admin']);
+$router->post('/roles/check-nombre',   [RoleController::class, 'checkNombre'],['auth', 'admin']);
 
 // Rutas del módulo categories (MVC)
 $router->get('/categories',           [CategoryController::class, 'index'],  ['auth']);

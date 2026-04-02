@@ -7,6 +7,28 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.7] - 2026-04-02
+
+### Cambiado
+
+- `app/Models/Role.php` — método `nameExists(string $name, ?int $excludeId = null): bool` para detección de nombres duplicados (excluye el registro actual en ediciones)
+- `app/Controllers/RoleController.php` — refactorizado a AJAX puro: `index()` renderiza la página; `store()`, `show()`, `update()` responden JSON; `checkNombre()` endpoint para jQuery Validate `remote`
+- `routes/web.php` — rutas de roles actualizadas: `POST /roles/store`, `GET /roles/show/{id}`, `POST /roles/update/{id}`, `POST /roles/check-nombre`; eliminadas rutas de `create` y `edit` como páginas
+- `views/roles/index.php` — reescrito con patrón modal + AJAX: DataTable `#roleTable` + `#modalCreate` (bg-primary) + `#modalEdit` (bg-success); sin páginas separadas de creación y edición
+- `views/layouts/partials/_sidebar.php` — enlace de roles simplificado a link directo; eliminado treeview con sub-ítems "Lista de roles" / "Crear rol"
+
+### Agregado
+
+- `public/js/modules/roles/roles-datatable.js` — inicialización DataTable con botones de exportación (Copy, PDF personalizado, Excel, CSV, Imprimir), colvis y anti-FOUC
+- `public/js/modules/roles/roles-modals.js` — jQuery Validate con regla `remote` en ambos formularios; `crearRol()` / `actualizarRol()` con `ToastUtils.loadingWithMinTime()`; carga de datos para modal de edición via AJAX; flag `isSubmitting` para prevenir doble submit
+
+### Eliminado
+
+- `views/roles/create.php` — reemplazado por `#modalCreate` en `index.php`
+- `views/roles/edit.php` — reemplazado por `#modalEdit` en `index.php`
+
+---
+
 ## [1.1.6] - 2026-04-02
 
 ### Cambiado

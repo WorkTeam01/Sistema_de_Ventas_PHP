@@ -180,6 +180,7 @@ Auth::check()  // bool
 - **DataTables** sin AJAX: datos cargados desde PHP en la vista, sin filtros server-side
 - **SweetAlert2** para confirmaciones de eliminación — patrón: formulario oculto `#formEliminar` con CSRF + campo hidden del ID, disparado tras confirmación
 - Anti-FOUC del sidebar/tema: script inline en `layouts/header.php`, preferencias en `localStorage`
+- **Patrón modal + AJAX** (roles): CRUD completo en `index.php` via modales Bootstrap; endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`); jQuery Validate con regla `remote` para validación de duplicados en tiempo real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
 
 ### Vistas MVC
 
@@ -225,4 +226,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-03-31 — v1.1.2 (login rediseñado, assets core, JS por módulos)_
+_Última actualización: 2026-04-02 — v1.1.7 (roles: patrón modal + AJAX con jQuery Validate remote)_

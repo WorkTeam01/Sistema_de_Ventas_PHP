@@ -2,14 +2,13 @@
 
 namespace App\Controllers;
 
-use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Role;
 
 class RoleController extends Controller
 {
     /**
-     * Muestra el listado de todos los roles registrados en el sistema.
+     * Muestra el listado de todos los roles con modales para crear y editar.
      */
     public function index(): void
     {
@@ -19,99 +18,114 @@ class RoleController extends Controller
         $this->renderWithLayout('views/roles/index.php', array_merge(
             $this->sessionData(),
             ['roles_datos' => $roles_datos]
-        ), true, ['datatable']);
+        ), true, ['datatable', 'validation']);
     }
 
     /**
-     * Muestra el formulario para crear un nuevo rol.
-     */
-    public function create(): void
-    {
-        $this->renderWithLayout('views/roles/create.php', array_merge(
-            $this->sessionData(),
-            ['csrf_token' => Auth::generateCsrfToken()]
-        ));
-    }
-
-    /**
-     * Procesa el formulario de creación y guarda el nuevo rol.
+     * Guarda un nuevo rol (AJAX).
      */
     public function store(): void
     {
-        $this->validateCsrfOrFail();
-
-        $rol = trim($_POST['rol'] ?? '');
+        $rol = trim($this->input('rol') ?? '');
 
         if ($rol === '') {
-            $this->flash('El nombre del rol es obligatorio.', 'error');
-            $this->redirect(BASE_URL . '/roles/create');
+            $this->json(['success' => false, 'message' => 'El nombre del rol es obligatorio.']);
         }
 
         $roleModel = new Role();
 
-        if ($roleModel->create(['rol' => $rol])) {
-            $this->flash('El rol se registró exitosamente', 'success');
-            $this->redirect(BASE_URL . '/roles');
+        if ($roleModel->nameExists($rol)) {
+            $this->json(['success' => false, 'message' => 'Ya existe un rol con ese nombre.']);
         }
 
-        $this->flash('Error al crear el rol.', 'error');
-        $this->redirect(BASE_URL . '/roles/create');
+        if ($roleModel->create(['rol' => $rol])) {
+            $this->json(['success' => true, 'message' => 'Rol creado exitosamente.']);
+        }
+
+        $this->json(['success' => false, 'message' => 'Error al crear el rol.']);
     }
 
     /**
-     * Muestra el formulario de edición para un rol existente.
+     * Retorna los datos de un rol en JSON (AJAX — para pre-llenar el modal de edición).
      *
-     * @param int|null $id ID del rol a editar
+     * @param int|null $id
      */
-    public function edit(?int $id = null): void
+    public function show(?int $id = null): void
     {
         $id = $id ?? (int) ($_GET['id'] ?? 0);
+
         if ($id <= 0) {
-            $this->flash('Rol inválido.', 'error');
-            $this->redirect(BASE_URL . '/roles');
+            $this->json(['success' => false, 'message' => 'ID de rol inválido.']);
         }
 
         $roleModel = new Role();
         $role      = $roleModel->find($id);
 
-        if (!$role) {
-            $this->flash('No se encontró el rol solicitado.', 'error');
-            $this->redirect(BASE_URL . '/roles');
+        if ($role) {
+            $this->json(['success' => true, 'data' => $role]);
         }
 
-        $this->renderWithLayout('views/roles/edit.php', array_merge(
-            $this->sessionData(),
-            [
-                'id_rol'     => (int) $role['id_rol'],
-                'rol'        => $role['rol'],
-                'csrf_token' => Auth::generateCsrfToken(),
-            ]
-        ));
+        $this->json(['success' => false, 'message' => 'Rol no encontrado.']);
     }
 
     /**
-     * Procesa el formulario de edición y actualiza el rol.
+     * Actualiza un rol existente (AJAX).
+     *
+     * @param int|null $id
      */
-    public function update(): void
+    public function update(?int $id = null): void
     {
-        $this->validateCsrfOrFail();
+        $id  = $id ?? (int) ($_POST['id'] ?? 0);
+        $rol = trim($this->input('rol') ?? '');
 
-        $id_rol = (int) ($_POST['id_rol'] ?? 0);
-        $rol    = trim($_POST['rol'] ?? '');
-
-        if ($id_rol <= 0 || $rol === '') {
-            $this->flash('Datos inválidos para actualizar el rol.', 'error');
-            $this->redirect(BASE_URL . '/roles');
+        if ($id <= 0 || $rol === '') {
+            $this->json(['success' => false, 'message' => 'Datos inválidos para actualizar el rol.']);
         }
 
         $roleModel = new Role();
 
-        if ($roleModel->update($id_rol, ['rol' => $rol])) {
-            $this->flash('El rol se actualizó exitosamente', 'success');
-            $this->redirect(BASE_URL . '/roles');
+        if (!$roleModel->find($id)) {
+            $this->json(['success' => false, 'message' => 'Rol no encontrado.']);
         }
 
-        $this->flash('Error al actualizar el rol.', 'error');
-        $this->redirect(BASE_URL . '/roles/edit/' . $id_rol);
+        if ($roleModel->nameExists($rol, $id)) {
+            $this->json(['success' => false, 'message' => 'Ya existe otro rol con ese nombre.']);
+        }
+
+        if ($roleModel->update($id, ['rol' => $rol])) {
+            $this->json(['success' => true, 'message' => 'Rol actualizado exitosamente.']);
+        }
+
+        $this->json(['success' => false, 'message' => 'Error al actualizar el rol.']);
+    }
+
+    /**
+     * Verifica si el nombre del rol ya existe (AJAX — jQuery Validate remote).
+     *
+     * jQuery Validate espera:
+     * - true  → validación pasa (nombre disponible)
+     * - string → validación falla (mensaje de error)
+     */
+    public function checkNombre(): void
+    {
+        $rol = trim($this->input('rol') ?? '');
+        $id  = $this->input('id');
+
+        if ($id === '' || $id === 'null') {
+            $id = null;
+        } elseif ($id !== null) {
+            $id = (int) $id;
+        }
+
+        if ($rol === '') {
+            echo json_encode(true);
+            exit;
+        }
+
+        $roleModel = new Role();
+        $exists    = $roleModel->nameExists($rol, $id);
+
+        echo json_encode($exists ? 'Ya existe un rol con este nombre.' : true);
+        exit;
     }
 }
