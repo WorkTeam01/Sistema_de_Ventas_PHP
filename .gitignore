@@ -26,8 +26,22 @@ config/database.php
 .env
 .env.local
 .env.production
+
+# IA & Agentes locales
+# Ignorar archivos de configuración local
 .mcp.json
-.claude
+.claude/settings.json
+.claude/settings.local.json
+
+# Ignorar TODO en carpeta .claude EXCEPTO lo listado abajo
+!.claude/
+.claude/*
+!.claude/skills/
+!.claude/skills/**
+!.claude/settings.example.json
+
+# Excepciones
+!.mcp.example.json
 
 # Archivos temporales de PHP
 *.tmp

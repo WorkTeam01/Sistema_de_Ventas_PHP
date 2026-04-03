@@ -4,8 +4,8 @@
 
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.1.8-blue)
-![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
+![Versión](https://img.shields.io/badge/Versión-1.2.0-blue)
+![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-4-7952B3?logo=bootstrap&logoColor=white)
@@ -44,7 +44,7 @@ Este proyecto implementa una arquitectura MVC con PSR-4. Todos los módulos est�
 
 ## Requisitos
 
-- PHP 7.4 o superior (extensiones: `pdo_mysql`, `gd`, `mbstring`, `json`)
+- PHP 8.x (extensiones: `pdo_mysql`, `gd`, `mbstring`, `json`)
 - MySQL 5.7+ / MariaDB 10.4+
 - Apache 2.4+ (incluido en XAMPP)
 
@@ -214,23 +214,40 @@ Sistema_de_Ventas_PHP/
 
 ---
 
-## Contribuciones
+## 📖 Documentación para Desarrolladores
 
-1. Crear una rama: `git checkout -b feature/nombre-funcionalidad`
-2. Realizar los cambios y hacer commit: `git commit -m 'Descripción del cambio'`
-3. Push a la rama: `git push origin feature/nombre-funcionalidad`
-4. Abrir un Pull Request
+| Archivo                            | Propósito                                                   |
+| ---------------------------------- | ----------------------------------------------------------- |
+| [AGENT.md](AGENT.md)               | 🏗️ Arquitectura completa, stack, convenciones globales      |
+| [CLAUDE.md](CLAUDE.md)             | 🛠️ Estructura MVC, rutas activas, patrones de código        |
+| [PROMPTS.md](PROMPTS.md)           | 📝 Plantillas de prompts efectivos para agentes IA          |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | 🤝 Guía para colaboradores — flujo de PRs, commits, testing |
+
+> **Requisito:** Lee [AGENT.md](AGENT.md) antes de contribuir. Es la fuente de verdad del proyecto.
+
+---
+
+## 🤝 Contribuciones
+
+¿Te gustaría colaborar? ¡Excelente! Sigue estos pasos:
+
+1. **Lee primero** [CONTRIBUTING.md](CONTRIBUTING.md) — contiene todo lo necesario
+2. **Abre un issue** describiendo tu propuesta (feature, bug fix, docs)
+3. **Fork + Branch:** `git checkout -b feature/nombre-funcionalidad`
+4. **Código:** Sigue convenciones de [AGENT.md](AGENT.md) y [CLAUDE.md](CLAUDE.md)
+5. **Commit:** Usa formato convencional → `feat(scope): description`
+6. **Push + PR:** Abre pull request con descripción clara
+
+**Código de conducta:** Sé respetuoso. Esperamos comentarios constructivos en las PRs.
 
 ---
 
 <div align="center">
 
-## Créditos
+## 📄 Licencia
 
-Proyecto basado en los tutoriales del canal de YouTube **[Hilari Web](https://www.youtube.com/@hilariweb)**.
+Proyecto de código abierto distribuido bajo la **[Licencia MIT](LICENSE)**.
 
----
-
-Distribuido bajo la [Licencia MIT](LICENSE).
+Eres libre de usar, modificar y distribuir este proyecto con fines educativos y comerciales.
 
 </div>

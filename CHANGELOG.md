@@ -7,6 +7,31 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.0] - 2026-04-03
+
+### Agregado
+
+- `CONTRIBUTING.md` — guía completa para colaboradores: flujo de contribución, convenciones de commit, estructura de archivos MVC, checklist de testing
+- `LICENSE` — licencia MIT para uso público y open-source
+- `.gitignore` — actualizado con reglas para `.claude/` (ignorar config local) y `.mcp.json` (ignorar config local); excepción para `.mcp.example.json` (template para equipo)
+- `.claudeignore` — configuración de exclusión para contexto de Claude (vendor/, public/templates/, public/uploads/)
+- `.mcp.example.json` — plantilla de configuración MCP con servidores GitHub, MySQL y ClickUp (para equipo)
+- `.claude/skills/code-review/` — skill automático para revisar código PHP MVC antes de merge (checklist security, conventions, logic, git)
+- `.claude/skills/git-commit/` — skill automático para commits con Conventional Commits, análisis de diff e inteligencia de scope/type
+
+### Cambiado
+
+- `PROMPTS.md` — actualizado con referencias claras a AGENT.md y CLAUDE.md como contexto base; plantillas refactorizadas con ejemplos más realistas (reportes, features genéricas); énfasis en "Spec first" approach
+- `README.md` — reorganizado con tabla de documentación para desarrolladores (AGENT.md, CLAUDE.md, PROMPTS.md, CONTRIBUTING.md); sección de contribuciones mejorada con pasos explícitos; footer actualizado con código de conducta
+
+### Notas de Versión
+
+- **Primera release open-source estable:** Documentación completa, skills de desarrollo, configuración de MCP lista, licencia MIT
+- **Infraestructura de colaboración:** A partir de v1.2.0, el proyecto está listo para recibir contribuciones externas
+- Todo el código MVC es v1.1.8 — esta versión agrega capas de documentación y tooling
+
+---
+
 ## [1.1.8] - 2026-04-03
 
 ### Cambiado

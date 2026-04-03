@@ -226,4 +226,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-03 — v1.1.8 (categories: patrón modal + AJAX con jQuery Validate remote)_
+_Última actualización: 2026-04-03 — v1.2.0 (documentación para colaboradores, skills IA, configuración open-source)_
