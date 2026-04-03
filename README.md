@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.1.7-blue)
+![Versión](https://img.shields.io/badge/Versión-1.1.8-blue)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -189,7 +189,7 @@ Sistema_de_Ventas_PHP/
 │   ├── dashboard/          # Vista del dashboard
 │   ├── users/              # Vistas CRUD del módulo users
 │   ├── roles/              # Módulo roles — patrón modal + AJAX (solo index.php)
-│   ├── categories/         # Vistas CRUD del módulo categories
+│   ├── categories/         # Módulo categories — patrón modal + AJAX (solo index.php)
 │   ├── suppliers/          # Vistas CRUD del módulo suppliers
 │   ├── clients/            # Vistas CRUD del módulo clients
 │   ├── products/           # Vistas CRUD del módulo almacen (index, create, edit, show)

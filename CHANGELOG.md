@@ -7,6 +7,28 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.8] - 2026-04-03
+
+### Cambiado
+
+- `app/Models/Category.php` — método `nameExists(string $name, ?int $excludeId = null): bool` para detección de nombres de categoría duplicados (excluye el registro actual en ediciones)
+- `app/Controllers/CategoryController.php` — refactorizado a AJAX puro: `index()` renderiza la página; `store()`, `show()`, `update()` responden JSON; `checkNombre()` endpoint para jQuery Validate `remote`; eliminados `create()` y `edit()` como páginas separadas
+- `routes/web.php` — rutas de categorías actualizadas: `POST /categories/store`, `GET /categories/show/{id}`, `POST /categories/update/{id}`, `POST /categories/check-nombre`; eliminadas rutas de `create` y `edit` como páginas
+- `views/categories/index.php` — reescrito con patrón modal + AJAX: DataTable `#categoryTable` + `#modalCreate` (bg-primary) + `#modalEdit` (bg-success); sin páginas separadas de creación y edición
+- `views/layouts/partials/_sidebar.php` — enlace de categorías simplificado a link directo; eliminado treeview con sub-ítems "Lista" / "Crear"
+
+### Agregado
+
+- `public/js/modules/categories/categories-datatable.js` — inicialización DataTable con botones de exportación (Copy, PDF, Excel, CSV, Imprimir), ColVis y anti-FOUC
+- `public/js/modules/categories/categories-modals.js` — jQuery Validate con regla `remote` en ambos formularios; `crearCategoria()` / `actualizarCategoria()` con `ToastUtils.loadingWithMinTime()`; carga de datos para modal de edición via AJAX; flag `isSubmitting` para prevenir doble submit
+
+### Eliminado
+
+- `views/categories/create.php` — reemplazado por `#modalCreate` en `index.php`
+- `views/categories/edit.php` — reemplazado por `#modalEdit` en `index.php`
+
+---
+
 ## [1.1.7] - 2026-04-02
 
 ### Cambiado

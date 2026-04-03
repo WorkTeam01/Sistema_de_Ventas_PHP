@@ -27,10 +27,10 @@
                         <div class="card-header">
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h3 class="card-title">Categorías registradas</h3>
-                                <div class="card-tools">
-                                    <a href="<?= BASE_URL ?>/categories/create" class="btn btn-primary btn-sm">
+                                <div class="card-tools d-flex">
+                                    <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal" data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nueva categoría
-                                    </a>
+                                    </button>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -47,19 +47,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php
-                                    $contador = 0;
-                                    foreach ($categories_datos as $category) :
-                                        $id_categoria = $category['id_categoria']; ?>
+                                    <?php $contador = 0; ?>
+                                    <?php foreach ($categories_datos as $category): ?>
                                         <tr>
-                                            <td class="text-center"><?= $contador += 1; ?></td>
-                                            <td><?= htmlspecialchars($category['nombre_categoria'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center"><?= ++$contador ?></td>
+                                            <td><?= htmlspecialchars($category['nombre_categoria'], ENT_QUOTES, 'UTF-8') ?></td>
                                             <td class="text-center">
-                                                <div class="btn-group">
-                                                    <a href="<?= BASE_URL ?>/categories/edit/<?= $id_categoria ?>" class="btn btn-success btn-sm">
-                                                        <i class="fas fa-pencil-alt"></i> Editar
-                                                    </a>
-                                                </div>
+                                                <button type="button" class="btn btn-success btn-sm btn-edit"
+                                                    data-id="<?= $category['id_categoria'] ?>"
+                                                    data-toggle="tooltip"
+                                                    title="Editar">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -68,6 +67,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="card card-outline card-info">
                         <div class="card-header">
@@ -89,74 +89,73 @@
                         </div>
                     </div>
                 </div>
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
+            </div>
+        </div>
     </div>
     <!-- /.content -->
 </section>
 <!-- /.content-wrapper -->
 
-<!-- Page specific script -->
-<script>
-    $(document).ready(function() {
-        $("#categoryTable").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-            buttons: [{
-                    extend: 'collection',
-                    text: 'Reportes',
-                    orientation: 'landscape',
-                    buttons: [{
-                        text: 'Copiar',
-                        extend: 'copy'
-                    }, {
-                        extend: 'pdf',
-                    }, {
-                        extend: 'csv',
-                    }, {
-                        extend: 'excel',
-                    }, {
-                        text: 'Imprimir',
-                        extend: 'print'
-                    }]
-                },
-                {
-                    extend: 'colvis',
-                    text: 'Visualización de columnas'
-                }
-            ],
-            "pageLength": 5,
-            lengthMenu: [
-                [3, 5, 10, 25, 50],
-                [3, 5, 10, 25, 50]
-            ],
-            "language": {
-                "sProcessing": "Procesando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "No se encontraron resultados",
-                "sEmptyTable": "Ningún dato disponible en esta tabla",
-                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ Categorías",
-                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 Categorías",
-                "sInfoFiltered": "(filtrado de un total de _MAX_ Categorías)",
-                "sInfoPostFix": "",
-                "sSearch": "Buscar:",
-                "sUrl": "",
-                "sInfoThousands": ",",
-                "sLoadingRecords": "Cargando...",
-                "oPaginate": {
-                    "sFirst": "Primero",
-                    "sLast": "Último",
-                    "sNext": "Siguiente",
-                    "sPrevious": "Anterior"
-                },
-                "oAria": {
-                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
-                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-                }
-            },
-            initComplete: function() {
-                $(this.api().table().node()).css('visibility', 'visible');
-            }
-        }).buttons().container().appendTo('#categoryTable_wrapper .col-md-6:eq(0)');
-    });
-</script>
+<!-- Modal Crear -->
+<div class="modal fade" id="modalCreate" tabindex="-1" role="dialog" aria-labelledby="modalCreateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title" id="modalCreateLabel">Crear categoría</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formCreate">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="create_nombre_categoria">Nombre de categoría <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="create_nombre_categoria" name="nombre_categoria" required maxlength="100" placeholder="Ej: Electrónica, Ropa">
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnCreate">
+                        <i class="fas fa-check"></i> Crear categoría
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="modalEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="modalEditLabel">Editar categoría</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEdit">
+                <input type="hidden" id="edit_id" name="id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="edit_nombre_categoria">Nombre de categoría <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_nombre_categoria" name="nombre_categoria" required maxlength="100">
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="btnUpdate">
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="<?= BASE_URL ?>/js/modules/categories/categories-datatable.js"></script>
+<script src="<?= BASE_URL ?>/js/modules/categories/categories-modals.js"></script>

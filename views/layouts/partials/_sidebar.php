@@ -59,27 +59,10 @@
                         <?php if ($rol_sesion == 'Administrador' || $rol_sesion == 'Comprador' || $rol_sesion == 'Vendedor') : ?>
                             <!-- Modulo de categorias-->
                             <li class="nav-item">
-                                <a href="#" class="nav-link active">
+                                <a href="<?= BASE_URL ?>/categories" class="nav-link active">
                                     <i class="nav-icon fas fa-tags"></i>
-                                    <p>
-                                        Categorias
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
+                                    <p>Categorías</p>
                                 </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/categories" class="nav-link">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Lista de categorias</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="<?= BASE_URL ?>/categories/create" class="nav-link">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Crear categoría</p>
-                                        </a>
-                                    </li>
-                                </ul>
                             </li>
                             <!-- Modulo de almacen (MVC) -->
                             <li class="nav-item">

@@ -55,11 +55,11 @@ $router->post('/roles/update/{id}',    [RoleController::class, 'update'],     ['
 $router->post('/roles/check-nombre',   [RoleController::class, 'checkNombre'],['auth', 'admin']);
 
 // Rutas del módulo categories (MVC)
-$router->get('/categories',           [CategoryController::class, 'index'],  ['auth']);
-$router->get('/categories/create',    [CategoryController::class, 'create'], ['auth']);
-$router->post('/categories',          [CategoryController::class, 'store'],  ['auth']);
-$router->get('/categories/edit/{id}', [CategoryController::class, 'edit'],   ['auth']);
-$router->post('/categories/update',   [CategoryController::class, 'update'], ['auth']);
+$router->get('/categories',                 [CategoryController::class, 'index'],       ['auth']);
+$router->post('/categories/store',          [CategoryController::class, 'store'],       ['auth']);
+$router->get('/categories/show/{id}',       [CategoryController::class, 'show'],        ['auth']);
+$router->post('/categories/update/{id}',    [CategoryController::class, 'update'],      ['auth']);
+$router->post('/categories/check-nombre',   [CategoryController::class, 'checkNombre'], ['auth']);
 
 // Rutas del módulo suppliers (MVC)
 $router->get('/suppliers',              [SupplierController::class, 'index'],   ['auth']);

@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Category;
 
@@ -19,59 +18,47 @@ class CategoryController extends Controller
         $this->renderWithLayout('views/categories/index.php', array_merge(
             $this->sessionData(),
             ['categories_datos' => $categories_datos]
-        ), true, ['datatable']);
+        ), true, ['datatable', 'validation']);
     }
 
     /**
-     * Muestra el formulario para crear una nueva categoría.
-     */
-    public function create(): void
-    {
-        $this->renderWithLayout('views/categories/create.php', array_merge(
-            $this->sessionData(),
-            ['csrf_token' => Auth::generateCsrfToken()]
-        ));
-    }
-
-    /**
-     * Procesa el formulario de creación y guarda la nueva categoría.
+     * AJAX — Crea una nueva categoría y retorna JSON.
      */
     public function store(): void
     {
-        $this->validateCsrfOrFail();
-
-        $nombre_categoria = trim($_POST['nombre_categoria'] ?? '');
+        $nombre_categoria = trim($this->input('nombre_categoria') ?? '');
 
         if ($nombre_categoria === '') {
-            $this->flash('El nombre de la categoría es obligatorio.', 'error');
-            $this->redirect(BASE_URL . '/categories/create');
+            $this->json(['success' => false, 'message' => 'El nombre de la categoría es obligatorio.']);
             return;
         }
 
         $categoryModel = new Category();
 
-        if ($categoryModel->create(['nombre_categoria' => $nombre_categoria])) {
-            $this->flash('La categoría se registró exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/categories');
+        if ($categoryModel->nameExists($nombre_categoria)) {
+            $this->json(['success' => false, 'message' => 'Ya existe una categoría con ese nombre.']);
             return;
         }
 
-        $this->flash('Error al crear la categoría.', 'error');
-        $this->redirect(BASE_URL . '/categories/create');
+        if ($categoryModel->create(['nombre_categoria' => $nombre_categoria])) {
+            $this->json(['success' => true, 'message' => 'Categoría creada exitosamente.']);
+            return;
+        }
+
+        $this->json(['success' => false, 'message' => 'Error al crear la categoría.']);
     }
 
     /**
-     * Muestra el formulario de edición para una categoría existente.
+     * AJAX — Retorna los datos de una categoría para pre-llenar el modal de edición.
      *
-     * @param int|null $id ID de la categoría a editar
+     * @param int|null $id ID de la categoría
      */
-    public function edit(?int $id = null): void
+    public function show(?int $id = null): void
     {
         $id = $id ?? (int) ($_GET['id'] ?? 0);
 
         if ($id <= 0) {
-            $this->flash('Categoría inválida.', 'error');
-            $this->redirect(BASE_URL . '/categories');
+            $this->json(['success' => false, 'message' => 'ID de categoría inválido.']);
             return;
         }
 
@@ -79,46 +66,73 @@ class CategoryController extends Controller
         $category      = $categoryModel->find($id);
 
         if (!$category) {
-            $this->flash('No se encontró la categoría solicitada.', 'error');
-            $this->redirect(BASE_URL . '/categories');
+            $this->json(['success' => false, 'message' => 'No se encontró la categoría solicitada.']);
             return;
         }
 
-        $this->renderWithLayout('views/categories/edit.php', array_merge(
-            $this->sessionData(),
-            [
-                'id_categoria'     => (int) $category['id_categoria'],
-                'nombre_categoria' => $category['nombre_categoria'],
-                'csrf_token'       => Auth::generateCsrfToken(),
-            ]
-        ));
+        $this->json(['success' => true, 'data' => $category]);
     }
 
     /**
-     * Procesa el formulario de edición y actualiza la categoría.
+     * AJAX — Actualiza una categoría existente y retorna JSON.
+     *
+     * @param int|null $id ID de la categoría
      */
-    public function update(): void
+    public function update(?int $id = null): void
     {
-        $this->validateCsrfOrFail();
+        $id = $id ?? (int) ($_POST['id'] ?? 0);
 
-        $id_categoria     = (int) ($_POST['id_categoria'] ?? 0);
-        $nombre_categoria = trim($_POST['nombre_categoria'] ?? '');
+        if ($id <= 0) {
+            $this->json(['success' => false, 'message' => 'ID de categoría inválido.']);
+            return;
+        }
 
-        if ($id_categoria <= 0 || $nombre_categoria === '') {
-            $this->flash('Datos inválidos para actualizar la categoría.', 'error');
-            $this->redirect(BASE_URL . '/categories');
+        $nombre_categoria = trim($this->input('nombre_categoria') ?? '');
+
+        if ($nombre_categoria === '') {
+            $this->json(['success' => false, 'message' => 'El nombre de la categoría es obligatorio.']);
             return;
         }
 
         $categoryModel = new Category();
 
-        if ($categoryModel->update($id_categoria, ['nombre_categoria' => $nombre_categoria])) {
-            $this->flash('La categoría se actualizó exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/categories');
+        if (!$categoryModel->find($id)) {
+            $this->json(['success' => false, 'message' => 'No se encontró la categoría solicitada.']);
             return;
         }
 
-        $this->flash('Error al actualizar la categoría.', 'error');
-        $this->redirect(BASE_URL . '/categories/edit/' . $id_categoria);
+        if ($categoryModel->nameExists($nombre_categoria, $id)) {
+            $this->json(['success' => false, 'message' => 'Ya existe una categoría con ese nombre.']);
+            return;
+        }
+
+        if ($categoryModel->update($id, ['nombre_categoria' => $nombre_categoria])) {
+            $this->json(['success' => true, 'message' => 'Categoría actualizada exitosamente.']);
+            return;
+        }
+
+        $this->json(['success' => false, 'message' => 'Error al actualizar la categoría.']);
+    }
+
+    /**
+     * AJAX — Verifica si un nombre de categoría ya existe (para jQuery Validate remote).
+     * Retorna true si está disponible, o un string de error si está en uso.
+     */
+    public function checkNombre(): void
+    {
+        $nombre_categoria = trim($this->input('nombre_categoria') ?? '');
+        $id               = $this->input('id');
+        $excludeId        = ($id !== null && $id !== '' && $id !== 'null') ? (int) $id : null;
+
+        if ($nombre_categoria === '') {
+            echo json_encode(true);
+            exit;
+        }
+
+        $categoryModel = new Category();
+        $exists        = $categoryModel->nameExists($nombre_categoria, $excludeId);
+
+        echo json_encode($exists ? 'Ya existe una categoría con este nombre.' : true);
+        exit;
     }
 }

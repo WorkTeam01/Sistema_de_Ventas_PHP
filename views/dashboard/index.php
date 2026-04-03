@@ -42,11 +42,9 @@
                                 <h3><?= $total_roles; ?></h3>
                                 <p>Roles registrados</p>
                             </div>
-                            <a href="<?= BASE_URL; ?>/roles/create.php">
-                                <div class="icon">
-                                    <i class="fas fa-id-card-alt"></i>
-                                </div>
-                            </a>
+                            <div class="icon">
+                                <i class="fas fa-id-card-alt"></i>
+                            </div>
                             <a href="<?= BASE_URL; ?>/roles" class="small-box-footer">
                                 Mas detalles <i class="fas fa-arrow-circle-right"></i>
                             </a>

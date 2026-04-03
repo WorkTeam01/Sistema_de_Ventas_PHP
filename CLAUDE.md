@@ -121,11 +121,11 @@ Rutas activas en `routes/web.php`:
 | GET    | `/roles/show/{id}`      | `RoleController::show()`           | `auth`, `admin`  |
 | POST   | `/roles/update/{id}`    | `RoleController::update()`         | `auth`, `admin`  |
 | POST   | `/roles/check-nombre`   | `RoleController::checkNombre()`    | `auth`, `admin`  |
-| GET    | `/categories`           | `CategoryController::index()`      | `auth`           |
-| GET    | `/categories/create`    | `CategoryController::create()`     | `auth`           |
-| POST   | `/categories`           | `CategoryController::store()`      | `auth`           |
-| GET    | `/categories/edit/{id}` | `CategoryController::edit()`       | `auth`           |
-| POST   | `/categories/update`    | `CategoryController::update()`     | `auth`           |
+| GET    | `/categories`                 | `CategoryController::index()`       | `auth`           |
+| POST   | `/categories/store`           | `CategoryController::store()`       | `auth`           |
+| GET    | `/categories/show/{id}`       | `CategoryController::show()`        | `auth`           |
+| POST   | `/categories/update/{id}`     | `CategoryController::update()`      | `auth`           |
+| POST   | `/categories/check-nombre`    | `CategoryController::checkNombre()` | `auth`           |
 | GET    | `/suppliers`            | `SupplierController::index()`      | `auth`           |
 | GET    | `/suppliers/create`     | `SupplierController::create()`     | `auth`           |
 | POST   | `/suppliers`            | `SupplierController::store()`      | `auth`           |
