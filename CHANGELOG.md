@@ -7,6 +7,37 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.1] - 2026-04-03
+
+### Refactorizado
+
+- `views/products/index.php` — JS extraído a `products-index.js`; eliminado wrapper `table-responsive`; `confirmarEliminar()` reemplazado por verificación AJAX antes de redirigir a página de confirmación; eliminado formulario oculto `#formEliminar` inline
+- `views/products/create.php` — JS de validación e imagen-preview extraído a `products-create.js`
+- `views/products/edit.php` — JS de validación extraído a `products-edit.js`
+- `app/Controllers/ProductController.php` — `create()` y `edit()` ahora pasan `['select2', 'validation']` al sistema de assets; `index()` ya no pasa `csrf_token` (innecesario sin formulario inline)
+- `views/users/index.php`, `create.php`, `edit.php` — eliminados `<script src>` hardcodeados; scripts servidos vía `$pageScripts`
+- `app/Controllers/UserController.php` — `index()`, `create()` y `edit()` pasan `pageScripts` con sus respectivos módulos JS
+
+### Agregado
+
+- `public/js/modules/products/products-index.js` — DataTable init + `confirmarEliminar(id, nombre)` con verificación AJAX vía `GET /products/check/{id}` antes de redirigir a página de confirmación; bloqueo de botones durante la verificación
+- `public/js/modules/products/products-create.js` — jQuery Validate para formulario de creación con preview de imagen
+- `public/js/modules/products/products-edit.js` — jQuery Validate para formulario de edición
+- `views/products/delete.php` — página de confirmación de eliminación con datos del producto (código, nombre, categoría, imagen) y SweetAlert2 para confirmación final
+- `app/Controllers/ProductController.php::check()` — endpoint JSON `GET /products/check/{id}`; responde `{ referenced, carrito, compras }`; devuelve 400/404 en entradas inválidas
+- `app/Controllers/ProductController.php::delete()` — renderiza la vista de confirmación de eliminación con datos del producto y su categoría
+- `app/Models/Product.php::getReferenceCount()` — consulta desglosada de referencias (`carrito`, `compras`) para exponer conteos individuales al frontend
+- `routes/web.php` — `GET /products/check/{id}`, `GET /products/delete/{id}`
+- `views/layouts/header.php` — soporte de `$pageStyles` (array de rutas relativas a `BASE_URL`) para inyección de CSS específico por vista
+- `views/layouts/footer.php` — soporte de `$pageScripts` (array de rutas relativas a `BASE_URL`) para inyección de JS específico por vista
+
+### Notas de Versión
+
+- **Flujo de eliminación de productos:** Cambiado del patrón modal-inline a página dedicada con pre-verificación AJAX. El botón Eliminar primero consulta `/products/check/{id}`; si el producto no tiene referencias lo redirige a `/products/delete/{id}` (página de confirmación); si tiene referencias muestra detalle de los registros bloqueantes vía SweetAlert2.
+- **Sistema de assets por vista:** `$pageStyles` / `$pageScripts` permiten cargar CSS/JS específicos de módulo sin modificar el layout global. Compatible con todos los módulos MVC.
+
+---
+
 ## [1.2.0] - 2026-04-03
 
 ### Agregado

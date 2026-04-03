@@ -144,6 +144,8 @@ Rutas activas en `routes/web.php`:
 | POST   | `/products`             | `ProductController::store()`       | `auth`           |
 | GET    | `/products/edit/{id}`   | `ProductController::edit()`        | `auth`           |
 | POST   | `/products/update`      | `ProductController::update()`      | `auth`           |
+| GET    | `/products/check/{id}`  | `ProductController::check()`       | `auth`           |
+| GET    | `/products/delete/{id}` | `ProductController::delete()`      | `auth`           |
 | POST   | `/products/delete`      | `ProductController::destroy()`     | `auth`           |
 | GET    | `/purchases`            | `PurchaseController::index()`      | `auth`           |
 | GET    | `/purchases/create`     | `PurchaseController::create()`     | `auth`           |
@@ -301,6 +303,7 @@ Convenciones de columnas de auditoría:
 - CSS personalizado en [public/css/](public/css/) — estructura: `core/` (utilitarios globales), `modules/[modulo]/` (estilos por módulo)
 - JS personalizado en [public/js/](public/js/) — estructura: `core/` (utilitarios globales), `modules/[modulo]/` (JS por módulo)
 - Assets de AdminLTE servidos desde [public/templates/](public/templates/) — no modificar estos archivos
+- **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays de rutas relativas a `BASE_URL` pasados como cuarto/quinto argumento a `renderWithLayout()`; el layout los inyecta en `<head>` y al final del `<body>` respectivamente. Usar para CSS/JS específicos de módulo que no deben cargarse globalmente.
 
 ## Permisos de Archivos
 
@@ -312,8 +315,8 @@ chmod 755 public/uploads/products/  # Directorio de carga de imágenes de produc
 
 - **SQL**: Nunca concatenar variables en queries — siempre `?` con `execute([$var])`
 - **Borrado**: Este proyecto usa borrado **físico** con `isReferenced()` — nunca borrado lógico con `is_active`
-- **Controladores**: Solo los 6 métodos estándar (`index`, `create`, `store`, `edit`, `update`, `destroy`) — no inventar `toggle()`, `activate()`, `complete()`, etc.
-- **JavaScript**: Nunca `alert()` nativo — usar SweetAlert2 con el patrón de formulario oculto `#formEliminar`
+- **Controladores**: Solo los 6 métodos estándar (`index`, `create`, `store`, `edit`, `update`, `destroy`) más los auxiliares permitidos: `check()` (endpoint JSON de verificación de referencias) y `delete()` (página de confirmación) — no inventar `toggle()`, `activate()`, `complete()`, etc.
+- **JavaScript**: Nunca `alert()` nativo — usar SweetAlert2; para eliminación usar el patrón de página dedicada (products) o formulario oculto `#formEliminar` inline según el módulo
 - **PHP → JS**: Nunca interpolar strings PHP en JS con comillas simples — usar `json_encode()`
 - **Templates**: No modificar archivos en `public/templates/` (AdminLTE)
 - **Vistas**: No llamar `Auth::` directamente en vistas — pasar los datos desde el controlador vía `renderWithLayout()`

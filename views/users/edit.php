@@ -202,5 +202,3 @@
     </div>
 </section>
 <!-- /.content-wrapper -->
-
-<script src="<?= BASE_URL ?>/js/modules/users/users-edit.js"></script>

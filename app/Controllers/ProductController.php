@@ -21,7 +21,7 @@ class ProductController extends Controller
             $this->sessionData(),
             [
                 'products_datos' => $products_datos,
-                'csrf_token'     => Auth::generateCsrfToken(),
+                'pageScripts'    => ['/js/modules/products/products-index.js'],
             ]
         ), true, ['datatable']);
     }
@@ -41,8 +41,9 @@ class ProductController extends Controller
                 'categories'   => $categoryModel->all(),
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'csrf_token'   => Auth::generateCsrfToken(),
+                'pageScripts'  => ['/js/modules/products/products-create.js'],
             ]
-        ));
+        ), true, ['select2', 'validation']);
     }
 
     /**
@@ -217,8 +218,9 @@ class ProductController extends Controller
                 'categories'    => $categoryModel->all(),
                 'email_sesion'  => Auth::user()['email'] ?? '',
                 'csrf_token'    => Auth::generateCsrfToken(),
+                'pageScripts'   => ['/js/modules/products/products-edit.js'],
             ]
-        ));
+        ), true, ['select2', 'validation']);
     }
 
     /**
@@ -287,6 +289,73 @@ class ProductController extends Controller
 
         $this->flash('Error al actualizar el producto.', 'error');
         $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
+    }
+
+    /**
+     * Verifica si el producto tiene registros asociados en otras tablas.
+     * Responde JSON: { referenced: bool, carrito: int, compras: int }
+     *
+     * @param int|null $id ID del producto a verificar.
+     */
+    public function check(?int $id = null): void
+    {
+        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->json(['error' => 'Producto inválido.'], 400);
+        }
+
+        $productModel = new Product();
+
+        if (!$productModel->find($id)) {
+            $this->json(['error' => 'Producto no encontrado.'], 404);
+        }
+
+        $counts = $productModel->getReferenceCount($id);
+
+        $this->json([
+            'referenced' => ($counts['carrito'] + $counts['compras']) > 0,
+            'carrito'    => $counts['carrito'],
+            'compras'    => $counts['compras'],
+        ]);
+    }
+
+    /**
+     * Muestra la pantalla de confirmación antes de eliminar un producto.
+     *
+     * @param int|null $id ID del producto a eliminar.
+     */
+    public function delete(?int $id = null): void
+    {
+        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            $this->flash('Producto inválido.', 'error');
+            $this->redirect(BASE_URL . '/products');
+            return;
+        }
+
+        $productModel = new Product();
+        $product      = $productModel->find($id);
+
+        if (!$product) {
+            $this->flash('No se encontró el producto solicitado.', 'error');
+            $this->redirect(BASE_URL . '/products');
+            return;
+        }
+
+        $categoryModel = new Category();
+        $category      = $categoryModel->find((int) $product['id_categoria']);
+
+        $this->renderWithLayout('views/products/delete.php', array_merge(
+            $this->sessionData(),
+            [
+                'id_producto'      => (int) $product['id_producto'],
+                'codigo'           => $product['codigo'],
+                'nombre'           => $product['nombre'],
+                'imagen'           => $product['imagen'],
+                'nombre_categoria' => $category['nombre_categoria'] ?? '—',
+                'csrf_token'       => Auth::generateCsrfToken(),
+            ]
+        ));
     }
 
     /**

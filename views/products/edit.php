@@ -33,7 +33,7 @@
                                 </button>
                             </div>
                         </div>
-                        <form action="<?= BASE_URL ?>/products/update" method="post" enctype="multipart/form-data">
+                        <form id="productEditForm" action="<?= BASE_URL ?>/products/update" method="post" enctype="multipart/form-data">
                             <div class="card-body">
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                 <input type="hidden" name="id_producto" value="<?= $id_producto; ?>">
@@ -53,7 +53,7 @@
                                                 <div class="form-group">
                                                     <label>Categoría <span class="text-danger">*</span></label>
                                                     <div class="d-flex">
-                                                        <select name="id_categoria" class="form-control mr-2" required>
+                                                        <select id="id_categoria" name="id_categoria" class="form-control select2 mr-2" required>
                                                             <?php foreach ($categories as $category) : ?>
                                                                 <option value="<?= $category['id_categoria']; ?>"
                                                                     <?= $category['id_categoria'] == $id_categoria ? 'selected' : ''; ?>>
@@ -70,7 +70,7 @@
                                             <div class="col-md-5">
                                                 <div class="form-group">
                                                     <label>Nombre del producto <span class="text-danger">*</span></label>
-                                                    <input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>" required>
+                                                    <input type="text" id="nombre" name="nombre" class="form-control" value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -94,25 +94,25 @@
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Stock <span class="text-danger">*</span></label>
-                                                    <input type="number" name="stock" class="form-control" value="<?= htmlspecialchars($stock, ENT_QUOTES, 'UTF-8'); ?>" min="0" required>
+                                                    <input type="number" id="stock" name="stock" class="form-control" value="<?= htmlspecialchars($stock, ENT_QUOTES, 'UTF-8'); ?>" min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Stock mínimo</label>
-                                                    <input type="number" name="stock_minimo" class="form-control" value="<?= htmlspecialchars($stock_minimo ?? '', ENT_QUOTES, 'UTF-8'); ?>" min="0">
+                                                    <input type="number" id="stock_minimo" name="stock_minimo" class="form-control" value="<?= htmlspecialchars($stock_minimo ?? '', ENT_QUOTES, 'UTF-8'); ?>" min="0">
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Stock máximo</label>
-                                                    <input type="number" name="stock_maximo" class="form-control" value="<?= htmlspecialchars($stock_maximo ?? '', ENT_QUOTES, 'UTF-8'); ?>" min="0">
+                                                    <input type="number" id="stock_maximo" name="stock_maximo" class="form-control" value="<?= htmlspecialchars($stock_maximo ?? '', ENT_QUOTES, 'UTF-8'); ?>" min="0">
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Fecha ingreso <span class="text-danger">*</span></label>
-                                                    <input type="date" name="fecha_ingreso" class="form-control" value="<?= htmlspecialchars($fecha_ingreso, ENT_QUOTES, 'UTF-8'); ?>" required>
+                                                    <input type="date" id="fecha_ingreso" name="fecha_ingreso" class="form-control" value="<?= htmlspecialchars($fecha_ingreso, ENT_QUOTES, 'UTF-8'); ?>" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -121,13 +121,13 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Precio compra <span class="text-danger">*</span></label>
-                                                    <input type="number" name="precio_compra" class="form-control" value="<?= htmlspecialchars($precio_compra, ENT_QUOTES, 'UTF-8'); ?>" step="0.01" min="0" required>
+                                                    <input type="number" id="precio_compra" name="precio_compra" class="form-control" value="<?= htmlspecialchars($precio_compra, ENT_QUOTES, 'UTF-8'); ?>" step="0.01" min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Precio venta <span class="text-danger">*</span></label>
-                                                    <input type="number" name="precio_venta" class="form-control" value="<?= htmlspecialchars($precio_venta, ENT_QUOTES, 'UTF-8'); ?>" step="0.01" min="0" required>
+                                                    <input type="number" id="precio_venta" name="precio_venta" class="form-control" value="<?= htmlspecialchars($precio_venta, ENT_QUOTES, 'UTF-8'); ?>" step="0.01" min="0" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -163,7 +163,7 @@
                                         </a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="submit" class="btn btn-success">
+                                        <button type="submit" id="btnEditProduct" class="btn btn-success">
                                             <i class="fas fa-save"></i> Actualizar producto
                                         </button>
                                     </div>
@@ -178,21 +178,3 @@
     <!-- /.content -->
 </section>
 <!-- /.content-wrapper -->
-
-<script>
-    document.getElementById('fileInput').addEventListener('change', function(evt) {
-        var files = evt.target.files;
-        for (var i = 0, f; f = files[i]; i++) {
-            if (!f.type.match('image.*')) continue;
-            var reader = new FileReader();
-            reader.onload = (function(theFile) {
-                return function(e) {
-                    document.getElementById('currentImage').style.display = 'none';
-                    document.getElementById('imagePreview').innerHTML =
-                        '<img class="img-thumbnail img-fluid mt-2 d-block" src="' + e.target.result + '" width="100%" title="' + escape(theFile.name) + '"/>';
-                };
-            })(f);
-            reader.readAsDataURL(f);
-        }
-    });
-</script>

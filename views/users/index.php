@@ -85,6 +85,3 @@
     <!-- /.content -->
 </section>
 <!-- /.content-wrapper -->
-
-
-<script src="<?= BASE_URL ?>/js/modules/users/users-index.js"></script>

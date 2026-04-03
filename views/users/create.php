@@ -197,5 +197,3 @@
     </div><!-- /.container-fluid -->
 </section>
 <!-- /.content-wrapper -->
-
-<script src="<?= BASE_URL ?>/js/modules/users/users-create.js"></script>

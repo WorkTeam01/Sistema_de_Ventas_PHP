@@ -33,7 +33,7 @@
                                 </button>
                             </div>
                         </div>
-                        <form action="<?= BASE_URL ?>/products" method="post" enctype="multipart/form-data">
+                        <form id="productCreateForm" action="<?= BASE_URL ?>/products" method="post" enctype="multipart/form-data">
                             <div class="card-body">
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="row">
@@ -51,7 +51,7 @@
                                                 <div class="form-group">
                                                     <label>Categoría <span class="text-danger">*</span></label>
                                                     <div class="d-flex">
-                                                        <select name="id_categoria" class="form-control mr-2" required>
+                                                        <select id="id_categoria" name="id_categoria" class="form-control select2 mr-2" required>
                                                             <option value="">Seleccionar...</option>
                                                             <?php foreach ($categories as $category) : ?>
                                                                 <option value="<?= $category['id_categoria']; ?>">
@@ -68,7 +68,7 @@
                                             <div class="col-md-5">
                                                 <div class="form-group">
                                                     <label>Nombre del producto <span class="text-danger">*</span></label>
-                                                    <input type="text" name="nombre" class="form-control" required>
+                                                    <input type="text" id="nombre" name="nombre" class="form-control" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -92,25 +92,25 @@
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Stock <span class="text-danger">*</span></label>
-                                                    <input type="number" name="stock" class="form-control" min="0" required>
+                                                    <input type="number" id="stock" name="stock" class="form-control" min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Stock mínimo</label>
-                                                    <input type="number" name="stock_minimo" class="form-control" min="0">
+                                                    <input type="number" id="stock_minimo" name="stock_minimo" class="form-control" min="0">
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Stock máximo</label>
-                                                    <input type="number" name="stock_maximo" class="form-control" min="0">
+                                                    <input type="number" id="stock_maximo" name="stock_maximo" class="form-control" min="0">
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label>Fecha ingreso <span class="text-danger">*</span></label>
-                                                    <input type="date" name="fecha_ingreso" class="form-control" required>
+                                                    <input type="date" id="fecha_ingreso" name="fecha_ingreso" class="form-control" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -119,13 +119,13 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Precio compra <span class="text-danger">*</span></label>
-                                                    <input type="number" name="precio_compra" class="form-control" step="0.01" min="0" required>
+                                                    <input type="number" id="precio_compra" name="precio_compra" class="form-control" step="0.01" min="0" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Precio venta <span class="text-danger">*</span></label>
-                                                    <input type="number" name="precio_venta" class="form-control" step="0.01" min="0" required>
+                                                    <input type="number" id="precio_venta" name="precio_venta" class="form-control" step="0.01" min="0" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -155,7 +155,7 @@
                                         </a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="submit" class="btn btn-primary w-100">
+                                        <button type="submit" id="btnCreateProduct" class="btn btn-primary w-100">
                                             <i class="fas fa-save"></i> Guardar producto
                                         </button>
                                     </div>
@@ -170,20 +170,3 @@
     <!-- /.content -->
 </section>
 <!-- /.content-wrapper -->
-
-<script>
-    document.getElementById('fileInput').addEventListener('change', function(evt) {
-        var files = evt.target.files;
-        for (var i = 0, f; f = files[i]; i++) {
-            if (!f.type.match('image.*')) continue;
-            var reader = new FileReader();
-            reader.onload = (function(theFile) {
-                return function(e) {
-                    document.getElementById('imagePreview').innerHTML =
-                        '<img class="img-thumbnail img-fluid mt-3 mx-auto d-block" src="' + e.target.result + '" width="60%" height="60%" title="' + escape(theFile.name) + '"/>';
-                };
-            })(f);
-            reader.readAsDataURL(f);
-        }
-    });
-</script>

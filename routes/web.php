@@ -84,6 +84,8 @@ $router->get('/products/create',       [ProductController::class, 'create'],  ['
 $router->post('/products',            [ProductController::class, 'store'],   ['auth']);
 $router->get('/products/edit/{id}',   [ProductController::class, 'edit'],    ['auth']);
 $router->post('/products/update',     [ProductController::class, 'update'],  ['auth']);
+$router->get('/products/check/{id}',  [ProductController::class, 'check'],   ['auth']);
+$router->get('/products/delete/{id}', [ProductController::class, 'delete'],  ['auth']);
 $router->post('/products/delete',     [ProductController::class, 'destroy'], ['auth']);
 
 // Rutas del módulo purchases/compras (MVC)

@@ -53,4 +53,27 @@ class Product extends Model
         $inPurchase = $this->query("SELECT COUNT(*) AS total FROM tb_compras WHERE id_producto = ?", [$id]);
         return ($inCart[0]['total'] ?? 0) > 0 || ($inPurchase[0]['total'] ?? 0) > 0;
     }
+
+    /**
+     * Devuelve un desglose de cuántos registros tiene el producto en cada tabla referenciada.
+     *
+     * @param int $id ID del producto.
+     * @return array{carrito: int, compras: int}
+     */
+    public function getReferenceCount(int $id): array
+    {
+        $carrito = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_carrito WHERE id_producto = ?",
+            [$id]
+        );
+        $compras = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_compras WHERE id_producto = ?",
+            [$id]
+        );
+
+        return [
+            'carrito' => (int) ($carrito[0]['total'] ?? 0),
+            'compras' => (int) ($compras[0]['total'] ?? 0),
+        ];
+    }
 }

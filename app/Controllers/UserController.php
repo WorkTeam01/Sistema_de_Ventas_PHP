@@ -18,7 +18,10 @@ class UserController extends Controller
 
         $this->renderWithLayout('views/users/index.php', array_merge(
             $this->sessionData(),
-            ['usuarios_datos' => $usuarios_datos]
+            [
+                'usuarios_datos' => $usuarios_datos,
+                'pageScripts'    => ['/js/modules/users/users-index.js'],
+            ]
         ), true, ['datatable']);
     }
 
@@ -35,6 +38,7 @@ class UserController extends Controller
             [
                 'roles_datos' => $roles_datos,
                 'csrf_token'  => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/users/users-create.js'],
             ]
         ), true, ['select2', 'validation']);
     }
@@ -149,6 +153,7 @@ class UserController extends Controller
                 'rolActual'   => $usuario['rol'],
                 'roles_datos' => $roles_datos,
                 'csrf_token'  => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/users/users-edit.js'],
             ]
         ), true, ['select2', 'validation']);
     }

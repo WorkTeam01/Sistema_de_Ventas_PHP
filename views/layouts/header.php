@@ -34,6 +34,13 @@
     <!-- Icono del sitio -->
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>/img/logo.png">
 
+    <!-- Page specific styles -->
+    <?php if (isset($pageStyles)): ?>
+        <?php foreach ($pageStyles as $style): ?>
+            <link rel="stylesheet" href="<?= BASE_URL; ?><?= $style ?>">
+        <?php endforeach; ?>
+    <?php endif; ?>
+
     <script>
         const BASE_URL = '<?= BASE_URL ?>';
     </script>
