@@ -12,12 +12,15 @@ class CategoryController extends Controller
      */
     public function index(): void
     {
-        $categoryModel    = new Category();
+        $categoryModel = new Category();
         $categories_datos = $categoryModel->all();
 
         $this->renderWithLayout('views/categories/index.php', array_merge(
             $this->sessionData(),
-            ['categories_datos' => $categories_datos]
+            [
+                'categories_datos' => $categories_datos,
+                'pageScripts' => ['/js/modules/categories/categories-datatable.js', '/js/modules/categories/categories-modals.js'],
+            ]
         ), true, ['datatable', 'validation']);
     }
 
@@ -55,7 +58,7 @@ class CategoryController extends Controller
      */
     public function show(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) {
             $this->json(['success' => false, 'message' => 'ID de categoría inválido.']);
@@ -63,7 +66,7 @@ class CategoryController extends Controller
         }
 
         $categoryModel = new Category();
-        $category      = $categoryModel->find($id);
+        $category = $categoryModel->find($id);
 
         if (!$category) {
             $this->json(['success' => false, 'message' => 'No se encontró la categoría solicitada.']);
@@ -80,7 +83,7 @@ class CategoryController extends Controller
      */
     public function update(?int $id = null): void
     {
-        $id = $id ?? (int) ($_POST['id'] ?? 0);
+        $id = $id ?? (int)($_POST['id'] ?? 0);
 
         if ($id <= 0) {
             $this->json(['success' => false, 'message' => 'ID de categoría inválido.']);
@@ -121,8 +124,8 @@ class CategoryController extends Controller
     public function checkNombre(): void
     {
         $nombre_categoria = trim($this->input('nombre_categoria') ?? '');
-        $id               = $this->input('id');
-        $excludeId        = ($id !== null && $id !== '' && $id !== 'null') ? (int) $id : null;
+        $id = $this->input('id');
+        $excludeId = ($id !== null && $id !== '' && $id !== 'null') ? (int)$id : null;
 
         if ($nombre_categoria === '') {
             echo json_encode(true);
@@ -130,7 +133,7 @@ class CategoryController extends Controller
         }
 
         $categoryModel = new Category();
-        $exists        = $categoryModel->nameExists($nombre_categoria, $excludeId);
+        $exists = $categoryModel->nameExists($nombre_categoria, $excludeId);
 
         echo json_encode($exists ? 'Ya existe una categoría con este nombre.' : true);
         exit;

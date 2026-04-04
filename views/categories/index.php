@@ -156,6 +156,3 @@
         </div>
     </div>
 </div>
-
-<script src="<?= BASE_URL ?>/js/modules/categories/categories-datatable.js"></script>
-<script src="<?= BASE_URL ?>/js/modules/categories/categories-modals.js"></script>

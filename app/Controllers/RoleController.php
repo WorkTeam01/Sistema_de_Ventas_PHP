@@ -12,12 +12,15 @@ class RoleController extends Controller
      */
     public function index(): void
     {
-        $roleModel   = new Role();
+        $roleModel = new Role();
         $roles_datos = $roleModel->all();
 
         $this->renderWithLayout('views/roles/index.php', array_merge(
             $this->sessionData(),
-            ['roles_datos' => $roles_datos]
+            [
+                'roles_datos' => $roles_datos,
+                'pageScripts' => ['/js/modules/roles/roles-datatable.js', '/js/modules/roles/roles-modals.js']
+            ]
         ), true, ['datatable', 'validation']);
     }
 
@@ -52,14 +55,14 @@ class RoleController extends Controller
      */
     public function show(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) {
             $this->json(['success' => false, 'message' => 'ID de rol inválido.']);
         }
 
         $roleModel = new Role();
-        $role      = $roleModel->find($id);
+        $role = $roleModel->find($id);
 
         if ($role) {
             $this->json(['success' => true, 'data' => $role]);
@@ -75,7 +78,7 @@ class RoleController extends Controller
      */
     public function update(?int $id = null): void
     {
-        $id  = $id ?? (int) ($_POST['id'] ?? 0);
+        $id = $id ?? (int)($_POST['id'] ?? 0);
         $rol = trim($this->input('rol') ?? '');
 
         if ($id <= 0 || $rol === '') {
@@ -109,12 +112,12 @@ class RoleController extends Controller
     public function checkNombre(): void
     {
         $rol = trim($this->input('rol') ?? '');
-        $id  = $this->input('id');
+        $id = $this->input('id');
 
         if ($id === '' || $id === 'null') {
             $id = null;
         } elseif ($id !== null) {
-            $id = (int) $id;
+            $id = (int)$id;
         }
 
         if ($rol === '') {
@@ -123,7 +126,7 @@ class RoleController extends Controller
         }
 
         $roleModel = new Role();
-        $exists    = $roleModel->nameExists($rol, $id);
+        $exists = $roleModel->nameExists($rol, $id);
 
         echo json_encode($exists ? 'Ya existe un rol con este nombre.' : true);
         exit;
