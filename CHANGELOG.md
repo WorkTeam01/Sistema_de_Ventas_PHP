@@ -7,6 +7,42 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.4] - 2026-04-04
+
+### Refactorizado
+
+- `views/purchases/index.php` — eliminado bloque `<script>` inline completo (DataTable init + `confirmarEliminar` con
+  `Swal.fire()` directo); el form oculto `#formEliminar` se mantiene intacto
+- `views/purchases/create.php` — agregado `id="purchaseCreateForm"` al `<form>` para que jQuery Validate lo tome como
+  selector
+- `views/purchases/edit.php` — agregado `id="purchaseEditForm"` al `<form>`
+- `app/Controllers/PurchaseController.php` — `index()` agrega `pageScripts` con `purchases-index.js`; `create()` y
+  `edit()` agregan `pageScripts` con sus respectivos JS y pasan `['validation']` como cuarto argumento a
+  `renderWithLayout()`
+
+### Agregado
+
+- `public/js/modules/purchases/purchases-index.js` — DataTable estandarizado (exportOptions excluye columna Acciones,
+  índice 7; PDF con título/subtítulo/fecha/footer paginado; Excel con messageTop/Bottom; botón ColVis = `'Columnas'`);
+  `confirmarEliminar(id, idProducto, cantidad, nombre)` reemplaza `Swal.fire()` directo por `AlertUtils.confirm()` +
+  `ToastUtils.loadingWithMinTime()` + `form.submit()` (sin pre-check AJAX — purchases no tiene `isReferenced()`)
+- `public/js/modules/purchases/purchases-create.js` — jQuery Validate para `#purchaseCreateForm`; reglas:
+  `fecha_compra` (required), `comprobante` (required, minlength:3), `id_producto`/`id_proveedor` (required),
+  `precio_compra` (number, min:0.01), `cantidad` (digits, min:1); `errorPlacement` especial para selectores con wrapper
+  `.d-flex` (botón "+" adyacente); `submitHandler` con `ToastUtils.loadingWithMinTime('Guardando compra...')`
+- `public/js/modules/purchases/purchases-edit.js` — mismo patrón que `purchases-create.js`; `submitHandler` con
+  `ToastUtils.loadingWithMinTime('Actualizando compra...')`
+
+### Notas de Versión
+
+- **Flujo de eliminación de compras:** La confirmación pasa de `Swal.fire()` directo a `AlertUtils.confirm()`. No hay
+  pre-check AJAX (`check()` / `isReferenced()`) porque `tb_compras` no es referenciada por otras tablas; el flujo es:
+  `AlertUtils.confirm` → asignar hidden fields → `ToastUtils.loadingWithMinTime` → `form.submit()`.
+- **Patrón JS modularizado:** purchases se alinea al estándar del módulo users — todo el JS en archivos separados bajo
+  `public/js/modules/purchases/`, sin lógica inline en vistas.
+
+---
+
 ## [1.2.3] - 2026-04-04
 
 ### Cambiado

@@ -15,14 +15,15 @@ class PurchaseController extends Controller
      */
     public function index(): void
     {
-        $purchaseModel   = new Purchase();
+        $purchaseModel = new Purchase();
         $purchases_datos = $purchaseModel->allWithDetails();
 
         $this->renderWithLayout('views/purchases/index.php', array_merge(
             $this->sessionData(),
             [
                 'purchases_datos' => $purchases_datos,
-                'csrf_token'      => Auth::generateCsrfToken(),
+                'csrf_token' => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/purchases/purchases-index.js'],
             ]
         ), true, ['datatable']);
     }
@@ -33,19 +34,20 @@ class PurchaseController extends Controller
     public function create(): void
     {
         $purchaseModel = new Purchase();
-        $productModel  = new Product();
+        $productModel = new Product();
         $supplierModel = new Supplier();
 
         $this->renderWithLayout('views/purchases/create.php', array_merge(
             $this->sessionData(),
             [
-                'next_number'   => $purchaseModel->nextNumber(),
-                'products'      => $productModel->all(),
-                'suppliers'     => $supplierModel->all(),
-                'email_sesion'  => Auth::user()['email'] ?? '',
-                'csrf_token'    => Auth::generateCsrfToken(),
+                'next_number' => $purchaseModel->nextNumber(),
+                'products' => $productModel->all(),
+                'suppliers' => $supplierModel->all(),
+                'email_sesion' => Auth::user()['email'] ?? '',
+                'csrf_token' => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/purchases/purchases-create.js'],
             ]
-        ));
+        ), true, ['validation', 'select2']);
     }
 
     /**
@@ -55,13 +57,13 @@ class PurchaseController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $id_producto   = (int) ($_POST['id_producto'] ?? 0);
-        $nro_compra    = (int) ($_POST['nro_compra'] ?? 0);
-        $fecha_compra  = trim($_POST['fecha_compra'] ?? '');
-        $id_proveedor  = (int) ($_POST['id_proveedor'] ?? 0);
-        $comprobante   = trim($_POST['comprobante'] ?? '');
+        $id_producto = (int)($_POST['id_producto'] ?? 0);
+        $nro_compra = (int)($_POST['nro_compra'] ?? 0);
+        $fecha_compra = trim($_POST['fecha_compra'] ?? '');
+        $id_proveedor = (int)($_POST['id_proveedor'] ?? 0);
+        $comprobante = trim($_POST['comprobante'] ?? '');
         $precio_compra = $_POST['precio_compra'] ?? '';
-        $cantidad      = $_POST['cantidad'] ?? '';
+        $cantidad = $_POST['cantidad'] ?? '';
 
         if ($id_producto <= 0 || $id_proveedor <= 0 || $nro_compra <= 0
             || $fecha_compra === '' || $comprobante === ''
@@ -77,7 +79,7 @@ class PurchaseController extends Controller
             return;
         }
 
-        if ((int) $cantidad < 1) {
+        if ((int)$cantidad < 1) {
             $this->flash('La cantidad debe ser mayor a cero.', 'error');
             $this->redirect(BASE_URL . '/purchases/create');
             return;
@@ -85,14 +87,14 @@ class PurchaseController extends Controller
 
         $purchaseModel = new Purchase();
         $ok = $purchaseModel->storeWithStock([
-            'id_producto'   => $id_producto,
-            'nro_compra'    => $nro_compra,
-            'fecha_compra'  => $fecha_compra,
-            'id_proveedor'  => $id_proveedor,
-            'comprobante'   => $comprobante,
-            'id_usuario'    => Auth::user()['id_usuario'],
-            'precio_compra' => (float) $precio_compra,
-            'cantidad'      => (int) $cantidad,
+            'id_producto' => $id_producto,
+            'nro_compra' => $nro_compra,
+            'fecha_compra' => $fecha_compra,
+            'id_proveedor' => $id_proveedor,
+            'comprobante' => $comprobante,
+            'id_usuario' => Auth::user()['id_usuario'],
+            'precio_compra' => (float)$precio_compra,
+            'cantidad' => (int)$cantidad,
         ]);
 
         if ($ok) {
@@ -112,7 +114,7 @@ class PurchaseController extends Controller
      */
     public function show(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) {
             $this->flash('Compra inválida.', 'error');
@@ -121,7 +123,7 @@ class PurchaseController extends Controller
         }
 
         $purchaseModel = new Purchase();
-        $purchase      = $purchaseModel->findWithDetails($id);
+        $purchase = $purchaseModel->findWithDetails($id);
 
         if (!$purchase) {
             $this->flash('No se encontró la compra solicitada.', 'error');
@@ -132,29 +134,29 @@ class PurchaseController extends Controller
         $this->renderWithLayout('views/purchases/show.php', array_merge(
             $this->sessionData(),
             [
-                'id_compra'              => (int) $purchase['id_compra'],
-                'nro_compra'             => $purchase['nro_compra'],
-                'comprobante'            => $purchase['comprobante'],
-                'fecha_compra'           => $purchase['fecha_compra'],
-                'precio_compra'          => $purchase['precio_compra'],
-                'cantidad'               => $purchase['cantidad'],
-                'fyh_creacion'           => $purchase['fyh_creacion'],
-                'fyh_actualizacion'      => $purchase['fyh_actualizacion'],
-                'id_producto'            => (int) $purchase['id_producto'],
-                'codigo'                 => $purchase['codigo'],
-                'nombre_producto'        => $purchase['nombre_producto'],
-                'descripcion_producto'   => $purchase['descripcion_producto'],
-                'imagen'                 => $purchase['imagen'],
-                'stock'                  => $purchase['stock'],
-                'precio_venta'           => $purchase['precio_venta'],
-                'nombre_categoria'       => $purchase['nombre_categoria'],
-                'nombre_proveedor'       => $purchase['nombre_proveedor'],
-                'empresa'                => $purchase['empresa'],
-                'email_proveedor'        => $purchase['email_proveedor'],
-                'celular'                => $purchase['celular'],
-                'telefono'               => $purchase['telefono'],
-                'direccion'              => $purchase['direccion'],
-                'email_usuario'          => $purchase['email_usuario'],
+                'id_compra' => (int)$purchase['id_compra'],
+                'nro_compra' => $purchase['nro_compra'],
+                'comprobante' => $purchase['comprobante'],
+                'fecha_compra' => $purchase['fecha_compra'],
+                'precio_compra' => $purchase['precio_compra'],
+                'cantidad' => $purchase['cantidad'],
+                'fyh_creacion' => $purchase['fyh_creacion'],
+                'fyh_actualizacion' => $purchase['fyh_actualizacion'],
+                'id_producto' => (int)$purchase['id_producto'],
+                'codigo' => $purchase['codigo'],
+                'nombre_producto' => $purchase['nombre_producto'],
+                'descripcion_producto' => $purchase['descripcion_producto'],
+                'imagen' => $purchase['imagen'],
+                'stock' => $purchase['stock'],
+                'precio_venta' => $purchase['precio_venta'],
+                'nombre_categoria' => $purchase['nombre_categoria'],
+                'nombre_proveedor' => $purchase['nombre_proveedor'],
+                'empresa' => $purchase['empresa'],
+                'email_proveedor' => $purchase['email_proveedor'],
+                'celular' => $purchase['celular'],
+                'telefono' => $purchase['telefono'],
+                'direccion' => $purchase['direccion'],
+                'email_usuario' => $purchase['email_usuario'],
             ]
         ));
     }
@@ -166,7 +168,7 @@ class PurchaseController extends Controller
      */
     public function edit(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) {
             $this->flash('Compra inválida.', 'error');
@@ -175,7 +177,7 @@ class PurchaseController extends Controller
         }
 
         $purchaseModel = new Purchase();
-        $purchase      = $purchaseModel->findWithDetails($id);
+        $purchase = $purchaseModel->findWithDetails($id);
 
         if (!$purchase) {
             $this->flash('No se encontró la compra solicitada.', 'error');
@@ -183,28 +185,29 @@ class PurchaseController extends Controller
             return;
         }
 
-        $productModel  = new Product();
+        $productModel = new Product();
         $supplierModel = new Supplier();
 
         $this->renderWithLayout('views/purchases/edit.php', array_merge(
             $this->sessionData(),
             [
-                'id_compra'      => (int) $purchase['id_compra'],
-                'id_producto'    => (int) $purchase['id_producto'],
-                'nro_compra'     => $purchase['nro_compra'],
-                'fecha_compra'   => $purchase['fecha_compra'],
-                'id_proveedor'   => (int) $purchase['id_proveedor'],
-                'comprobante'    => $purchase['comprobante'],
-                'precio_compra'  => $purchase['precio_compra'],
-                'cantidad'       => $purchase['cantidad'],
-                'old_id_producto'=> (int) $purchase['id_producto'],
-                'old_cantidad'   => (int) $purchase['cantidad'],
-                'email_sesion'   => Auth::user()['email'] ?? '',
-                'products'       => $productModel->all(),
-                'suppliers'      => $supplierModel->all(),
-                'csrf_token'     => Auth::generateCsrfToken(),
+                'id_compra' => (int)$purchase['id_compra'],
+                'id_producto' => (int)$purchase['id_producto'],
+                'nro_compra' => $purchase['nro_compra'],
+                'fecha_compra' => $purchase['fecha_compra'],
+                'id_proveedor' => (int)$purchase['id_proveedor'],
+                'comprobante' => $purchase['comprobante'],
+                'precio_compra' => $purchase['precio_compra'],
+                'cantidad' => $purchase['cantidad'],
+                'old_id_producto' => (int)$purchase['id_producto'],
+                'old_cantidad' => (int)$purchase['cantidad'],
+                'email_sesion' => Auth::user()['email'] ?? '',
+                'products' => $productModel->all(),
+                'suppliers' => $supplierModel->all(),
+                'csrf_token' => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/purchases/purchases-edit.js'],
             ]
-        ));
+        ), true, ['validation']);
     }
 
     /**
@@ -214,16 +217,16 @@ class PurchaseController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $id_compra      = (int) ($_POST['id_compra'] ?? 0);
-        $id_producto    = (int) ($_POST['id_producto'] ?? 0);
-        $nro_compra     = (int) ($_POST['nro_compra'] ?? 0);
-        $fecha_compra   = trim($_POST['fecha_compra'] ?? '');
-        $id_proveedor   = (int) ($_POST['id_proveedor'] ?? 0);
-        $comprobante    = trim($_POST['comprobante'] ?? '');
-        $precio_compra  = $_POST['precio_compra'] ?? '';
-        $cantidad       = $_POST['cantidad'] ?? '';
-        $old_id_producto = (int) ($_POST['old_id_producto'] ?? 0);
-        $old_cantidad    = (int) ($_POST['old_cantidad'] ?? 0);
+        $id_compra = (int)($_POST['id_compra'] ?? 0);
+        $id_producto = (int)($_POST['id_producto'] ?? 0);
+        $nro_compra = (int)($_POST['nro_compra'] ?? 0);
+        $fecha_compra = trim($_POST['fecha_compra'] ?? '');
+        $id_proveedor = (int)($_POST['id_proveedor'] ?? 0);
+        $comprobante = trim($_POST['comprobante'] ?? '');
+        $precio_compra = $_POST['precio_compra'] ?? '';
+        $cantidad = $_POST['cantidad'] ?? '';
+        $old_id_producto = (int)($_POST['old_id_producto'] ?? 0);
+        $old_cantidad = (int)($_POST['old_cantidad'] ?? 0);
 
         if ($id_compra <= 0 || $id_producto <= 0 || $id_proveedor <= 0 || $nro_compra <= 0
             || $fecha_compra === '' || $comprobante === ''
@@ -239,7 +242,7 @@ class PurchaseController extends Controller
             return;
         }
 
-        if ((int) $cantidad < 1) {
+        if ((int)$cantidad < 1) {
             $this->flash('La cantidad debe ser mayor a cero.', 'error');
             $this->redirect(BASE_URL . '/purchases/edit/' . $id_compra);
             return;
@@ -248,15 +251,15 @@ class PurchaseController extends Controller
         $purchaseModel = new Purchase();
         $ok = $purchaseModel->updateWithStock(
             [
-                'id_compra'     => $id_compra,
-                'id_producto'   => $id_producto,
-                'nro_compra'    => $nro_compra,
-                'fecha_compra'  => $fecha_compra,
-                'id_proveedor'  => $id_proveedor,
-                'comprobante'   => $comprobante,
-                'id_usuario'    => Auth::user()['id_usuario'],
-                'precio_compra' => (float) $precio_compra,
-                'cantidad'      => (int) $cantidad,
+                'id_compra' => $id_compra,
+                'id_producto' => $id_producto,
+                'nro_compra' => $nro_compra,
+                'fecha_compra' => $fecha_compra,
+                'id_proveedor' => $id_proveedor,
+                'comprobante' => $comprobante,
+                'id_usuario' => Auth::user()['id_usuario'],
+                'precio_compra' => (float)$precio_compra,
+                'cantidad' => (int)$cantidad,
             ],
             $old_id_producto,
             $old_cantidad
@@ -279,9 +282,9 @@ class PurchaseController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $id_compra   = (int) ($_POST['id_compra'] ?? 0);
-        $id_producto = (int) ($_POST['id_producto'] ?? 0);
-        $cantidad    = (int) ($_POST['cantidad'] ?? 0);
+        $id_compra = (int)($_POST['id_compra'] ?? 0);
+        $id_producto = (int)($_POST['id_producto'] ?? 0);
+        $cantidad = (int)($_POST['cantidad'] ?? 0);
 
         if ($id_compra <= 0 || $id_producto <= 0) {
             $this->flash('Compra inválida.', 'error');

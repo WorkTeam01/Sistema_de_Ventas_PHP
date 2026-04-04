@@ -103,7 +103,7 @@ Sistema_de_Ventas_PHP/
 El proyecto usa **dos sistemas de ruteo en paralelo**:
 
 | Tipo    | Cómo funciona                              | Módulos                                                                                           |
-| ------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+|---------|--------------------------------------------|---------------------------------------------------------------------------------------------------|
 | **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales (todos) |
 
 Todos los módulos están migrados. No quedan módulos legacy.
@@ -114,7 +114,8 @@ Todos los módulos están migrados. No quedan módulos legacy.
 
 ```sql
 -- Tablas principales
-tb_usuarios    (id_usuario, nombre, apellido, email, password, id_rol, fyh_creacion, fyh_actualizacion)
+tb_usuarios
+(id_usuario, nombre, apellido, email, password, id_rol, fyh_creacion, fyh_actualizacion)
 tb_roles       (id_rol, nombre_rol, fyh_creacion, fyh_actualizacion)
 tb_categorias  (id_categoria, nombre_categoria, fyh_creacion, fyh_actualizacion)
 tb_proveedores (id_proveedor, nombre_proveedor, nit_ci_proveedor, celular_proveedor,
@@ -128,11 +129,15 @@ tb_carrito     (id_carrito, id_venta, id_almacen, cantidad, precio)
 tb_compras     (id_compra, id_proveedor, id_almacen, cantidad, precio_total, fyh_creacion)
 
 -- Roles de usuario (almacenados en tb_roles)
-Administrador · Vendedor · Comprador
+Administrador
+· Vendedor
+· Comprador
 
 -- Convenciones de auditoría
-fyh_creacion      DEFAULT CURRENT_TIMESTAMP  ← no insertar manualmente
-fyh_actualizacion ON UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
+fyh_creacion      DEFAULT CURRENT_TIMESTAMP
+← no insertar manualmente
+fyh_actualizacion ON
+UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 ```
 
 ---
@@ -143,13 +148,17 @@ fyh_actualizacion ON UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 
 - Un controlador por módulo: `SupplierController`, `ClientController`, etc.
 - Métodos estándar del proyecto: `index()`, `create()`, `store()`, `edit(?int $id)`, `update()`, `destroy()`
-- Métodos auxiliares permitidos (cuando el módulo lo requiere): `check()` (endpoint JSON de verificación de referencias), `delete()` (página de confirmación de eliminación), `show()` (retorna JSON con datos del registro para pre-llenar modal de edición), `checkNombre()` (endpoint `remote` para jQuery Validate)
-- `destroy()` llama a `$model->isReferenced($id)` antes de eliminar — si hay FK activa: flash + redirect (patrón clásico) o JSON error (patrón modal+AJAX)
+- Métodos auxiliares permitidos (cuando el módulo lo requiere): `check()` (endpoint JSON de verificación de
+  referencias), `delete()` (página de confirmación de eliminación), `show()` (retorna JSON con datos del registro para
+  pre-llenar modal de edición), `checkNombre()` (endpoint `remote` para jQuery Validate)
+- `destroy()` llama a `$model->isReferenced($id)` antes de eliminar — si hay FK activa: flash + redirect (patrón
+  clásico) o JSON error (patrón modal+AJAX)
 - **PROHIBIDO** inventar métodos fuera del estándar sin justificación (toggle, activate, complete, etc.)
 
 ### PHP — Modelos MVC
 
-- Heredan de `App\Core\Model` — métodos disponibles: `all()`, `find()`, `create()`, `update()`, `delete()`, `count()`, `query()`
+- Heredan de `App\Core\Model` — métodos disponibles: `all()`, `find()`, `create()`, `update()`, `delete()`, `count()`,
+  `query()`
 - Sobreescribir `isReferenced(int|string $id): bool` en modelos con FKs en otras tablas
 - Usar PDO con prepared statements siempre — nunca concatenar variables en SQL
 - **Borrado físico** (no lógico) — protegido por `isReferenced()` antes de ejecutar DELETE
@@ -179,11 +188,20 @@ Auth::check()  // bool
 - jQuery para DOM y eventos
 - **DataTables** sin AJAX: datos cargados desde PHP en la vista, sin filtros server-side
 - **SweetAlert2** para confirmaciones de eliminación. Dos patrones según el módulo:
-  - **Patrón página dedicada** (products): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
-  - **Patrón formulario inline** (clients, purchases, sales, users): formulario oculto `#formEliminar` en `index.php` con CSRF + campo hidden del ID, confirmación directa vía SweetAlert2
+    - **Patrón página dedicada** (products): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
+      `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con
+      formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
+    - **Patrón formulario inline** (clients, purchases, sales, users): formulario oculto `#formEliminar` en `index.php`
+      con CSRF + campos hidden del ID; confirmación con `AlertUtils.confirm()` + `ToastUtils.loadingWithMinTime()` →
+      `form.submit()`; el JS vive en un archivo separado bajo `public/js/modules/[modulo]/`
 - Anti-FOUC del sidebar/tema: script inline en `layouts/header.php`, preferencias en `localStorage`
-- **Patrón modal + AJAX** (roles, categories, suppliers): CRUD completo en `index.php` via modales Bootstrap; endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`); eliminación con `AlertUtils.confirm()` + AJAX (sin CSRF, `isReferenced()` retorna JSON error); jQuery Validate con regla `remote` para validación de duplicados en tiempo real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
-- **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays pasados a `renderWithLayout()` que el layout inyecta en `<head>` y antes de `</body>` respectivamente; las rutas son relativas a `BASE_URL` (e.g. `/js/modules/products/products-index.js`)
+- **Patrón modal + AJAX** (roles, categories, suppliers): CRUD completo en `index.php` via modales Bootstrap; endpoints
+  JSON en el controlador (`store`, `show`, `update`, `checkNombre`); eliminación con `AlertUtils.confirm()` + AJAX (sin
+  CSRF, `isReferenced()` retorna JSON error); jQuery Validate con regla `remote` para validación de duplicados en tiempo
+  real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
+- **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays pasados a `renderWithLayout()` que el layout inyecta en
+  `<head>` y antes de `</body>` respectivamente; las rutas son relativas a `BASE_URL` (e.g.
+  `/js/modules/products/products-index.js`)
 
 ### Vistas MVC
 
@@ -225,8 +243,9 @@ refactor(modulo): descripción del cambio
 - **NO** usar `alert()` nativo — usar SweetAlert2 con el patrón de formulario oculto para eliminaciones
 - **NO** interpolar variables PHP directamente en strings JS — usar `json_encode()`
 - **NO** modificar assets de `public/templates/` (AdminLTE)
-- **NO** acceder a `Auth::` directamente en vistas — calcular datos en el controlador y pasarlos via `renderWithLayout()`
+- **NO** acceder a `Auth::` directamente en vistas — calcular datos en el controlador y pasarlos via
+  `renderWithLayout()`
 
 ---
 
-_Última actualización: 2026-04-04 — v1.2.2 (suppliers: migración a patrón modal+AJAX, eliminación inline con JSON, validación remote en empresa)_
+_Última actualización: 2026-04-04 — v1.2.4 (purchases: JS modularizado en purchases-index/create/edit.js; AlertUtils.confirm() para eliminación; jQuery Validate en create y edit)_

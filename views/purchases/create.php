@@ -33,7 +33,7 @@
                                 </button>
                             </div>
                         </div>
-                        <form action="<?= BASE_URL ?>/purchases" method="post">
+                        <form id="purchaseCreateForm" action="<?= BASE_URL ?>/purchases" method="post">
                             <div class="card-body">
                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                 <!-- Fila 1: Nro Compra, Fecha, Comprobante -->
@@ -64,7 +64,7 @@
                                         <div class="form-group">
                                             <label>Producto <span class="text-danger">*</span></label>
                                             <div class="d-flex">
-                                                <select name="id_producto" class="form-control mr-2" required>
+                                                <select name="id_producto" class="form-control select2" required>
                                                     <option value="">Seleccionar producto...</option>
                                                     <?php foreach ($products as $product) : ?>
                                                         <option value="<?= $product['id_producto']; ?>">
@@ -82,7 +82,7 @@
                                         <div class="form-group">
                                             <label>Proveedor <span class="text-danger">*</span></label>
                                             <div class="d-flex">
-                                                <select name="id_proveedor" class="form-control mr-2" required>
+                                                <select name="id_proveedor" class="form-control select2" required>
                                                     <option value="">Seleccionar proveedor...</option>
                                                     <?php foreach ($suppliers as $supplier) : ?>
                                                         <option value="<?= $supplier['id_proveedor']; ?>">
