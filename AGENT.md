@@ -256,5 +256,6 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-04 — v1.2.6 (clients: migrado a patrón modal + AJAX; `nitCiExists()` + `emailExists()`
-en modelo; JS modularizado en clients-datatable.js / clients-modals.js; eliminación inline sin CSRF)_
+_Última actualización: 2026-04-04 — v1.3.0 (dashboard: KPIs por rol con variación porcentual, gráfico Chart.js barras
+últimos 6 meses, tabla de últimas ventas y stock bajo; nuevos métodos en Sale/Purchase/Product; CSS/JS modularizados
+en `dashboard.css` / `dashboard.js`)_

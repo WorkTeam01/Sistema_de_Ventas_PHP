@@ -3,57 +3,55 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
-use App\Models\Category;
-use App\Models\Client;
 use App\Models\Product;
 use App\Models\Purchase;
-use App\Models\Role;
 use App\Models\Sale;
-use App\Models\Supplier;
-use App\Models\User;
 
 class DashboardController extends Controller
 {
-    /**
-     * Muestra el dashboard principal con totales de cada módulo.
-     */
     public function index(): void
     {
-        $userModel  = new User();
-        $total_user = $userModel->countAll();
-
-        $roleModel   = new Role();
-        $total_roles = $roleModel->count();
-
-        $categoryModel    = new Category();
-        $total_categorias = $categoryModel->count();
-
         $sessionData = $this->sessionData();
+        $rol         = $sessionData['rol_sesion'];
 
-        $supplierModel    = new Supplier();
-        $total_proveedores = $supplierModel->count();
-
-        $clientModel    = new Client();
-        $total_clientes = $clientModel->count();
-
-        $productModel              = new Product();
-        $total_productos_dashboard = $productModel->count();
-
+        $productModel  = new Product();
         $purchaseModel = new Purchase();
-        $total_compras = $purchaseModel->count();
+        $saleModel     = new Sale();
 
-        $saleModel    = new Sale();
-        $total_ventas = $saleModel->count();
+        $kpis = [];
+
+        // Stock bajo — todos los roles
+        $kpis['low_stock_count']    = $productModel->countLowStock();
+        $kpis['low_stock_products'] = $productModel->lowStockProducts(10);
+
+        // Ventas — Admin y Vendedor
+        if ($rol === 'Administrador' || $rol === 'Vendedor') {
+            $ventasMes          = $saleModel->totalCurrentMonth();
+            $ventasMesAnterior  = $saleModel->totalPreviousMonth();
+            $kpis['ventas_mes'] = $ventasMes;
+            $kpis['ventas_var'] = $ventasMesAnterior > 0
+                ? round((($ventasMes - $ventasMesAnterior) / $ventasMesAnterior) * 100, 1)
+                : ($ventasMes > 0 ? 100.0 : 0.0);
+            $kpis['ventas_hoy']     = $saleModel->todaySummary();
+            $kpis['ultimas_ventas'] = $saleModel->latest(5);
+            $kpis['ventas_por_mes'] = $saleModel->totalsByMonth(6);
+        }
+
+        // Compras — Admin y Comprador
+        if ($rol === 'Administrador' || $rol === 'Comprador') {
+            $comprasMes          = $purchaseModel->totalCurrentMonth();
+            $comprasMesAnterior  = $purchaseModel->totalPreviousMonth();
+            $kpis['compras_mes'] = $comprasMes;
+            $kpis['compras_var'] = $comprasMesAnterior > 0
+                ? round((($comprasMes - $comprasMesAnterior) / $comprasMesAnterior) * 100, 1)
+                : ($comprasMes > 0 ? 100.0 : 0.0);
+            $kpis['compras_por_mes'] = $purchaseModel->totalsByMonth(6);
+        }
 
         $this->renderWithLayout('views/dashboard/index.php', array_merge($sessionData, [
-            'total_user'                => $total_user,
-            'total_roles'               => $total_roles,
-            'total_categorias'          => $total_categorias,
-            'total_productos_dashboard' => $total_productos_dashboard,
-            'total_proveedores'         => $total_proveedores,
-            'total_compras'             => $total_compras,
-            'total_ventas'              => $total_ventas,
-            'total_clientes'            => $total_clientes,
-        ]));
+            'kpis'        => $kpis,
+            'pageStyles'  => ['/css/modules/dashboard/dashboard.css'],
+            'pageScripts' => ['/js/modules/dashboard/dashboard.js'],
+        ]), true, ['chart']);
     }
 }

@@ -1,0 +1,43 @@
+/* Allow progress-description to wrap instead of being truncated */
+.info-box-content .progress-description {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    font-size: 0.80rem;
+    line-height: 1.3;
+}
+
+/* KPI variation indicators */
+.kpi-variation {
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: block;
+    margin-top: 2px;
+}
+.kpi-variation.positive { color: #28a745; }
+.kpi-variation.negative { color: #dc3545; }
+.kpi-variation.neutral  { color: #6c757d; }
+
+/* Chart container responsive height */
+.chart-container {
+    position: relative;
+    min-height: 280px;
+}
+
+/* Stock badges */
+.badge-stock-critical {
+    background-color: #dc3545;
+    color: #fff;
+}
+.badge-stock-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Product thumbnail in low-stock table */
+.dashboard-product-img {
+    width: 35px;
+    height: 35px;
+    object-fit: cover;
+    border-radius: 4px;
+}

@@ -46,6 +46,10 @@
     <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/jquery.validate.min.js"></script>
     <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/localization/messages_es.min.js"></script>
 <?php endif; ?>
+<?php if (in_array('chart', $assets ?? [])) : ?>
+    <!-- Chart.js -->
+    <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/chart.js/Chart.min.js"></script>
+<?php endif; ?>
 <!-- Page specific scripts -->
 <?php if (isset($pageScripts)): ?>
     <?php foreach ($pageScripts as $script): ?>

@@ -60,6 +60,31 @@ class Product extends Model
      * @param int $id ID del producto.
      * @return array{carrito: int, compras: int}
      */
+    /** Cuenta productos con stock por debajo del mínimo (o 5 si stock_minimo es NULL). */
+    public function countLowStock(): int
+    {
+        $rows = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_almacen
+             WHERE stock <= COALESCE(stock_minimo, 5)"
+        );
+        return (int) $rows[0]['total'];
+    }
+
+    /** Lista productos con stock bajo, con nombre de categoría. */
+    public function lowStockProducts(int $limit = 10): array
+    {
+        return $this->query(
+            "SELECT al.id_producto, al.codigo, al.nombre, al.stock,
+                    COALESCE(al.stock_minimo, 5) AS stock_minimo, al.imagen,
+                    cat.nombre_categoria
+             FROM tb_almacen al
+             INNER JOIN tb_categorias cat ON al.id_categoria = cat.id_categoria
+             WHERE al.stock <= COALESCE(al.stock_minimo, 5)
+             ORDER BY al.stock ASC
+             LIMIT $limit"
+        );
+    }
+
     public function getReferenceCount(int $id): array
     {
         $carrito = $this->query(

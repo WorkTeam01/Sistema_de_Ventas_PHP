@@ -29,6 +29,10 @@
         <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2/css/select2.min.css">
         <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     <?php endif; ?>
+    <?php if (in_array('chart', $assets ?? [])) : ?>
+        <!-- Chart.js -->
+        <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/chart.js/Chart.min.css">
+    <?php endif; ?>
     <!-- jQuery -->
     <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
     <!-- Icono del sitio -->

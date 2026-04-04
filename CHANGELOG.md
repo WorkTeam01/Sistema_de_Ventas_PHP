@@ -7,6 +7,39 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.0] - 2026-04-04
+
+### Agregado
+
+- `app/Models/Sale.php` — `totalCurrentMonth(): float`, `totalPreviousMonth(): float`, `todaySummary(): array`,
+  `latest(int $limit): array`, `totalsByMonth(int $months): array` para alimentar KPIs del dashboard
+- `app/Models/Purchase.php` — `totalCurrentMonth(): float`, `totalPreviousMonth(): float`,
+  `totalsByMonth(int $months): array`
+- `app/Models/Product.php` — `countLowStock(): int`, `lowStockProducts(int $limit): array`
+- `public/css/modules/dashboard/dashboard.css` — estilos del dashboard: badges de stock, thumbnail de producto,
+  contenedor responsivo del gráfico; override de `white-space: normal` en `.progress-description` (AdminLTE truncaba
+  los textos comparativos en las KPI cards)
+- `public/js/modules/dashboard/dashboard.js` — inicialización de gráfico Chart.js (barras agrupadas ventas/compras
+  últimos 6 meses); datos inyectados desde PHP vía `<script type="application/json" id="dashboard-chart-data">`
+
+### Refactorizado
+
+- `app/Controllers/DashboardController.php` — reemplazados 8 conteos simples (`total_user`, `total_roles`, etc.) por
+  array `$kpis` con datos segmentados por rol; usa solo los modelos necesarios (`Product`, `Purchase`, `Sale`);
+  `renderWithLayout()` con `pageStyles` y `pageScripts` del dashboard
+- `views/dashboard/index.php` — rediseño completo: 4 KPI cards con variación porcentual vs. mes anterior (visibles
+  según rol), gráfico de barras Chart.js (últimos 6 meses), tabla de últimas 5 ventas y tabla de productos con stock
+  bajo; número de columnas de las KPI cards calculado dinámicamente según rol
+
+### Notas de Versión
+
+- **KPIs por rol:** Administrador ve ventas + compras + stock bajo; Vendedor ve ventas + stock bajo; Comprador ve
+  compras + stock bajo. Las queries se ejecutan solo si el rol lo requiere.
+- **Datos del gráfico via JSON embebido:** se usa `<script type="application/json">` para transferir los datos de PHP
+  a JS sin interpolación directa en el script, evitando XSS y errores de escape.
+
+---
+
 ## [1.2.6] - 2026-04-04
 
 ### Refactorizado

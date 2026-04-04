@@ -169,6 +169,48 @@ class Purchase extends Model
      * @param int $cantidad   Cantidad a revertir del stock.
      * @return bool true si la transacción se completó, false si hubo error.
      */
+    /** Suma de compras del mes actual (precio_compra * cantidad por fila). */
+    public function totalCurrentMonth(): float
+    {
+        $rows = $this->query(
+            "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
+             FROM tb_compras
+             WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
+               AND MONTH(fyh_creacion) = MONTH(CURDATE())"
+        );
+        return (float) $rows[0]['total'];
+    }
+
+    /** Suma de compras del mes anterior. */
+    public function totalPreviousMonth(): float
+    {
+        $rows = $this->query(
+            "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
+             FROM tb_compras
+             WHERE YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
+               AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)"
+        );
+        return (float) $rows[0]['total'];
+    }
+
+    /**
+     * Compras agrupadas por mes — últimos N meses.
+     *
+     * @return array Lista de ['mes' => 'YYYY-MM', 'total' => float]
+     */
+    public function totalsByMonth(int $months = 6): array
+    {
+        $interval = $months - 1;
+        return $this->query(
+            "SELECT DATE_FORMAT(fyh_creacion, '%Y-%m') AS mes,
+                    COALESCE(SUM(precio_compra * cantidad), 0) AS total
+             FROM tb_compras
+             WHERE fyh_creacion >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')
+             GROUP BY DATE_FORMAT(fyh_creacion, '%Y-%m')
+             ORDER BY mes ASC"
+        );
+    }
+
     public function destroyWithStock(int $id, int $idProducto, int $cantidad): bool
     {
         $db = $this->db;
