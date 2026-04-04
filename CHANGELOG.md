@@ -7,6 +7,49 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.6] - 2026-04-04
+
+### Refactorizado
+
+- `views/clients/index.php` — eliminado bloque `<script>` inline completo (DataTable + `confirmarEliminar` con
+  `Swal.fire()` directo) y formulario oculto `#formEliminar`; reemplazado botón `<a href="/clients/create">` por
+  `<button data-toggle="modal" data-target="#modalCreate">`; botones de acción cambiados a `btn-edit` / `btn-delete`
+  con `data-*` para delegación de eventos
+- `app/Controllers/ClientController.php` — métodos `store()`, `update()`, `destroy()` convertidos de
+  redirect+flash a `json()`; eliminados `create()` y `edit()` (páginas separadas); `index()` agrega `pageScripts` y
+  carga asset `validation`
+
+### Agregado
+
+- `app/Models/Client.php` — `nitCiExists(string $nitCi, ?int $excludeId = null): bool` y
+  `emailExists(string $email, ?int $excludeId = null): bool` para validación de duplicados con exclusión al editar
+- `app/Controllers/ClientController.php` — `show()` (AJAX, pre-llena modal de edición),
+  `checkNitCi()` y `checkEmail()` (endpoints jQuery Validate remote)
+- `views/clients/index.php` — modales `#modalCreate` y `#modalEdit` inline con layout `modal-lg` de 2 columnas;
+  campos: `nombre_cliente`, `nit_ci_cliente`, `celular_cliente`, `email_cliente`
+- `public/js/modules/clients/clients-datatable.js` — DataTable estandarizado: `exportOptions: { columns: [0,1,2,3,4] }`
+  en todos los botones para excluir columna Acciones (índice 5); PDF con título/subtítulo/fecha/footer paginado;
+  Excel con `messageTop`/`messageBottom`; botón ColVis = `'Columnas'`
+- `public/js/modules/clients/clients-modals.js` — jQuery Validate en `#formCreate` y `#formEdit` con reglas `remote`
+  para `nit_ci_cliente` (`/clients/check-nit-ci`) y `email_cliente` (`/clients/check-email`); AJAX CRUD completo con
+  `ToastUtils.loadingWithMinTime()`; `AlertUtils.confirm()` para eliminación; reset de modales al cerrar
+
+### Eliminado
+
+- `views/clients/create.php` — reemplazada por modal `#modalCreate` en `index.php`
+- `views/clients/edit.php` — reemplazada por modal `#modalEdit` en `index.php`
+
+### Notas de Versión
+
+- **Módulo clients alineado al patrón modal + AJAX:** replica el patrón de `suppliers` (modal + AJAX, sin páginas
+  separadas create/edit, sin CSRF en endpoints AJAX, eliminación inline con `isReferenced()` → JSON error).
+- **Dos campos únicos en clients:** a diferencia de suppliers (un solo campo único `empresa`), clients valida
+  `nit_ci_cliente` y `email_cliente` como únicos — dos endpoints remote independientes con exclusión por ID al editar.
+- **Sin `create()` / `edit()` en el controlador:** el módulo no usa páginas de formulario dedicadas. Las rutas
+  `GET /clients/create` y `GET /clients/edit/{id}` han sido eliminadas.
+
+---
+
 ## [1.2.5] - 2026-04-04
 
 ### Refactorizado

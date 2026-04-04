@@ -2,178 +2,223 @@
 
 namespace App\Controllers;
 
-use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Client;
+use JetBrains\PhpStorm\NoReturn;
 
 class ClientController extends Controller
 {
     /**
-     * Muestra el listado de todos los clientes registrados.
+     * Muestra el listado de todos los clientes con modales para crear y editar.
      */
     public function index(): void
     {
-        $clientModel   = new Client();
+        $clientModel = new Client();
         $clients_datos = $clientModel->all();
 
         $this->renderWithLayout('views/clients/index.php', array_merge(
             $this->sessionData(),
             [
                 'clients_datos' => $clients_datos,
-                'csrf_token'    => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/clients/clients-datatable.js', '/js/modules/clients/clients-modals.js'],
             ]
-        ), true, ['datatable']);
+        ), true, ['datatable', 'validation']);
     }
 
     /**
-     * Muestra el formulario para registrar un nuevo cliente.
-     */
-    public function create(): void
-    {
-        $this->renderWithLayout('views/clients/create.php', array_merge(
-            $this->sessionData(),
-            ['csrf_token' => Auth::generateCsrfToken()]
-        ));
-    }
-
-    /**
-     * Procesa el formulario de creación y guarda el nuevo cliente.
+     * Guarda un nuevo cliente (AJAX).
      */
     public function store(): void
     {
-        $this->validateCsrfOrFail();
-
-        $nombre_cliente  = trim($_POST['nombre_cliente'] ?? '');
-        $nit_ci_cliente  = trim($_POST['nit_ci_cliente'] ?? '');
-        $celular_cliente = trim($_POST['celular_cliente'] ?? '');
-        $email_cliente   = trim($_POST['email_cliente'] ?? '');
+        $nombre_cliente = trim($this->input('nombre_cliente') ?? '');
+        $nit_ci_cliente = trim($this->input('nit_ci_cliente') ?? '');
+        $celular_cliente = trim($this->input('celular_cliente') ?? '');
+        $email_cliente = trim($this->input('email_cliente') ?? '');
 
         if ($nombre_cliente === '' || $nit_ci_cliente === '' || $celular_cliente === '' || $email_cliente === '') {
-            $this->flash('Todos los campos son obligatorios.', 'error');
-            $this->redirect(BASE_URL . '/clients/create');
-            return;
+            $this->json(['success' => false, 'message' => 'Todos los campos son obligatorios.']);
+        }
+
+        if (!filter_var($email_cliente, FILTER_VALIDATE_EMAIL)) {
+            $this->json(['success' => false, 'message' => 'El formato del correo electrónico no es válido.']);
         }
 
         $clientModel = new Client();
+
+        if ($clientModel->nitCiExists($nit_ci_cliente)) {
+            $this->json(['success' => false, 'message' => 'Ya existe un cliente con ese NIT/CI.']);
+        }
+
+        if ($clientModel->emailExists($email_cliente)) {
+            $this->json(['success' => false, 'message' => 'Ya existe un cliente con ese correo electrónico.']);
+        }
 
         if ($clientModel->create([
-            'nombre_cliente'  => $nombre_cliente,
-            'nit_ci_cliente'  => $nit_ci_cliente,
+            'nombre_cliente' => $nombre_cliente,
+            'nit_ci_cliente' => $nit_ci_cliente,
             'celular_cliente' => $celular_cliente,
-            'email_cliente'   => $email_cliente,
+            'email_cliente' => $email_cliente,
         ])) {
-            $this->flash('El cliente se registró exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+            $this->json(['success' => true, 'message' => 'El cliente se registró exitosamente.']);
         }
 
-        $this->flash('Error al registrar el cliente.', 'error');
-        $this->redirect(BASE_URL . '/clients/create');
+        $this->json(['success' => false, 'message' => 'Error al registrar el cliente.']);
     }
 
     /**
-     * Muestra el formulario de edición para un cliente existente.
+     * Retorna los datos de un cliente en JSON (AJAX — para pre-llenar el modal de edición).
      *
-     * @param int|null $id ID del cliente a editar.
+     * @param int|null $id
      */
-    public function edit(?int $id = null): void
+    public function show(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) {
-            $this->flash('Cliente inválido.', 'error');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+            $this->json(['success' => false, 'message' => 'ID de cliente inválido.']);
         }
 
         $clientModel = new Client();
-        $client      = $clientModel->find($id);
+        $client = $clientModel->find($id);
 
-        if (!$client) {
-            $this->flash('No se encontró el cliente solicitado.', 'error');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+        if ($client) {
+            $this->json(['success' => true, 'data' => $client]);
         }
 
-        $this->renderWithLayout('views/clients/edit.php', array_merge(
-            $this->sessionData(),
-            [
-                'id_cliente'      => (int) $client['id_cliente'],
-                'nombre_cliente'  => $client['nombre_cliente'],
-                'nit_ci_cliente'  => $client['nit_ci_cliente'],
-                'celular_cliente' => $client['celular_cliente'],
-                'email_cliente'   => $client['email_cliente'],
-                'csrf_token'      => Auth::generateCsrfToken(),
-            ]
-        ));
+        $this->json(['success' => false, 'message' => 'Cliente no encontrado.']);
     }
 
     /**
-     * Procesa el formulario de edición y actualiza el cliente.
+     * Actualiza un cliente existente (AJAX).
+     *
+     * @param int|null $id
      */
-    public function update(): void
+    public function update(?int $id = null): void
     {
-        $this->validateCsrfOrFail();
+        $id = $id ?? (int)($_POST['id'] ?? 0);
 
-        $id_cliente      = (int) ($_POST['id_cliente'] ?? 0);
-        $nombre_cliente  = trim($_POST['nombre_cliente'] ?? '');
-        $nit_ci_cliente  = trim($_POST['nit_ci_cliente'] ?? '');
-        $celular_cliente = trim($_POST['celular_cliente'] ?? '');
-        $email_cliente   = trim($_POST['email_cliente'] ?? '');
+        $nombre_cliente = trim($this->input('nombre_cliente') ?? '');
+        $nit_ci_cliente = trim($this->input('nit_ci_cliente') ?? '');
+        $celular_cliente = trim($this->input('celular_cliente') ?? '');
+        $email_cliente = trim($this->input('email_cliente') ?? '');
 
-        if ($id_cliente <= 0 || $nombre_cliente === '' || $nit_ci_cliente === '' || $celular_cliente === '' || $email_cliente === '') {
-            $this->flash('Datos inválidos para actualizar el cliente.', 'error');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+        if ($id <= 0 || $nombre_cliente === '' || $nit_ci_cliente === '' || $celular_cliente === '' || $email_cliente === '') {
+            $this->json(['success' => false, 'message' => 'Datos inválidos para actualizar el cliente.']);
+        }
+
+        if (!filter_var($email_cliente, FILTER_VALIDATE_EMAIL)) {
+            $this->json(['success' => false, 'message' => 'El formato del correo electrónico no es válido.']);
         }
 
         $clientModel = new Client();
 
-        if ($clientModel->update($id_cliente, [
-            'nombre_cliente'  => $nombre_cliente,
-            'nit_ci_cliente'  => $nit_ci_cliente,
-            'celular_cliente' => $celular_cliente,
-            'email_cliente'   => $email_cliente,
-        ])) {
-            $this->flash('El cliente se actualizó exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+        if (!$clientModel->find($id)) {
+            $this->json(['success' => false, 'message' => 'Cliente no encontrado.']);
         }
 
-        $this->flash('Error al actualizar el cliente.', 'error');
-        $this->redirect(BASE_URL . '/clients/edit/' . $id_cliente);
+        if ($clientModel->nitCiExists($nit_ci_cliente, $id)) {
+            $this->json(['success' => false, 'message' => 'Ya existe otro cliente con ese NIT/CI.']);
+        }
+
+        if ($clientModel->emailExists($email_cliente, $id)) {
+            $this->json(['success' => false, 'message' => 'Ya existe otro cliente con ese correo electrónico.']);
+        }
+
+        if ($clientModel->update($id, [
+            'nombre_cliente' => $nombre_cliente,
+            'nit_ci_cliente' => $nit_ci_cliente,
+            'celular_cliente' => $celular_cliente,
+            'email_cliente' => $email_cliente,
+        ])) {
+            $this->json(['success' => true, 'message' => 'El cliente se actualizó exitosamente.']);
+        }
+
+        $this->json(['success' => false, 'message' => 'Error al actualizar el cliente.']);
     }
 
     /**
-     * Elimina un cliente si no tiene ventas asociadas.
+     * Elimina un cliente si no tiene ventas asociadas (AJAX).
      */
     public function destroy(): void
     {
-        $this->validateCsrfOrFail();
+        $id = (int)($this->input('id_cliente') ?? 0);
 
-        $id_cliente = (int) ($_POST['id_cliente'] ?? 0);
-
-        if ($id_cliente <= 0) {
-            $this->flash('Cliente inválido.', 'error');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+        if ($id <= 0) {
+            $this->json(['success' => false, 'message' => 'Cliente inválido.']);
         }
 
         $clientModel = new Client();
 
-        if ($clientModel->isReferenced($id_cliente)) {
-            $this->flash('No se puede eliminar el cliente porque tiene ventas registradas.', 'error');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+        if ($clientModel->isReferenced($id)) {
+            $this->json(['success' => false, 'message' => 'No se puede eliminar el cliente porque tiene ventas registradas.']);
         }
 
-        if ($clientModel->delete($id_cliente)) {
-            $this->flash('El cliente se eliminó exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/clients');
-            return;
+        if ($clientModel->delete($id)) {
+            $this->json(['success' => true, 'message' => 'El cliente se eliminó exitosamente.']);
         }
 
-        $this->flash('Error al eliminar el cliente.', 'error');
-        $this->redirect(BASE_URL . '/clients');
+        $this->json(['success' => false, 'message' => 'Error al eliminar el cliente.']);
+    }
+
+    /**
+     * Verifica si el NIT/CI ya existe (AJAX — jQuery Validate remote).
+     *
+     * jQuery Validate espera:
+     * - true  → validación pasa (NIT/CI disponible)
+     * - string → validación falla (mensaje de error)
+     */
+    #[NoReturn]
+    public function checkNitCi(): void
+    {
+        $nit_ci = trim($this->input('nit_ci_cliente') ?? '');
+        $id = $this->input('id');
+
+        if ($id === '' || $id === 'null') {
+            $id = null;
+        } elseif ($id !== null) {
+            $id = (int)$id;
+        }
+
+        if ($nit_ci === '') {
+            echo json_encode(true);
+            exit;
+        }
+
+        $clientModel = new Client();
+        $exists = $clientModel->nitCiExists($nit_ci, $id);
+
+        echo json_encode($exists ? 'Ya existe un cliente con este NIT/CI.' : true);
+        exit;
+    }
+
+    /**
+     * Verifica si el correo electrónico ya existe (AJAX — jQuery Validate remote).
+     *
+     * jQuery Validate espera:
+     * - true  → validación pasa (email disponible)
+     * - string → validación falla (mensaje de error)
+     */
+    #[NoReturn]
+    public function checkEmail(): void
+    {
+        $email = trim($this->input('email_cliente') ?? '');
+        $id = $this->input('id');
+
+        if ($id === '' || $id === 'null') {
+            $id = null;
+        } elseif ($id !== null) {
+            $id = (int)$id;
+        }
+
+        if ($email === '') {
+            echo json_encode(true);
+            exit;
+        }
+
+        $clientModel = new Client();
+        $exists = $clientModel->emailExists($email, $id);
+
+        echo json_encode($exists ? 'Ya existe un cliente con este correo electrónico.' : true);
+        exit;
     }
 }

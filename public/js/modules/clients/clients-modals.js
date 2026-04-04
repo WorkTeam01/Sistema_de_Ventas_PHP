@@ -1,8 +1,8 @@
 /**
  * ============================================================================
- * GESTIÓN DE PROVEEDORES - Operaciones CRUD con Modales
+ * GESTIÓN DE CLIENTES - Operaciones CRUD con Modales
  * ============================================================================
- * Maneja las operaciones de crear, editar y eliminar proveedores mediante
+ * Maneja las operaciones de crear, editar y eliminar clientes mediante
  * modales y AJAX usando ToastUtils para feedback visual.
  */
 
@@ -16,19 +16,21 @@ $(document).ready(function () {
     // ========================================================================
     $('#formCreate').validate({
         rules: {
-            nombre_proveedor: {
+            nombre_cliente: {
                 required: true,
+                minlength: 3,
                 maxlength: 255
             },
-            empresa: {
+            nit_ci_cliente: {
                 required: true,
-                maxlength: 255,
+                minlength: 3,
+                maxlength: 50,
                 remote: {
-                    url: BASE_URL + '/suppliers/check-nombre',
+                    url: BASE_URL + '/clients/check-nit-ci',
                     type: 'POST',
                     data: {
-                        empresa: function () {
-                            return $('#create_empresa').val();
+                        nit_ci_cliente: function () {
+                            return $('#create_nit_ci_cliente').val();
                         },
                         id: function () {
                             return null;
@@ -36,45 +38,49 @@ $(document).ready(function () {
                     }
                 }
             },
-            celular: {
+            celular_cliente: {
                 required: true,
+                minlength: 7,
                 maxlength: 50
             },
-            telefono: {
-                maxlength: 50
-            },
-            email: {
+            email_cliente: {
+                required: true,
                 email: true,
-                maxlength: 254
-            },
-            direccion: {
-                required: true,
-                maxlength: 255
+                maxlength: 254,
+                remote: {
+                    url: BASE_URL + '/clients/check-email',
+                    type: 'POST',
+                    data: {
+                        email_cliente: function () {
+                            return $('#create_email_cliente').val();
+                        },
+                        id: function () {
+                            return null;
+                        }
+                    }
+                }
             }
         },
         messages: {
-            nombre_proveedor: {
-                required: 'El nombre del contacto es obligatorio.',
+            nombre_cliente: {
+                required: 'El nombre del cliente es obligatorio.',
+                minlength: 'El nombre debe tener al menos 3 caracteres.',
                 maxlength: 'El nombre no puede exceder 255 caracteres.'
             },
-            empresa: {
-                required: 'La empresa es obligatoria.',
-                maxlength: 'La empresa no puede exceder 255 caracteres.'
+            nit_ci_cliente: {
+                required: 'El NIT/CI es obligatorio.',
+                minlength: 'El NIT/CI debe tener al menos 3 caracteres.',
+                maxlength: 'El NIT/CI no puede exceder 50 caracteres.'
             },
-            celular: {
+            celular_cliente: {
                 required: 'El celular es obligatorio.',
+                minlength: 'El celular debe tener al menos 7 caracteres.',
                 maxlength: 'El celular no puede exceder 50 caracteres.'
             },
-            telefono: {
-                maxlength: 'El teléfono no puede exceder 50 caracteres.'
-            },
-            email: {
-                email: 'Ingrese un email válido.',
-                maxlength: 'El email no puede exceder 254 caracteres.'
-            },
-            direccion: {
-                required: 'La dirección es obligatoria.',
-                maxlength: 'La dirección no puede exceder 255 caracteres.'
+            email_cliente: {
+                required: 'El correo electrónico es obligatorio.',
+                email: 'Ingrese un correo electrónico válido.',
+                maxlength: 'El correo no puede exceder 254 caracteres.'
             }
         },
         errorElement: 'span',
@@ -89,7 +95,7 @@ $(document).ready(function () {
             $(element).removeClass('is-invalid');
         },
         submitHandler: function () {
-            crearProveedor();
+            crearCliente();
         }
     });
 
@@ -98,19 +104,21 @@ $(document).ready(function () {
     // ========================================================================
     $('#formEdit').validate({
         rules: {
-            nombre_proveedor: {
+            nombre_cliente: {
                 required: true,
+                minlength: 3,
                 maxlength: 255
             },
-            empresa: {
+            nit_ci_cliente: {
                 required: true,
-                maxlength: 255,
+                minlength: 3,
+                maxlength: 50,
                 remote: {
-                    url: BASE_URL + '/suppliers/check-nombre',
+                    url: BASE_URL + '/clients/check-nit-ci',
                     type: 'POST',
                     data: {
-                        empresa: function () {
-                            return $('#edit_empresa').val();
+                        nit_ci_cliente: function () {
+                            return $('#edit_nit_ci_cliente').val();
                         },
                         id: function () {
                             return $('#edit_id').val() || null;
@@ -118,45 +126,49 @@ $(document).ready(function () {
                     }
                 }
             },
-            celular: {
+            celular_cliente: {
                 required: true,
+                minlength: 7,
                 maxlength: 50
             },
-            telefono: {
-                maxlength: 50
-            },
-            email: {
+            email_cliente: {
+                required: true,
                 email: true,
-                maxlength: 254
-            },
-            direccion: {
-                required: true,
-                maxlength: 255
+                maxlength: 254,
+                remote: {
+                    url: BASE_URL + '/clients/check-email',
+                    type: 'POST',
+                    data: {
+                        email_cliente: function () {
+                            return $('#edit_email_cliente').val();
+                        },
+                        id: function () {
+                            return $('#edit_id').val() || null;
+                        }
+                    }
+                }
             }
         },
         messages: {
-            nombre_proveedor: {
-                required: 'El nombre del contacto es obligatorio.',
+            nombre_cliente: {
+                required: 'El nombre del cliente es obligatorio.',
+                minlength: 'El nombre debe tener al menos 3 caracteres.',
                 maxlength: 'El nombre no puede exceder 255 caracteres.'
             },
-            empresa: {
-                required: 'La empresa es obligatoria.',
-                maxlength: 'La empresa no puede exceder 255 caracteres.'
+            nit_ci_cliente: {
+                required: 'El NIT/CI es obligatorio.',
+                minlength: 'El NIT/CI debe tener al menos 3 caracteres.',
+                maxlength: 'El NIT/CI no puede exceder 50 caracteres.'
             },
-            celular: {
+            celular_cliente: {
                 required: 'El celular es obligatorio.',
+                minlength: 'El celular debe tener al menos 7 caracteres.',
                 maxlength: 'El celular no puede exceder 50 caracteres.'
             },
-            telefono: {
-                maxlength: 'El teléfono no puede exceder 50 caracteres.'
-            },
-            email: {
-                email: 'Ingrese un email válido.',
-                maxlength: 'El email no puede exceder 254 caracteres.'
-            },
-            direccion: {
-                required: 'La dirección es obligatoria.',
-                maxlength: 'La dirección no puede exceder 255 caracteres.'
+            email_cliente: {
+                required: 'El correo electrónico es obligatorio.',
+                email: 'Ingrese un correo electrónico válido.',
+                maxlength: 'El correo no puede exceder 254 caracteres.'
             }
         },
         errorElement: 'span',
@@ -171,14 +183,14 @@ $(document).ready(function () {
             $(element).removeClass('is-invalid');
         },
         submitHandler: function () {
-            actualizarProveedor();
+            actualizarCliente();
         }
     });
 
     // ========================================================================
-    // CREAR PROVEEDOR
+    // CREAR CLIENTE
     // ========================================================================
-    function crearProveedor() {
+    function crearCliente() {
         if (isSubmitting) return false;
 
         const formData = $('#formCreate').serialize();
@@ -188,9 +200,9 @@ $(document).ready(function () {
         isSubmitting = true;
         submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
 
-        ToastUtils.loadingWithMinTime('Guardando proveedor...', function (loadingToast) {
+        ToastUtils.loadingWithMinTime('Guardando cliente...', function (loadingToast) {
             $.ajax({
-                url: BASE_URL + '/suppliers/store',
+                url: BASE_URL + '/clients/store',
                 type: 'POST',
                 data: formData,
                 dataType: 'json',
@@ -234,9 +246,9 @@ $(document).ready(function () {
 
         $button.data('processing', true).prop('disabled', true);
 
-        ToastUtils.loadingWithMinTime('Cargando datos del proveedor...', function (loadingToast) {
+        ToastUtils.loadingWithMinTime('Cargando datos del cliente...', function (loadingToast) {
             $.ajax({
-                url: BASE_URL + '/suppliers/show/' + id,
+                url: BASE_URL + '/clients/show/' + id,
                 type: 'GET',
                 dataType: 'json',
                 success: function (response) {
@@ -246,13 +258,11 @@ $(document).ready(function () {
                     if (response.success) {
                         const data = response.data;
 
-                        $('#edit_id').val(data.id_proveedor);
-                        $('#edit_nombre_proveedor').val(data.nombre_proveedor);
-                        $('#edit_empresa').val(data.empresa);
-                        $('#edit_celular').val(data.celular);
-                        $('#edit_telefono').val(data.telefono || '');
-                        $('#edit_email').val(data.email || '');
-                        $('#edit_direccion').val(data.direccion);
+                        $('#edit_id').val(data.id_cliente);
+                        $('#edit_nombre_cliente').val(data.nombre_cliente);
+                        $('#edit_nit_ci_cliente').val(data.nit_ci_cliente);
+                        $('#edit_celular_cliente').val(data.celular_cliente);
+                        $('#edit_email_cliente').val(data.email_cliente);
 
                         $('#formEdit').validate().resetForm();
                         $('#formEdit').find('.is-invalid').removeClass('is-invalid');
@@ -272,9 +282,9 @@ $(document).ready(function () {
     });
 
     // ========================================================================
-    // ACTUALIZAR PROVEEDOR
+    // ACTUALIZAR CLIENTE
     // ========================================================================
-    function actualizarProveedor() {
+    function actualizarCliente() {
         if (isSubmitting) return false;
 
         const id = $('#edit_id').val();
@@ -285,9 +295,9 @@ $(document).ready(function () {
         isSubmitting = true;
         submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
 
-        ToastUtils.loadingWithMinTime('Actualizando proveedor...', function (loadingToast) {
+        ToastUtils.loadingWithMinTime('Actualizando cliente...', function (loadingToast) {
             $.ajax({
-                url: BASE_URL + '/suppliers/update/' + id,
+                url: BASE_URL + '/clients/update/' + id,
                 type: 'POST',
                 data: formData,
                 dataType: 'json',
@@ -319,7 +329,7 @@ $(document).ready(function () {
     }
 
     // ========================================================================
-    // ELIMINAR PROVEEDOR
+    // ELIMINAR CLIENTE
     // ========================================================================
     $(document).on('click', '.btn-delete', function () {
         const id = $(this).data('id');
@@ -327,13 +337,13 @@ $(document).ready(function () {
 
         AlertUtils.confirm(
             '¿Está seguro?',
-            'Se eliminará al proveedor "' + nombre + '". Esta acción no se puede deshacer.',
+            'Se eliminará al cliente "' + nombre + '". Esta acción no se puede deshacer.',
             function () {
-                ToastUtils.loadingWithMinTime('Eliminando proveedor...', function (loadingToast) {
+                ToastUtils.loadingWithMinTime('Eliminando cliente...', function (loadingToast) {
                     $.ajax({
-                        url: BASE_URL + '/suppliers/delete',
+                        url: BASE_URL + '/clients/delete',
                         type: 'POST',
-                        data: {id_proveedor: id},
+                        data: {id_cliente: id},
                         dataType: 'json',
                         success: function (response) {
                             loadingToast.close();

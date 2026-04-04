@@ -11,7 +11,7 @@ use App\Core\Model;
  */
 class Client extends Model
 {
-    protected string $table      = 'tb_clientes';
+    protected string $table = 'tb_clientes';
     protected string $primaryKey = 'id_cliente';
 
     /**
@@ -27,5 +27,47 @@ class Client extends Model
             [$id]
         );
         return ($result[0]['total'] ?? 0) > 0;
+    }
+
+    /**
+     * Verifica si el NIT/CI ya existe en la base de datos.
+     *
+     * @param string $nitCi NIT/CI a verificar.
+     * @param int|null $excludeId ID del cliente actual para excluir al editar.
+     * @return bool Verdadero si ya existe, falso si está disponible.
+     */
+    public function nitCiExists(string $nitCi, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE nit_ci_cliente = ?";
+        $params = [$nitCi];
+
+        if ($excludeId) {
+            $sql .= " AND {$this->primaryKey} != ?";
+            $params[] = $excludeId;
+        }
+
+        $result = $this->query($sql, $params);
+        return $result[0]['count'] > 0;
+    }
+
+    /**
+     * Verifica si el correo electrónico ya existe en la base de datos.
+     *
+     * @param string $email Email a verificar.
+     * @param int|null $excludeId ID del cliente actual para excluir al editar.
+     * @return bool Verdadero si ya existe, falso si está disponible.
+     */
+    public function emailExists(string $email, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE email_cliente = ?";
+        $params = [$email];
+
+        if ($excludeId) {
+            $sql .= " AND {$this->primaryKey} != ?";
+            $params[] = $excludeId;
+        }
+
+        $result = $this->query($sql, $params);
+        return $result[0]['count'] > 0;
     }
 }

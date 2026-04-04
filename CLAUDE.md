@@ -136,10 +136,11 @@ Rutas activas en `routes/web.php`:
 | POST   | `/suppliers/check-nombre`  | `SupplierController::checkNombre()` | `auth`           |
 | POST   | `/suppliers/delete`        | `SupplierController::destroy()`     | `auth`           |
 | GET    | `/clients`                 | `ClientController::index()`         | `auth`           |
-| GET    | `/clients/create`          | `ClientController::create()`        | `auth`           |
-| POST   | `/clients`                 | `ClientController::store()`         | `auth`           |
-| GET    | `/clients/edit/{id}`       | `ClientController::edit()`          | `auth`           |
-| POST   | `/clients/update`          | `ClientController::update()`        | `auth`           |
+| POST   | `/clients/store`           | `ClientController::store()`         | `auth`           |
+| POST   | `/clients/check-nit-ci`    | `ClientController::checkNitCi()`    | `auth`           |
+| POST   | `/clients/check-email`     | `ClientController::checkEmail()`    | `auth`           |
+| GET    | `/clients/show/{id}`       | `ClientController::show()`          | `auth`           |
+| POST   | `/clients/update/{id}`     | `ClientController::update()`        | `auth`           |
 | POST   | `/clients/delete`          | `ClientController::destroy()`       | `auth`           |
 | GET    | `/products`                | `ProductController::index()`        | `auth`           |
 | GET    | `/products/show/{id}`      | `ProductController::show()`         | `auth`           |
@@ -192,7 +193,7 @@ Helper en `app/Helpers/` (PSR-4, namespace `App\Helpers`): `NumberToWords`.
 |--------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `roles`      | ✅ Migrado | `RoleController`, `Role`                                                                                                                                                                                                                                                                |
 | `categories` | ✅ Migrado | `CategoryController`, `Category`                                                                                                                                                                                                                                                        || `suppliers`  | ✅ Migrado | `SupplierController`, `Supplier` — modal + AJAX; `nameExists()` sobre `empresa`; `isReferenced()` → `tb_compras`; eliminación inline con JSON            |
-| `clients`    | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas`                                                                                                                                                                                                                           |
+| `clients`    | ✅ Migrado | `ClientController`, `Client` — modal + AJAX; `nitCiExists()` + `emailExists()` para duplicados; `isReferenced()` → `tb_ventas`; eliminación inline con JSON; JS modularizado en `clients-datatable.js` / `clients-modals.js`                                                            |
 | `almacen`    | ✅ Migrado | `ProductController`, `Product` — imágenes en `public/uploads/products/`; incluye vista `show`                                                                                                                                                                                           |
 | `compras`    | ✅ Migrado | `PurchaseController`, `Purchase` — operaciones transaccionales con stock; JS modularizado en `purchases-index.js` / `purchases-create.js` / `purchases-edit.js`; `AlertUtils.confirm()` para eliminación (sin `isReferenced()` — `tb_compras` no es referenciada); incluye vista `show` |
 | `ventas`     | ✅ Migrado | `SaleController`, `Sale`, `CartItem` — carrito en BD, TCPDF inline (`tecnickcom/tcpdf`), `SellerMiddleware`; JS modularizado en `sales-index.js` / `sales-create.js`; `AlertUtils.warning()` para validaciones POS; incluye vistas `show`, `delete`, `invoice`                          |

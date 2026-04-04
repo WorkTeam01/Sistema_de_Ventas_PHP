@@ -116,17 +116,25 @@ Todos los módulos están migrados. No quedan módulos legacy.
 -- Tablas principales
 tb_usuarios
 (id_usuario, nombre, apellido, email, password, id_rol, fyh_creacion, fyh_actualizacion)
-tb_roles       (id_rol, nombre_rol, fyh_creacion, fyh_actualizacion)
-tb_categorias  (id_categoria, nombre_categoria, fyh_creacion, fyh_actualizacion)
-tb_proveedores (id_proveedor, nombre_proveedor, nit_ci_proveedor, celular_proveedor,
-                email_proveedor, nombre_empresa, fyh_creacion, fyh_actualizacion)
-tb_clientes    (id_cliente, nombre_cliente, nit_ci_cliente, celular_cliente,
-                email_cliente, fyh_creacion, fyh_actualizacion)
-tb_almacen     (id_almacen, nombre_almacen, descripcion, precio_compra, precio_venta,
-                stock, imagen, id_categoria, fyh_creacion, fyh_actualizacion)
-tb_ventas      (id_venta, id_cliente, total, fyh_creacion)
-tb_carrito     (id_carrito, id_venta, id_almacen, cantidad, precio)
-tb_compras     (id_compra, id_proveedor, id_almacen, cantidad, precio_total, fyh_creacion)
+    tb_roles
+    (id_rol, nombre_rol, fyh_creacion, fyh_actualizacion)
+    tb_categorias
+    (id_categoria, nombre_categoria, fyh_creacion, fyh_actualizacion)
+    tb_proveedores
+(id_proveedor, nombre_proveedor, nit_ci_proveedor, celular_proveedor,
+    email_proveedor, nombre_empresa, fyh_creacion, fyh_actualizacion)
+tb_clientes
+(id_cliente, nombre_cliente, nit_ci_cliente, celular_cliente,
+    email_cliente, fyh_creacion, fyh_actualizacion)
+tb_almacen
+(id_almacen, nombre_almacen, descripcion, precio_compra, precio_venta,
+    stock, imagen, id_categoria, fyh_creacion, fyh_actualizacion)
+tb_ventas
+    (id_venta, id_cliente, total, fyh_creacion)
+    tb_carrito
+    (id_carrito, id_venta, id_almacen, cantidad, precio)
+    tb_compras
+(id_compra, id_proveedor, id_almacen, cantidad, precio_total, fyh_creacion)
 
 -- Roles de usuario (almacenados en tb_roles)
 Administrador
@@ -191,14 +199,14 @@ Auth::check()  // bool
     - **Patrón página dedicada** (products): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
       `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con
       formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
-    - **Patrón formulario inline** (clients, purchases, sales, users): formulario oculto `#formEliminar` en `index.php`
+    - **Patrón formulario inline** (purchases, sales, users): formulario oculto `#formEliminar` en `index.php`
       con CSRF + campos hidden del ID; confirmación con `AlertUtils.confirm()` + `ToastUtils.loadingWithMinTime()` →
       `form.submit()`; el JS vive en un archivo separado bajo `public/js/modules/[modulo]/`
 - Anti-FOUC del sidebar/tema: script inline en `layouts/header.php`, preferencias en `localStorage`
-- **Patrón modal + AJAX** (roles, categories, suppliers): CRUD completo en `index.php` via modales Bootstrap; endpoints
-  JSON en el controlador (`store`, `show`, `update`, `checkNombre`); eliminación con `AlertUtils.confirm()` + AJAX (sin
-  CSRF, `isReferenced()` retorna JSON error); jQuery Validate con regla `remote` para validación de duplicados en tiempo
-  real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
+- **Patrón modal + AJAX** (roles, categories, suppliers, clients): CRUD completo en `index.php` via modales Bootstrap;
+  endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`/`checkNitCi`/`checkEmail`); eliminación con
+  `AlertUtils.confirm()` + AJAX (sin CSRF, `isReferenced()` retorna JSON error); jQuery Validate con regla `remote` para
+  validación de duplicados en tiempo real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
 - **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays pasados a `renderWithLayout()` que el layout inyecta en
   `<head>` y antes de `</body>` respectivamente; las rutas son relativas a `BASE_URL` (e.g.
   `/js/modules/products/products-index.js`)
@@ -248,5 +256,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-04 — v1.2.5 (sales: JS modularizado en sales-index.js / sales-create.js;
-AlertUtils.warning() reemplaza Swal.fire() en POS; DataTable con exportOptions en sales-index.js)_
+_Última actualización: 2026-04-04 — v1.2.6 (clients: migrado a patrón modal + AJAX; `nitCiExists()` + `emailExists()`
+en modelo; JS modularizado en clients-datatable.js / clients-modals.js; eliminación inline sin CSRF)_

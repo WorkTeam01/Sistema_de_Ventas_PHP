@@ -70,12 +70,13 @@ $router->post('/suppliers/check-nombre', [SupplierController::class, 'checkNombr
 $router->post('/suppliers/delete',       [SupplierController::class, 'destroy'],     ['auth']);
 
 // Rutas del módulo clients (MVC)
-$router->get('/clients',             [ClientController::class, 'index'],   ['auth']);
-$router->get('/clients/create',      [ClientController::class, 'create'],  ['auth']);
-$router->post('/clients',            [ClientController::class, 'store'],   ['auth']);
-$router->get('/clients/edit/{id}',   [ClientController::class, 'edit'],    ['auth']);
-$router->post('/clients/update',     [ClientController::class, 'update'],  ['auth']);
-$router->post('/clients/delete',     [ClientController::class, 'destroy'], ['auth']);
+$router->get('/clients',                  [ClientController::class, 'index'],      ['auth']);
+$router->post('/clients/store',           [ClientController::class, 'store'],      ['auth']);
+$router->post('/clients/check-nit-ci',    [ClientController::class, 'checkNitCi'], ['auth']);
+$router->post('/clients/check-email',     [ClientController::class, 'checkEmail'], ['auth']);
+$router->get('/clients/show/{id}',        [ClientController::class, 'show'],       ['auth']);
+$router->post('/clients/update/{id}',     [ClientController::class, 'update'],     ['auth']);
+$router->post('/clients/delete',          [ClientController::class, 'destroy'],    ['auth']);
 
 // Rutas del módulo products/almacen (MVC)
 $router->get('/products',              [ProductController::class, 'index'],   ['auth']);
