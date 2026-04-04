@@ -9,7 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
                         <li class="breadcrumb-item active">Ventas</li>
                     </ol>
                 </div>
@@ -38,44 +39,49 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table id="saleTable" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <table id="saleTable" class="table table-bordered table-hover table-striped table-sm"
+                                   style="visibility: hidden;">
                                 <thead>
-                                    <tr>
-                                        <th class="text-center">Nro</th>
-                                        <th class="text-center">N° Venta</th>
-                                        <th class="text-center">Cliente</th>
-                                        <th class="text-center">Total Pagado</th>
-                                        <th class="text-center">Fecha</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-center">Nro</th>
+                                    <th class="text-center">N° Venta</th>
+                                    <th class="text-center">Cliente</th>
+                                    <th class="text-center">Total Pagado</th>
+                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <?php
-                                    $contador = 0;
-                                    foreach ($sales_data as $sale) :
-                                        $id_venta = (int) $sale['id_venta'];
+                                <?php
+                                $contador = 0;
+                                foreach ($sales_data as $sale) :
+                                    $id_venta = (int)$sale['id_venta'];
                                     ?>
-                                        <tr>
-                                            <td class="text-center"><?= $contador += 1; ?></td>
-                                            <td class="text-center"><?= htmlspecialchars($sale['nro_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?= htmlspecialchars($sale['nombre_cliente'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td class="text-right">Bs. <?= htmlspecialchars(number_format((float) $sale['total_pagado'], 2), ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td class="text-center"><?= htmlspecialchars($sale['fyh_creacion'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td class="text-center">
-                                                <div class="btn-group">
-                                                    <a href="<?= BASE_URL ?>/sales/show/<?= $id_venta ?>" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                    <a href="<?= BASE_URL ?>/sales/invoice/<?= $id_venta ?>" class="btn btn-success btn-sm" target="_blank">
-                                                        <i class="fas fa-print"></i> Factura
-                                                    </a>
-                                                    <a href="<?= BASE_URL ?>/sales/delete/<?= $id_venta ?>" class="btn btn-danger btn-sm">
-                                                        <i class="fas fa-trash"></i> Eliminar
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                    <tr>
+                                        <td class="text-center"><?= $contador += 1; ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($sale['nro_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?= htmlspecialchars($sale['nombre_cliente'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="text-right">
+                                            Bs. <?= htmlspecialchars(number_format((float)$sale['total_pagado'], 2), ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($sale['fyh_creacion'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a href="<?= BASE_URL ?>/sales/show/<?= $id_venta ?>"
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </a>
+                                                <a href="<?= BASE_URL ?>/sales/invoice/<?= $id_venta ?>"
+                                                   class="btn btn-success btn-sm" target="_blank">
+                                                    <i class="fas fa-print"></i> Factura
+                                                </a>
+                                                <a href="<?= BASE_URL ?>/sales/delete/<?= $id_venta ?>"
+                                                   class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -87,55 +93,3 @@
     <!-- /.content -->
 </section>
 <!-- /.content-wrapper -->
-
-<script>
-    $(document).ready(function() {
-        $("#saleTable").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-            buttons: [{
-                    extend: 'collection',
-                    text: 'Reportes',
-                    orientation: 'landscape',
-                    buttons: [{
-                        text: 'Copiar',
-                        extend: 'copy'
-                    }, {
-                        extend: 'pdf',
-                    }, {
-                        extend: 'csv',
-                    }, {
-                        extend: 'excel',
-                    }, {
-                        text: 'Imprimir',
-                        extend: 'print'
-                    }]
-                },
-                {
-                    extend: 'colvis',
-                    text: 'Visualización de columnas'
-                }
-            ],
-            "pageLength": 10,
-            "language": {
-                "sProcessing": "Procesando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "No se encontraron resultados",
-                "sEmptyTable": "Ningún dato disponible en esta tabla",
-                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
-                "sSearch": "Buscar:",
-                "oPaginate": {
-                    "sFirst": "Primero",
-                    "sLast": "Último",
-                    "sNext": "Siguiente",
-                    "sPrevious": "Anterior"
-                }
-            },
-            initComplete: function() {
-                $(this.api().table().node()).css('visibility', 'visible');
-            }
-        }).buttons().container().appendTo('#saleTable_wrapper .col-md-6:eq(0)');
-    });
-</script>

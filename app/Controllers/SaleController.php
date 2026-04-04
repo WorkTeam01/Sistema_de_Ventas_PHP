@@ -25,6 +25,7 @@ class SaleController extends Controller
             [
                 'sales_data'  => $sales_data,
                 'csrf_token'  => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/sales/sales-index.js'],
             ]
         ), true, ['datatable']);
     }
@@ -50,6 +51,7 @@ class SaleController extends Controller
                 'products'    => $productModel->all(),
                 'clients'     => $clientModel->all(),
                 'csrf_token'  => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/sales/sales-create.js'],
             ]
         ), true, ['datatable']);
     }

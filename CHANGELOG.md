@@ -7,6 +7,35 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.5] - 2026-04-04
+
+### Refactorizado
+
+- `views/sales/index.php` — eliminado bloque `<script>` inline completo (DataTable init básico sin exportOptions)
+- `views/sales/create.php` — eliminado bloque `<script>` inline completo (~100 líneas: DataTables de modales, lógica de
+  carrito, selección producto/cliente, cálculo de cambio, validación pre-submit)
+- `app/Controllers/SaleController.php` — `index()` agrega `pageScripts` con `sales-index.js`; `create()` agrega
+  `pageScripts` con `sales-create.js`
+
+### Agregado
+
+- `public/js/modules/sales/sales-index.js` — DataTable estandarizado: `exportOptions: { columns: [0,1,2,3,4] }` en
+  todos los botones para excluir columna Acciones (índice 5); PDF con título/subtítulo/fecha/footer paginado;
+  Excel con `messageTop`/`messageBottom`; `pageLength: 10`; `lengthMenu: [[5,10,25,50]]`; botón ColVis = `'Columnas'`
+- `public/js/modules/sales/sales-create.js` — JS del POS extraído: DataTables de modales `#productTable` /
+  `#clientTable` (sin botones de exportación); selección de producto y cliente; agregar al carrito; cálculo de cambio;
+  validación pre-submit; `Swal.fire()` directo reemplazado por `AlertUtils.warning()` en 2 lugares
+
+### Notas de Versión
+
+- **Módulo sales alineado al estándar de modularización JS:** replica el patrón del módulo `users` (v1.2.3) y
+  `purchases` (v1.2.4) — todo el JS en archivos separados bajo `public/js/modules/sales/`, sin lógica inline en vistas.
+- **Sin `confirmarEliminar` en sales-index.js:** las ventas usan página de confirmación dedicada (
+  `views/sales/delete.php`);
+  el modelo `Sale` no implementa `isReferenced()`, por lo que no aplica el patrón AJAX check previo.
+
+---
+
 ## [1.2.4] - 2026-04-04
 
 ### Refactorizado

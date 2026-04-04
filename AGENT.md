@@ -248,4 +248,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-04 — v1.2.4 (purchases: JS modularizado en purchases-index/create/edit.js; AlertUtils.confirm() para eliminación; jQuery Validate en create y edit)_
+_Última actualización: 2026-04-04 — v1.2.5 (sales: JS modularizado en sales-index.js / sales-create.js;
+AlertUtils.warning() reemplaza Swal.fire() en POS; DataTable con exportOptions en sales-index.js)_

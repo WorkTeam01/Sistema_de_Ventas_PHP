@@ -195,7 +195,7 @@ Helper en `app/Helpers/` (PSR-4, namespace `App\Helpers`): `NumberToWords`.
 | `clients`    | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas`                                                                                                                                                                                                                           |
 | `almacen`    | ✅ Migrado | `ProductController`, `Product` — imágenes en `public/uploads/products/`; incluye vista `show`                                                                                                                                                                                           |
 | `compras`    | ✅ Migrado | `PurchaseController`, `Purchase` — operaciones transaccionales con stock; JS modularizado en `purchases-index.js` / `purchases-create.js` / `purchases-edit.js`; `AlertUtils.confirm()` para eliminación (sin `isReferenced()` — `tb_compras` no es referenciada); incluye vista `show` |
-| `ventas`     | ✅ Migrado | `SaleController`, `Sale`, `CartItem` — carrito en BD, TCPDF inline (`tecnickcom/tcpdf`), `SellerMiddleware`; incluye vistas `show`, `delete`, `invoice`                                                                                                                                 |
+| `ventas`     | ✅ Migrado | `SaleController`, `Sale`, `CartItem` — carrito en BD, TCPDF inline (`tecnickcom/tcpdf`), `SellerMiddleware`; JS modularizado en `sales-index.js` / `sales-create.js`; `AlertUtils.warning()` para validaciones POS; incluye vistas `show`, `delete`, `invoice`                          |
 
 ### Workflow para nuevos módulos MVC
 
