@@ -2,188 +2,188 @@
 
 namespace App\Controllers;
 
-use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Supplier;
 
 class SupplierController extends Controller
 {
     /**
-     * Muestra el listado de todos los proveedores registrados.
+     * Muestra el listado de todos los proveedores con modales para crear y editar.
      */
     public function index(): void
     {
-        $supplierModel    = new Supplier();
+        $supplierModel = new Supplier();
         $suppliers_datos = $supplierModel->all();
 
         $this->renderWithLayout('views/suppliers/index.php', array_merge(
             $this->sessionData(),
             [
                 'suppliers_datos' => $suppliers_datos,
-                'csrf_token'      => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/suppliers/suppliers-datatable.js', '/js/modules/suppliers/suppliers-modals.js']
             ]
-        ), true, ['datatable']);
+        ), true, ['datatable', 'validation']);
     }
 
     /**
-     * Muestra el formulario para registrar un nuevo proveedor.
-     */
-    public function create(): void
-    {
-        $this->renderWithLayout('views/suppliers/create.php', array_merge(
-            $this->sessionData(),
-            ['csrf_token' => Auth::generateCsrfToken()]
-        ));
-    }
-
-    /**
-     * Procesa el formulario de creación y guarda el nuevo proveedor.
+     * Guarda un nuevo proveedor (AJAX).
      */
     public function store(): void
     {
-        $this->validateCsrfOrFail();
+        $nombre_proveedor = trim($this->input('nombre_proveedor') ?? '');
+        $empresa = trim($this->input('empresa') ?? '');
+        $celular = trim($this->input('celular') ?? '');
+        $direccion = trim($this->input('direccion') ?? '');
+        $telefono = $this->input('telefono');
+        $email = $this->input('email');
 
-        $nombre_proveedor = trim($_POST['nombre_proveedor'] ?? '');
-        $empresa          = trim($_POST['empresa'] ?? '');
-        $celular          = trim($_POST['celular'] ?? '');
-        $direccion        = trim($_POST['direccion'] ?? '');
-        $telefono         = !empty($_POST['telefono']) ? trim($_POST['telefono']) : null;
-        $email            = !empty($_POST['email']) ? trim($_POST['email']) : null;
+        $telefono = ($telefono !== null && trim($telefono) !== '') ? trim($telefono) : null;
+        $email = ($email !== null && trim($email) !== '') ? trim($email) : null;
 
         if ($nombre_proveedor === '' || $empresa === '' || $celular === '' || $direccion === '') {
-            $this->flash('Los campos Nombre, Empresa, Celular y Dirección son obligatorios.', 'error');
-            $this->redirect(BASE_URL . '/suppliers/create');
-            return;
+            $this->json(['success' => false, 'message' => 'Los campos Nombre, Empresa, Celular y Dirección son obligatorios.']);
         }
 
         $supplierModel = new Supplier();
+
+        if ($supplierModel->nameExists($empresa)) {
+            $this->json(['success' => false, 'message' => 'Ya existe un proveedor con esa empresa.']);
+        }
 
         if ($supplierModel->create([
             'nombre_proveedor' => $nombre_proveedor,
-            'empresa'          => $empresa,
-            'celular'          => $celular,
-            'telefono'         => $telefono,
-            'email'            => $email,
-            'direccion'        => $direccion,
+            'empresa' => $empresa,
+            'celular' => $celular,
+            'telefono' => $telefono,
+            'email' => $email,
+            'direccion' => $direccion,
         ])) {
-            $this->flash('El proveedor se registró exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+            $this->json(['success' => true, 'message' => 'El proveedor se registró exitosamente.']);
         }
 
-        $this->flash('Error al registrar el proveedor.', 'error');
-        $this->redirect(BASE_URL . '/suppliers/create');
+        $this->json(['success' => false, 'message' => 'Error al registrar el proveedor.']);
     }
 
     /**
-     * Muestra el formulario de edición para un proveedor existente.
+     * Retorna los datos de un proveedor en JSON (AJAX — para pre-llenar el modal de edición).
      *
-     * @param int|null $id ID del proveedor a editar.
+     * @param int|null $id
      */
-    public function edit(?int $id = null): void
+    public function show(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) {
-            $this->flash('Proveedor inválido.', 'error');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+            $this->json(['success' => false, 'message' => 'ID de proveedor inválido.']);
         }
 
         $supplierModel = new Supplier();
-        $supplier      = $supplierModel->find($id);
+        $supplier = $supplierModel->find($id);
 
-        if (!$supplier) {
-            $this->flash('No se encontró el proveedor solicitado.', 'error');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+        if ($supplier) {
+            $this->json(['success' => true, 'data' => $supplier]);
         }
 
-        $this->renderWithLayout('views/suppliers/edit.php', array_merge(
-            $this->sessionData(),
-            [
-                'id_proveedor'     => (int) $supplier['id_proveedor'],
-                'nombre_proveedor' => $supplier['nombre_proveedor'],
-                'empresa'          => $supplier['empresa'],
-                'celular'          => $supplier['celular'],
-                'telefono'         => $supplier['telefono'] ?? '',
-                'email'            => $supplier['email'] ?? '',
-                'direccion'        => $supplier['direccion'],
-                'csrf_token'       => Auth::generateCsrfToken(),
-            ]
-        ));
+        $this->json(['success' => false, 'message' => 'Proveedor no encontrado.']);
     }
 
     /**
-     * Procesa el formulario de edición y actualiza el proveedor.
+     * Actualiza un proveedor existente (AJAX).
+     *
+     * @param int|null $id
      */
-    public function update(): void
+    public function update(?int $id = null): void
     {
-        $this->validateCsrfOrFail();
+        $id = $id ?? (int)($_POST['id'] ?? 0);
 
-        $id_proveedor     = (int) ($_POST['id_proveedor'] ?? 0);
-        $nombre_proveedor = trim($_POST['nombre_proveedor'] ?? '');
-        $empresa          = trim($_POST['empresa'] ?? '');
-        $celular          = trim($_POST['celular'] ?? '');
-        $direccion        = trim($_POST['direccion'] ?? '');
-        $telefono         = !empty($_POST['telefono']) ? trim($_POST['telefono']) : null;
-        $email            = !empty($_POST['email']) ? trim($_POST['email']) : null;
+        $nombre_proveedor = trim($this->input('nombre_proveedor') ?? '');
+        $empresa = trim($this->input('empresa') ?? '');
+        $celular = trim($this->input('celular') ?? '');
+        $direccion = trim($this->input('direccion') ?? '');
+        $telefono = $this->input('telefono');
+        $email = $this->input('email');
 
-        if ($id_proveedor <= 0 || $nombre_proveedor === '' || $empresa === '' || $celular === '' || $direccion === '') {
-            $this->flash('Datos inválidos para actualizar el proveedor.', 'error');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+        $telefono = ($telefono !== null && trim($telefono) !== '') ? trim($telefono) : null;
+        $email = ($email !== null && trim($email) !== '') ? trim($email) : null;
+
+        if ($id <= 0 || $nombre_proveedor === '' || $empresa === '' || $celular === '' || $direccion === '') {
+            $this->json(['success' => false, 'message' => 'Datos inválidos para actualizar el proveedor.']);
         }
 
         $supplierModel = new Supplier();
 
-        if ($supplierModel->update($id_proveedor, [
-            'nombre_proveedor' => $nombre_proveedor,
-            'empresa'          => $empresa,
-            'celular'          => $celular,
-            'telefono'         => $telefono,
-            'email'            => $email,
-            'direccion'        => $direccion,
-        ])) {
-            $this->flash('El proveedor se actualizó exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+        if (!$supplierModel->find($id)) {
+            $this->json(['success' => false, 'message' => 'Proveedor no encontrado.']);
         }
 
-        $this->flash('Error al actualizar el proveedor.', 'error');
-        $this->redirect(BASE_URL . '/suppliers/edit/' . $id_proveedor);
+        if ($supplierModel->nameExists($empresa, $id)) {
+            $this->json(['success' => false, 'message' => 'Ya existe otro proveedor con esa empresa.']);
+        }
+
+        if ($supplierModel->update($id, [
+            'nombre_proveedor' => $nombre_proveedor,
+            'empresa' => $empresa,
+            'celular' => $celular,
+            'telefono' => $telefono,
+            'email' => $email,
+            'direccion' => $direccion,
+        ])) {
+            $this->json(['success' => true, 'message' => 'El proveedor se actualizó exitosamente.']);
+        }
+
+        $this->json(['success' => false, 'message' => 'Error al actualizar el proveedor.']);
     }
 
     /**
-     * Elimina un proveedor si no tiene compras asociadas.
+     * Elimina un proveedor si no tiene compras asociadas (AJAX).
      */
     public function destroy(): void
     {
-        $this->validateCsrfOrFail();
+        $id = (int)($this->input('id_proveedor') ?? 0);
 
-        $id_proveedor = (int) ($_POST['id_proveedor'] ?? 0);
-
-        if ($id_proveedor <= 0) {
-            $this->flash('Proveedor inválido.', 'error');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+        if ($id <= 0) {
+            $this->json(['success' => false, 'message' => 'Proveedor inválido.']);
         }
 
         $supplierModel = new Supplier();
 
-        if ($supplierModel->isReferenced($id_proveedor)) {
-            $this->flash('No se puede eliminar el proveedor porque tiene compras registradas.', 'error');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+        if ($supplierModel->isReferenced($id)) {
+            $this->json(['success' => false, 'message' => 'No se puede eliminar el proveedor porque tiene compras registradas.']);
         }
 
-        if ($supplierModel->delete($id_proveedor)) {
-            $this->flash('El proveedor se eliminó exitosamente.', 'success');
-            $this->redirect(BASE_URL . '/suppliers');
-            return;
+        if ($supplierModel->delete($id)) {
+            $this->json(['success' => true, 'message' => 'El proveedor se eliminó exitosamente.']);
         }
 
-        $this->flash('Error al eliminar el proveedor.', 'error');
-        $this->redirect(BASE_URL . '/suppliers');
+        $this->json(['success' => false, 'message' => 'Error al eliminar el proveedor.']);
+    }
+
+    /**
+     * Verifica si el nombre de empresa ya existe (AJAX — jQuery Validate remote).
+     *
+     * jQuery Validate espera:
+     * - true  → validación pasa (empresa disponible)
+     * - string → validación falla (mensaje de error)
+     */
+    public function checkNombre(): void
+    {
+        $empresa = trim($this->input('empresa') ?? '');
+        $id = $this->input('id');
+
+        if ($id === '' || $id === 'null') {
+            $id = null;
+        } elseif ($id !== null) {
+            $id = (int)$id;
+        }
+
+        if ($empresa === '') {
+            echo json_encode(true);
+            exit;
+        }
+
+        $supplierModel = new Supplier();
+        $exists = $supplierModel->nameExists($empresa, $id);
+
+        echo json_encode($exists ? 'Ya existe un proveedor con esta empresa.' : true);
+        exit;
     }
 }

@@ -15,6 +15,27 @@ class Supplier extends Model
     protected string $primaryKey = 'id_proveedor';
 
     /**
+     * Verifica si el nombre de empresa ya existe en la base de datos.
+     *
+     * @param string   $empresa   Nombre de empresa a verificar.
+     * @param int|null $excludeId ID del proveedor actual para excluir al editar.
+     * @return bool Verdadero si ya existe, falso si está disponible.
+     */
+    public function nameExists(string $empresa, ?int $excludeId = null): bool
+    {
+        $sql    = "SELECT COUNT(*) as count FROM {$this->table} WHERE empresa = ?";
+        $params = [$empresa];
+
+        if ($excludeId) {
+            $sql     .= " AND {$this->primaryKey} != ?";
+            $params[] = $excludeId;
+        }
+
+        $result = $this->query($sql, $params);
+        return $result[0]['count'] > 0;
+    }
+
+    /**
      * Indica si el proveedor está referenciado en alguna compra registrada.
      *
      * @param int|string $id ID del proveedor.

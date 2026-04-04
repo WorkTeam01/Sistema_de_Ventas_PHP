@@ -126,12 +126,12 @@ Rutas activas en `routes/web.php`:
 | GET    | `/categories/show/{id}`       | `CategoryController::show()`        | `auth`           |
 | POST   | `/categories/update/{id}`     | `CategoryController::update()`      | `auth`           |
 | POST   | `/categories/check-nombre`    | `CategoryController::checkNombre()` | `auth`           |
-| GET    | `/suppliers`            | `SupplierController::index()`      | `auth`           |
-| GET    | `/suppliers/create`     | `SupplierController::create()`     | `auth`           |
-| POST   | `/suppliers`            | `SupplierController::store()`      | `auth`           |
-| GET    | `/suppliers/edit/{id}`  | `SupplierController::edit()`       | `auth`           |
-| POST   | `/suppliers/update`     | `SupplierController::update()`     | `auth`           |
-| POST   | `/suppliers/delete`     | `SupplierController::destroy()`    | `auth`           |
+| GET    | `/suppliers`                    | `SupplierController::index()`       | `auth`           |
+| POST   | `/suppliers/store`              | `SupplierController::store()`       | `auth`           |
+| GET    | `/suppliers/show/{id}`          | `SupplierController::show()`        | `auth`           |
+| POST   | `/suppliers/update/{id}`        | `SupplierController::update()`      | `auth`           |
+| POST   | `/suppliers/check-nombre`       | `SupplierController::checkNombre()` | `auth`           |
+| POST   | `/suppliers/delete`             | `SupplierController::destroy()`     | `auth`           |
 | GET    | `/clients`              | `ClientController::index()`        | `auth`           |
 | GET    | `/clients/create`       | `ClientController::create()`       | `auth`           |
 | POST   | `/clients`              | `ClientController::store()`        | `auth`           |
@@ -185,8 +185,7 @@ Helper en `app/Helpers/` (PSR-4, namespace `App\Helpers`): `NumberToWords`.
 | Módulo       | Estado     | Notas                                                                                                                                                   |
 | ------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `roles`      | ✅ Migrado | `RoleController`, `Role`                                                                                                                                |
-| `categories` | ✅ Migrado | `CategoryController`, `Category`                                                                                                                        |
-| `suppliers`  | ✅ Migrado | `SupplierController`, `Supplier` — `isReferenced()` → `tb_compras`                                                                                      |
+| `categories` | ✅ Migrado | `CategoryController`, `Category`                                                                                                                        || `suppliers`  | ✅ Migrado | `SupplierController`, `Supplier` — modal + AJAX; `nameExists()` sobre `empresa`; `isReferenced()` → `tb_compras`; eliminación inline con JSON            |
 | `clients`    | ✅ Migrado | `ClientController`, `Client` — `isReferenced()` → `tb_ventas`                                                                                           |
 | `almacen`    | ✅ Migrado | `ProductController`, `Product` — imágenes en `public/uploads/products/`; incluye vista `show`                                                           |
 | `compras`    | ✅ Migrado | `PurchaseController`, `Purchase` — operaciones transaccionales con stock; incluye vista `show`                                                          |

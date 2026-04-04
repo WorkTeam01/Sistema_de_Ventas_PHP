@@ -7,6 +7,34 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.2] - 2026-04-04
+
+### Cambiado
+
+- `app/Models/Supplier.php` — agregado `nameExists(string $empresa, ?int $excludeId = null): bool` para validación de unicidad de empresa (excluye el registro actual al editar)
+- `app/Controllers/SupplierController.php` — refactorizado a AJAX puro: `index()` renderiza la página con `['datatable', 'validation']`; `store()`, `show()`, `update()`, `destroy()` responden JSON; `checkNombre()` endpoint para jQuery Validate `remote`; eliminados `create()` y `edit()` como páginas separadas
+- `routes/web.php` — rutas de proveedores actualizadas: `POST /suppliers/store`, `GET /suppliers/show/{id}`, `POST /suppliers/update/{id}`, `POST /suppliers/check-nombre`; eliminadas rutas de `create` y `edit` como páginas
+- `views/suppliers/index.php` — reescrito con patrón modal + AJAX: DataTable `#supplierTable` + `#modalCreate` (bg-primary, modal-lg) + `#modalEdit` (bg-success, modal-lg); botones `btn-edit` y `btn-delete` con `data-id`/`data-nombre`; eliminados formulario oculto `#formEliminar` y script inline
+- `views/layouts/partials/_sidebar.php` — enlace de proveedores simplificado a link directo; eliminado treeview con sub-ítems "Lista de proveedores" / "Crear proveedor"
+
+### Agregado
+
+- `public/js/modules/suppliers/suppliers-datatable.js` — inicialización DataTable con botones de exportación (Copy, PDF personalizado, Excel, CSV, Imprimir), ColVis, anti-FOUC y `exportOptions` que excluye la columna Acciones
+- `public/js/modules/suppliers/suppliers-modals.js` — jQuery Validate con regla `remote` en `empresa` para ambos formularios; `crearProveedor()` / `actualizarProveedor()` con `ToastUtils.loadingWithMinTime()`; carga de datos para modal de edición via AJAX (`GET /suppliers/show/{id}`); eliminación con `AlertUtils.confirm()` + AJAX + `isReferenced()` inline; flag `isSubmitting` para prevenir doble submit
+
+### Eliminado
+
+- `views/suppliers/create.php` — reemplazado por `#modalCreate` en `index.php`
+- `views/suppliers/edit.php` — reemplazado por `#modalEdit` en `index.php`
+
+### Notas de Versión
+
+- **Flujo de eliminación de proveedores:** Cambiado del patrón formulario oculto + `Swal.fire()` directo a `AlertUtils.confirm()` + AJAX inline. El controller verifica `isReferenced()` y retorna JSON — sin página de confirmación separada ni ruta `check/{id}`.
+- **Validación de unicidad:** Campo `empresa` validado con `remote` en jQuery Validate + `nameExists()` en el backend. `nombre_proveedor` no se valida como único (puede repetirse legítimamente entre distintos contactos de distintas empresas).
+- **Campos opcionales:** `telefono` y `email` se insertan como `NULL` cuando se dejan vacíos; el JS al pre-llenar el modal usa `data.telefono || ''` para evitar mostrar "null" en los inputs.
+
+---
+
 ## [1.2.1] - 2026-04-03
 
 ### Refactorizado

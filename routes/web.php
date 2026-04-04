@@ -62,12 +62,12 @@ $router->post('/categories/update/{id}',    [CategoryController::class, 'update'
 $router->post('/categories/check-nombre',   [CategoryController::class, 'checkNombre'], ['auth']);
 
 // Rutas del módulo suppliers (MVC)
-$router->get('/suppliers',              [SupplierController::class, 'index'],   ['auth']);
-$router->get('/suppliers/create',       [SupplierController::class, 'create'],  ['auth']);
-$router->post('/suppliers',             [SupplierController::class, 'store'],   ['auth']);
-$router->get('/suppliers/edit/{id}',    [SupplierController::class, 'edit'],    ['auth']);
-$router->post('/suppliers/update',      [SupplierController::class, 'update'],  ['auth']);
-$router->post('/suppliers/delete',      [SupplierController::class, 'destroy'], ['auth']);
+$router->get('/suppliers',               [SupplierController::class, 'index'],       ['auth']);
+$router->post('/suppliers/store',        [SupplierController::class, 'store'],       ['auth']);
+$router->get('/suppliers/show/{id}',     [SupplierController::class, 'show'],        ['auth']);
+$router->post('/suppliers/update/{id}',  [SupplierController::class, 'update'],      ['auth']);
+$router->post('/suppliers/check-nombre', [SupplierController::class, 'checkNombre'], ['auth']);
+$router->post('/suppliers/delete',       [SupplierController::class, 'destroy'],     ['auth']);
 
 // Rutas del módulo clients (MVC)
 $router->get('/clients',             [ClientController::class, 'index'],   ['auth']);

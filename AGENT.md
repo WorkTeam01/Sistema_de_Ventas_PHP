@@ -143,8 +143,8 @@ fyh_actualizacion ON UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 
 - Un controlador por módulo: `SupplierController`, `ClientController`, etc.
 - Métodos estándar del proyecto: `index()`, `create()`, `store()`, `edit(?int $id)`, `update()`, `destroy()`
-- Métodos auxiliares permitidos (cuando el módulo lo requiere): `check()` (endpoint JSON de verificación de referencias), `delete()` (página de confirmación de eliminación)
-- `destroy()` llama a `$model->isReferenced($id)` antes de eliminar — si hay FK activa, flash error y redirect
+- Métodos auxiliares permitidos (cuando el módulo lo requiere): `check()` (endpoint JSON de verificación de referencias), `delete()` (página de confirmación de eliminación), `show()` (retorna JSON con datos del registro para pre-llenar modal de edición), `checkNombre()` (endpoint `remote` para jQuery Validate)
+- `destroy()` llama a `$model->isReferenced($id)` antes de eliminar — si hay FK activa: flash + redirect (patrón clásico) o JSON error (patrón modal+AJAX)
 - **PROHIBIDO** inventar métodos fuera del estándar sin justificación (toggle, activate, complete, etc.)
 
 ### PHP — Modelos MVC
@@ -180,9 +180,9 @@ Auth::check()  // bool
 - **DataTables** sin AJAX: datos cargados desde PHP en la vista, sin filtros server-side
 - **SweetAlert2** para confirmaciones de eliminación. Dos patrones según el módulo:
   - **Patrón página dedicada** (products): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
-  - **Patrón formulario inline** (suppliers, clients, purchases, sales, users): formulario oculto `#formEliminar` en `index.php` con CSRF + campo hidden del ID, confirmación directa vía SweetAlert2
+  - **Patrón formulario inline** (clients, purchases, sales, users): formulario oculto `#formEliminar` en `index.php` con CSRF + campo hidden del ID, confirmación directa vía SweetAlert2
 - Anti-FOUC del sidebar/tema: script inline en `layouts/header.php`, preferencias en `localStorage`
-- **Patrón modal + AJAX** (roles, categories): CRUD completo en `index.php` via modales Bootstrap; endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`); jQuery Validate con regla `remote` para validación de duplicados en tiempo real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
+- **Patrón modal + AJAX** (roles, categories, suppliers): CRUD completo en `index.php` via modales Bootstrap; endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`); eliminación con `AlertUtils.confirm()` + AJAX (sin CSRF, `isReferenced()` retorna JSON error); jQuery Validate con regla `remote` para validación de duplicados en tiempo real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
 - **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays pasados a `renderWithLayout()` que el layout inyecta en `<head>` y antes de `</body>` respectivamente; las rutas son relativas a `BASE_URL` (e.g. `/js/modules/products/products-index.js`)
 
 ### Vistas MVC
@@ -229,4 +229,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-03 — v1.2.1 (refactor products: JS modularizado, flujo de eliminación con pre-verificación AJAX, sistema $pageScripts/$pageStyles)_
+_Última actualización: 2026-04-04 — v1.2.2 (suppliers: migración a patrón modal+AJAX, eliminación inline con JSON, validación remote en empresa)_

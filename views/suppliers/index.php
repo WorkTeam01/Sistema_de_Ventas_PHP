@@ -27,10 +27,10 @@
                         <div class="card-header">
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h3 class="card-title">Proveedores registrados</h3>
-                                <div class="card-tools">
-                                    <a href="<?= BASE_URL ?>/suppliers/create" class="btn btn-primary btn-sm">
+                                <div class="card-tools d-flex">
+                                    <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal" data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo proveedor
-                                    </a>
+                                    </button>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -45,29 +45,33 @@
                                         <th class="text-center">Nombre</th>
                                         <th class="text-center">Empresa</th>
                                         <th class="text-center">Celular</th>
-                                        <th class="text-center">Email</th>
+                                        <th class="text-center">Dirección</th>
                                         <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php
-                                    $contador = 0;
-                                    foreach ($suppliers_datos as $supplier) :
-                                        $id_proveedor = $supplier['id_proveedor']; ?>
+                                    <?php $contador = 0; ?>
+                                    <?php foreach ($suppliers_datos as $supplier): ?>
                                         <tr>
-                                            <td class="text-center"><?= $contador += 1; ?></td>
-                                            <td><?= htmlspecialchars($supplier['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?= htmlspecialchars($supplier['empresa'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?= htmlspecialchars($supplier['celular'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?= htmlspecialchars($supplier['email'] ?? 'N/A', ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center"><?= ++$contador ?></td>
+                                            <td><?= htmlspecialchars($supplier['nombre_proveedor'], ENT_QUOTES, 'UTF-8') ?></td>
+                                            <td><?= htmlspecialchars($supplier['empresa'], ENT_QUOTES, 'UTF-8') ?></td>
+                                            <td><?= htmlspecialchars($supplier['celular'], ENT_QUOTES, 'UTF-8') ?></td>
+                                            <td><?= htmlspecialchars($supplier['direccion'], ENT_QUOTES, 'UTF-8') ?></td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a href="<?= BASE_URL ?>/suppliers/edit/<?= $id_proveedor ?>" class="btn btn-success btn-sm">
-                                                        <i class="fas fa-pencil-alt"></i> Editar
-                                                    </a>
-                                                    <button type="button" class="btn btn-danger btn-sm"
-                                                        onclick="confirmarEliminar(<?= $id_proveedor ?>, '<?= htmlspecialchars($supplier['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?>')">
-                                                        <i class="fas fa-trash"></i> Eliminar
+                                                    <button type="button" class="btn btn-success btn-sm btn-edit"
+                                                        data-id="<?= $supplier['id_proveedor'] ?>"
+                                                        data-toggle="tooltip"
+                                                        title="Editar">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-sm btn-delete"
+                                                        data-id="<?= $supplier['id_proveedor'] ?>"
+                                                        data-nombre="<?= htmlspecialchars($supplier['nombre_proveedor'], ENT_QUOTES, 'UTF-8') ?>"
+                                                        data-toggle="tooltip"
+                                                        title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
                                                     </button>
                                                 </div>
                                             </td>
@@ -85,91 +89,151 @@
 </section>
 <!-- /.content-wrapper -->
 
-<!-- Formulario oculto para eliminar (POST + CSRF) -->
-<form id="formEliminar" method="post" action="<?= BASE_URL ?>/suppliers/delete" style="display: none;">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
-    <input type="hidden" name="id_proveedor" id="eliminarId">
-</form>
+<!-- Modal Crear -->
+<div class="modal fade" id="modalCreate" tabindex="-1" role="dialog" aria-labelledby="modalCreateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title" id="modalCreateLabel">Registrar proveedor</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formCreate" autocomplete="off">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_nombre_proveedor">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="create_nombre_proveedor" name="nombre_proveedor"
+                                    maxlength="255" placeholder="Nombre del contacto">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_empresa">Empresa <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="create_empresa" name="empresa"
+                                    maxlength="255" placeholder="Nombre de la empresa">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_celular">Celular <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="create_celular" name="celular"
+                                    maxlength="50" placeholder="Número de celular">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_telefono">Teléfono</label>
+                                <input type="text" class="form-control" id="create_telefono" name="telefono"
+                                    maxlength="50" placeholder="Teléfono fijo (opcional)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_email">Email</label>
+                                <input type="email" class="form-control" id="create_email" name="email"
+                                    maxlength="254" placeholder="correo@empresa.com (opcional)">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_direccion">Dirección <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="create_direccion" name="direccion"
+                                    maxlength="255" rows="2" placeholder="Dirección de la empresa"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnCreate">
+                        <i class="fas fa-check"></i> Crear proveedor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-<!-- Page specific script -->
-<script>
-    $(document).ready(function() {
-        $("#supplierTable").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-            buttons: [{
-                    extend: 'collection',
-                    text: 'Reportes',
-                    orientation: 'landscape',
-                    buttons: [{
-                        text: 'Copiar',
-                        extend: 'copy'
-                    }, {
-                        extend: 'pdf',
-                    }, {
-                        extend: 'csv',
-                    }, {
-                        extend: 'excel',
-                    }, {
-                        text: 'Imprimir',
-                        extend: 'print'
-                    }]
-                },
-                {
-                    extend: 'colvis',
-                    text: 'Visualización de columnas'
-                }
-            ],
-            "pageLength": 5,
-            lengthMenu: [
-                [3, 5, 10, 25, 50],
-                [3, 5, 10, 25, 50]
-            ],
-            "language": {
-                "sProcessing": "Procesando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "No se encontraron resultados",
-                "sEmptyTable": "Ningún dato disponible en esta tabla",
-                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ Proveedores",
-                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 Proveedores",
-                "sInfoFiltered": "(filtrado de un total de _MAX_ Proveedores)",
-                "sInfoPostFix": "",
-                "sSearch": "Buscar:",
-                "sUrl": "",
-                "sInfoThousands": ",",
-                "sLoadingRecords": "Cargando...",
-                "oPaginate": {
-                    "sFirst": "Primero",
-                    "sLast": "Último",
-                    "sNext": "Siguiente",
-                    "sPrevious": "Anterior"
-                },
-                "oAria": {
-                    "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
-                    "sSortDescending": ": Activar para ordenar la columna de manera descendente"
-                }
-            },
-            initComplete: function() {
-                $(this.api().table().node()).css('visibility', 'visible');
-            }
-        }).buttons().container().appendTo('#supplierTable_wrapper .col-md-6:eq(0)');
-    });
-
-    function confirmarEliminar(id, nombre) {
-        Swal.fire({
-            title: '¿Está seguro?',
-            text: 'Se eliminará al proveedor "' + nombre + '". Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('eliminarId').value = id;
-                document.getElementById('formEliminar').submit();
-            }
-        });
-    }
-</script>
+<!-- Modal Editar -->
+<div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="modalEditLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="modalEditLabel">Editar proveedor</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEdit" autocomplete="off">
+                <input type="hidden" id="edit_id" name="id">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_nombre_proveedor">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_nombre_proveedor" name="nombre_proveedor"
+                                    maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_empresa">Empresa <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_empresa" name="empresa"
+                                    maxlength="255">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_celular">Celular <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="edit_celular" name="celular"
+                                    maxlength="50">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_telefono">Teléfono</label>
+                                <input type="text" class="form-control" id="edit_telefono" name="telefono"
+                                    maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_email">Email</label>
+                                <input type="email" class="form-control" id="edit_email" name="email"
+                                    maxlength="254">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit_direccion">Dirección <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="edit_direccion" name="direccion"
+                                    maxlength="255" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="btnUpdate">
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
