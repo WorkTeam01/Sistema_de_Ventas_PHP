@@ -2,9 +2,10 @@
 
 # Sistema de Ventas — PHP & MySQL
 
-Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y control de acceso por roles.
+Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y
+control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.2.2-blue)
+![Versión](https://img.shields.io/badge/Versión-1.2.3-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -17,22 +18,29 @@ Sistema web de gestión de ventas con control de inventario, facturación en PDF
 
 ## Seguridad y Buenas Prácticas Implementadas
 
-Este proyecto implementa una arquitectura MVC con PSR-4. Todos los módulos están completamente migrados. Mantiene los estándares de seguridad web modernos:
+Este proyecto implementa una arquitectura MVC con PSR-4. Todos los módulos están completamente migrados. Mantiene los
+estándares de seguridad web modernos:
 
 - **Prevención de Inyecciones SQL**: 100% migrado a `PDO Prepared Statements` con _placeholders_ para parametrización.
-- **Protección CSRF**: Intercepción de suplantaciones cruzadas mediante _tokens_ obligatorios en la sesión y formularios mutables.
-- **Escudos XSS**: Renderizado condicionado de entidades HTML (`htmlspecialchars()`) para neutralizar ejecución de _scripts_ reflejados/almacenados.
-- **Integridad Transaccional**: Operaciones de control de inventario/ventas están bajo control transaccional estricto (`PDO::beginTransaction()` / `commit` / `rollBack`), garantizando un stock 100% consistente ante fallas.
-- **Validaciones Back-End**: Todo envío por _POST_ recibe depuración estricta en el servidor para forzar cast a valores numéricos, tipados seguros y sanitización antes del contacto con la BDD.
+- **Protección CSRF**: Intercepción de suplantaciones cruzadas mediante _tokens_ obligatorios en la sesión y formularios
+  mutables.
+- **Escudos XSS**: Renderizado condicionado de entidades HTML (`htmlspecialchars()`) para neutralizar ejecución de
+  _scripts_ reflejados/almacenados.
+- **Integridad Transaccional**: Operaciones de control de inventario/ventas están bajo control transaccional estricto (
+  `PDO::beginTransaction()` / `commit` / `rollBack`), garantizando un stock 100% consistente ante fallas.
+- **Validaciones Back-End**: Todo envío por _POST_ recibe depuración estricta en el servidor para forzar cast a valores
+  numéricos, tipados seguros y sanitización antes del contacto con la BDD.
 - **Encriptado Seguro**: Uso de API moderna de Hashes de contraseñas de PHP (`PASSWORD_DEFAULT` / BCRYPT).
-- **Optimizaciones de UI**: Control Sidebar de AdminLTE implementado de forma 100% nativa con un script dedicado, integrando persistencia automatizada en `localStorage` y mecanismos Anti-FOUC para prevenir "flashes" blancos al navegar con la temática oscura.
+- **Optimizaciones de UI**: Control Sidebar de AdminLTE implementado de forma 100% nativa con un script dedicado,
+  integrando persistencia automatizada en `localStorage` y mecanismos Anti-FOUC para prevenir "flashes" blancos al
+  navegar con la temática oscura.
 
 ---
 
 ## Módulos
 
 | Módulo          | Descripción                                                             |
-| --------------- | ----------------------------------------------------------------------- |
+|-----------------|-------------------------------------------------------------------------|
 | **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías          |
 | **Ventas**      | Carrito de compras, cálculo de totales y generación de facturas PDF     |
 | **Compras**     | Registro de compras a proveedores con actualización automática de stock |
@@ -96,7 +104,7 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 El seeder crea los siguientes usuarios de prueba:
 
 | Rol           | Email                 | Contraseña   |
-| ------------- | --------------------- | ------------ |
+|---------------|-----------------------|--------------|
 | Administrador | admin@sistema.com     | admin123     |
 | Vendedor      | vendedor@sistema.com  | vendedor123  |
 | Comprador     | comprador@sistema.com | comprador123 |
@@ -155,7 +163,7 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol del usuario autenticado:
 
 | Rol             | Acceso                                        |
-| --------------- | --------------------------------------------- |
+|-----------------|-----------------------------------------------|
 | `Administrador` | Acceso completo a todos los módulos           |
 | `Vendedor`      | Ventas, clientes y consulta de inventario     |
 | `Comprador`     | Compras, proveedores y consulta de inventario |
@@ -217,9 +225,9 @@ Sistema_de_Ventas_PHP/
 ## 📖 Documentación para Desarrolladores
 
 | Archivo                            | Propósito                                                   |
-| ---------------------------------- | ----------------------------------------------------------- |
-| [AGENT.md](AGENT.md)               | 🏗️ Arquitectura completa, stack, convenciones globales      |
-| [CLAUDE.md](CLAUDE.md)             | 🛠️ Estructura MVC, rutas activas, patrones de código        |
+|------------------------------------|-------------------------------------------------------------|
+| [AGENT.md](AGENT.md)               | 🏗️ Arquitectura completa, stack, convenciones globales     |
+| [CLAUDE.md](CLAUDE.md)             | 🛠️ Estructura MVC, rutas activas, patrones de código       |
 | [PROMPTS.md](PROMPTS.md)           | 📝 Plantillas de prompts efectivos para agentes IA          |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 🤝 Guía para colaboradores — flujo de PRs, commits, testing |
 
