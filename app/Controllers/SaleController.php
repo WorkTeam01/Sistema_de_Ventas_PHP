@@ -48,7 +48,7 @@ class SaleController extends Controller
             [
                 'nro_venta'   => $nro_venta,
                 'cart_items'  => $cart_items,
-                'products'    => $productModel->all(),
+                'products'    => $productModel->allWithCategories(),
                 'clients'     => $clientModel->all(),
                 'csrf_token'  => Auth::generateCsrfToken(),
                 'pageScripts' => ['/js/modules/sales/sales-create.js'],

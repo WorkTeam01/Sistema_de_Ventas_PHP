@@ -109,21 +109,20 @@
                                                     <div class="form-group">
                                                         <label>Producto seleccionado</label>
                                                         <input type="text" id="prod_nombre" class="form-control"
-                                                               disabled>
+                                                               autocomplete="off" disabled>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label>Descripción</label>
-                                                        <input type="text" id="prod_descripcion" class="form-control"
-                                                               disabled>
+                                                        <textarea class="form-control" id="prod_descripcion" rows="2" disabled></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <div class="form-group">
                                                         <label>Cantidad</label>
                                                         <input type="number" id="prod_cantidad" class="form-control"
-                                                               min="1" value="1">
+                                                               autocomplete="off" min="1" value="1">
                                                         <small class="text-danger d-none" id="lbl_cantidad">* Ingrese la
                                                             cantidad</small>
                                                     </div>
@@ -132,14 +131,14 @@
                                                     <div class="form-group">
                                                         <label>Precio unitario</label>
                                                         <input type="text" id="prod_precio" class="form-control"
-                                                               disabled>
+                                                               autocomplete="off" disabled>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer">
+                                        <div class="modal-footer justify-content-between">
                                             <button type="button" class="btn btn-default" data-dismiss="modal">
-                                                Cancelar
+                                                <i class="fas fa-times"></i> Cancelar
                                             </button>
                                             <button type="button" id="btn_agregar_carrito" class="btn btn-primary">
                                                 <i class="fas fa-cart-plus"></i> Agregar al carrito
@@ -155,9 +154,9 @@
                                 <table class="table table-bordered table-sm table-hover table-striped">
                                     <thead class="bg-secondary">
                                     <tr class="text-center">
-                                        <th>Nro</th>
+                                        <th class="d-none d-sm-table-cell">Nro</th>
                                         <th>Producto</th>
-                                        <th>Descripción</th>
+                                        <th class="d-none d-md-table-cell">Descripción</th>
                                         <th>Cantidad</th>
                                         <th>Precio unitario</th>
                                         <th>Subtotal</th>
@@ -176,9 +175,9 @@
                                         $precio_total += $subtotal;
                                         ?>
                                         <tr>
-                                            <td class="text-center"><?= $nro_item ?></td>
+                                            <td class="text-center d-none d-sm-table-cell"><?= $nro_item ?></td>
                                             <td><?= htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') ?></td>
-                                            <td><?= htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
+                                            <td class="d-none d-md-table-cell"><?= htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
                                             <td class="text-center"><?= (int)$item['cantidad'] ?></td>
                                             <td class="text-center">
                                                 Bs. <?= htmlspecialchars(number_format((float)$item['precio_venta'], 2), ENT_QUOTES, 'UTF-8') ?></td>
@@ -198,7 +197,9 @@
                                         </tr>
                                     <?php endforeach; ?>
                                     <tr>
-                                        <th class="bg-secondary text-right" colspan="3">Total</th>
+                                        <th class="bg-secondary d-none d-sm-table-cell"></th>
+                                        <th class="bg-secondary text-right">Total</th>
+                                        <th class="bg-secondary d-none d-md-table-cell"></th>
                                         <th class="text-center"><?= $cantidad_total ?></th>
                                         <th></th>
                                         <th class="text-center bg-warning">
@@ -286,7 +287,8 @@
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                <i class="fas fa-times"></i> Cerrar
                                             </button>
                                         </div>
                                     </div>
@@ -298,25 +300,29 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Nombre del cliente</label>
-                                        <input type="text" id="cliente_nombre" class="form-control" disabled>
+                                        <input type="text" id="cliente_nombre" class="form-control" autocomplete="off"
+                                               disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Nit/CI del cliente</label>
-                                        <input type="text" id="cliente_nit" class="form-control" disabled>
+                                        <input type="text" id="cliente_nit" class="form-control" autocomplete="off"
+                                               disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Celular del cliente</label>
-                                        <input type="text" id="cliente_celular" class="form-control" disabled>
+                                        <input type="text" id="cliente_celular" class="form-control" autocomplete="off"
+                                               disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Correo del cliente</label>
-                                        <input type="text" id="cliente_email" class="form-control" disabled>
+                                        <input type="text" id="cliente_email" class="form-control" autocomplete="off"
+                                               disabled>
                                     </div>
                                 </div>
                             </div>
@@ -335,7 +341,7 @@
                                 </button>
                             </div>
                         </div>
-                        <form id="formVenta" action="<?= BASE_URL ?>/sales" method="post">
+                        <form id="formVenta" action="<?= BASE_URL ?>/sales" method="post" autocomplete="off">
                             <div class="card-body">
 
                                 <input type="hidden" name="csrf_token"

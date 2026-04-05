@@ -4,48 +4,84 @@
  * ============================================================================
  */
 
-$(document).ready(function () {
+// DataTables en modales: inicializar en shown.bs.modal para que el plugin
+// pueda medir dimensiones reales y activar el responsive (botón +).
+$('#modal-buscar_producto').on('shown.bs.modal', function () {
+    if ($.fn.DataTable.isDataTable('#productTable')) {
+        $('#productTable').DataTable().columns.adjust().responsive.recalc();
+        return;
+    }
     $('#productTable').DataTable({
         responsive: true,
         autoWidth: false,
         pageLength: 5,
+        lengthMenu: [[5, 10, 25], [5, 10, 25]],
         language: {
             sProcessing: 'Procesando...',
             sLengthMenu: 'Mostrar _MENU_ registros',
             sZeroRecords: 'No se encontraron resultados',
-            sEmptyTable: 'Ningún dato disponible',
-            sInfo: 'Mostrando _START_ al _END_ de _TOTAL_ productos',
-            sInfoEmpty: 'Mostrando 0 de 0 productos',
-            sInfoFiltered: '(filtrado de _MAX_ total)',
+            sEmptyTable: 'Ningún dato disponible en esta tabla',
+            sInfo: 'Mostrando registros del _START_ al _END_ de un total de _TOTAL_ productos',
+            sInfoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 productos',
+            sInfoFiltered: '(filtrado de un total de _MAX_ productos)',
+            sInfoPostFix: '',
             sSearch: 'Buscar:',
+            sUrl: '',
+            sInfoThousands: ',',
+            sLoadingRecords: 'Cargando...',
             oPaginate: {
                 sFirst: 'Primero',
                 sLast: 'Último',
                 sNext: 'Siguiente',
                 sPrevious: 'Anterior'
+            },
+            oAria: {
+                sSortAscending: ': Activar para ordenar la columna de manera ascendente',
+                sSortDescending: ': Activar para ordenar la columna de manera descendente'
             }
+        },
+        initComplete: function () {
+            $(this.api().table().node()).css('visibility', 'visible');
         }
     });
+});
 
+$('#modal-buscar_cliente').on('shown.bs.modal', function () {
+    if ($.fn.DataTable.isDataTable('#clientTable')) {
+        $('#clientTable').DataTable().columns.adjust().responsive.recalc();
+        return;
+    }
     $('#clientTable').DataTable({
         responsive: true,
         autoWidth: false,
         pageLength: 5,
+        lengthMenu: [[5, 10, 25], [5, 10, 25]],
         language: {
             sProcessing: 'Procesando...',
             sLengthMenu: 'Mostrar _MENU_ registros',
             sZeroRecords: 'No se encontraron resultados',
-            sEmptyTable: 'Ningún dato disponible',
-            sInfo: 'Mostrando _START_ al _END_ de _TOTAL_ clientes',
-            sInfoEmpty: 'Mostrando 0 de 0 clientes',
-            sInfoFiltered: '(filtrado de _MAX_ total)',
+            sEmptyTable: 'Ningún dato disponible en esta tabla',
+            sInfo: 'Mostrando registros del _START_ al _END_ de un total de _TOTAL_ clientes',
+            sInfoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 clientes',
+            sInfoFiltered: '(filtrado de un total de _MAX_ clientes)',
+            sInfoPostFix: '',
             sSearch: 'Buscar:',
+            sUrl: '',
+            sInfoThousands: ',',
+            sLoadingRecords: 'Cargando...',
             oPaginate: {
                 sFirst: 'Primero',
                 sLast: 'Último',
                 sNext: 'Siguiente',
                 sPrevious: 'Anterior'
+            },
+            oAria: {
+                sSortAscending: ': Activar para ordenar la columna de manera ascendente',
+                sSortDescending: ': Activar para ordenar la columna de manera descendente'
             }
+        },
+        initComplete: function () {
+            $(this.api().table().node()).css('visibility', 'visible');
         }
     });
 });
