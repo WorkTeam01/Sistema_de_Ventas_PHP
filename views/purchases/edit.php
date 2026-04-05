@@ -9,8 +9,10 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/purchases"><i class="fas fa-shopping-cart"></i> Compras</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/purchases"><i
+                                        class="fas fa-shopping-cart"></i> Compras</a></li>
                         <li class="breadcrumb-item active">Editar compra</li>
                     </ol>
                 </div>
@@ -35,7 +37,8 @@
                         </div>
                         <form id="purchaseEditForm" action="<?= BASE_URL ?>/purchases/update" method="post">
                             <div class="card-body">
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                                <input type="hidden" name="csrf_token"
+                                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                 <input type="hidden" name="id_compra" value="<?= $id_compra; ?>">
                                 <input type="hidden" name="old_id_producto" value="<?= $old_id_producto; ?>">
                                 <input type="hidden" name="old_cantidad" value="<?= $old_cantidad; ?>">
@@ -45,21 +48,24 @@
                                         <div class="form-group">
                                             <label>N° Compra</label>
                                             <input type="number" name="nro_compra" class="form-control"
-                                                value="<?= htmlspecialchars($nro_compra, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                                                   value="<?= htmlspecialchars($nro_compra, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>Fecha de compra <span class="text-danger">*</span></label>
                                             <input type="date" name="fecha_compra" class="form-control"
-                                                value="<?= htmlspecialchars($fecha_compra, ENT_QUOTES, 'UTF-8'); ?>" required>
+                                                   value="<?= htmlspecialchars($fecha_compra, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Comprobante <span class="text-danger">*</span></label>
                                             <input type="text" name="comprobante" class="form-control"
-                                                value="<?= htmlspecialchars($comprobante, ENT_QUOTES, 'UTF-8'); ?>" required>
+                                                   value="<?= htmlspecialchars($comprobante, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   required>
                                         </div>
                                     </div>
                                 </div>
@@ -71,7 +77,7 @@
                                             <select name="id_producto" class="form-control" required>
                                                 <?php foreach ($products as $product) : ?>
                                                     <option value="<?= $product['id_producto']; ?>"
-                                                        <?= $product['id_producto'] == $id_producto ? 'selected' : ''; ?>>
+                                                            <?= $product['id_producto'] == $id_producto ? 'selected' : ''; ?>>
                                                         <?= htmlspecialchars($product['codigo'] . ' — ' . $product['nombre'], ENT_QUOTES, 'UTF-8'); ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -84,7 +90,7 @@
                                             <select name="id_proveedor" class="form-control" required>
                                                 <?php foreach ($suppliers as $supplier) : ?>
                                                     <option value="<?= $supplier['id_proveedor']; ?>"
-                                                        <?= $supplier['id_proveedor'] == $id_proveedor ? 'selected' : ''; ?>>
+                                                            <?= $supplier['id_proveedor'] == $id_proveedor ? 'selected' : ''; ?>>
                                                         <?= htmlspecialchars($supplier['nombre_proveedor'] . ' — ' . ($supplier['empresa'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -98,20 +104,24 @@
                                         <div class="form-group">
                                             <label>Precio de compra <span class="text-danger">*</span></label>
                                             <input type="number" name="precio_compra" class="form-control"
-                                                value="<?= htmlspecialchars($precio_compra, ENT_QUOTES, 'UTF-8'); ?>" step="0.01" min="0" required>
+                                                   value="<?= htmlspecialchars($precio_compra, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   step="0.01" min="0" required>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Cantidad <span class="text-danger">*</span></label>
                                             <input type="number" name="cantidad" class="form-control"
-                                                value="<?= htmlspecialchars($cantidad, ENT_QUOTES, 'UTF-8'); ?>" min="1" required>
+                                                   value="<?= htmlspecialchars($cantidad, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   min="1" required>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Usuario</label>
-                                            <input type="text" value="<?= htmlspecialchars($email_sesion, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                            <input type="text"
+                                                   value="<?= htmlspecialchars($email_sesion, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   class="form-control" disabled>
                                         </div>
                                     </div>
                                 </div>
@@ -125,7 +135,7 @@
                                         </a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="submit" class="btn btn-success">
+                                        <button type="submit" class="btn btn-success w-100">
                                             <i class="fas fa-save"></i> Actualizar compra
                                         </button>
                                     </div>
