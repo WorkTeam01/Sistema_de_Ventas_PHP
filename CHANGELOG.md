@@ -7,6 +7,32 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.1] - 2026-04-05
+
+### Corregido
+
+- `views/layouts/footer.php` — eliminado `<div id="sidebar-overlay"></div>` que impedía que AdminLTE's PushMenu
+  adjuntara el click handler al overlay en vista móvil (el sidebar no se cerraba al tocar fuera); restaurado `</div>`
+  de cierre del `.wrapper` que había sido removido accidentalmente
+
+### Refactorizado
+
+- `app/Controllers/DashboardController.php` — toda la lógica auxiliar que estaba en la vista ahora se calcula en el
+  controlador: preparación de `$chartData` (labels + datasets), clase de columna Bootstrap `$kpiCol`, claves de
+  presentación `ventas_var_cls/ico/bar` y `compras_var_cls/ico/bar` dentro de `$kpis`, flag `stock_critico`, y flag
+  `critico` por producto en `low_stock_products`
+- `views/dashboard/index.php` — eliminado bloque PHP de 59 líneas en el tope de la vista y los snippets `<?php $var =
+  ...; ?>` inline; la vista ahora solo consume variables inyectadas por el controlador; `$chartData` reemplaza las
+  variables separadas `$chartLabels`/`$chartDatasets`
+
+### Notas de Versión
+
+- **Causa raíz del bug del sidebar móvil:** AdminLTE comprueba `if ($('#sidebar-overlay').length === 0)` antes de
+  llamar a `_addOverlay()`. Como el div ya existía en el HTML, el método nunca se ejecutaba y el overlay quedaba sin
+  handler. La solución es dejar que AdminLTE lo cree dinámicamente.
+
+---
+
 ## [1.3.0] - 2026-04-04
 
 ### Agregado

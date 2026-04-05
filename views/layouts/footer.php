@@ -1,18 +1,22 @@
+</main>
+
 <!-- Main Footer -->
 <footer class="main-footer">
-    <!-- To the right -->
     <div class="float-right d-none d-sm-inline">
-        System Ventas
+        <small class="text-muted">
+            <i class="fas fa-tag mr-1"></i>v<?= APP_VERSION ?>
+        </small>
     </div>
-    <!-- Default to the left -->
-    <strong>Copyright &copy; <?= $Año; ?> <a href="https://adminlte.io">AdminLTE.io</a></strong> | Todos los derechos reservados
+    <strong>Copyright &copy; <?= date('Y') ?>
+        <a href="#" class="text-decoration-none">Sistema de Ventas</a>
+    </strong>
+    &mdash; Todos los derechos reservados.
 </footer>
 
 <!-- Control sidebar -->
 <aside class="control-sidebar control-sidebar-dark">
     <!-- Control sidebar content goes here -->
 </aside>
-<div id="sidebar-overlay"></div>
 </div>
 <!-- ./wrapper -->
 
