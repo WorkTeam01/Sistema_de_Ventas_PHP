@@ -140,7 +140,8 @@ function confirmarEliminar(id, idProducto, cantidad, nombre) {
         },
         {
             confirmText: 'Sí, eliminar',
-            cancelText: 'Cancelar'
+            cancelText: 'Cancelar',
+            cancelColor: '#6c757d'
         }
     );
 }
