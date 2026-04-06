@@ -1,0 +1,43 @@
+/* =============================================
+   Compras Create — Two-pane sticky sidebar
+   ============================================= */
+
+/* Sidebar sticky */
+.purchase-sidebar-sticky {
+    position: sticky;
+    top: 20px;
+}
+
+/* Tabla de resumen */
+#resumenCard .table-sm td {
+    padding: 0.5rem 1rem;
+}
+
+/* Fila de total destacada */
+#resumenCard .resumen-total td {
+    font-size: 1.05rem;
+}
+
+/* Badge de total */
+#badgeTotal {
+    font-size: 0.95rem;
+    min-width: 90px;
+    display: inline-block;
+    text-align: right;
+}
+
+/* Nombre de producto/proveedor en resumen */
+#resumenProducto,
+#resumenProveedor {
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive: desactivar sticky en móvil */
+@media (max-width: 767.98px) {
+    .purchase-sidebar-sticky {
+        position: static;
+    }
+}

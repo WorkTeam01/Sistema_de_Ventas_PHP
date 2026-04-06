@@ -9,8 +9,10 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/purchases"><i class="fas fa-shopping-cart"></i> Compras</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/purchases"><i
+                                        class="fas fa-shopping-cart"></i> Compras</a></li>
                         <li class="breadcrumb-item active">Registrar compra</li>
                     </ol>
                 </div>
@@ -22,49 +24,88 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card card-primary">
-                        <div class="card-header">
-                            <h3 class="card-title">Ingrese los datos de la compra</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                    <i class="fas fa-minus"></i>
-                                </button>
+            <form id="purchaseCreateForm" action="<?= BASE_URL ?>/purchases" method="post">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+
+                <div class="row">
+                    <!-- ============================================ -->
+                    <!-- COLUMNA IZQUIERDA: Campos del formulario     -->
+                    <!-- ============================================ -->
+                    <div class="col-md-8">
+
+                        <!-- Card 1: Encabezado -->
+                        <div class="card">
+                            <div class="card-header card-outline card-primary">
+                                <h3 class="card-title"><i class="fas fa-file-invoice mr-1"></i> Encabezado de la
+                                    compra</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <form id="purchaseCreateForm" action="<?= BASE_URL ?>/purchases" method="post">
                             <div class="card-body">
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
-                                <!-- Fila 1: Nro Compra, Fecha, Comprobante -->
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>N° Compra</label>
                                             <input type="number" name="nro_compra" class="form-control"
-                                                value="<?= htmlspecialchars($next_number, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+                                                   value="<?= htmlspecialchars($next_number, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   readonly>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Fecha de compra <span class="text-danger">*</span></label>
-                                            <input type="date" name="fecha_compra" class="form-control" required>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend" style="cursor: pointer;"
+                                                     onclick="document.getElementById('fecha_compra').showPicker()">
+                                                    <span class="input-group-text"><i
+                                                                class="fas fa-calendar-alt"></i></span>
+                                                </div>
+                                                <input type="date" id="fecha_compra" name="fecha_compra"
+                                                       class="form-control" required
+                                                       max="<?= date('Y-m-d') ?>">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <div class="form-group">
                                             <label>Comprobante <span class="text-danger">*</span></label>
-                                            <input type="text" name="comprobante" class="form-control" required>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="fas fa-list"></i>
+                                                    </span>
+                                                </div>
+                                                <input type="text" name="comprobante" class="form-control" required>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Fila 2: Producto, Proveedor -->
+                            </div>
+                        </div>
+                        <!-- /.card Encabezado -->
+
+                        <!-- Card 2: Proveedor y Producto -->
+                        <div class="card">
+                            <div class="card-header card-outline card-primary">
+                                <h3 class="card-title"><i class="fas fa-boxes mr-1"></i> Proveedor y Producto</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Producto <span class="text-danger">*</span></label>
                                             <div class="d-flex">
-                                                <select name="id_producto" class="form-control select2" required>
+                                                <select id="id_producto" name="id_producto"
+                                                        class="form-control select2 mr-2" required>
                                                     <option value="">Seleccionar producto...</option>
                                                     <?php foreach ($products as $product) : ?>
                                                         <option value="<?= $product['id_producto']; ?>">
@@ -72,7 +113,8 @@
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <a href="<?= BASE_URL ?>/products/create" class="btn btn-primary" title="Nuevo producto">
+                                                <a href="<?= BASE_URL ?>/products/create" class="btn btn-primary"
+                                                   title="Nuevo producto">
                                                     <i class="fas fa-plus"></i>
                                                 </a>
                                             </div>
@@ -80,9 +122,10 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Proveedor <span class="text-danger">*</span></label>
+                                            <label for="id_proveedor">Proveedor <span class="text-danger">*</span></label>
                                             <div class="d-flex">
-                                                <select name="id_proveedor" class="form-control select2" required>
+                                                <select id="id_proveedor" name="id_proveedor"
+                                                        class="form-control select2 mr-2" required>
                                                     <option value="">Seleccionar proveedor...</option>
                                                     <?php foreach ($suppliers as $supplier) : ?>
                                                         <option value="<?= $supplier['id_proveedor']; ?>">
@@ -90,31 +133,61 @@
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <a href="<?= BASE_URL ?>/suppliers/create" class="btn btn-primary" title="Nuevo proveedor">
+                                                <a href="<?= BASE_URL ?>/suppliers/create" class="btn btn-primary"
+                                                   title="Nuevo proveedor">
                                                     <i class="fas fa-plus"></i>
                                                 </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Fila 3: Precio, Cantidad, Usuario -->
+                            </div>
+                        </div>
+                        <!-- /.card Proveedor y Producto -->
+
+                        <!-- Card 3: Precio y Cantidad -->
+                        <div class="card">
+                            <div class="card-header card-outline card-primary">
+                                <h3 class="card-title"><i class="fas fa-calculator mr-1"></i> Precio y Cantidad</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label>Precio de compra <span class="text-danger">*</span></label>
-                                            <input type="number" name="precio_compra" class="form-control" step="0.01" min="0" required>
+                                            <label for="precio_compra">Precio de compra <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">$</span>
+                                                </div>
+                                                <input type="number" id="precio_compra" name="precio_compra"
+                                                       class="form-control" step="0.01" min="0" required>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label>Cantidad <span class="text-danger">*</span></label>
-                                            <input type="number" name="cantidad" class="form-control" min="1" required>
+                                            <label for="cantidad">Cantidad <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i
+                                                                class="fas fa-sort-numeric-up-alt"></i></span>
+                                                </div>
+                                                <input type="number" id="cantidad" name="cantidad" class="form-control"
+                                                       min="1" required>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Usuario</label>
-                                            <input type="text" value="<?= htmlspecialchars($email_sesion, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                            <input type="text" aria-label="usuario"
+                                                   value="<?= htmlspecialchars($email_sesion, ENT_QUOTES, 'UTF-8'); ?>"
+                                                   class="form-control" disabled>
                                         </div>
                                     </div>
                                 </div>
@@ -134,10 +207,58 @@
                                     </div>
                                 </div>
                             </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                        </div>
+                        <!-- /.card Precio y Cantidad -->
+
+                    </div><!-- /.col-md-8 -->
+
+                    <!-- ============================================ -->
+                    <!-- COLUMNA DERECHA: Sidebar sticky              -->
+                    <!-- ============================================ -->
+                    <div class="col-md-4">
+                        <div class="purchase-sidebar-sticky">
+
+                            <!-- Panel: Resumen de compra -->
+                            <div class="card" id="resumenCard">
+                                <div class="card-header card-outline card-info">
+                                    <h3 class="card-title"><i class="fas fa-receipt mr-1"></i> Resumen de compra</h3>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tbody>
+                                        <tr>
+                                            <td class="text-muted">Producto</td>
+                                            <td class="text-right font-weight-bold" id="resumenProducto">—</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Proveedor</td>
+                                            <td class="text-right font-weight-bold" id="resumenProveedor">—</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Precio unitario</td>
+                                            <td class="text-right font-weight-bold" id="resumenPrecio">$ 0.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Cantidad</td>
+                                            <td class="text-right font-weight-bold" id="resumenCantidad">0</td>
+                                        </tr>
+                                        <tr class="border-top resumen-total">
+                                            <td class="text-muted">Total</td>
+                                            <td class="text-right">
+                                                <span class="badge badge-primary" id="badgeTotal">$ 0.00</span>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- /.card Resumen -->
+
+                        </div><!-- /.purchase-sidebar-sticky -->
+                    </div><!-- /.col-md-4 -->
+
+                </div><!-- /.row -->
+            </form>
         </div><!-- /.container-fluid -->
     </div>
     <!-- /.content -->

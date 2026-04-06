@@ -9,7 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
                         <li class="breadcrumb-item active">Compras</li>
                     </ol>
                 </div>
@@ -38,57 +39,60 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table id="purchaseTable" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <table id="purchaseTable" class="table table-bordered table-hover table-striped table-sm"
+                                   style="visibility: hidden;">
                                 <thead>
-                                    <tr>
-                                        <th class="text-center">Nro</th>
-                                        <th class="text-center">N° Compra</th>
-                                        <th class="text-center">Producto</th>
-                                        <th class="text-center">Proveedor</th>
-                                        <th class="text-center">Precio</th>
-                                        <th class="text-center">Cantidad</th>
-                                        <th class="text-center">Fecha</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-center">Nro</th>
+                                    <th class="text-center">N° Compra</th>
+                                    <th class="text-center">Producto</th>
+                                    <th class="text-center">Proveedor</th>
+                                    <th class="text-center">Precio</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <?php
-                                    $contador = 0;
-                                    foreach ($purchases_datos as $purchase) :
-                                        $id_compra   = $purchase['id_compra'];
-                                        $id_producto = $purchase['id_producto'];
-                                        $cantidad    = (int) $purchase['cantidad'];
+                                <?php
+                                $contador = 0;
+                                foreach ($purchases_datos as $purchase) :
+                                    $id_compra = $purchase['id_compra'];
+                                    $id_producto = $purchase['id_producto'];
+                                    $cantidad = (int)$purchase['cantidad'];
                                     ?>
-                                        <tr>
-                                            <td class="text-center"><?= $contador += 1; ?></td>
-                                            <td class="text-center"><?= htmlspecialchars($purchase['nro_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td>
-                                                <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($purchase['imagen'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                    width="30" class="rounded mr-1"
-                                                    alt="<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                <?= htmlspecialchars($purchase['codigo'], ENT_QUOTES, 'UTF-8'); ?> —
-                                                <?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>
-                                            </td>
-                                            <td><?= htmlspecialchars($purchase['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td class="text-right"><?= htmlspecialchars($purchase['precio_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td class="text-center"><?= $cantidad; ?></td>
-                                            <td class="text-center"><?= htmlspecialchars($purchase['fecha_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td class="text-center">
-                                                <div class="btn-group">
-                                                    <a href="<?= BASE_URL ?>/purchases/show/<?= $id_compra ?>" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-eye"></i> Ver
-                                                    </a>
-                                                    <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>" class="btn btn-success btn-sm">
-                                                        <i class="fas fa-pencil-alt"></i> Editar
-                                                    </a>
-                                                    <button type="button" class="btn btn-danger btn-sm"
+                                    <tr>
+                                        <td class="text-center"><?= $contador += 1; ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($purchase['nro_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td>
+                                            <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($purchase['imagen'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                 width="30" class="rounded mr-1"
+                                                 alt="<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>">
+                                            <?= htmlspecialchars($purchase['codigo'], ENT_QUOTES, 'UTF-8'); ?> —
+                                            <?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </td>
+                                        <td><?= htmlspecialchars($purchase['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="text-right"><?= htmlspecialchars($purchase['precio_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="text-center"><?= $cantidad; ?></td>
+                                        <td class="text-center"><?= htmlspecialchars($purchase['fecha_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a href="<?= BASE_URL ?>/purchases/show/<?= $id_compra ?>"
+                                                   class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </a>
+                                                <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
+                                                   class="btn btn-success btn-sm">
+                                                    <i class="fas fa-pencil-alt"></i> Editar
+                                                </a>
+                                                <button type="button" class="btn btn-danger btn-sm"
                                                         onclick="confirmarEliminar(<?= $id_compra ?>, <?= $id_producto ?>, <?= $cantidad ?>, '<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>')">
-                                                        <i class="fas fa-trash"></i> Eliminar
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>

@@ -7,6 +7,33 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.3] - 2026-04-06
+
+### Refactorizado
+
+- `views/purchases/create.php` — rediseño con patrón two-pane: col-8 con 3 cards colapsables (Encabezado,
+  Proveedor y Producto, Precio y Cantidad), col-4 con sidebar sticky de resumen en tiempo real (producto,
+  proveedor, precio unitario, cantidad y total calculado); fecha con `input-group` y calendario clickable;
+  precio con prefijo `$`; comprobante con icono `fa-list`
+- `views/purchases/edit.php` — mismo patrón two-pane sticky sidebar aplicado; sidebar pre-poblado con los
+  valores actuales al cargar; cards y badge de total en `card-success` / `badge-success` coherentes con el
+  tema de edición; selects con clase `select2`
+- `public/js/modules/purchases/purchases-create.js` — agregado `updateResumen()` con cálculo en tiempo real
+  de total (precio × cantidad); badge cambia de `badge-secondary` → `badge-primary` cuando total > 0;
+  `errorPlacement` actualizado para manejar `.input-group` y `.d-flex`
+- `public/js/modules/purchases/purchases-edit.js` — mismo `updateResumen()` aplicado; se llama al cargar
+  para poblar el sidebar con los valores existentes; `errorPlacement` actualizado para `.input-group`
+- `app/Controllers/PurchaseController.php` — `create()` y `edit()` inyectan `pageStyles` con
+  `/css/modules/purchases/create.css`; `edit()` añade dependencia `select2`
+
+### Agregado
+
+- `public/css/modules/purchases/create.css` — estilos del patrón two-pane: `.purchase-sidebar-sticky`
+  (sticky `top: 20px`), tabla de resumen, `.resumen-total` destacada, truncado con `text-overflow: ellipsis`
+  en `#resumenProducto` / `#resumenProveedor`; responsive: sticky desactivado en `max-width: 767.98px`
+
+---
+
 ## [1.3.2] - 2026-04-06
 
 ### Refactorizado

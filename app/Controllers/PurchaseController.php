@@ -45,6 +45,7 @@ class PurchaseController extends Controller
                 'suppliers' => $supplierModel->all(),
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'csrf_token' => Auth::generateCsrfToken(),
+                'pageStyles' => ['/css/modules/purchases/create.css'],
                 'pageScripts' => ['/js/modules/purchases/purchases-create.js'],
             ]
         ), true, ['validation', 'select2']);
@@ -205,9 +206,10 @@ class PurchaseController extends Controller
                 'products' => $productModel->all(),
                 'suppliers' => $supplierModel->all(),
                 'csrf_token' => Auth::generateCsrfToken(),
+                'pageStyles' => ['/css/modules/purchases/create.css'],
                 'pageScripts' => ['/js/modules/purchases/purchases-edit.js'],
             ]
-        ), true, ['validation']);
+        ), true, ['validation', 'select2']);
     }
 
     /**
