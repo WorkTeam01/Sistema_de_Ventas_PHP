@@ -296,5 +296,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: v1.2.0 (2026-04-03)_
+_Última actualización: v1.3.4 (2026-04-06)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._

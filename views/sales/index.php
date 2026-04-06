@@ -67,16 +67,16 @@
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a href="<?= BASE_URL ?>/sales/show/<?= $id_venta ?>"
-                                                   class="btn btn-info btn-sm">
-                                                    <i class="fas fa-eye"></i> Ver
+                                                   class="btn btn-info btn-sm" data-toggle="tooltip" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
                                                 </a>
                                                 <a href="<?= BASE_URL ?>/sales/invoice/<?= $id_venta ?>"
-                                                   class="btn btn-success btn-sm" target="_blank">
-                                                    <i class="fas fa-print"></i> Factura
+                                                   class="btn btn-success btn-sm" data-toggle="tooltip" title="Ver factura" target="_blank">
+                                                    <i class="fas fa-print"></i>
                                                 </a>
                                                 <a href="<?= BASE_URL ?>/sales/delete/<?= $id_venta ?>"
-                                                   class="btn btn-danger btn-sm">
-                                                    <i class="fas fa-trash"></i> Eliminar
+                                                   class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar venta">
+                                                    <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
                                         </td>

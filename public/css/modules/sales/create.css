@@ -1,0 +1,46 @@
+/* =============================================
+   Ventas Create — Wizard 3 pasos + sidebar
+   ============================================= */
+
+/* ---- Barra de progreso ---- */
+.pos-progress {
+    height: 26px;
+    border-radius: 4px;
+}
+
+.pos-progress .progress-bar {
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 26px;
+}
+
+/* ---- Tabs dentro del card ---- */
+.card-header .nav-tabs {
+    border-bottom: 0;
+}
+
+.card-header .nav-tabs .nav-link {
+    border-radius: 0;
+    padding: 0.65rem 1.1rem;
+    color: #6c757d;
+}
+
+.card-header .nav-tabs .nav-link.active {
+    color: #007bff;
+    background-color: #fff;
+    border-top: 2px solid #007bff;
+    border-bottom-color: #fff;
+}
+
+/* ---- Tarjeta de datos del cliente ---- */
+#pane-cliente .card-body {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+/* ---- Responsive: desactivar sticky en pantallas pequeñas ---- */
+@media (max-width: 767.98px) {
+    .sticky-top {
+        position: static !important;
+    }
+}

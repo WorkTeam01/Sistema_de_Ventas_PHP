@@ -174,7 +174,7 @@
 <!-- /.content-wrapper -->
 <script>
     function confirmarEliminar() {
-        var nroVenta = <?= json_encode((string)$nro_venta) ?>;
+        const nroVenta = <?= json_encode((string)$nro_venta) ?>;
         Swal.fire({
             title: '¿Está seguro?',
             text: 'Se eliminará la Venta N° ' + nroVenta + '. Esta acción no se puede deshacer.',

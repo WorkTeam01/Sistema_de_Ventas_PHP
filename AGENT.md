@@ -216,7 +216,9 @@ Auth::check()  // bool
 - Todas usan `renderWithLayout()` del Controller base (compone header + contenido + footer)
 - Constante `BASE_URL` disponible globalmente — usar para construir URLs en PHP y JS
 - Layout de páginas de listado: full width, DataTables con export (PDF/Excel/CSV/Imprimir)
-- Layout de formularios: col-md-8 (form) + col-md-4 (tarjeta informativa)
+- Layout de formularios CRUD: col-md-8 (form) + col-md-4 (tarjeta informativa)
+- Layout de formularios POS (ventas/create): patrón wizard — col-md-9 con 3 tabs numerados (steps) + barra de
+  progreso animada + validación entre pasos; col-md-3 sidebar sticky "Resumen de venta"
 - Breadcrumb obligatorio en cada vista (`<section class="content-header">`)
 
 ---

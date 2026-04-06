@@ -7,6 +7,28 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.4] - 2026-04-06
+
+### Refactorizado
+
+- `views/sales/create.php` — rediseño del POS con patrón wizard de 3 tabs numerados (1. Cliente → 2. Carrito →
+    3. Pago) + sidebar sticky "Resumen de venta"; barra de progreso animada "Paso X de 3"; validación entre tabs
+       (no avanza sin cliente seleccionado / sin productos en carrito); tab de pago con `input-group` Bs. para total
+       pagado y cambio; estado vacío en tabla del carrito con icono orientativo; modales de búsqueda fuera del
+       `<form>` principal; patrón col-md-9 + col-md-3
+- `public/js/modules/sales/sales-create.js` — reescrito con estado wizard (`currentStep`, `goToStep()`,
+  `updateProgress()`); navegación Siguiente/Anterior con validación; sincronización de progreso al hacer click
+  directo en tabs; restauración del tab activo via `sessionStorage` tras recarga por operaciones de carrito;
+  actualización de resumen lateral al seleccionar cliente; migrado de `var` a `let`/`const`
+- `app/Controllers/SaleController.php` — `create()` inyecta `pageStyles` con `/css/modules/sales/create.css`
+
+### Agregado
+
+- `public/css/modules/sales/create.css` — estilos del wizard POS: `.pos-progress` (barra de 26px), tabs dentro
+  de card, sticky desactivado en `max-width: 767.98px`
+
+---
+
 ## [1.3.3] - 2026-04-06
 
 ### Refactorizado

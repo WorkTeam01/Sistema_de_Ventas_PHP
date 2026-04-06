@@ -51,6 +51,7 @@ class SaleController extends Controller
                 'products'    => $productModel->allWithCategories(),
                 'clients'     => $clientModel->all(),
                 'csrf_token'  => Auth::generateCsrfToken(),
+                'pageStyles'  => ['/css/modules/sales/create.css'],
                 'pageScripts' => ['/js/modules/sales/sales-create.js'],
             ]
         ), true, ['datatable']);
