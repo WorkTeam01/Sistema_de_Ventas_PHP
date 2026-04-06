@@ -9,8 +9,10 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/products"><i class="fas fa-warehouse"></i> Almacén</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/products"><i class="fas fa-warehouse"></i>
+                                Almacén</a></li>
                         <li class="breadcrumb-item active">Eliminar producto</li>
                     </ol>
                 </div>
@@ -25,21 +27,27 @@
             <div class="row">
                 <div class="col-md-8">
                     <form id="formEliminar" action="<?= BASE_URL; ?>/products/delete" method="post">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="csrf_token"
+                               value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id_producto" value="<?= $id_producto; ?>">
 
                         <div class="card card-danger card-outline">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Confirmación de eliminación</h3>
+                                <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Confirmación de
+                                    eliminación</h3>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                                class="fas fa-minus"></i></button>
                                 </div>
                             </div>
 
                             <div class="card-body">
-                                <div class="alert alert-danger">
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     <h5><i class="icon fas fa-ban"></i> Acción irreversible</h5>
                                     Esta operación eliminará permanentemente el producto seleccionado.
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
 
                                 <div class="row">
@@ -50,7 +58,9 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-barcode"></i></span>
                                                 </div>
-                                                <input type="text" value="<?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                                <input type="text"
+                                                       value="<?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>"
+                                                       class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -61,7 +71,9 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-tag"></i></span>
                                                 </div>
-                                                <input type="text" value="<?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                                <input type="text"
+                                                       value="<?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?>"
+                                                       class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -75,7 +87,9 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-box"></i></span>
                                                 </div>
-                                                <input type="text" value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" disabled>
+                                                <input type="text"
+                                                       value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>"
+                                                       class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -86,7 +100,8 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
                                                 </div>
-                                                <input type="text" value="<?= $id_producto; ?>" class="form-control" disabled>
+                                                <input type="text" value="<?= $id_producto; ?>" class="form-control"
+                                                       disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -96,10 +111,14 @@
                             <div class="card-footer">
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
-                                        <a href="<?= BASE_URL; ?>/products" class="btn btn-default w-100"><i class="fas fa-times"></i> Cancelar</a>
+                                        <a href="<?= BASE_URL; ?>/products" class="btn btn-default w-100"><i
+                                                    class="fas fa-times"></i> Cancelar</a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="button" class="btn btn-danger w-100" onclick="confirmarEliminar()"><i class="fas fa-trash"></i> Eliminar producto</button>
+                                        <button type="button" class="btn btn-danger w-100"
+                                                onclick="confirmarEliminar()"><i class="fas fa-trash"></i> Eliminar
+                                            producto
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -112,16 +131,19 @@
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-shield-alt"></i> Verificación</h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                            class="fas fa-minus"></i></button>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="text-center mb-3">
                                 <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($imagen, ENT_QUOTES, 'UTF-8'); ?>"
-                                    class="img-thumbnail img-fluid" width="80%" alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
+                                     class="img-thumbnail img-fluid" width="80%"
+                                     alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <p class="text-sm text-muted mb-2">Confirma que estás eliminando el producto correcto.</p>
-                            <p class="text-sm text-muted mb-2">Si el producto tiene movimientos históricos, no podrá eliminarse.</p>
+                            <p class="text-sm text-muted mb-2">Si el producto tiene movimientos históricos, no podrá
+                                eliminarse.</p>
                             <p class="text-sm text-muted mb-0">Esta acción no se puede deshacer.</p>
                         </div>
                     </div>

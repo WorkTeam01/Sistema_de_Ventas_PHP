@@ -9,8 +9,10 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/products"><i class="fas fa-warehouse"></i> Almacén</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/products"><i class="fas fa-warehouse"></i>
+                                Almacén</a></li>
                         <li class="breadcrumb-item active">Detalle</li>
                     </ol>
                 </div>
@@ -28,13 +30,14 @@
                     <div class="card card-outline card-info">
                         <div class="card-body text-center">
                             <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($imagen, ENT_QUOTES, 'UTF-8'); ?>"
-                                class="img-fluid rounded" alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
+                                 class="img-fluid rounded" alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
                             <h5 class="mt-3 mb-1"><?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?></h5>
                             <p class="text-muted mb-0"><?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?></p>
                             <span class="badge badge-primary badge-pill p-2"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                         <div class="card-footer">
-                            <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>" class="btn btn-success w-100 mb-2">
+                            <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
+                               class="btn btn-success w-100 mb-2">
                                 <i class="fas fa-pencil-alt"></i> Editar
                             </a>
                             <a href="<?= BASE_URL ?>/products" class="btn btn-default w-100">
@@ -90,9 +93,9 @@
                                             <th class="text-muted">Stock actual</th>
                                             <td>
                                                 <?php
-                                                $s  = (int) $stock;
-                                                $sn = (int) $stock_minimo;
-                                                $sx = (int) $stock_maximo;
+                                                $s = (int)$stock;
+                                                $sn = (int)$stock_minimo;
+                                                $sx = (int)$stock_maximo;
                                                 if ($s < $sn) {
                                                     echo '<span class="badge badge-danger">' . $s . ' (bajo mínimo)</span>';
                                                 } elseif ($sx > 0 && $s > $sx) {

@@ -1,21 +1,15 @@
 $(document).ready(function () {
-    // Select2 para el selector de categoría
-    $('[name="id_categoria"]').select2({
-        allowClear: false,
-        width: '100%'
-    });
-
     // Preview de imagen con reemplazo de la imagen actual
     $('#fileInput').on('change', function (evt) {
-        var files = evt.target.files;
-        for (var i = 0, f; f = files[i]; i++) {
+        const files = evt.target.files;
+        for (let i = 0, f; f = files[i]; i++) {
             if (!f.type.match('image.*')) continue;
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = (function (theFile) {
                 return function (e) {
                     document.getElementById('currentImage').style.display = 'none';
                     document.getElementById('imagePreview').innerHTML =
-                        '<img class="img-thumbnail img-fluid mt-2 d-block" src="' + e.target.result + '" width="100%" title="' + escape(theFile.name) + '"/>';
+                        '<img class="img-thumbnail img-fluid d-block mb-3" src="' + e.target.result + '" width="100%" title="' + escape(theFile.name) + '"/>';
                 };
             })(f);
             reader.readAsDataURL(f);
@@ -119,4 +113,35 @@ $(document).ready(function () {
             }
         }
     });
+
+    // =============================================
+    // Cálculo de margen en tiempo real (sidebar)
+    // =============================================
+    function calcularMargen() {
+        const compra   = parseFloat($('#precio_compra').val()) || 0;
+        const venta    = parseFloat($('#precio_venta').val())  || 0;
+        const ganancia = venta - compra;
+        const margen   = compra > 0 ? (ganancia / compra) * 100 : 0;
+
+        $('#resumenPrecioCompra').text('$ ' + compra.toFixed(2));
+        $('#resumenPrecioVenta').text('$ '  + venta.toFixed(2));
+        $('#resumenGanancia').text('$ '     + ganancia.toFixed(2));
+
+        const $badge = $('#badgeMargen');
+        $badge.text(margen.toFixed(2) + '%');
+        $badge.removeClass('badge-success badge-warning badge-danger badge-secondary');
+
+        if (compra <= 0 || venta <= 0) {
+            $badge.addClass('badge-secondary');
+        } else if (margen >= 20) {
+            $badge.addClass('badge-success');
+        } else if (margen >= 10) {
+            $badge.addClass('badge-warning');
+        } else {
+            $badge.addClass('badge-danger');
+        }
+    }
+
+    $('#precio_compra, #precio_venta').on('input', calcularMargen);
+    calcularMargen();
 });

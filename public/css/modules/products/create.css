@@ -1,0 +1,41 @@
+/* =============================================
+   Producto Create — Two-pane sticky sidebar
+   ============================================= */
+
+/* Sidebar sticky */
+.product-sidebar-sticky {
+    position: sticky;
+    top: 20px;
+}
+
+/* Encabezados de sección */
+.card-body h5.section-title {
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+}
+
+/* Tabla de resumen */
+#resumenCard .table-sm td {
+    padding: 0.5rem 1rem;
+}
+
+/* Badge de margen */
+#badgeMargen {
+    font-size: 0.9rem;
+    min-width: 70px;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Preview de imagen centrado */
+#imagePreview img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Responsive: desactivar sticky en móvil */
+@media (max-width: 767.98px) {
+    .product-sidebar-sticky {
+        position: static;
+    }
+}

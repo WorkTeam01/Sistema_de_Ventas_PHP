@@ -7,6 +7,31 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.2] - 2026-04-06
+
+### Refactorizado
+
+- `views/products/create.php` — rediseño con patrón two-pane: columna izquierda (col-8) con campos del formulario
+  agrupados en cards colapsables, columna derecha (col-4) con sidebar sticky de resumen (imagen, precios, margen,
+  acciones); reemplaza el formulario de una sola columna anterior
+- `views/products/edit.php` — mismo patrón two-pane sticky sidebar aplicado a la vista de edición; sidebar con
+  imagen actual, resumen de precios y acciones (Guardar / Cancelar)
+- `public/js/modules/products/products-create.js` — agregado cálculo de margen en tiempo real: actualiza
+  `#resumenPrecioCompra`, `#resumenPrecioVenta`, `#resumenGanancia` y `#badgeMargen` (badge con color semántico:
+  verde ≥20%, amarillo ≥10%, rojo <10%) al cambiar precio de compra o venta
+- `public/js/modules/products/products-edit.js` — mismo cálculo de margen en tiempo real aplicado a la vista de
+  edición; inicializado con los valores actuales del producto al cargar la página
+- `app/Controllers/ProductController.php` — `create()` ahora inyecta `pageStyles` con
+  `/css/modules/products/create.css`; reformateo de alineación de variables (sin cambio funcional)
+
+### Agregado
+
+- `public/css/modules/products/create.css` — estilos del patrón two-pane: `.product-sidebar-sticky` (sticky con
+  `top: 20px`), estilos de tabla de resumen, badge de margen con ancho mínimo, preview de imagen; responsive: sticky
+  desactivado en `max-width: 767.98px`
+
+---
+
 ## [1.3.1] - 2026-04-05
 
 ### Corregido
