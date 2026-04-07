@@ -1,8 +1,8 @@
 $(function () {
-    var $formInfo     = $('#form-info');
-    var $formPassword = $('#form-password');
-    var checkEmailUrl = $formInfo.data('check-email-url');
-    var userId        = $formInfo.data('user-id');
+    const $formInfo = $('#form-info');
+    const $formPassword = $('#form-password');
+    const checkEmailUrl = $formInfo.data('check-email-url');
+    const userId = $formInfo.data('user-id');
 
     // ── Validación: Editar perfil ────────────────────────────────────────────
     $formInfo.validate({
@@ -18,7 +18,9 @@ $(function () {
                     url: checkEmailUrl,
                     type: 'post',
                     data: {
-                        id_usuario: function () { return userId; }
+                        id_usuario: function () {
+                            return userId;
+                        }
                     }
                 }
             }
@@ -84,9 +86,9 @@ $(function () {
 
     // ── Toggle visibilidad contraseña ────────────────────────────────────────
     $(document).on('click', '.toggle-password', function () {
-        var $btn   = $(this);
-        var $input = $btn.closest('.input-group').find('input');
-        var $icon  = $btn.find('i');
+        const $btn = $(this);
+        const $input = $btn.closest('.input-group').find('input');
+        const $icon = $btn.find('i');
 
         if ($input.attr('type') === 'password') {
             $input.attr('type', 'text');

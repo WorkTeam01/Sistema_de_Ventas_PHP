@@ -3,7 +3,7 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row">
                 <div class="col-sm-6">
                     <h1 class="m-0">Mi Perfil</h1>
                 </div>
@@ -24,8 +24,7 @@
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-
-                <!-- ── Columna izquierda: tarjeta de perfil ────────────────── -->
+                <!-- Columna izquierda: tarjeta de perfil -->
                 <div class="col-md-4">
                     <div class="card card-outline <?= $cardClass ?>">
                         <div class="card-body box-profile">

@@ -30,8 +30,12 @@ $(document).ready(function () {
                     url: BASE_URL + '/users/check-email',
                     type: 'POST',
                     data: {
-                        email: function () { return $('#email').val(); },
-                        id_usuario: function () { return $('#id_usuario').val(); }
+                        email: function () {
+                            return $('#email').val();
+                        },
+                        id_usuario: function () {
+                            return $('#id_usuario').val();
+                        }
                     }
                 }
             },

@@ -77,47 +77,13 @@ class UserController extends Controller
             $this->redirect(BASE_URL . '/users/create');
         }
 
-        $passwordHash = password_hash($password_user, PASSWORD_DEFAULT);
-
-        if ($userModel->createUser($nombres, $email, $rol, $passwordHash)) {
+        if ($userModel->createUser($nombres, $email, $rol, $password_user)) {
             $this->flash('El usuario se registró exitosamente', 'success');
             $this->redirect(BASE_URL . '/users');
         }
 
         $this->flash('No se pudo registrar el usuario.', 'error');
         $this->redirect(BASE_URL . '/users/create');
-    }
-
-    /**
-     * Muestra el detalle de un usuario específico.
-     *
-     * @param int|null $id ID del usuario
-     */
-    public function show(?int $id = null): void
-    {
-        $id = $id ?? (int)($_GET['id'] ?? 0);
-        if ($id <= 0) {
-            $this->flash('Usuario inválido.', 'error');
-            $this->redirect(BASE_URL . '/users');
-        }
-
-        $userModel = new User();
-        $usuario = $userModel->findWithRoleById($id);
-
-        if (!$usuario) {
-            $this->flash('No se encontró el usuario solicitado.', 'error');
-            $this->redirect(BASE_URL . '/users');
-        }
-
-        $this->renderWithLayout('views/users/show.php', array_merge(
-            $this->sessionData(),
-            [
-                'id_usuario' => (int)$usuario['id_usuario'],
-                'nombres' => $usuario['nombres'],
-                'email' => $usuario['email'],
-                'rol' => $usuario['rol'],
-            ]
-        ));
     }
 
     /**
@@ -189,16 +155,16 @@ class UserController extends Controller
             $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
         }
 
-        $passwordHash = null;
+        $newPassword = null;
         if ($password_user !== '') {
             if ($password_user !== $password_repeat) {
                 $this->flash('Las contraseñas no coinciden', 'error');
                 $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
             }
-            $passwordHash = password_hash($password_user, PASSWORD_DEFAULT);
+            $newPassword = $password_user;
         }
 
-        if ($userModel->updateUser($id_usuario, $nombres, $email, $rol, $passwordHash)) {
+        if ($userModel->updateUser($id_usuario, $nombres, $email, $rol, $newPassword)) {
             $this->flash('El usuario se actualizó exitosamente', 'success');
             $this->redirect(BASE_URL . '/users');
         }
@@ -301,6 +267,11 @@ class UserController extends Controller
         $userModel = new User();
         $usuario = $userModel->findWithRoleById((int)$authUser['id_usuario']);
 
+        if (!$usuario) {
+            $this->flash('No se encontró el usuario.', 'error');
+            $this->redirect(BASE_URL . '/');
+        }
+
         // Iniciales del usuario (máximo 2 caracteres)
         $words = preg_split('/\s+/', trim($usuario['nombres']));
         $initials = '';
@@ -313,8 +284,8 @@ class UserController extends Controller
         // Fecha de registro formateada
         $fechaRegistro = 'N/D';
         if (!empty($usuario['fyh_creacion'])) {
-            $dt = new \DateTime($usuario['fyh_creacion']);
-            $fechaRegistro = $dt->format('d/m/Y');
+            $dt = date_create($usuario['fyh_creacion']);
+            $fechaRegistro = $dt ? $dt->format('d/m/Y') : 'N/D';
         }
 
         // Clases de color según rol
@@ -423,9 +394,8 @@ class UserController extends Controller
         }
 
         $userModel = new User();
-        $passwordHash = password_hash($password_user, PASSWORD_DEFAULT);
 
-        if ($userModel->updatePassword($id_usuario, $passwordHash)) {
+        if ($userModel->updatePassword($id_usuario, $password_user)) {
             $this->flash('Contraseña actualizada exitosamente.', 'success');
             $this->redirect(BASE_URL . '/profile?tab=password');
         }

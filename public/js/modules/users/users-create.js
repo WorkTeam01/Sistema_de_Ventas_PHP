@@ -30,7 +30,9 @@ $(document).ready(function () {
                     url: BASE_URL + '/users/check-email',
                     type: 'POST',
                     data: {
-                        email: function () { return $('#email').val(); }
+                        email: function () {
+                            return $('#email').val();
+                        }
                     }
                 }
             },

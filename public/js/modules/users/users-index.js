@@ -15,13 +15,13 @@ $(document).ready(function () {
             buttons: [{
                 text: 'Copiar',
                 extend: 'copy',
-                exportOptions: { columns: [0, 1, 2, 3] }
+                exportOptions: {columns: [0, 1, 2, 3]}
             }, {
                 extend: 'pdf',
                 title: 'Usuarios - Sistema de Ventas',
                 filename: 'usuarios_' + new Date().toISOString().slice(0, 10),
                 pageSize: 'LETTER',
-                exportOptions: { columns: [0, 1, 2, 3] },
+                exportOptions: {columns: [0, 1, 2, 3]},
                 customize: function (doc) {
                     doc.defaultStyle.fontSize = 10;
                     doc.styles.tableHeader.fontSize = 11;
@@ -60,9 +60,9 @@ $(document).ready(function () {
                     doc.footer = function (currentPage, pageCount) {
                         return {
                             columns: [
-                                { text: 'Sistema de Ventas', alignment: 'left', fontSize: 8 },
-                                { text: 'Página ' + currentPage + ' de ' + pageCount, alignment: 'center', fontSize: 8 },
-                                { text: 'Confidencial', alignment: 'right', fontSize: 8 }
+                                {text: 'Sistema de Ventas', alignment: 'left', fontSize: 8},
+                                {text: 'Página ' + currentPage + ' de ' + pageCount, alignment: 'center', fontSize: 8},
+                                {text: 'Confidencial', alignment: 'right', fontSize: 8}
                             ],
                             margin: [40, 0]
                         };
@@ -73,16 +73,16 @@ $(document).ready(function () {
                 title: 'Usuarios - Sistema de Ventas',
                 messageTop: 'Registro de usuarios del sistema',
                 messageBottom: 'Documento generado el ' + new Date().toLocaleDateString('es-BO'),
-                exportOptions: { columns: [0, 1, 2, 3] }
+                exportOptions: {columns: [0, 1, 2, 3]}
             }, {
                 extend: 'csv',
-                exportOptions: { columns: [0, 1, 2, 3] }
+                exportOptions: {columns: [0, 1, 2, 3]}
             }, {
                 extend: 'print',
                 text: 'Imprimir',
                 title: 'Usuarios - Sistema de Ventas',
                 messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
-                exportOptions: { columns: [0, 1, 2, 3] },
+                exportOptions: {columns: [0, 1, 2, 3]},
                 customize: function (win) {
                     $(win.document.body).find('table')
                         .addClass('table-striped')
@@ -131,7 +131,9 @@ function confirmarEliminar(id, nombre) {
 
     ToastUtils.loadingWithMinTime('Verificando usuario...', function (toast) {
         fetch(BASE_URL + '/users/check/' + id)
-            .then(function (res) { return res.json(); })
+            .then(function (res) {
+                return res.json();
+            })
             .then(function (data) {
                 toast.close();
                 $btns.prop('disabled', false);

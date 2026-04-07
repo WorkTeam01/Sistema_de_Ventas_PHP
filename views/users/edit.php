@@ -3,14 +3,16 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row">
                 <div class="col-sm-6">
                     <h1 class="m-0">Actualizar usuario</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/users"><i class="fas fa-users"></i>
+                                Usuarios</a></li>
                         <li class="breadcrumb-item active">Actualizar usuario</li>
                     </ol>
                 </div>
@@ -24,7 +26,8 @@
             <div class="row">
                 <div class="col-md-8">
                     <form id="userEditForm" action="<?= BASE_URL ?>/users/update" method="post" autocomplete="off">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="csrf_token"
+                               value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" id="id_usuario" name="id_usuario" value="<?= $id_usuario; ?>">
 
                         <!-- Card 1: Información de la cuenta -->
@@ -48,20 +51,24 @@
                                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                                         </div>
                                         <input type="text" id="nombres" name="nombres" class="form-control"
-                                            value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
+                                               value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>"
+                                               autocomplete="off">
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label for="email">Correo electrónico <span class="text-danger">*</span></label>
+                                            <label for="email">Correo electrónico <span
+                                                        class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                                    <span class="input-group-text"><i
+                                                                class="fas fa-envelope"></i></span>
                                                 </div>
                                                 <input type="email" id="email" name="email" class="form-control"
-                                                    value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
+                                                       value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"
+                                                       autocomplete="off">
                                             </div>
                                         </div>
                                     </div>
@@ -70,7 +77,7 @@
                                             <label for="rol">Rol <span class="text-danger">*</span></label>
                                             <select id="rol" name="rol" class="form-control select2">
                                                 <?php foreach ($roles_datos as $roles_dato) :
-                                                    $idRol = (int) $roles_dato['id_rol']; ?>
+                                                    $idRol = (int)$roles_dato['id_rol']; ?>
                                                     <option value="<?= $idRol; ?>" <?= $idRol === $idRolActual ? 'selected' : ''; ?>>
                                                         <?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8'); ?>
                                                     </option>
@@ -102,10 +109,13 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-key"></i></span>
                                                 </div>
-                                                <input type="password" id="password_user" name="password_user" class="form-control"
-                                                    placeholder="Dejar en blanco para mantener actual" autocomplete="new-password">
+                                                <input type="password" id="password_user" name="password_user"
+                                                       class="form-control"
+                                                       placeholder="Dejar en blanco para mantener actual"
+                                                       autocomplete="new-password">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                            id="togglePassword">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -119,10 +129,12 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-key"></i></span>
                                                 </div>
-                                                <input type="password" id="password_repeat" name="password_repeat" class="form-control"
-                                                    placeholder="Repita la contraseña" autocomplete="new-password">
+                                                <input type="password" id="password_repeat" name="password_repeat"
+                                                       class="form-control"
+                                                       placeholder="Repita la contraseña" autocomplete="new-password">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary" id="togglePasswordRepeat">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                            id="togglePasswordRepeat">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -131,7 +143,8 @@
                                     </div>
                                 </div>
                                 <div class="alert alert-info mb-0">
-                                    <i class="fas fa-info-circle"></i> Deje ambos campos vacíos si no desea cambiar la contraseña.
+                                    <i class="fas fa-info-circle"></i> Deje ambos campos vacíos si no desea cambiar la
+                                    contraseña.
                                 </div>
                             </div>
                             <div class="card-footer">
@@ -193,7 +206,8 @@
                         <div class="card-body">
                             <p class="text-sm text-muted mb-2">Valida que el correo sea único y vigente.</p>
                             <p class="text-sm text-muted mb-2">Cambia la contraseña solo cuando sea necesario.</p>
-                            <p class="text-sm text-muted mb-0">Confirma que el rol asignado coincide con los permisos esperados.</p>
+                            <p class="text-sm text-muted mb-0">Confirma que el rol asignado coincide con los permisos
+                                esperados.</p>
                         </div>
                     </div>
                 </div>

@@ -44,7 +44,6 @@ $router->post('/profile/password', [UserController::class, 'updatePassword'], ['
 $router->get('/users',         [UserController::class, 'index'], ['auth', 'admin']);
 $router->get('/users/create',  [UserController::class, 'create'], ['auth', 'admin']);
 $router->post('/users',        [UserController::class, 'store'], ['auth', 'admin']);
-$router->get('/users/show/{id}', [UserController::class, 'show'], ['auth', 'admin']);
 $router->get('/users/edit/{id}', [UserController::class, 'edit'], ['auth', 'admin']);
 $router->post('/users/update', [UserController::class, 'update'], ['auth', 'admin']);
 $router->post('/users/check-email', [UserController::class, 'checkEmail'], ['auth', 'admin']);

@@ -64,7 +64,7 @@ class Controller
      *
      * @param string $url URL de destino.
      */
-    protected function redirect(string $url): void
+    protected function redirect(string $url): never
     {
         header("Location: $url");
         exit();
@@ -76,7 +76,7 @@ class Controller
      * @param mixed $data   Datos a serializar.
      * @param int   $status Código HTTP de respuesta.
      */
-    protected function json(mixed $data, int $status = 200): void
+    protected function json(mixed $data, int $status = 200): never
     {
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');

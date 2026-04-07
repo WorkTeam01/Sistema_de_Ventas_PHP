@@ -16,17 +16,6 @@ class User extends Model
     protected string $primaryKey = 'id_usuario';
 
     /**
-     * Cuenta el total de usuarios registrados en la tabla.
-     *
-     * @return int Total de usuarios.
-     */
-    public function countAll(): int
-    {
-        $stmt = $this->db->query("SELECT COUNT(*) FROM {$this->table}");
-        return (int) $stmt->fetchColumn();
-    }
-
-    /**
      * Busca un usuario por su dirección de email.
      *
      * @param string $email Email a buscar.
@@ -34,7 +23,7 @@ class User extends Model
      */
     public function findByEmail(string $email): array|false
     {
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE email = ? LIMIT 1");
+        $stmt = $this->db->prepare("SELECT * FROM $this->table WHERE email = ? LIMIT 1");
         $stmt->execute([$email]);
 
         return $stmt->fetch();
@@ -43,7 +32,7 @@ class User extends Model
     /**
      * Verifica las credenciales de login comparando el password con el hash almacenado.
      *
-     * @param string $email         Email del usuario.
+     * @param string $email Email del usuario.
      * @param string $plainPassword Contraseña en texto plano.
      * @return array|false Datos del usuario si las credenciales son correctas, false si no.
      */
@@ -107,7 +96,7 @@ class User extends Model
      */
     public function findAllRoles(): array
     {
-        $stmt = $this->db->query("SELECT id_rol, rol FROM tb_roles ORDER BY id_rol ASC");
+        $stmt = $this->db->query("SELECT id_rol, rol FROM tb_roles ORDER BY id_rol");
         return $stmt->fetchAll();
     }
 
@@ -115,40 +104,40 @@ class User extends Model
      * Verifica si un email ya está registrado, opcionalmente excluyendo un usuario específico.
      * Útil para validar unicidad tanto en creación como en edición.
      *
-     * @param string   $email         Email a verificar.
+     * @param string $email Email a verificar.
      * @param int|null $excludeUserId ID del usuario a excluir de la búsqueda (para edición).
      * @return bool True si el email ya está en uso por otro usuario.
      */
     public function emailExists(string $email, ?int $excludeUserId = null): bool
     {
         if ($excludeUserId !== null) {
-            $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE email = ? AND id_usuario <> ?");
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM $this->table WHERE email = ? AND id_usuario <> ?");
             $stmt->execute([$email, $excludeUserId]);
-            return (int) $stmt->fetchColumn() > 0;
+            return (int)$stmt->fetchColumn() > 0;
         }
 
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE email = ?");
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM $this->table WHERE email = ?");
         $stmt->execute([$email]);
-        return (int) $stmt->fetchColumn() > 0;
+        return (int)$stmt->fetchColumn() > 0;
     }
 
     /**
      * Crea un nuevo usuario con los datos proporcionados.
      *
-     * @param string $nombres      Nombre completo del usuario.
-     * @param string $email        Email del usuario.
-     * @param int    $idRol        ID del rol asignado.
-     * @param string $passwordHash Contraseña ya hasheada con password_hash().
+     * @param string $nombres Nombre completo del usuario.
+     * @param string $email Email del usuario.
+     * @param int $idRol ID del rol asignado.
+     * @param string $plainPassword Contraseña en texto plano; se hashea internamente.
      * @return bool True si la inserción fue exitosa.
      */
-    public function createUser(string $nombres, string $email, int $idRol, string $passwordHash): bool
+    public function createUser(string $nombres, string $email, int $idRol, string $plainPassword): bool
     {
-        return $this->insert([
-            'nombres' => $nombres,
-            'email' => $email,
-            'id_rol' => $idRol,
-            'password_user' => $passwordHash,
-        ]);
+        return $this->create([
+                'nombres' => $nombres,
+                'email' => $email,
+                'id_rol' => $idRol,
+                'password_user' => password_hash($plainPassword, PASSWORD_DEFAULT),
+            ]) !== false;
     }
 
     /**
@@ -193,25 +182,25 @@ class User extends Model
         );
 
         return [
-            'productos' => (int) ($productos[0]['total'] ?? 0),
-            'compras'   => (int) ($compras[0]['total'] ?? 0),
+            'productos' => (int)($productos[0]['total'] ?? 0),
+            'compras' => (int)($compras[0]['total'] ?? 0),
         ];
     }
 
     /**
      * Actualiza nombre y email del propio usuario sin modificar su rol ni contraseña.
      *
-     * @param int    $id      ID del usuario.
+     * @param int $id ID del usuario.
      * @param string $nombres Nuevo nombre completo.
-     * @param string $email   Nuevo email.
+     * @param string $email Nuevo email.
      * @return bool True si la actualización fue exitosa.
      */
     public function updateProfileInfo(int $id, string $nombres, string $email): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE {$this->table}
+            "UPDATE $this->table
              SET nombres = ?, email = ?
-             WHERE {$this->primaryKey} = ?"
+             WHERE $this->primaryKey = ?"
         );
         return $stmt->execute([$nombres, $email, $id]);
     }
@@ -219,48 +208,48 @@ class User extends Model
     /**
      * Actualiza únicamente la contraseña de un usuario.
      *
-     * @param int    $id           ID del usuario.
-     * @param string $passwordHash Nueva contraseña ya hasheada con password_hash().
+     * @param int $id ID del usuario.
+     * @param string $plainPassword Nueva contraseña en texto plano; se hashea internamente.
      * @return bool True si la actualización fue exitosa.
      */
-    public function updatePassword(int $id, string $passwordHash): bool
+    public function updatePassword(int $id, string $plainPassword): bool
     {
         $stmt = $this->db->prepare(
-            "UPDATE {$this->table}
+            "UPDATE $this->table
              SET password_user = ?
-             WHERE {$this->primaryKey} = ?"
+             WHERE $this->primaryKey = ?"
         );
-        return $stmt->execute([$passwordHash, $id]);
+        return $stmt->execute([password_hash($plainPassword, PASSWORD_DEFAULT), $id]);
     }
 
     /**
-     * Actualiza los datos de un usuario. Si $passwordHash es null, no modifica la contraseña.
+     * Actualiza los datos de un usuario. Si $plainPassword es null, no modifica la contraseña.
      *
-     * @param int         $id           ID del usuario a actualizar.
-     * @param string      $nombres      Nuevo nombre completo.
-     * @param string      $email        Nuevo email.
-     * @param int         $idRol        Nuevo ID de rol.
-     * @param string|null $passwordHash Nueva contraseña hasheada, o null para no cambiarla.
+     * @param int $id ID del usuario a actualizar.
+     * @param string $nombres Nuevo nombre completo.
+     * @param string $email Nuevo email.
+     * @param int $idRol Nuevo ID de rol.
+     * @param string|null $plainPassword Nueva contraseña en texto plano, o null para no cambiarla.
      * @return bool True si la actualización fue exitosa.
      */
-    public function updateUser(int $id, string $nombres, string $email, int $idRol, ?string $passwordHash = null): bool
+    public function updateUser(int $id, string $nombres, string $email, int $idRol, ?string $plainPassword = null): bool
     {
-        if ($passwordHash === null) {
+        if ($plainPassword === null) {
             $stmt = $this->db->prepare(
-                "UPDATE {$this->table}
+                "UPDATE $this->table
                  SET nombres = ?, email = ?, id_rol = ?
-                 WHERE {$this->primaryKey} = ?"
+                 WHERE $this->primaryKey = ?"
             );
 
             return $stmt->execute([$nombres, $email, $idRol, $id]);
         }
 
         $stmt = $this->db->prepare(
-            "UPDATE {$this->table}
+            "UPDATE $this->table
              SET nombres = ?, email = ?, id_rol = ?, password_user = ?
-             WHERE {$this->primaryKey} = ?"
+             WHERE $this->primaryKey = ?"
         );
 
-        return $stmt->execute([$nombres, $email, $idRol, $passwordHash, $id]);
+        return $stmt->execute([$nombres, $email, $idRol, password_hash($plainPassword, PASSWORD_DEFAULT), $id]);
     }
 }

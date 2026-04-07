@@ -3,14 +3,16 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row">
                 <div class="col-sm-6">
                     <h1 class="m-0">Crear usuario</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/users"><i class="fas fa-users"></i> Usuarios</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/users"><i class="fas fa-users"></i>
+                                Usuarios</a></li>
                         <li class="breadcrumb-item active">Crear usuario</li>
                     </ol>
                 </div>
@@ -25,7 +27,8 @@
             <div class="row">
                 <div class="col-md-8">
                     <form id="userCreateForm" action="<?= BASE_URL ?>/users" method="post" autocomplete="off">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="csrf_token"
+                               value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
                         <!-- Card 1: Datos del usuario -->
                         <div class="card card-primary card-outline">
@@ -45,20 +48,22 @@
                                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                                         </div>
                                         <input type="text" id="nombres" name="nombres" class="form-control"
-                                            placeholder="Nombre completo del usuario" autocomplete="off">
+                                               placeholder="Nombre completo del usuario" autocomplete="off">
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="email">Correo electrónico <span class="text-danger">*</span></label>
+                                            <label for="email">Correo electrónico <span
+                                                        class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                                    <span class="input-group-text"><i
+                                                                class="fas fa-envelope"></i></span>
                                                 </div>
                                                 <input type="email" id="email" name="email" class="form-control"
-                                                    placeholder="correo@ejemplo.com" autocomplete="off">
+                                                       placeholder="correo@ejemplo.com" autocomplete="off">
                                             </div>
                                         </div>
                                     </div>
@@ -68,7 +73,7 @@
                                             <select name="rol" id="rol" class="form-control select2">
                                                 <option value="">— Seleccione un rol —</option>
                                                 <?php foreach ($roles_datos as $roles_dato) : ?>
-                                                    <option value="<?= (int) $roles_dato['id_rol']; ?>">
+                                                    <option value="<?= (int)$roles_dato['id_rol']; ?>">
                                                         <?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8'); ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -93,15 +98,18 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="password_user">Contraseña <span class="text-danger">*</span></label>
+                                            <label for="password_user">Contraseña <span
+                                                        class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
-                                                <input type="password" id="password_user" name="password_user" class="form-control"
-                                                    placeholder="Mínimo 6 caracteres">
+                                                <input type="password" id="password_user" name="password_user"
+                                                       class="form-control"
+                                                       placeholder="Mínimo 6 caracteres">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                            id="togglePassword">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -115,10 +123,12 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
-                                                <input type="password" id="password_repeat" name="password_repeat" class="form-control"
-                                                    placeholder="Repita la contraseña">
+                                                <input type="password" id="password_repeat" name="password_repeat"
+                                                       class="form-control"
+                                                       placeholder="Repita la contraseña">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary" id="togglePasswordRepeat">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                            id="togglePasswordRepeat">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -159,11 +169,18 @@
                         <div class="card-body">
                             <p>Registra las credenciales del usuario para que pueda acceder al sistema.</p>
                             <ul class="list-unstyled mb-2">
-                                <li class="mb-1"><i class="fas fa-asterisk text-danger mr-1" style="font-size:.7rem;"></i> Todos los campos son obligatorios.</li>
-                                <li class="mb-1"><i class="fas fa-user-tag text-info mr-1"></i> El rol determina los permisos y accesos del usuario.</li>
-                                <li class="mb-1"><i class="fas fa-lock text-warning mr-1"></i> La contraseña debe tener al menos 6 caracteres.</li>
+                                <li class="mb-1"><i class="fas fa-asterisk text-danger mr-1"
+                                                    style="font-size:.7rem;"></i> Todos los campos son obligatorios.
+                                </li>
+                                <li class="mb-1"><i class="fas fa-user-tag text-info mr-1"></i> El rol determina los
+                                    permisos y accesos del usuario.
+                                </li>
+                                <li class="mb-1"><i class="fas fa-lock text-warning mr-1"></i> La contraseña debe tener
+                                    al menos 6 caracteres.
+                                </li>
                             </ul>
-                            <p class="text-muted mb-0"><small>El correo electrónico debe ser único en el sistema.</small></p>
+                            <p class="text-muted mb-0"><small>El correo electrónico debe ser único en el
+                                    sistema.</small></p>
                         </div>
                     </div>
 
