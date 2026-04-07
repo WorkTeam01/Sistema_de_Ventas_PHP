@@ -89,7 +89,7 @@ class User extends Model
     public function findWithRoleById(int $id): array|false
     {
         $stmt = $this->db->prepare(
-            "SELECT us.id_usuario, us.nombres, us.email, us.id_rol, rol.rol
+            "SELECT us.id_usuario, us.nombres, us.email, us.id_rol, us.fyh_creacion, rol.rol
              FROM tb_usuarios us
              INNER JOIN tb_roles rol ON us.id_rol = rol.id_rol
              WHERE us.id_usuario = ?
@@ -196,6 +196,41 @@ class User extends Model
             'productos' => (int) ($productos[0]['total'] ?? 0),
             'compras'   => (int) ($compras[0]['total'] ?? 0),
         ];
+    }
+
+    /**
+     * Actualiza nombre y email del propio usuario sin modificar su rol ni contraseña.
+     *
+     * @param int    $id      ID del usuario.
+     * @param string $nombres Nuevo nombre completo.
+     * @param string $email   Nuevo email.
+     * @return bool True si la actualización fue exitosa.
+     */
+    public function updateProfileInfo(int $id, string $nombres, string $email): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE {$this->table}
+             SET nombres = ?, email = ?
+             WHERE {$this->primaryKey} = ?"
+        );
+        return $stmt->execute([$nombres, $email, $id]);
+    }
+
+    /**
+     * Actualiza únicamente la contraseña de un usuario.
+     *
+     * @param int    $id           ID del usuario.
+     * @param string $passwordHash Nueva contraseña ya hasheada con password_hash().
+     * @return bool True si la actualización fue exitosa.
+     */
+    public function updatePassword(int $id, string $passwordHash): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE {$this->table}
+             SET password_user = ?
+             WHERE {$this->primaryKey} = ?"
+        );
+        return $stmt->execute([$passwordHash, $id]);
     }
 
     /**

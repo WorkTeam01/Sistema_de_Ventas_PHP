@@ -13,14 +13,14 @@ class UserController extends Controller
      */
     public function index(): void
     {
-        $userModel     = new User();
+        $userModel = new User();
         $usuarios_datos = $userModel->findAllWithRole();
 
         $this->renderWithLayout('views/users/index.php', array_merge(
             $this->sessionData(),
             [
                 'usuarios_datos' => $usuarios_datos,
-                'pageScripts'    => ['/js/modules/users/users-index.js'],
+                'pageScripts' => ['/js/modules/users/users-index.js'],
             ]
         ), true, ['datatable']);
     }
@@ -30,14 +30,14 @@ class UserController extends Controller
      */
     public function create(): void
     {
-        $userModel   = new User();
+        $userModel = new User();
         $roles_datos = $userModel->findAllRoles();
 
         $this->renderWithLayout('views/users/create.php', array_merge(
             $this->sessionData(),
             [
                 'roles_datos' => $roles_datos,
-                'csrf_token'  => Auth::generateCsrfToken(),
+                'csrf_token' => Auth::generateCsrfToken(),
                 'pageScripts' => ['/js/modules/users/users-create.js'],
             ]
         ), true, ['select2', 'validation']);
@@ -50,10 +50,10 @@ class UserController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $nombres         = trim($_POST['nombres'] ?? '');
-        $email           = trim($_POST['email'] ?? '');
-        $rol             = (int) ($_POST['rol'] ?? 0);
-        $password_user   = $_POST['password_user'] ?? '';
+        $nombres = trim($_POST['nombres'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $rol = (int)($_POST['rol'] ?? 0);
+        $password_user = $_POST['password_user'] ?? '';
         $password_repeat = $_POST['password_repeat'] ?? '';
 
         if ($nombres === '' || $email === '' || $rol <= 0 || $password_user === '' || $password_repeat === '') {
@@ -95,14 +95,14 @@ class UserController extends Controller
      */
     public function show(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
             $this->flash('Usuario inválido.', 'error');
             $this->redirect(BASE_URL . '/users');
         }
 
         $userModel = new User();
-        $usuario   = $userModel->findWithRoleById($id);
+        $usuario = $userModel->findWithRoleById($id);
 
         if (!$usuario) {
             $this->flash('No se encontró el usuario solicitado.', 'error');
@@ -112,10 +112,10 @@ class UserController extends Controller
         $this->renderWithLayout('views/users/show.php', array_merge(
             $this->sessionData(),
             [
-                'id_usuario' => (int) $usuario['id_usuario'],
-                'nombres'    => $usuario['nombres'],
-                'email'      => $usuario['email'],
-                'rol'        => $usuario['rol'],
+                'id_usuario' => (int)$usuario['id_usuario'],
+                'nombres' => $usuario['nombres'],
+                'email' => $usuario['email'],
+                'rol' => $usuario['rol'],
             ]
         ));
     }
@@ -127,14 +127,14 @@ class UserController extends Controller
      */
     public function edit(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
             $this->flash('Usuario inválido.', 'error');
             $this->redirect(BASE_URL . '/users');
         }
 
         $userModel = new User();
-        $usuario   = $userModel->findWithRoleById($id);
+        $usuario = $userModel->findWithRoleById($id);
 
         if (!$usuario) {
             $this->flash('No se encontró el usuario solicitado.', 'error');
@@ -146,13 +146,13 @@ class UserController extends Controller
         $this->renderWithLayout('views/users/edit.php', array_merge(
             $this->sessionData(),
             [
-                'id_usuario'  => (int) $usuario['id_usuario'],
-                'nombres'     => $usuario['nombres'],
-                'email'       => $usuario['email'],
-                'idRolActual' => (int) $usuario['id_rol'],
-                'rolActual'   => $usuario['rol'],
+                'id_usuario' => (int)$usuario['id_usuario'],
+                'nombres' => $usuario['nombres'],
+                'email' => $usuario['email'],
+                'idRolActual' => (int)$usuario['id_rol'],
+                'rolActual' => $usuario['rol'],
                 'roles_datos' => $roles_datos,
-                'csrf_token'  => Auth::generateCsrfToken(),
+                'csrf_token' => Auth::generateCsrfToken(),
                 'pageScripts' => ['/js/modules/users/users-edit.js'],
             ]
         ), true, ['select2', 'validation']);
@@ -166,11 +166,11 @@ class UserController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $id_usuario      = (int) ($_POST['id_usuario'] ?? 0);
-        $nombres         = trim($_POST['nombres'] ?? '');
-        $email           = trim($_POST['email'] ?? '');
-        $rol             = (int) ($_POST['rol'] ?? 0);
-        $password_user   = $_POST['password_user'] ?? '';
+        $id_usuario = (int)($_POST['id_usuario'] ?? 0);
+        $nombres = trim($_POST['nombres'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $rol = (int)($_POST['rol'] ?? 0);
+        $password_user = $_POST['password_user'] ?? '';
         $password_repeat = $_POST['password_repeat'] ?? '';
 
         if ($id_usuario <= 0 || $nombres === '' || $email === '' || $rol <= 0) {
@@ -215,7 +215,7 @@ class UserController extends Controller
      */
     public function check(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
             $this->json(['error' => 'Usuario inválido.'], 400);
         }
@@ -230,8 +230,8 @@ class UserController extends Controller
 
         $this->json([
             'referenced' => ($counts['productos'] + $counts['compras']) > 0,
-            'productos'  => $counts['productos'],
-            'compras'    => $counts['compras'],
+            'productos' => $counts['productos'],
+            'compras' => $counts['compras'],
         ]);
     }
 
@@ -242,12 +242,12 @@ class UserController extends Controller
     public function checkEmail(): void
     {
         $email = trim($_POST['email'] ?? '');
-        $id    = $_POST['id_usuario'] ?? null;
+        $id = $_POST['id_usuario'] ?? null;
 
         if ($id === '' || $id === 'null') {
             $id = null;
         } elseif ($id !== null) {
-            $id = (int) $id;
+            $id = (int)$id;
         }
 
         $userModel = new User();
@@ -265,14 +265,14 @@ class UserController extends Controller
      */
     public function delete(?int $id = null): void
     {
-        $id = $id ?? (int) ($_GET['id'] ?? 0);
+        $id = $id ?? (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
             $this->flash('Usuario inválido.', 'error');
             $this->redirect(BASE_URL . '/users');
         }
 
         $userModel = new User();
-        $usuario   = $userModel->findWithRoleById($id);
+        $usuario = $userModel->findWithRoleById($id);
 
         if (!$usuario) {
             $this->flash('No se encontró el usuario solicitado.', 'error');
@@ -282,13 +282,156 @@ class UserController extends Controller
         $this->renderWithLayout('views/users/delete.php', array_merge(
             $this->sessionData(),
             [
-                'id_usuario' => (int) $usuario['id_usuario'],
-                'nombres'    => $usuario['nombres'],
-                'email'      => $usuario['email'],
-                'rol'        => $usuario['rol'],
+                'id_usuario' => (int)$usuario['id_usuario'],
+                'nombres' => $usuario['nombres'],
+                'email' => $usuario['email'],
+                'rol' => $usuario['rol'],
                 'csrf_token' => Auth::generateCsrfToken(),
             ]
         ));
+    }
+
+    /**
+     * Muestra la página de perfil del usuario autenticado.
+     * Prepara las variables de presentación (iniciales, fecha, color por rol).
+     */
+    public function profile(): void
+    {
+        $authUser = Auth::user();
+        $userModel = new User();
+        $usuario = $userModel->findWithRoleById((int)$authUser['id_usuario']);
+
+        // Iniciales del usuario (máximo 2 caracteres)
+        $words = preg_split('/\s+/', trim($usuario['nombres']));
+        $initials = '';
+        foreach (array_slice($words, 0, 2) as $word) {
+            if ($word !== '') {
+                $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+            }
+        }
+
+        // Fecha de registro formateada
+        $fechaRegistro = 'N/D';
+        if (!empty($usuario['fyh_creacion'])) {
+            $dt = new \DateTime($usuario['fyh_creacion']);
+            $fechaRegistro = $dt->format('d/m/Y');
+        }
+
+        // Clases de color según rol
+        $roleConfig = [
+            'Administrador' => ['card' => 'card-danger', 'badge' => 'badge-danger'],
+            'Vendedor' => ['card' => 'card-success', 'badge' => 'badge-success'],
+            'Comprador' => ['card' => 'card-warning', 'badge' => 'badge-warning'],
+        ];
+        $config = $roleConfig[$usuario['rol']] ?? ['card' => 'card-primary', 'badge' => 'badge-primary'];
+
+        $validTabs = ['perfil', 'password'];
+        $activeTab = in_array($_GET['tab'] ?? '', $validTabs) ? $_GET['tab'] : 'perfil';
+
+        // Variables de presentación listas para la vista (sin lógica en la vista)
+        $csrfToken = Auth::generateCsrfToken();
+
+        $this->renderWithLayout('views/users/profile.php', array_merge(
+            $this->sessionData(),
+            [
+                'id_usuario' => (int)$usuario['id_usuario'],
+                'cardClass' => $config['card'],
+                'badgeClass' => $config['badge'],
+                'nombresSafe' => htmlspecialchars($usuario['nombres'], ENT_QUOTES, 'UTF-8'),
+                'emailSafe' => htmlspecialchars($usuario['email'], ENT_QUOTES, 'UTF-8'),
+                'rolSafe' => htmlspecialchars($usuario['rol'], ENT_QUOTES, 'UTF-8'),
+                'initSafe' => htmlspecialchars($initials, ENT_QUOTES, 'UTF-8'),
+                'fechaSafe' => htmlspecialchars($fechaRegistro, ENT_QUOTES, 'UTF-8'),
+                'csrfSafe' => htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'),
+                'checkUrl' => htmlspecialchars(BASE_URL . '/users/check-email', ENT_QUOTES, 'UTF-8'),
+                'navPerfilClass' => $activeTab === 'perfil' ? 'active' : '',
+                'navPasswordClass' => $activeTab === 'password' ? 'active' : '',
+                'panePerfilClass' => $activeTab === 'perfil' ? 'show active' : '',
+                'panePasswordClass' => $activeTab === 'password' ? 'show active' : '',
+                'pageStyles' => ['/css/modules/users/profile.css'],
+                'pageScripts' => ['/js/modules/users/users-profile.js'],
+            ]
+        ), true, ['validation']);
+    }
+
+    /**
+     * Actualiza nombre y email del perfil propio del usuario autenticado.
+     */
+    public function updateProfile(): void
+    {
+        $this->validateCsrfOrFail();
+
+        $authUser = Auth::user();
+        $id_usuario = (int)$authUser['id_usuario'];
+        $nombres = trim($_POST['nombres'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+
+        if ($nombres === '' || $email === '') {
+            $this->flash('El nombre y el email son obligatorios.', 'error');
+            $this->redirect(BASE_URL . '/profile');
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->flash('El formato del correo electrónico es inválido.', 'error');
+            $this->redirect(BASE_URL . '/profile');
+        }
+
+        $userModel = new User();
+        if ($userModel->emailExists($email, $id_usuario)) {
+            $this->flash('El correo electrónico ya está registrado por otro usuario.', 'error');
+            $this->redirect(BASE_URL . '/profile');
+        }
+
+        if ($userModel->updateProfileInfo($id_usuario, $nombres, $email)) {
+            if ($email !== $authUser['email']) {
+                Auth::startSession();
+                $_SESSION['sesion_email'] = $email;
+            }
+            $this->flash('Perfil actualizado exitosamente.', 'success');
+            $this->redirect(BASE_URL . '/profile');
+        }
+
+        $this->flash('No se pudo actualizar el perfil.', 'error');
+        $this->redirect(BASE_URL . '/profile');
+    }
+
+    /**
+     * Actualiza únicamente la contraseña del usuario autenticado.
+     */
+    public function updatePassword(): void
+    {
+        $this->validateCsrfOrFail();
+
+        $authUser = Auth::user();
+        $id_usuario = (int)$authUser['id_usuario'];
+        $password_user = $_POST['password_user'] ?? '';
+        $password_repeat = $_POST['password_repeat'] ?? '';
+
+        if ($password_user === '') {
+            $this->flash('La nueva contraseña es obligatoria.', 'error');
+            $this->redirect(BASE_URL . '/profile?tab=password');
+        }
+
+        if (strlen($password_user) < 6) {
+            $this->flash('La contraseña debe tener al menos 6 caracteres.', 'error');
+            $this->redirect(BASE_URL . '/profile?tab=password');
+        }
+
+        if ($password_user !== $password_repeat) {
+            $this->flash('Las contraseñas no coinciden.', 'error');
+            $this->redirect(BASE_URL . '/profile?tab=password');
+        }
+
+        $userModel = new User();
+        $passwordHash = password_hash($password_user, PASSWORD_DEFAULT);
+
+        if ($userModel->updatePassword($id_usuario, $passwordHash)) {
+            $this->flash('Contraseña actualizada exitosamente.', 'success');
+            $this->redirect(BASE_URL . '/profile?tab=password');
+        }
+
+        $this->flash('No se pudo actualizar la contraseña.', 'error');
+        $this->redirect(BASE_URL . '/profile?tab=password');
     }
 
     /**
@@ -298,7 +441,7 @@ class UserController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $id_usuario = (int) ($_POST['id_usuario'] ?? 0);
+        $id_usuario = (int)($_POST['id_usuario'] ?? 0);
         if ($id_usuario <= 0) {
             $this->flash('Usuario inválido.', 'error');
             $this->redirect(BASE_URL . '/users');

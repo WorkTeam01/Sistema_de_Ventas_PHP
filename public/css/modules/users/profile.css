@@ -1,0 +1,16 @@
+.profile-avatar-initials {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #17a2b8, #007bff);
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    border: 3px solid #dee2e6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    letter-spacing: 2px;
+}

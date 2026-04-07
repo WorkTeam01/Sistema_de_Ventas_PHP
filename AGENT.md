@@ -158,7 +158,9 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 - Métodos estándar del proyecto: `index()`, `create()`, `store()`, `edit(?int $id)`, `update()`, `destroy()`
 - Métodos auxiliares permitidos (cuando el módulo lo requiere): `check()` (endpoint JSON de verificación de
   referencias), `delete()` (página de confirmación de eliminación), `show()` (retorna JSON con datos del registro para
-  pre-llenar modal de edición), `checkNombre()` (endpoint `remote` para jQuery Validate)
+  pre-llenar modal de edición), `checkNombre()` (endpoint `remote` para jQuery Validate),
+  `profile()` / `updateProfile()` / `updatePassword()` (perfil propio del usuario autenticado — solo en
+  `UserController`)
 - `destroy()` llama a `$model->isReferenced($id)` antes de eliminar — si hay FK activa: flash + redirect (patrón
   clásico) o JSON error (patrón modal+AJAX)
 - **PROHIBIDO** inventar métodos fuera del estándar sin justificación (toggle, activate, complete, etc.)
@@ -258,6 +260,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-04 — v1.3.0 (dashboard: KPIs por rol con variación porcentual, gráfico Chart.js barras
-últimos 6 meses, tabla de últimas ventas y stock bajo; nuevos métodos en Sale/Purchase/Product; CSS/JS modularizados
-en `dashboard.css` / `dashboard.js`)_
+_Última actualización: 2026-04-07 — v1.3.5 (perfil de usuario: rutas `/profile`, vista con 2 tabs AdminLTE,
+colores por rol, lógica de presentación en controlador, métodos separados `updateProfile()` / `updatePassword()`)_

@@ -35,6 +35,11 @@ $router->get('/auth',        [AuthController::class, 'showLogin'], ['guest']);
 $router->post('/auth/login', [AuthController::class, 'store'], ['guest']);
 $router->get('/auth/logout', [AuthController::class, 'logout'], ['auth']);
 
+// Perfil propio (cualquier rol autenticado)
+$router->get('/profile',           [UserController::class, 'profile'],        ['auth']);
+$router->post('/profile/update',   [UserController::class, 'updateProfile'],  ['auth']);
+$router->post('/profile/password', [UserController::class, 'updatePassword'], ['auth']);
+
 // Rutas del módulo users (MVC)
 $router->get('/users',         [UserController::class, 'index'], ['auth', 'admin']);
 $router->get('/users/create',  [UserController::class, 'create'], ['auth', 'admin']);

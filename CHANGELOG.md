@@ -7,6 +7,32 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.5] - 2026-04-07
+
+### Agregado
+
+- `views/users/profile.php` — página de perfil propio accesible a todos los roles; patrón AdminLTE dos columnas:
+  card izquierda con avatar de iniciales, nombre, badge de rol y datos del usuario; card derecha con 2 tabs
+  (Editar perfil: nombre + email / Cambiar contraseña); colores de cards variables según rol
+  (`card-danger` Administrador, `card-success` Vendedor, `card-warning` Comprador)
+- `public/css/modules/users/profile.css` — estilos del avatar circular de iniciales con gradiente por rol
+- `public/js/modules/users/users-profile.js` — validación jQuery Validate para ambos formularios del perfil;
+  verificación AJAX de unicidad de email (reutiliza `/users/check-email`); toggle de visibilidad de contraseña
+
+### Modificado
+
+- `app/Controllers/UserController.php` — añadidos `profile()` (GET), `updateProfile()` (POST info),
+  `updatePassword()` (POST contraseña); toda la lógica de presentación (iniciales, fecha formateada, clases CSS
+  por rol, tab activo, variables HTML-safe) se computa en el controlador antes de pasar a la vista
+- `app/Models/User.php` — añadidos `updateProfileInfo(id, nombres, email)` y `updatePassword(id, hash)` como
+  métodos separados; `findWithRoleById()` incluye ahora `fyh_creacion` en el SELECT
+- `routes/web.php` — añadidas rutas `GET /profile`, `POST /profile/update` y `POST /profile/password`
+  con middleware `auth` (accesibles a cualquier rol autenticado)
+- `views/layouts/partials/_sidebar.php` — enlace "Mi Perfil" añadido como primer ítem del menú, visible
+  para todos los roles
+
+---
+
 ## [1.3.4] - 2026-04-06
 
 ### Refactorizado

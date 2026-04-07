@@ -23,6 +23,14 @@
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <!-- Mi Perfil (todos los roles) -->
+                <li class="nav-item">
+                    <a href="<?= BASE_URL ?>/profile" class="nav-link active">
+                        <i class="nav-icon fas fa-user-circle"></i>
+                        <p>Mi Perfil</p>
+                    </a>
+                </li>
+
                 <!-- Modulo de usuarios -->
                 <?php if ($rol_sesion == 'Administrador'): ?>
                     <li class="nav-item">
