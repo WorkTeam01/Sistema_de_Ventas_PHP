@@ -168,10 +168,12 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 ### PHP — Modelos MVC
 
 - Heredan de `App\Core\Model` — métodos disponibles: `all()`, `find()`, `create()`, `update()`, `delete()`, `count()`,
-  `query()`
+  `query()` — `insert()` y `findAll()` están marcados `@deprecated`, usar `create()` y `all()`
 - Sobreescribir `isReferenced(int|string $id): bool` en modelos con FKs en otras tablas
 - Usar PDO con prepared statements siempre — nunca concatenar variables en SQL
 - **Borrado físico** (no lógico) — protegido por `isReferenced()` antes de ejecutar DELETE
+- **Fat model:** la lógica de negocio vive en el modelo (hashing de contraseñas, cálculos, reglas de integridad);
+  el controlador solo orquesta (leer input → llamar modelo → responder)
 
 ### PHP — Seguridad
 
@@ -260,5 +262,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-07 — v1.3.5 (perfil de usuario: rutas `/profile`, vista con 2 tabs AdminLTE,
-colores por rol, lógica de presentación en controlador, métodos separados `updateProfile()` / `updatePassword()`)_
+_Última actualización: 2026-04-07 — Unreleased (fat model en `users`: hashing encapsulado en modelo, `insert()` → `create()`, `redirect()`/`json()` con retorno `never`, eliminada vista `show` redundante de usuarios)_

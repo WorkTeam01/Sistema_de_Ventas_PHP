@@ -7,6 +7,29 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [Unreleased]
+
+### Eliminado
+
+- `views/users/show.php` — vista de detalle de usuario eliminada por ser redundante con el listado
+  (`index` ya expone nombre, email y rol); acciones de editar/eliminar disponibles directamente desde la tabla
+- `UserController::show()` — método eliminado junto con su vista
+- Ruta `GET /users/show/{id}` — removida de `routes/web.php`
+- Botón "Ver detalles" (ojo) del listado de usuarios — reemplazado por acceso directo a Editar/Eliminar
+
+### Modificado
+
+- `app/Models/User.php` — patrón fat model aplicado: `createUser()`, `updateUser()` y `updatePassword()`
+  ahora aceptan contraseña en texto plano y ejecutan `password_hash()` internamente; `createUser()` migrado
+  de `insert()` (deprecated) a `create()`
+- `app/Controllers/UserController.php` — eliminados los tres llamados a `password_hash()` (movidos al modelo);
+  añadido guard `if (!$usuario)` en `profile()` (era acceso sin verificar); `new \DateTime()` reemplazado
+  por `date_create()` para evitar excepción no manejada
+- `app/Core/Controller.php` — `redirect()` y `json()` cambian tipo de retorno de `void` a `never`, permitiendo
+  que PhpStorm infiera correctamente el flujo de control tras estos métodos
+
+---
+
 ## [1.3.5] - 2026-04-07
 
 ### Agregado
