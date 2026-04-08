@@ -24,6 +24,14 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - `app/Controllers/ClientController.php` — eliminados los dos llamados directos a `filter_var()` en
   `store()` y `update()`; reemplazados por `$clientModel->isValidEmail($email_cliente)`; instanciación
   del modelo movida antes de la validación de formato para evitar duplicar `new Client()`
+- `app/Models/Product.php` — fat model: añadidos `createProduct()` y `updateProduct()` que normalizan
+  internamente campos opcionales (`descripcion`/`stock_minimo`/`stock_maximo` vacíos → `null`) y castean
+  tipos (`(int)stock`, `(float)precio_*`); añadido `findWithCategory(int $id)` que retorna el producto
+  con `nombre_categoria` en una sola query JOIN con `tb_categorias`
+- `app/Controllers/ProductController.php` — `store()` y `update()` reemplazados `create()`/`update()`
+  directos por `createProduct()`/`updateProduct()` (normalización y casteos eliminados del controlador);
+  `show()` y `delete()` usan `findWithCategory()` en lugar de dos queries separadas (eliminado uso de
+  `$categoryModel` en ambos métodos)
 - `app/Models/Supplier.php` — fat model: añadidos `createSupplier()` y `updateSupplier()` como métodos
   tipados que normalizan internamente los campos opcionales `telefono` y `email` (vacío → `null`);
   sigue el mismo patrón que `User::createUser()` / `User::updateUser()`
