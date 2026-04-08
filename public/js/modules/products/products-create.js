@@ -117,14 +117,14 @@ $(document).ready(function () {
     // Cálculo de margen en tiempo real (sidebar)
     // =============================================
     function calcularMargen() {
-        const compra   = parseFloat($('#precio_compra').val()) || 0;
-        const venta    = parseFloat($('#precio_venta').val())  || 0;
+        const compra = parseFloat($('#precio_compra').val()) || 0;
+        const venta = parseFloat($('#precio_venta').val()) || 0;
         const ganancia = venta - compra;
-        const margen   = compra > 0 ? (ganancia / compra) * 100 : 0;
+        const margen = compra > 0 ? (ganancia / compra) * 100 : 0;
 
         $('#resumenPrecioCompra').text('$ ' + compra.toFixed(2));
-        $('#resumenPrecioVenta').text('$ '  + venta.toFixed(2));
-        $('#resumenGanancia').text('$ '     + ganancia.toFixed(2));
+        $('#resumenPrecioVenta').text('$ ' + venta.toFixed(2));
+        $('#resumenGanancia').text('$ ' + ganancia.toFixed(2));
 
         const $badge = $('#badgeMargen');
         $badge.text(margen.toFixed(2) + '%');
