@@ -104,15 +104,15 @@ class ProductController extends Controller
         $codigo = $productModel->nextCode();
         $id_usuario = Auth::user()['id_usuario'];
 
-        if ($productModel->create([
+        if ($productModel->createProduct([
             'codigo' => $codigo,
             'nombre' => $nombre,
-            'descripcion' => $descripcion ?: null,
-            'stock' => (int)$stock,
-            'stock_minimo' => $stock_minimo !== '' && $stock_minimo !== null ? (int)$stock_minimo : null,
-            'stock_maximo' => $stock_maximo !== '' && $stock_maximo !== null ? (int)$stock_maximo : null,
-            'precio_compra' => (float)$precio_compra,
-            'precio_venta' => (float)$precio_venta,
+            'descripcion' => $descripcion,
+            'stock' => $stock,
+            'stock_minimo' => $stock_minimo,
+            'stock_maximo' => $stock_maximo,
+            'precio_compra' => $precio_compra,
+            'precio_venta' => $precio_venta,
             'fecha_ingreso' => $fecha_ingreso,
             'imagen' => $imagen,
             'id_usuario' => $id_usuario,
@@ -143,16 +143,13 @@ class ProductController extends Controller
         }
 
         $productModel = new Product();
-        $product = $productModel->find($id);
+        $product = $productModel->findWithCategory($id);
 
         if (!$product) {
             $this->flash('No se encontró el producto solicitado.', 'error');
             $this->redirect(BASE_URL . '/products');
             return;
         }
-
-        $categoryModel = new Category();
-        $category = $categoryModel->find((int)$product['id_categoria']);
 
         $this->renderWithLayout('views/products/show.php', array_merge(
             $this->sessionData(),
@@ -170,7 +167,7 @@ class ProductController extends Controller
                 'imagen' => $product['imagen'],
                 'fyh_creacion' => $product['fyh_creacion'],
                 'fyh_actualizacion' => $product['fyh_actualizacion'],
-                'nombre_categoria' => $category['nombre_categoria'] ?? '—',
+                'nombre_categoria' => $product['nombre_categoria'] ?? '—',
             ]
         ));
     }
@@ -219,7 +216,7 @@ class ProductController extends Controller
                 'categories' => $categoryModel->all(),
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'csrf_token' => Auth::generateCsrfToken(),
-                'pageStyles'  => ['/css/modules/products/create.css'],
+                'pageStyles' => ['/css/modules/products/create.css'],
                 'pageScripts' => ['/js/modules/products/products-edit.js'],
             ]
         ), true, ['select2', 'validation']);
@@ -271,14 +268,14 @@ class ProductController extends Controller
         $productModel = new Product();
         $id_usuario = Auth::user()['id_usuario'];
 
-        if ($productModel->update($id_producto, [
+        if ($productModel->updateProduct($id_producto, [
             'nombre' => $nombre,
-            'descripcion' => $descripcion ?: null,
-            'stock' => (int)$stock,
-            'stock_minimo' => $stock_minimo !== '' && $stock_minimo !== null ? (int)$stock_minimo : null,
-            'stock_maximo' => $stock_maximo !== '' && $stock_maximo !== null ? (int)$stock_maximo : null,
-            'precio_compra' => (float)$precio_compra,
-            'precio_venta' => (float)$precio_venta,
+            'descripcion' => $descripcion,
+            'stock' => $stock,
+            'stock_minimo' => $stock_minimo,
+            'stock_maximo' => $stock_maximo,
+            'precio_compra' => $precio_compra,
+            'precio_venta' => $precio_venta,
             'fecha_ingreso' => $fecha_ingreso,
             'imagen' => $imagen,
             'id_usuario' => $id_usuario,
@@ -336,16 +333,13 @@ class ProductController extends Controller
         }
 
         $productModel = new Product();
-        $product = $productModel->find($id);
+        $product = $productModel->findWithCategory($id);
 
         if (!$product) {
             $this->flash('No se encontró el producto solicitado.', 'error');
             $this->redirect(BASE_URL . '/products');
             return;
         }
-
-        $categoryModel = new Category();
-        $category = $categoryModel->find((int)$product['id_categoria']);
 
         $this->renderWithLayout('views/products/delete.php', array_merge(
             $this->sessionData(),
@@ -354,7 +348,7 @@ class ProductController extends Controller
                 'codigo' => $product['codigo'],
                 'nombre' => $product['nombre'],
                 'imagen' => $product['imagen'],
-                'nombre_categoria' => $category['nombre_categoria'] ?? '—',
+                'nombre_categoria' => $product['nombre_categoria'] ?? '—',
                 'csrf_token' => Auth::generateCsrfToken(),
             ]
         ));

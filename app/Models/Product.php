@@ -11,7 +11,7 @@ use App\Core\Model;
  */
 class Product extends Model
 {
-    protected string $table      = 'tb_almacen';
+    protected string $table = 'tb_almacen';
     protected string $primaryKey = 'id_producto';
 
     /**
@@ -38,7 +38,7 @@ class Product extends Model
     public function nextCode(): string
     {
         $next = $this->count() + 1;
-        return 'P-' . str_pad((string) $next, 5, '0', STR_PAD_LEFT);
+        return 'P-' . str_pad((string)$next, 5, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -49,7 +49,7 @@ class Product extends Model
      */
     public function isReferenced(int|string $id): bool
     {
-        $inCart     = $this->query("SELECT COUNT(*) AS total FROM tb_carrito WHERE id_producto = ?", [$id]);
+        $inCart = $this->query("SELECT COUNT(*) AS total FROM tb_carrito WHERE id_producto = ?", [$id]);
         $inPurchase = $this->query("SELECT COUNT(*) AS total FROM tb_compras WHERE id_producto = ?", [$id]);
         return ($inCart[0]['total'] ?? 0) > 0 || ($inPurchase[0]['total'] ?? 0) > 0;
     }
@@ -67,7 +67,7 @@ class Product extends Model
             "SELECT COUNT(*) AS total FROM tb_almacen
              WHERE stock <= COALESCE(stock_minimo, 5)"
         );
-        return (int) $rows[0]['total'];
+        return (int)$rows[0]['total'];
     }
 
     /** Lista productos con stock bajo, con nombre de categoría. */
@@ -97,8 +97,76 @@ class Product extends Model
         );
 
         return [
-            'carrito' => (int) ($carrito[0]['total'] ?? 0),
-            'compras' => (int) ($compras[0]['total'] ?? 0),
+            'carrito' => (int)($carrito[0]['total'] ?? 0),
+            'compras' => (int)($compras[0]['total'] ?? 0),
         ];
+    }
+
+    /**
+     * Retorna un producto junto con el nombre de su categoría.
+     *
+     * @param int $id ID del producto.
+     * @return array|false Fila con datos del producto y nombre_categoria, o false si no existe.
+     */
+    public function findWithCategory(int $id): array|false
+    {
+        $rows = $this->query(
+            "SELECT al.*, ca.nombre_categoria
+             FROM tb_almacen al
+             INNER JOIN tb_categorias ca ON al.id_categoria = ca.id_categoria
+             WHERE al.id_producto = ?",
+            [$id]
+        );
+        return $rows[0] ?? false;
+    }
+
+    /**
+     * Crea un nuevo producto normalizando campos opcionales y casteando tipos.
+     * stock_minimo/stock_maximo/descripcion vacíos se guardan como NULL.
+     *
+     * @param array $data Datos crudos validados (del controlador).
+     * @return bool true si se insertó correctamente.
+     */
+    public function createProduct(array $data): bool
+    {
+        return $this->create([
+            'codigo' => $data['codigo'],
+            'nombre' => $data['nombre'],
+            'descripcion' => !empty($data['descripcion']) ? $data['descripcion'] : null,
+            'stock' => (int)$data['stock'],
+            'stock_minimo' => $data['stock_minimo'] !== '' && $data['stock_minimo'] !== null ? (int)$data['stock_minimo'] : null,
+            'stock_maximo' => $data['stock_maximo'] !== '' && $data['stock_maximo'] !== null ? (int)$data['stock_maximo'] : null,
+            'precio_compra' => (float)$data['precio_compra'],
+            'precio_venta' => (float)$data['precio_venta'],
+            'fecha_ingreso' => $data['fecha_ingreso'],
+            'imagen' => $data['imagen'],
+            'id_usuario' => $data['id_usuario'],
+            'id_categoria' => $data['id_categoria'],
+        ]);
+    }
+
+    /**
+     * Actualiza un producto normalizando campos opcionales y casteando tipos.
+     * stock_minimo/stock_maximo/descripcion vacíos se guardan como NULL.
+     *
+     * @param int $id ID del producto a actualizar.
+     * @param array $data Datos crudos validados (del controlador).
+     * @return bool true si se actualizó correctamente.
+     */
+    public function updateProduct(int $id, array $data): bool
+    {
+        return $this->update($id, [
+            'nombre' => $data['nombre'],
+            'descripcion' => !empty($data['descripcion']) ? $data['descripcion'] : null,
+            'stock' => (int)$data['stock'],
+            'stock_minimo' => $data['stock_minimo'] !== '' && $data['stock_minimo'] !== null ? (int)$data['stock_minimo'] : null,
+            'stock_maximo' => $data['stock_maximo'] !== '' && $data['stock_maximo'] !== null ? (int)$data['stock_maximo'] : null,
+            'precio_compra' => (float)$data['precio_compra'],
+            'precio_venta' => (float)$data['precio_venta'],
+            'fecha_ingreso' => $data['fecha_ingreso'],
+            'imagen' => $data['imagen'],
+            'id_usuario' => $data['id_usuario'],
+            'id_categoria' => $data['id_categoria'],
+        ]);
     }
 }
