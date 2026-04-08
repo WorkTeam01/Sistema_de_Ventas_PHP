@@ -36,9 +36,6 @@ class SupplierController extends Controller
         $telefono = $this->input('telefono');
         $email = $this->input('email');
 
-        $telefono = ($telefono !== null && trim($telefono) !== '') ? trim($telefono) : null;
-        $email = ($email !== null && trim($email) !== '') ? trim($email) : null;
-
         if ($nombre_proveedor === '' || $empresa === '' || $celular === '' || $direccion === '') {
             $this->json(['success' => false, 'message' => 'Los campos Nombre, Empresa, Celular y Dirección son obligatorios.']);
         }
@@ -49,14 +46,7 @@ class SupplierController extends Controller
             $this->json(['success' => false, 'message' => 'Ya existe un proveedor con esa empresa.']);
         }
 
-        if ($supplierModel->create([
-            'nombre_proveedor' => $nombre_proveedor,
-            'empresa' => $empresa,
-            'celular' => $celular,
-            'telefono' => $telefono,
-            'email' => $email,
-            'direccion' => $direccion,
-        ])) {
+        if ($supplierModel->createSupplier($nombre_proveedor, $empresa, $celular, $direccion, $telefono, $email)) {
             $this->json(['success' => true, 'message' => 'El proveedor se registró exitosamente.']);
         }
 
@@ -102,9 +92,6 @@ class SupplierController extends Controller
         $telefono = $this->input('telefono');
         $email = $this->input('email');
 
-        $telefono = ($telefono !== null && trim($telefono) !== '') ? trim($telefono) : null;
-        $email = ($email !== null && trim($email) !== '') ? trim($email) : null;
-
         if ($id <= 0 || $nombre_proveedor === '' || $empresa === '' || $celular === '' || $direccion === '') {
             $this->json(['success' => false, 'message' => 'Datos inválidos para actualizar el proveedor.']);
         }
@@ -119,14 +106,7 @@ class SupplierController extends Controller
             $this->json(['success' => false, 'message' => 'Ya existe otro proveedor con esa empresa.']);
         }
 
-        if ($supplierModel->update($id, [
-            'nombre_proveedor' => $nombre_proveedor,
-            'empresa' => $empresa,
-            'celular' => $celular,
-            'telefono' => $telefono,
-            'email' => $email,
-            'direccion' => $direccion,
-        ])) {
+        if ($supplierModel->updateSupplier($id, $nombre_proveedor, $empresa, $celular, $direccion, $telefono, $email)) {
             $this->json(['success' => true, 'message' => 'El proveedor se actualizó exitosamente.']);
         }
 

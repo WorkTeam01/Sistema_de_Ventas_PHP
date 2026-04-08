@@ -19,6 +19,17 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Modificado
 
+- `app/Models/Client.php` — fat model: añadido `isValidEmail(string $email): bool` que encapsula
+  `filter_var(FILTER_VALIDATE_EMAIL)`; la validación de formato de email ya no vive en el controlador
+- `app/Controllers/ClientController.php` — eliminados los dos llamados directos a `filter_var()` en
+  `store()` y `update()`; reemplazados por `$clientModel->isValidEmail($email_cliente)`; instanciación
+  del modelo movida antes de la validación de formato para evitar duplicar `new Client()`
+- `app/Models/Supplier.php` — fat model: añadidos `createSupplier()` y `updateSupplier()` como métodos
+  tipados que normalizan internamente los campos opcionales `telefono` y `email` (vacío → `null`);
+  sigue el mismo patrón que `User::createUser()` / `User::updateUser()`
+- `app/Controllers/SupplierController.php` — eliminadas las 4 líneas de normalización manual
+  (`empty → null`) duplicadas en `store()` y `update()`; reemplazados `create([...])` y `update(...)`
+  por `createSupplier(...)` y `updateSupplier(...)`
 - `app/Models/User.php` — patrón fat model aplicado: `createUser()`, `updateUser()` y `updatePassword()`
   ahora aceptan contraseña en texto plano y ejecutan `password_hash()` internamente; `createUser()` migrado
   de `insert()` (deprecated) a `create()`

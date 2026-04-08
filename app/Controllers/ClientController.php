@@ -39,11 +39,11 @@ class ClientController extends Controller
             $this->json(['success' => false, 'message' => 'Todos los campos son obligatorios.']);
         }
 
-        if (!filter_var($email_cliente, FILTER_VALIDATE_EMAIL)) {
+        $clientModel = new Client();
+
+        if (!$clientModel->isValidEmail($email_cliente)) {
             $this->json(['success' => false, 'message' => 'El formato del correo electrónico no es válido.']);
         }
-
-        $clientModel = new Client();
 
         if ($clientModel->nitCiExists($nit_ci_cliente)) {
             $this->json(['success' => false, 'message' => 'Ya existe un cliente con ese NIT/CI.']);
@@ -106,11 +106,11 @@ class ClientController extends Controller
             $this->json(['success' => false, 'message' => 'Datos inválidos para actualizar el cliente.']);
         }
 
-        if (!filter_var($email_cliente, FILTER_VALIDATE_EMAIL)) {
+        $clientModel = new Client();
+
+        if (!$clientModel->isValidEmail($email_cliente)) {
             $this->json(['success' => false, 'message' => 'El formato del correo electrónico no es válido.']);
         }
-
-        $clientModel = new Client();
 
         if (!$clientModel->find($id)) {
             $this->json(['success' => false, 'message' => 'Cliente no encontrado.']);

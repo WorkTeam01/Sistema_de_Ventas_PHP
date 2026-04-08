@@ -172,8 +172,10 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 - Sobreescribir `isReferenced(int|string $id): bool` en modelos con FKs en otras tablas
 - Usar PDO con prepared statements siempre — nunca concatenar variables en SQL
 - **Borrado físico** (no lógico) — protegido por `isReferenced()` antes de ejecutar DELETE
-- **Fat model:** la lógica de negocio vive en el modelo (hashing de contraseñas, cálculos, reglas de integridad);
-  el controlador solo orquesta (leer input → llamar modelo → responder)
+- **Fat model:** la lógica de negocio vive en el modelo (hashing de contraseñas, validación de formato, normalización
+  de campos, cálculos, reglas de integridad); el controlador solo orquesta (leer input → llamar modelo → responder).
+  Ejemplos: `User::createUser()` / `updateUser()` encapsulan `password_hash()`; `Client::isValidEmail()` encapsula
+  `filter_var()`; `Supplier::createSupplier()` / `updateSupplier()` normalizan campos opcionales (vacío → `null`)
 
 ### PHP — Seguridad
 
@@ -262,4 +264,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-07 — Unreleased (fat model en `users`: hashing encapsulado en modelo, `insert()` → `create()`, `redirect()`/`json()` con retorno `never`, eliminada vista `show` redundante de usuarios)_
+_Última actualización: 2026-04-08 — Unreleased (fat model en `clients`/`suppliers`: `isValidEmail()`
+en `Client`, `createSupplier()`/`updateSupplier()` en `Supplier` con normalización de campos opcionales)_

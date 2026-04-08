@@ -11,28 +11,77 @@ use App\Core\Model;
  */
 class Supplier extends Model
 {
-    protected string $table      = 'tb_proveedores';
+    protected string $table = 'tb_proveedores';
     protected string $primaryKey = 'id_proveedor';
 
     /**
      * Verifica si el nombre de empresa ya existe en la base de datos.
      *
-     * @param string   $empresa   Nombre de empresa a verificar.
+     * @param string $empresa Nombre de empresa a verificar.
      * @param int|null $excludeId ID del proveedor actual para excluir al editar.
      * @return bool Verdadero si ya existe, falso si está disponible.
      */
     public function nameExists(string $empresa, ?int $excludeId = null): bool
     {
-        $sql    = "SELECT COUNT(*) as count FROM {$this->table} WHERE empresa = ?";
+        $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE empresa = ?";
         $params = [$empresa];
 
         if ($excludeId) {
-            $sql     .= " AND {$this->primaryKey} != ?";
+            $sql .= " AND {$this->primaryKey} != ?";
             $params[] = $excludeId;
         }
 
         $result = $this->query($sql, $params);
         return $result[0]['count'] > 0;
+    }
+
+    /**
+     * Crea un nuevo proveedor normalizando los campos opcionales.
+     * Telefono y email vacíos se almacenan como NULL.
+     *
+     * @return bool True si la inserción fue exitosa.
+     */
+    public function createSupplier(
+        string $nombre,
+        string $empresa,
+        string $celular,
+        string $direccion,
+        ?string $telefono,
+        ?string $email
+    ): bool {
+        return $this->create([
+            'nombre_proveedor' => $nombre,
+            'empresa'          => $empresa,
+            'celular'          => $celular,
+            'telefono'         => ($telefono !== null && trim($telefono) !== '') ? trim($telefono) : null,
+            'email'            => ($email    !== null && trim($email)    !== '') ? trim($email)    : null,
+            'direccion'        => $direccion,
+        ]) !== false;
+    }
+
+    /**
+     * Actualiza un proveedor existente normalizando los campos opcionales.
+     * Telefono y email vacíos se almacenan como NULL.
+     *
+     * @return bool True si la actualización fue exitosa.
+     */
+    public function updateSupplier(
+        int $id,
+        string $nombre,
+        string $empresa,
+        string $celular,
+        string $direccion,
+        ?string $telefono,
+        ?string $email
+    ): bool {
+        return $this->update($id, [
+            'nombre_proveedor' => $nombre,
+            'empresa'          => $empresa,
+            'celular'          => $celular,
+            'telefono'         => ($telefono !== null && trim($telefono) !== '') ? trim($telefono) : null,
+            'email'            => ($email    !== null && trim($email)    !== '') ? trim($email)    : null,
+            'direccion'        => $direccion,
+        ]);
     }
 
     /**

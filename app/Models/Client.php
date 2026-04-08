@@ -51,6 +51,17 @@ class Client extends Model
     }
 
     /**
+     * Valida que el correo electrónico tenga formato correcto.
+     *
+     * @param string $email Email a validar.
+     * @return bool True si el formato es válido.
+     */
+    public function isValidEmail(string $email): bool
+    {
+        return (bool)filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
+
+    /**
      * Verifica si el correo electrónico ya existe en la base de datos.
      *
      * @param string $email Email a verificar.
