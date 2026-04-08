@@ -11,16 +11,16 @@ use App\Core\Model;
  */
 class Category extends Model
 {
-    protected string $table      = 'tb_categorias';
+    protected string $table = 'tb_categorias';
     protected string $primaryKey = 'id_categoria';
 
     public function nameExists(string $name, ?int $excludeId = null): bool
     {
-        $sql    = "SELECT COUNT(*) as count FROM {$this->table} WHERE nombre_categoria = ?";
+        $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE nombre_categoria = ?";
         $params = [$name];
 
         if ($excludeId) {
-            $sql     .= " AND {$this->primaryKey} != ?";
+            $sql .= " AND {$this->primaryKey} != ?";
             $params[] = $excludeId;
         }
 

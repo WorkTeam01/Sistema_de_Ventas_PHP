@@ -9,7 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
                         <li class="breadcrumb-item active">Roles</li>
                     </ol>
                 </div>
@@ -28,7 +29,8 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h3 class="card-title">Roles registrados</h3>
                                 <div class="card-tools d-flex">
-                                    <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal" data-target="#modalCreate">
+                                    <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
+                                            data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo rol
                                     </button>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -38,30 +40,31 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table id="roleTable" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <table id="roleTable" class="table table-bordered table-hover table-striped table-sm"
+                                   style="visibility: hidden;">
                                 <thead>
-                                    <tr>
-                                        <th class="text-center">Nro</th>
-                                        <th class="text-center">Nombre rol</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-center">Nro</th>
+                                    <th class="text-center">Nombre rol</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $contador = 0; ?>
-                                    <?php foreach ($roles_datos as $roles_dato): ?>
-                                        <tr>
-                                            <td class="text-center"><?= ++$contador ?></td>
-                                            <td><?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8') ?></td>
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-success btn-sm btn-edit"
+                                <?php $contador = 0; ?>
+                                <?php foreach ($roles_datos as $roles_dato): ?>
+                                    <tr>
+                                        <td class="text-center"><?= ++$contador ?></td>
+                                        <td><?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-success btn-sm btn-edit"
                                                     data-id="<?= $roles_dato['id_rol'] ?>"
                                                     data-toggle="tooltip"
                                                     title="Editar">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -81,11 +84,18 @@
                         <div class="card-body">
                             <p>Los roles controlan los permisos de acceso de cada usuario al sistema:</p>
                             <ul class="list-unstyled mb-2">
-                                <li class="mb-1"><span class="badge badge-danger mr-1">Administrador</span> Acceso total al sistema.</li>
-                                <li class="mb-1"><span class="badge badge-success mr-1">Vendedor</span> Gestión de ventas, clientes e inventario.</li>
-                                <li class="mb-1"><span class="badge badge-warning mr-1">Comprador</span> Gestión de compras, proveedores e inventario.</li>
+                                <li class="mb-1"><span class="badge badge-danger mr-1">Administrador</span> Acceso total
+                                    al sistema.
+                                </li>
+                                <li class="mb-1"><span class="badge badge-success mr-1">Vendedor</span> Gestión de
+                                    ventas, clientes e inventario.
+                                </li>
+                                <li class="mb-1"><span class="badge badge-warning mr-1">Comprador</span> Gestión de
+                                    compras, proveedores e inventario.
+                                </li>
                             </ul>
-                            <p class="text-muted mb-0"><small>Modifica únicamente el nombre del rol, no sus permisos de acceso.</small></p>
+                            <p class="text-muted mb-0"><small>Modifica únicamente el nombre del rol, no sus permisos de
+                                    acceso.</small></p>
                         </div>
                     </div>
                 </div>
@@ -97,7 +107,8 @@
 <!-- /.content-wrapper -->
 
 <!-- Modal Crear -->
-<div class="modal fade" id="modalCreate" tabindex="-1" role="dialog" aria-labelledby="modalCreateLabel" aria-hidden="true">
+<div class="modal fade" id="modalCreate" tabindex="-1" role="dialog" aria-labelledby="modalCreateLabel"
+     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary">
@@ -110,7 +121,8 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="create_rol">Nombre del rol <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="create_rol" name="rol" required maxlength="100" placeholder="Ej: Supervisor, Cajero">
+                        <input type="text" class="form-control" id="create_rol" name="rol" required maxlength="100"
+                               placeholder="Ej: Supervisor, Cajero">
                     </div>
                 </div>
                 <div class="modal-footer justify-content-between">

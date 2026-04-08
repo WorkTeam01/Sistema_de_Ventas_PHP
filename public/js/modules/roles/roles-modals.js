@@ -105,8 +105,8 @@ $(document).ready(function () {
     function crearRol() {
         if (isSubmitting) return false;
 
-        const formData    = $('#formCreate').serialize();
-        const submitBtn   = $('#btnCreate');
+        const formData = $('#formCreate').serialize();
+        const submitBtn = $('#btnCreate');
         const originalText = submitBtn.html();
 
         isSubmitting = true;
@@ -154,7 +154,7 @@ $(document).ready(function () {
         if ($(this).data('processing')) return false;
 
         const $button = $(this);
-        const id      = $button.data('id');
+        const id = $button.data('id');
 
         $button.data('processing', true).prop('disabled', true);
 
@@ -196,9 +196,9 @@ $(document).ready(function () {
     function actualizarRol() {
         if (isSubmitting) return false;
 
-        const id          = $('#edit_id').val();
-        const formData    = $('#formEdit').serialize();
-        const submitBtn   = $('#btnUpdate');
+        const id = $('#edit_id').val();
+        const formData = $('#formEdit').serialize();
+        const submitBtn = $('#btnUpdate');
         const originalText = submitBtn.html();
 
         isSubmitting = true;
@@ -248,11 +248,11 @@ $(document).ready(function () {
         $(this).find('.is-invalid').removeClass('is-invalid');
 
         $(this).find('button[type="submit"]').prop('disabled', false).each(function () {
-            const $btn      = $(this);
-            const $icon     = $btn.find('i').first();
+            const $btn = $(this);
+            const $icon = $btn.find('i').first();
             if ($icon.length) {
                 const iconClass = $icon.attr('class').replace('fa-spinner fa-spin', 'fa-check');
-                const text      = $btn.text().trim().replace('Procesando...', '');
+                const text = $btn.text().trim().replace('Procesando...', '');
                 $btn.html('<i class="' + iconClass + '"></i> ' + (text || 'Guardar'));
             }
         });

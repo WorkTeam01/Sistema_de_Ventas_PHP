@@ -9,7 +9,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                        </li>
                         <li class="breadcrumb-item active">Proveedores</li>
                     </ol>
                 </div>
@@ -28,7 +29,8 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h3 class="card-title">Proveedores registrados</h3>
                                 <div class="card-tools d-flex">
-                                    <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal" data-target="#modalCreate">
+                                    <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
+                                            data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo proveedor
                                     </button>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -38,45 +40,46 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <table id="supplierTable" class="table table-bordered table-hover table-striped table-sm" style="visibility: hidden;">
+                            <table id="supplierTable" class="table table-bordered table-hover table-striped table-sm"
+                                   style="visibility: hidden;">
                                 <thead>
-                                    <tr>
-                                        <th class="text-center">Nro</th>
-                                        <th class="text-center">Nombre</th>
-                                        <th class="text-center">Empresa</th>
-                                        <th class="text-center">Celular</th>
-                                        <th class="text-center">Dirección</th>
-                                        <th class="text-center">Acciones</th>
-                                    </tr>
+                                <tr>
+                                    <th class="text-center">Nro</th>
+                                    <th class="text-center">Nombre</th>
+                                    <th class="text-center">Empresa</th>
+                                    <th class="text-center">Celular</th>
+                                    <th class="text-center">Dirección</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $contador = 0; ?>
-                                    <?php foreach ($suppliers_datos as $supplier): ?>
-                                        <tr>
-                                            <td class="text-center"><?= ++$contador ?></td>
-                                            <td><?= htmlspecialchars($supplier['nombre_proveedor'], ENT_QUOTES, 'UTF-8') ?></td>
-                                            <td><?= htmlspecialchars($supplier['empresa'], ENT_QUOTES, 'UTF-8') ?></td>
-                                            <td><?= htmlspecialchars($supplier['celular'], ENT_QUOTES, 'UTF-8') ?></td>
-                                            <td><?= htmlspecialchars($supplier['direccion'], ENT_QUOTES, 'UTF-8') ?></td>
-                                            <td class="text-center">
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-success btn-sm btn-edit"
+                                <?php $contador = 0; ?>
+                                <?php foreach ($suppliers_datos as $supplier): ?>
+                                    <tr>
+                                        <td class="text-center"><?= ++$contador ?></td>
+                                        <td><?= htmlspecialchars($supplier['nombre_proveedor'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td><?= htmlspecialchars($supplier['empresa'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td><?= htmlspecialchars($supplier['celular'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td><?= htmlspecialchars($supplier['direccion'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-success btn-sm btn-edit"
                                                         data-id="<?= $supplier['id_proveedor'] ?>"
                                                         data-toggle="tooltip"
                                                         title="Editar">
-                                                        <i class="fas fa-pencil-alt"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-danger btn-sm btn-delete"
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-danger btn-sm btn-delete"
                                                         data-id="<?= $supplier['id_proveedor'] ?>"
                                                         data-nombre="<?= htmlspecialchars($supplier['nombre_proveedor'], ENT_QUOTES, 'UTF-8') ?>"
                                                         data-toggle="tooltip"
                                                         title="Eliminar">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -90,7 +93,8 @@
 <!-- /.content-wrapper -->
 
 <!-- Modal Crear -->
-<div class="modal fade" id="modalCreate" tabindex="-1" role="dialog" aria-labelledby="modalCreateLabel" aria-hidden="true">
+<div class="modal fade" id="modalCreate" tabindex="-1" role="dialog" aria-labelledby="modalCreateLabel"
+     aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary">
@@ -105,15 +109,16 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_nombre_proveedor">Nombre <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="create_nombre_proveedor" name="nombre_proveedor"
-                                    maxlength="255" placeholder="Nombre del contacto">
+                                <input type="text" class="form-control" id="create_nombre_proveedor"
+                                       name="nombre_proveedor"
+                                       maxlength="255" placeholder="Nombre del contacto">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_empresa">Empresa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_empresa" name="empresa"
-                                    maxlength="255" placeholder="Nombre de la empresa">
+                                       maxlength="255" placeholder="Nombre de la empresa">
                             </div>
                         </div>
                     </div>
@@ -122,14 +127,14 @@
                             <div class="form-group">
                                 <label for="create_celular">Celular <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_celular" name="celular"
-                                    maxlength="50" placeholder="Número de celular">
+                                       maxlength="50" placeholder="Número de celular">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_telefono">Teléfono</label>
                                 <input type="text" class="form-control" id="create_telefono" name="telefono"
-                                    maxlength="50" placeholder="Teléfono fijo (opcional)">
+                                       maxlength="50" placeholder="Teléfono fijo (opcional)">
                             </div>
                         </div>
                     </div>
@@ -138,14 +143,14 @@
                             <div class="form-group">
                                 <label for="create_email">Email</label>
                                 <input type="email" class="form-control" id="create_email" name="email"
-                                    maxlength="254" placeholder="correo@empresa.com (opcional)">
+                                       maxlength="254" placeholder="correo@empresa.com (opcional)">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_direccion">Dirección <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="create_direccion" name="direccion"
-                                    maxlength="255" rows="2" placeholder="Dirección de la empresa"></textarea>
+                                          maxlength="255" rows="2" placeholder="Dirección de la empresa"></textarea>
                             </div>
                         </div>
                     </div>
@@ -180,15 +185,16 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_nombre_proveedor">Nombre <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="edit_nombre_proveedor" name="nombre_proveedor"
-                                    maxlength="255">
+                                <input type="text" class="form-control" id="edit_nombre_proveedor"
+                                       name="nombre_proveedor"
+                                       maxlength="255">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_empresa">Empresa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_empresa" name="empresa"
-                                    maxlength="255">
+                                       maxlength="255">
                             </div>
                         </div>
                     </div>
@@ -197,14 +203,14 @@
                             <div class="form-group">
                                 <label for="edit_celular">Celular <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_celular" name="celular"
-                                    maxlength="50">
+                                       maxlength="50">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_telefono">Teléfono</label>
                                 <input type="text" class="form-control" id="edit_telefono" name="telefono"
-                                    maxlength="50">
+                                       maxlength="50">
                             </div>
                         </div>
                     </div>
@@ -213,14 +219,14 @@
                             <div class="form-group">
                                 <label for="edit_email">Email</label>
                                 <input type="email" class="form-control" id="edit_email" name="email"
-                                    maxlength="254">
+                                       maxlength="254">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_direccion">Dirección <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="edit_direccion" name="direccion"
-                                    maxlength="255" rows="2"></textarea>
+                                          maxlength="255" rows="2"></textarea>
                             </div>
                         </div>
                     </div>

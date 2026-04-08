@@ -15,13 +15,13 @@ $(document).ready(function () {
             buttons: [{
                 text: 'Copiar',
                 extend: 'copy',
-                exportOptions: { columns: [0, 1] }
+                exportOptions: {columns: [0, 1]}
             }, {
                 extend: 'pdf',
                 title: 'Roles - Sistema de Ventas',
                 filename: 'roles_' + new Date().toISOString().slice(0, 10),
                 pageSize: 'LETTER',
-                exportOptions: { columns: [0, 1] },
+                exportOptions: {columns: [0, 1]},
                 customize: function (doc) {
                     doc.defaultStyle.fontSize = 10;
                     doc.styles.tableHeader.fontSize = 11;
@@ -60,9 +60,9 @@ $(document).ready(function () {
                     doc.footer = function (currentPage, pageCount) {
                         return {
                             columns: [
-                                { text: 'Sistema de Ventas', alignment: 'left', fontSize: 8 },
-                                { text: 'Página ' + currentPage + ' de ' + pageCount, alignment: 'center', fontSize: 8 },
-                                { text: 'Confidencial', alignment: 'right', fontSize: 8 }
+                                {text: 'Sistema de Ventas', alignment: 'left', fontSize: 8},
+                                {text: 'Página ' + currentPage + ' de ' + pageCount, alignment: 'center', fontSize: 8},
+                                {text: 'Confidencial', alignment: 'right', fontSize: 8}
                             ],
                             margin: [40, 0]
                         };
@@ -73,16 +73,16 @@ $(document).ready(function () {
                 title: 'Roles - Sistema de Ventas',
                 messageTop: 'Registro de roles del sistema',
                 messageBottom: 'Documento generado el ' + new Date().toLocaleDateString('es-BO'),
-                exportOptions: { columns: [0, 1] }
+                exportOptions: {columns: [0, 1]}
             }, {
                 extend: 'csv',
-                exportOptions: { columns: [0, 1] }
+                exportOptions: {columns: [0, 1]}
             }, {
                 extend: 'print',
                 text: 'Imprimir',
                 title: 'Roles - Sistema de Ventas',
                 messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
-                exportOptions: { columns: [0, 1] },
+                exportOptions: {columns: [0, 1]},
                 customize: function (win) {
                     $(win.document.body).find('table')
                         .addClass('table-striped')
