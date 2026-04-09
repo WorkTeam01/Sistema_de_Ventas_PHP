@@ -65,12 +65,13 @@ class InvoicePdf
         $pdf->writeHTML($html, true, false, true, false, '');
         $pdf->RoundedRect(15, 80, 186, 15, 3.50, '1111', 'D');
 
-        $qrData = 'Factura del sistema de ventas, cliente: ' . $nombreCliente
-            . ', NIT/CI: ' . $nitCiCliente
-            . ', fecha: ' . $fecha
-            . ', monto: ' . number_format($precioTotal, 2);
+        $qrData = 'Factura del sistema de venta'
+            . "\nCliente: " . $nombreCliente
+            . "\nNIT/CI: " . $nitCiCliente
+            . "\nFecha: "  . $fecha
+            . "\nMonto: Bs. " . number_format($precioTotal, 2);
 
-        $pdf->write2DBarcode($qrData, 'QRCODE,L', 170, 240, 35, 35, [
+        $pdf->write2DBarcode($qrData, 'QRCODE,L', 160, 230, 40, 40, [
             'border' => 0,
             'vpadding' => '3',
             'hpadding' => '3',
