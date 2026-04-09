@@ -7,7 +7,7 @@
 // ---- Estado del wizard ----
 
 let currentStep = 0;
-const steps    = ['#pane-cliente', '#pane-carrito', '#pane-pago'];
+const steps = ['#pane-cliente', '#pane-carrito', '#pane-pago'];
 const tabLinks = ['#tab-cliente-link', '#tab-carrito-link', '#tab-pago-link'];
 
 function goToStep(n) {
@@ -17,7 +17,7 @@ function goToStep(n) {
 }
 
 function updateProgress() {
-    const pct  = Math.round(((currentStep + 1) / steps.length) * 100);
+    const pct = Math.round(((currentStep + 1) / steps.length) * 100);
     const text = 'Paso ' + (currentStep + 1) + ' de ' + steps.length;
     $('#tab-progress').css('width', pct + '%').text(text)
         .attr('aria-valuenow', pct);
@@ -76,7 +76,9 @@ $('#btn-sig-cliente').on('click', function () {
     goToStep(1);
 });
 
-$('#btn-ant-carrito').on('click', function () { goToStep(0); });
+$('#btn-ant-carrito').on('click', function () {
+    goToStep(0);
+});
 
 $('#btn-sig-carrito').on('click', function () {
     const cartCount = parseInt($('#badge-cart-count').text(), 10) || 0;
@@ -87,7 +89,9 @@ $('#btn-sig-carrito').on('click', function () {
     goToStep(2);
 });
 
-$('#btn-ant-pago').on('click', function () { goToStep(1); });
+$('#btn-ant-pago').on('click', function () {
+    goToStep(1);
+});
 
 // ---- DataTables en modales (lazy init) ----
 
@@ -102,16 +106,16 @@ $('#modal-buscar_producto').on('shown.bs.modal', function () {
         pageLength: 5,
         lengthMenu: [[5, 10, 25], [5, 10, 25]],
         language: {
-            sProcessing:     'Procesando...',
-            sLengthMenu:     'Mostrar _MENU_ registros',
-            sZeroRecords:    'No se encontraron resultados',
-            sEmptyTable:     'Ningún dato disponible en esta tabla',
-            sInfo:           'Mostrando _START_ al _END_ de _TOTAL_ productos',
-            sInfoEmpty:      'Mostrando 0 al 0 de 0 productos',
-            sInfoFiltered:   '(de _MAX_ productos)',
-            sSearch:         'Buscar:',
+            sProcessing: 'Procesando...',
+            sLengthMenu: 'Mostrar _MENU_ registros',
+            sZeroRecords: 'No se encontraron resultados',
+            sEmptyTable: 'Ningún dato disponible en esta tabla',
+            sInfo: 'Mostrando _START_ al _END_ de _TOTAL_ productos',
+            sInfoEmpty: 'Mostrando 0 al 0 de 0 productos',
+            sInfoFiltered: '(de _MAX_ productos)',
+            sSearch: 'Buscar:',
             sLoadingRecords: 'Cargando...',
-            oPaginate: { sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior' }
+            oPaginate: {sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior'}
         }
     });
 });
@@ -127,16 +131,16 @@ $('#modal-buscar_cliente').on('shown.bs.modal', function () {
         pageLength: 5,
         lengthMenu: [[5, 10, 25], [5, 10, 25]],
         language: {
-            sProcessing:     'Procesando...',
-            sLengthMenu:     'Mostrar _MENU_ registros',
-            sZeroRecords:    'No se encontraron resultados',
-            sEmptyTable:     'Ningún dato disponible en esta tabla',
-            sInfo:           'Mostrando _START_ al _END_ de _TOTAL_ clientes',
-            sInfoEmpty:      'Mostrando 0 al 0 de 0 clientes',
-            sInfoFiltered:   '(de _MAX_ clientes)',
-            sSearch:         'Buscar:',
+            sProcessing: 'Procesando...',
+            sLengthMenu: 'Mostrar _MENU_ registros',
+            sZeroRecords: 'No se encontraron resultados',
+            sEmptyTable: 'Ningún dato disponible en esta tabla',
+            sInfo: 'Mostrando _START_ al _END_ de _TOTAL_ clientes',
+            sInfoEmpty: 'Mostrando 0 al 0 de 0 clientes',
+            sInfoFiltered: '(de _MAX_ clientes)',
+            sSearch: 'Buscar:',
             sLoadingRecords: 'Cargando...',
-            oPaginate: { sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior' }
+            oPaginate: {sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior'}
         }
     });
 });
@@ -178,8 +182,8 @@ $(document).on('click', '.btn-seleccionar-cliente', function () {
 
 $('#total_pagado').on('input', function () {
     const cancelar = parseFloat($('#total_a_cancelar_hidden').val()) || 0;
-    const pagado   = parseFloat($(this).val()) || 0;
-    const cambio   = pagado - cancelar;
+    const pagado = parseFloat($(this).val()) || 0;
+    const cambio = pagado - cancelar;
     $('#cambio').val(isNaN(cambio) ? '' : cambio.toFixed(2));
 });
 

@@ -3,7 +3,7 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row">
                 <div class="col-sm-6">
                     <h1 class="m-0">Ventas</h1>
                 </div>
@@ -67,15 +67,18 @@
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a href="<?= BASE_URL ?>/sales/show/<?= $id_venta ?>"
-                                                   class="btn btn-info btn-sm" data-toggle="tooltip" title="Ver detalles">
+                                                   class="btn btn-info btn-sm" data-toggle="tooltip"
+                                                   title="Ver detalles">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <a href="<?= BASE_URL ?>/sales/invoice/<?= $id_venta ?>"
-                                                   class="btn btn-success btn-sm" data-toggle="tooltip" title="Ver factura" target="_blank">
+                                                   class="btn btn-success btn-sm" data-toggle="tooltip"
+                                                   title="Ver factura" target="_blank">
                                                     <i class="fas fa-print"></i>
                                                 </a>
                                                 <a href="<?= BASE_URL ?>/sales/delete/<?= $id_venta ?>"
-                                                   class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar venta">
+                                                   class="btn btn-danger btn-sm" data-toggle="tooltip"
+                                                   title="Eliminar venta">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
