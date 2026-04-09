@@ -1,17 +1,18 @@
 # Guía de Contribuciones — Sistema de Ventas
 
-¡Gracias por tu interés en contribuir a **Sistema de Ventas**! Este documento te guía a través del proceso de colaboración.
+¡Gracias por tu interés en contribuir a **Sistema de Ventas**! Este documento te guía a través del proceso de
+colaboración.
 
 ## Antes de empezar
 
 Lee estos archivos de referencia según tu rol:
 
-| Archivo                      | Propósito                                            | Para quién                     |
-| ---------------------------- | ---------------------------------------------------- | ------------------------------ |
-| [AGENT.md](AGENT.md)         | Arquitectura global, stack tecnológico, convenciones | **Todos los colaboradores**    |
-| [CLAUDE.md](CLAUDE.md)       | Instrucciones operacionales locales (XAMPP, BD)      | Desarrolladores locales       |
-| [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts efectivos con agentes IA       | Equipo de desarrollo           |
-| [CHANGELOG.md](CHANGELOG.md) | Historial de cambios y versiones                     | Todos                          |
+| Archivo                      | Propósito                                            | Para quién                  |
+|------------------------------|------------------------------------------------------|-----------------------------|
+| [AGENT.md](AGENT.md)         | Arquitectura global, stack tecnológico, convenciones | **Todos los colaboradores** |
+| [CLAUDE.md](CLAUDE.md)       | Instrucciones operacionales locales (XAMPP, BD)      | Desarrolladores locales     |
+| [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts efectivos con agentes IA       | Equipo de desarrollo        |
+| [CHANGELOG.md](CHANGELOG.md) | Historial de cambios y versiones                     | Todos                       |
 
 > **Requisito crítico:** No se aceptarán PRs sin haber leído AGENT.md. Es la fuente de verdad del proyecto.
 
@@ -75,7 +76,8 @@ Para nuevo módulo [nombre]:
 **Convenciones de código:**
 
 - **SQL:** Siempre usar placeholders `?` con `execute([$var])`; nunca concatenación
-- **Controladores:** Solo estos 6 métodos estándar: `index()`, `create()`, `store()`, `edit()`, `update()`, `destroy()`. No inventar métodos como `showCreate()`, `toggle()`, `activate()`, etc.
+- **Controladores:** Solo estos 6 métodos estándar: `index()`, `create()`, `store()`, `edit()`, `update()`, `destroy()`.
+  No inventar métodos como `showCreate()`, `toggle()`, `activate()`, etc.
 - **Modelos:** Extender de `App\Core\Model`; implementar `isReferenced()` si hay FKs
 - **Vistas:** Usar `renderWithLayout()` desde controlador; no variable `Auth::` directo
 - **JavaScript:** Usar `json_encode()` para pasar datos PHP → JS; nunca comillas simples
@@ -117,7 +119,7 @@ git commit -m "type(scope): description"
 **Tipos válidos:**
 
 | Tipo       | Descripción                      | Ejemplo                                         |
-| ---------- | -------------------------------- | ----------------------------------------------- |
+|------------|----------------------------------|-------------------------------------------------|
 | `feat`     | Feature nueva                    | `feat(products): agregar filtro por categoría`  |
 | `fix`      | Bug fix                          | `fix(sales): corregir cálculo de descuento`     |
 | `refactor` | Mejora sin cambiar funcionalidad | `refactor(auth): simplificar lógica de sesión`  |
