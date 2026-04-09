@@ -3,7 +3,7 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row">
                 <div class="col-sm-6">
                     <h1 class="m-0">Registrar compra</h1>
                 </div>
@@ -122,7 +122,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="id_proveedor">Proveedor <span class="text-danger">*</span></label>
+                                            <label for="id_proveedor">Proveedor <span
+                                                        class="text-danger">*</span></label>
                                             <div class="d-flex">
                                                 <select id="id_proveedor" name="id_proveedor"
                                                         class="form-control select2 mr-2" required>
@@ -159,7 +160,8 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="precio_compra">Precio de compra <span class="text-danger">*</span></label>
+                                            <label for="precio_compra">Precio de compra <span
+                                                        class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">$</span>

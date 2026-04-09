@@ -15,14 +15,14 @@ $(document).ready(function () {
     }
 
     function updateResumen() {
-        var $productoOption = $('#id_producto option:selected');
-        var $proveedorOption = $('#id_proveedor option:selected');
-        var precio = parseFloat($('#precio_compra').val()) || 0;
-        var cantidad = parseInt($('#cantidad').val()) || 0;
-        var total = precio * cantidad;
+        const $productoOption = $('#id_producto option:selected');
+        const $proveedorOption = $('#id_proveedor option:selected');
+        const precio = parseFloat($('#precio_compra').val()) || 0;
+        const cantidad = parseInt($('#cantidad').val()) || 0;
+        const total = precio * cantidad;
 
-        var productoText = $productoOption.val() ? $productoOption.text().trim() : '—';
-        var proveedorText = $proveedorOption.val() ? $proveedorOption.text().trim() : '—';
+        const productoText = $productoOption.val() ? $productoOption.text().trim() : '—';
+        const proveedorText = $proveedorOption.val() ? $proveedorOption.text().trim() : '—';
 
         $('#resumenProducto').text(productoText).attr('title', productoText);
         $('#resumenProveedor').text(proveedorText).attr('title', proveedorText);
@@ -113,7 +113,7 @@ $(document).ready(function () {
             $(element).removeClass('is-invalid').addClass('is-valid');
         },
         submitHandler: function (form) {
-            var $btn = $(form).find('button[type="submit"]');
+            const $btn = $(form).find('button[type="submit"]');
             $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Guardando...');
 
             if (typeof ToastUtils !== 'undefined') {

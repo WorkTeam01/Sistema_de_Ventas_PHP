@@ -3,7 +3,7 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row">
                 <div class="col-sm-6">
                     <h1 class="m-0">Editar compra</h1>
                 </div>
@@ -105,7 +105,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="id_producto">Producto <span class="text-danger">*</span></label>
-                                            <select id="id_producto" name="id_producto" class="form-control select2" required>
+                                            <select id="id_producto" name="id_producto" class="form-control select2"
+                                                    required>
                                                 <?php foreach ($products as $product) : ?>
                                                     <option value="<?= $product['id_producto']; ?>"
                                                             <?= $product['id_producto'] == $id_producto ? 'selected' : ''; ?>>
@@ -119,7 +120,8 @@
                                         <div class="form-group">
                                             <label for="id_proveedor">Proveedor <span
                                                         class="text-danger">*</span></label>
-                                            <select id="id_proveedor" name="id_proveedor" class="form-control select2" required>
+                                            <select id="id_proveedor" name="id_proveedor" class="form-control select2"
+                                                    required>
                                                 <?php foreach ($suppliers as $supplier) : ?>
                                                     <option value="<?= $supplier['id_proveedor']; ?>"
                                                             <?= $supplier['id_proveedor'] == $id_proveedor ? 'selected' : ''; ?>>

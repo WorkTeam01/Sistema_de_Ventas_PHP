@@ -3,7 +3,7 @@
     <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row">
                 <div class="col-sm-6">
                     <h1 class="m-0">Compras</h1>
                 </div>
@@ -78,14 +78,17 @@
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a href="<?= BASE_URL ?>/purchases/show/<?= $id_compra ?>"
-                                                   class="btn btn-info btn-sm" data-toggle="tooltip" title="Ver detalles">
+                                                   class="btn btn-info btn-sm" data-toggle="tooltip"
+                                                   title="Ver detalles">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
-                                                   class="btn btn-success btn-sm" data-toggle="tooltip" title="Editar compra">
+                                                   class="btn btn-success btn-sm" data-toggle="tooltip"
+                                                   title="Editar compra">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Eliminar compra"
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                        data-toggle="tooltip" title="Eliminar compra"
                                                         onclick="confirmarEliminar(<?= $id_compra ?>, <?= $id_producto ?>, <?= $cantidad ?>, '<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>')">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
