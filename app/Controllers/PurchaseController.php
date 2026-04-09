@@ -58,44 +58,34 @@ class PurchaseController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $id_producto = (int)($_POST['id_producto'] ?? 0);
-        $nro_compra = (int)($_POST['nro_compra'] ?? 0);
-        $fecha_compra = trim($_POST['fecha_compra'] ?? '');
-        $id_proveedor = (int)($_POST['id_proveedor'] ?? 0);
-        $comprobante = trim($_POST['comprobante'] ?? '');
-        $precio_compra = $_POST['precio_compra'] ?? '';
-        $cantidad = $_POST['cantidad'] ?? '';
-
-        if ($id_producto <= 0 || $id_proveedor <= 0 || $nro_compra <= 0
-            || $fecha_compra === '' || $comprobante === ''
-            || $precio_compra === '' || $cantidad === '') {
-            $this->flash('Todos los campos son obligatorios.', 'error');
-            $this->redirect(BASE_URL . '/purchases/create');
-            return;
-        }
-
-        if (!is_numeric($precio_compra) || !is_numeric($cantidad)) {
-            $this->flash('El precio y la cantidad deben ser numéricos.', 'error');
-            $this->redirect(BASE_URL . '/purchases/create');
-            return;
-        }
-
-        if ((int)$cantidad < 1) {
-            $this->flash('La cantidad debe ser mayor a cero.', 'error');
-            $this->redirect(BASE_URL . '/purchases/create');
-            return;
-        }
+        $data = [
+            'id_producto' => $_POST['id_producto'] ?? '',
+            'nro_compra' => $_POST['nro_compra'] ?? '',
+            'fecha_compra' => trim($_POST['fecha_compra'] ?? ''),
+            'id_proveedor' => $_POST['id_proveedor'] ?? '',
+            'comprobante' => trim($_POST['comprobante'] ?? ''),
+            'precio_compra' => $_POST['precio_compra'] ?? '',
+            'cantidad' => $_POST['cantidad'] ?? '',
+        ];
 
         $purchaseModel = new Purchase();
+        $validation = $purchaseModel->validateData($data);
+
+        if ($validation !== true) {
+            $this->flash(implode(' ', $validation), 'error');
+            $this->redirect(BASE_URL . '/purchases/create');
+            return;
+        }
+
         $ok = $purchaseModel->storeWithStock([
-            'id_producto' => $id_producto,
-            'nro_compra' => $nro_compra,
-            'fecha_compra' => $fecha_compra,
-            'id_proveedor' => $id_proveedor,
-            'comprobante' => $comprobante,
+            'id_producto' => (int)$data['id_producto'],
+            'nro_compra' => (int)$data['nro_compra'],
+            'fecha_compra' => $data['fecha_compra'],
+            'id_proveedor' => (int)$data['id_proveedor'],
+            'comprobante' => $data['comprobante'],
             'id_usuario' => Auth::user()['id_usuario'],
-            'precio_compra' => (float)$precio_compra,
-            'cantidad' => (int)$cantidad,
+            'precio_compra' => (float)$data['precio_compra'],
+            'cantidad' => (int)$data['cantidad'],
         ]);
 
         if ($ok) {
@@ -220,48 +210,45 @@ class PurchaseController extends Controller
         $this->validateCsrfOrFail();
 
         $id_compra = (int)($_POST['id_compra'] ?? 0);
-        $id_producto = (int)($_POST['id_producto'] ?? 0);
-        $nro_compra = (int)($_POST['nro_compra'] ?? 0);
-        $fecha_compra = trim($_POST['fecha_compra'] ?? '');
-        $id_proveedor = (int)($_POST['id_proveedor'] ?? 0);
-        $comprobante = trim($_POST['comprobante'] ?? '');
-        $precio_compra = $_POST['precio_compra'] ?? '';
-        $cantidad = $_POST['cantidad'] ?? '';
         $old_id_producto = (int)($_POST['old_id_producto'] ?? 0);
         $old_cantidad = (int)($_POST['old_cantidad'] ?? 0);
 
-        if ($id_compra <= 0 || $id_producto <= 0 || $id_proveedor <= 0 || $nro_compra <= 0
-            || $fecha_compra === '' || $comprobante === ''
-            || $precio_compra === '' || $cantidad === '') {
-            $this->flash('Todos los campos son obligatorios.', 'error');
-            $this->redirect(BASE_URL . '/purchases/edit/' . $id_compra);
+        if ($id_compra <= 0) {
+            $this->flash('Compra inválida.', 'error');
+            $this->redirect(BASE_URL . '/purchases');
             return;
         }
 
-        if (!is_numeric($precio_compra) || !is_numeric($cantidad)) {
-            $this->flash('El precio y la cantidad deben ser numéricos.', 'error');
-            $this->redirect(BASE_URL . '/purchases/edit/' . $id_compra);
-            return;
-        }
-
-        if ((int)$cantidad < 1) {
-            $this->flash('La cantidad debe ser mayor a cero.', 'error');
-            $this->redirect(BASE_URL . '/purchases/edit/' . $id_compra);
-            return;
-        }
+        $data = [
+            'id_producto' => $_POST['id_producto'] ?? '',
+            'nro_compra' => $_POST['nro_compra'] ?? '',
+            'fecha_compra' => trim($_POST['fecha_compra'] ?? ''),
+            'id_proveedor' => $_POST['id_proveedor'] ?? '',
+            'comprobante' => trim($_POST['comprobante'] ?? ''),
+            'precio_compra' => $_POST['precio_compra'] ?? '',
+            'cantidad' => $_POST['cantidad'] ?? '',
+        ];
 
         $purchaseModel = new Purchase();
+        $validation = $purchaseModel->validateData($data);
+
+        if ($validation !== true) {
+            $this->flash(implode(' ', $validation), 'error');
+            $this->redirect(BASE_URL . '/purchases/edit/' . $id_compra);
+            return;
+        }
+
         $ok = $purchaseModel->updateWithStock(
             [
                 'id_compra' => $id_compra,
-                'id_producto' => $id_producto,
-                'nro_compra' => $nro_compra,
-                'fecha_compra' => $fecha_compra,
-                'id_proveedor' => $id_proveedor,
-                'comprobante' => $comprobante,
+                'id_producto' => (int)$data['id_producto'],
+                'nro_compra' => (int)$data['nro_compra'],
+                'fecha_compra' => $data['fecha_compra'],
+                'id_proveedor' => (int)$data['id_proveedor'],
+                'comprobante' => $data['comprobante'],
                 'id_usuario' => Auth::user()['id_usuario'],
-                'precio_compra' => (float)$precio_compra,
-                'cantidad' => (int)$cantidad,
+                'precio_compra' => (float)$data['precio_compra'],
+                'cantidad' => (int)$data['cantidad'],
             ],
             $old_id_producto,
             $old_cantidad

@@ -46,6 +46,12 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
   por `date_create()` para evitar excepción no manejada
 - `app/Core/Controller.php` — `redirect()` y `json()` cambian tipo de retorno de `void` a `never`, permitiendo
   que PhpStorm infiera correctamente el flujo de control tras estos métodos
+- `app/Models/Purchase.php` — fat model: añadido `validateData(array $data): bool|array` que encapsula
+  todas las validaciones de datos (campos obligatorios, tipos numéricos, cantidad > 0); retorna `true`
+  si válidos o array de errores con claves de campo
+- `app/Controllers/PurchaseController.php` — `store()` y `update()` reemplazados validaciones manuales
+  repetidas por llamada a `$purchaseModel->validateData($data)`; flujo simplificado: recopilación de datos
+  → validación centralizada en modelo → operación transaccional o redirección con errores
 
 ---
 

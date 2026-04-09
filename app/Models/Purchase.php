@@ -12,7 +12,7 @@ use App\Core\Model;
  */
 class Purchase extends Model
 {
-    protected string $table      = 'tb_compras';
+    protected string $table = 'tb_compras';
     protected string $primaryKey = 'id_compra';
 
     /**
@@ -114,9 +114,9 @@ class Purchase extends Model
      * Si el producto cambia, revierte el stock del producto viejo y suma al nuevo.
      * Si el producto no cambia, aplica el ajuste neto (nueva_cantidad - antigua_cantidad).
      *
-     * @param array $data         Datos nuevos de la compra (incluye id_compra).
-     * @param int   $oldProductId ID del producto antes de la edición.
-     * @param int   $oldCantidad  Cantidad antes de la edición.
+     * @param array $data Datos nuevos de la compra (incluye id_compra).
+     * @param int $oldProductId ID del producto antes de la edición.
+     * @param int $oldCantidad Cantidad antes de la edición.
      * @return bool true si la transacción se completó, false si hubo error.
      */
     public function updateWithStock(array $data, int $oldProductId, int $oldCantidad): bool
@@ -164,9 +164,9 @@ class Purchase extends Model
     /**
      * Elimina una compra y revierte el stock del producto en una transacción.
      *
-     * @param int $id         ID de la compra.
+     * @param int $id ID de la compra.
      * @param int $idProducto ID del producto afectado.
-     * @param int $cantidad   Cantidad a revertir del stock.
+     * @param int $cantidad Cantidad a revertir del stock.
      * @return bool true si la transacción se completó, false si hubo error.
      */
     /** Suma de compras del mes actual (precio_compra * cantidad por fila). */
@@ -178,7 +178,7 @@ class Purchase extends Model
              WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
                AND MONTH(fyh_creacion) = MONTH(CURDATE())"
         );
-        return (float) $rows[0]['total'];
+        return (float)$rows[0]['total'];
     }
 
     /** Suma de compras del mes anterior. */
@@ -190,7 +190,7 @@ class Purchase extends Model
              WHERE YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
                AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)"
         );
-        return (float) $rows[0]['total'];
+        return (float)$rows[0]['total'];
     }
 
     /**
@@ -228,5 +228,40 @@ class Purchase extends Model
             $db->rollBack();
             return false;
         }
+    }
+
+    /**
+     * Valida los datos de una compra.
+     *
+     * @param array $data Datos a validar.
+     * @return bool|array true si válidos, array de errores si no.
+     */
+    public function validateData(array $data): bool|array
+    {
+        $errors = [];
+
+        if (empty($data['id_producto']) || (int)$data['id_producto'] <= 0) {
+            $errors['id_producto'] = 'Producto requerido.';
+        }
+        if (empty($data['id_proveedor']) || (int)$data['id_proveedor'] <= 0) {
+            $errors['id_proveedor'] = 'Proveedor requerido.';
+        }
+        if (empty($data['nro_compra']) || (int)$data['nro_compra'] <= 0) {
+            $errors['nro_compra'] = 'Número de compra requerido.';
+        }
+        if (empty($data['fecha_compra'])) {
+            $errors['fecha_compra'] = 'Fecha requerida.';
+        }
+        if (empty($data['comprobante'])) {
+            $errors['comprobante'] = 'Comprobante requerido.';
+        }
+        if (!is_numeric($data['precio_compra'] ?? '')) {
+            $errors['precio_compra'] = 'Precio debe ser numérico.';
+        }
+        if (!is_numeric($data['cantidad'] ?? '') || (int)$data['cantidad'] < 1) {
+            $errors['cantidad'] = 'Cantidad debe ser un número mayor a cero.';
+        }
+
+        return empty($errors) ? true : $errors;
     }
 }
