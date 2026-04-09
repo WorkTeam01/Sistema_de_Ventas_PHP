@@ -49,6 +49,7 @@ class Purchase extends Model
                     pro.nombre_proveedor, pro.empresa,
                     pro.celular, pro.telefono, pro.email AS email_proveedor,
                     pro.direccion, us.email AS email_usuario,
+                    us.nombres AS nombre_usuario,
                     cat.nombre_categoria
              FROM tb_compras co
              INNER JOIN tb_almacen al ON co.id_producto = al.id_producto

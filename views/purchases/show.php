@@ -42,8 +42,12 @@
                             <span class="badge badge-secondary"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                         <div class="card-footer">
+                            <a href="<?= BASE_URL ?>/purchases/report/<?= $id_compra ?>"
+                               class="btn btn-info btn-block" target="_blank">
+                                <i class="fas fa-file-pdf"></i> Reporte PDF
+                            </a>
                             <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
-                               class="btn btn-success btn-block">
+                               class="btn btn-success btn-block mt-2">
                                 <i class="fas fa-pencil-alt"></i> Editar
                             </a>
                             <a href="<?= BASE_URL ?>/purchases" class="btn btn-default btn-block mt-2">

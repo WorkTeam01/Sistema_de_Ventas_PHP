@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Helpers\PurchaseReportPdf;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
@@ -262,6 +263,34 @@ class PurchaseController extends Controller
 
         $this->flash('Error al actualizar la compra.', 'error');
         $this->redirect(BASE_URL . '/purchases/edit/' . $id_compra);
+    }
+
+    /**
+     * Emite el comprobante PDF de una compra directamente al navegador (inline).
+     *
+     * @param int|null $id ID de la compra.
+     */
+    public function report(?int $id = null): void
+    {
+        $id = $id ?? (int)($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            $this->flash('Compra inválida.', 'error');
+            $this->redirect(BASE_URL . '/purchases');
+            return;
+        }
+
+        $purchaseModel = new Purchase();
+        $purchase = $purchaseModel->findWithDetails($id);
+
+        if (!$purchase) {
+            $this->flash('No se encontró la compra solicitada.', 'error');
+            $this->redirect(BASE_URL . '/purchases');
+            return;
+        }
+
+        $comprador = $purchase['nombre_usuario'] ?? '';
+        PurchaseReportPdf::generate($purchase, $comprador, $id);
     }
 
     /**

@@ -82,6 +82,11 @@
                                                    title="Ver detalles">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
+                                                <a href="<?= BASE_URL ?>/purchases/report/<?= $id_compra ?>"
+                                                   class="btn btn-primary btn-sm" data-toggle="tooltip"
+                                                   title="Reporte PDF" target="_blank">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
                                                 <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
                                                    class="btn btn-success btn-sm" data-toggle="tooltip"
                                                    title="Editar compra">

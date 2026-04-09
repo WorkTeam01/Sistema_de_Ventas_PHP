@@ -98,6 +98,7 @@ $router->get('/purchases',             [PurchaseController::class, 'index'],   [
 $router->get('/purchases/create',      [PurchaseController::class, 'create'],  ['auth']);
 $router->post('/purchases',            [PurchaseController::class, 'store'],   ['auth']);
 $router->get('/purchases/show/{id}',   [PurchaseController::class, 'show'],    ['auth']);
+$router->get('/purchases/report/{id}', [PurchaseController::class, 'report'],  ['auth']);
 $router->get('/purchases/edit/{id}',   [PurchaseController::class, 'edit'],    ['auth']);
 $router->post('/purchases/update',     [PurchaseController::class, 'update'],  ['auth']);
 $router->post('/purchases/delete',     [PurchaseController::class, 'destroy'], ['auth']);
