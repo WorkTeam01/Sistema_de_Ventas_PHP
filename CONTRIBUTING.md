@@ -9,7 +9,7 @@ Lee estos archivos de referencia según tu rol:
 | Archivo                      | Propósito                                            | Para quién                     |
 | ---------------------------- | ---------------------------------------------------- | ------------------------------ |
 | [AGENT.md](AGENT.md)         | Arquitectura global, stack tecnológico, convenciones | **Todos los colaboradores**    |
-| [CLAUDE.md](CLAUDE.md)       | Estructura MVC, rutas activas, patrones de código    | Desarrolladores que codifiquen |
+| [CLAUDE.md](CLAUDE.md)       | Instrucciones operacionales locales (XAMPP, BD)      | Desarrolladores locales       |
 | [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts efectivos con agentes IA       | Equipo de desarrollo           |
 | [CHANGELOG.md](CHANGELOG.md) | Historial de cambios y versiones                     | Todos                          |
 
@@ -53,7 +53,7 @@ git rebase upstream/develop
 
 **Estructura de archivos:**
 
-Sigue la arquitectura MVC descrita en [CLAUDE.md](CLAUDE.md):
+Sigue la arquitectura MVC descrita en [AGENT.md](AGENT.md):
 
 ```
 Para nuevo módulo [nombre]:
@@ -81,7 +81,7 @@ Para nuevo módulo [nombre]:
 - **JavaScript:** Usar `json_encode()` para pasar datos PHP → JS; nunca comillas simples
 - **Seguridad:** `htmlspecialchars()` en outputs HTML; `password_hash()` para contraseñas
 
-Ver más detalles en **Convenciones de Seguridad** de [CLAUDE.md](CLAUDE.md).
+Ver más detalles en **Convenciones de Seguridad** de [AGENT.md](AGENT.md).
 
 **Validación en ambos lados:**
 

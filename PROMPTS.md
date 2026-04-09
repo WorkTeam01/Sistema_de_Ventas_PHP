@@ -2,7 +2,7 @@
 
 > Plantillas de prompts para el equipo. Úsalas como base — adapta los bloques
 > `[Tarea]` y `[Contexto]` a lo que necesites en cada sesión.
-> **Requisito:** Carga [AGENT.md](AGENT.md) (contexto persistente base) y [CLAUDE.md](CLAUDE.md) (instrucciones específicas para agentes) al inicio de cada sesión.
+> **Requisito:** Carga [AGENT.md](AGENT.md) (arquitectura, convenciones, stack) al inicio de cada sesión. [CLAUDE.md](CLAUDE.md) es opcional para contexto local.
 
 ---
 
@@ -23,8 +23,8 @@ Cada plantilla sigue la estructura de 5 ejes del prompt profesional:
 
 **Reglas de uso del equipo:**
 
-- **Carga el AGENT.md primero** (contexto persistente para cualquier agente) — contiene arquitectura, stack, convenciones globales
-- **Luego carga el CLAUDE.md** (instrucciones específicas para Claude/Copilot) — contiene detalles de implementación MVC
+- **Carga el AGENT.md primero** (contexto persistente para cualquier agente) — contiene arquitectura, stack, convenciones globales, prohibiciones
+- **CLAUDE.md es opcional** (desarrollo local) — contiene instrucciones operacionales de XAMPP/BD, no convenciones de código
 - **Un prompt por subtarea.** Pedir "el módulo completo" en un solo prompt produce resultados genéricos.
 - **Si el output no encaja**, no corrijas manualmente primero — ajusta `[Restricciones]` y repite.
 - **El spec antes que el código.** Define qué debe hacer antes de pedir que lo implemente.
@@ -34,7 +34,7 @@ Cada plantilla sigue la estructura de 5 ejes del prompt profesional:
 
 ## Plantilla base (copia esto y rellena)
 
-> **Antes de usar:** Asegúrate de consultar [AGENT.md](AGENT.md) (arquitectura global) y [CLAUDE.md](CLAUDE.md) (convenciones MVC).
+> **Antes de usar:** Asegúrate de consultar [AGENT.md](AGENT.md) (arquitectura global y convenciones). [CLAUDE.md](CLAUDE.md) opcional para desarrollo local.
 
 ```
 [Rol]
