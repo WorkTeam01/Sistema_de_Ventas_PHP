@@ -188,7 +188,7 @@ Sistema_de_Ventas_PHP/
 ├── app/
 │   ├── Controllers/        # Controladores MVC (Auth, Dashboard, User, Role, Category, Supplier, Client, Product, Purchase, Sale)
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
-│   ├── Helpers/            # Helpers PSR-4 (NumberToWords)
+│   ├── Helpers/            # Helpers PSR-4 (NumberToWords, InvoicePdf)
 │   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware, SellerMiddleware)
 │   └── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem)
 ├── views/

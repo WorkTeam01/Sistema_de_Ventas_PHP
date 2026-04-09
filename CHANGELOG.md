@@ -9,6 +9,23 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Agregado
+
+- `app/Helpers/InvoicePdf.php` — nuevo helper que encapsula toda la generación del PDF de factura:
+  configuración de TCPDF, construcción del HTML con ítems y totales, código QR y emisión inline;
+  expone `InvoicePdf::generate(array $sale, array $totals, string $vendedor, int $id): void`
+
+### Modificado
+
+- `app/Models/Sale.php` — fat model: añadido `computeInvoiceTotals(array $items): array` que calcula
+  `precio_total`, `cantidad_total` y `total_unitarios` a partir de los ítems del carrito; lógica que
+  antes vivía en `SaleController::invoice()`
+- `app/Controllers/SaleController.php` — `invoice()` reducido de ~120 a ~20 líneas: obtiene datos,
+  delega cálculo de totales a `Sale::computeInvoiceTotals()` y generación del PDF a `InvoicePdf::generate()`;
+  eliminado `use App\Helpers\NumberToWords` (ahora lo consume `InvoicePdf` internamente);
+  documentado el early-return de carrito vacío en `store()` como capa de UX, independiente de la
+  verificación de integridad en `Sale::storeWithStock()`
+
 ### Eliminado
 
 - `views/users/show.php` — vista de detalle de usuario eliminada por ser redundante con el listado

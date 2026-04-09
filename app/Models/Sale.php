@@ -13,7 +13,7 @@ use App\Core\Model;
  */
 class Sale extends Model
 {
-    protected string $table      = 'tb_ventas';
+    protected string $table = 'tb_ventas';
     protected string $primaryKey = 'id_venta';
 
     /**
@@ -52,7 +52,7 @@ class Sale extends Model
             return null;
         }
 
-        $sale  = $rows[0];
+        $sale = $rows[0];
         $items = $this->query(
             "SELECT car.*, al.nombre, al.descripcion, al.precio_venta, al.stock, al.imagen, al.codigo
              FROM tb_carrito car
@@ -75,14 +75,14 @@ class Sale extends Model
     public function nextNumber(): int
     {
         $rows = $this->query("SELECT COALESCE(MAX(nro_venta), 0) + 1 AS next FROM tb_ventas");
-        return (int) ($rows[0]['next'] ?? 1);
+        return (int)($rows[0]['next'] ?? 1);
     }
 
     /**
      * Inserta la cabecera de venta y decrementa el stock de cada producto del carrito,
      * todo en una sola transacción.
      *
-     * @param array $data      Datos de la venta: nro_venta, id_cliente, total_pagado.
+     * @param array $data Datos de la venta: nro_venta, id_cliente, total_pagado.
      * @return bool true si la transacción se completó, false si hubo error.
      */
     public function storeWithStock(array $data): bool
@@ -94,7 +94,7 @@ class Sale extends Model
             // Verificar carrito no vacío
             $stmt = $db->prepare("SELECT COUNT(*) FROM tb_carrito WHERE nro_venta = ?");
             $stmt->execute([$data['nro_venta']]);
-            if ((int) $stmt->fetchColumn() === 0) {
+            if ((int)$stmt->fetchColumn() === 0) {
                 $db->rollBack();
                 return false;
             }
@@ -146,7 +146,7 @@ class Sale extends Model
              WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
                AND MONTH(fyh_creacion) = MONTH(CURDATE())"
         );
-        return (float) $rows[0]['total'];
+        return (float)$rows[0]['total'];
     }
 
     /** Suma de ventas del mes anterior. */
@@ -158,7 +158,7 @@ class Sale extends Model
              WHERE YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
                AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)"
         );
-        return (float) $rows[0]['total'];
+        return (float)$rows[0]['total'];
     }
 
     /**
@@ -174,8 +174,8 @@ class Sale extends Model
              WHERE DATE(fyh_creacion) = CURDATE()"
         );
         return [
-            'cantidad' => (int) $rows[0]['cantidad'],
-            'monto'    => (float) $rows[0]['monto'],
+            'cantidad' => (int)$rows[0]['cantidad'],
+            'monto' => (float)$rows[0]['monto'],
         ];
     }
 
@@ -209,6 +209,33 @@ class Sale extends Model
         );
     }
 
+    /**
+     * Calcula los totales derivados de los ítems de una venta para la factura.
+     *
+     * @param array $items Ítems del carrito (deben incluir 'cantidad' y 'precio_venta').
+     * @return array{precio_total: float, cantidad_total: int, total_unitarios: float}
+     */
+    public function computeInvoiceTotals(array $items): array
+    {
+        $precioTotal = 0.0;
+        $cantidadTotal = 0;
+        $totalUnitarios = 0.0;
+
+        foreach ($items as $item) {
+            $cantidad = (int)$item['cantidad'];
+            $precioUnitario = (float)$item['precio_venta'];
+            $precioTotal += $cantidad * $precioUnitario;
+            $cantidadTotal += $cantidad;
+            $totalUnitarios += $precioUnitario;
+        }
+
+        return [
+            'precio_total' => $precioTotal,
+            'cantidad_total' => $cantidadTotal,
+            'total_unitarios' => $totalUnitarios,
+        ];
+    }
+
     public function destroyWithStock(int $id): bool
     {
         $db = $this->db;
@@ -223,7 +250,7 @@ class Sale extends Model
                 $db->rollBack();
                 return false;
             }
-            $nroVenta = (int) $row['nro_venta'];
+            $nroVenta = (int)$row['nro_venta'];
 
             // Obtener ítems del carrito para revertir stock
             $items = $db->prepare(

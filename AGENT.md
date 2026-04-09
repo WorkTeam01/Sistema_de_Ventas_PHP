@@ -49,7 +49,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── PurchaseController.php
 │   │   └── SaleController.php
 │   ├── Helpers/              ← PSR-4, namespace App\Helpers
-│   │   └── NumberToWords.php
+│   │   ├── NumberToWords.php
+│   │   └── InvoicePdf.php
 │   ├── Models/               ← PSR-4, namespace App\Models
 │   │   ├── User.php
 │   │   ├── Role.php
@@ -178,7 +179,9 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
   `filter_var()`; `Supplier::createSupplier()` / `updateSupplier()` normalizan campos opcionales (vacío → `null`);
   `Product::createProduct()` / `updateProduct()` normalizan campos opcionales y castean tipos; los modelos también
   pueden exponer queries enriquecidas (`Product::findWithCategory()`, `Product::allWithCategories()`) para evitar
-  joins manuales en el controlador
+  joins manuales en el controlador; `Sale::computeInvoiceTotals(array $items)` encapsula el cálculo de totales de
+  factura (precio_total, cantidad_total, total_unitarios) — la generación del PDF se delega al helper
+  `InvoicePdf::generate()` en `app/Helpers/`, manteniendo `SaleController::invoice()` en ~20 líneas
 
 ### PHP — Seguridad
 
@@ -267,5 +270,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-08 — Unreleased (fat model en `products`: `createProduct()`/`updateProduct()`
-normalizan campos opcionales y castean tipos; `findWithCategory()` unifica query producto+categoría)_
+_Última actualización: 2026-04-09 — Unreleased (fat model en `ventas`: `Sale::computeInvoiceTotals()` encapsula
+cálculo de totales de factura; generación PDF extraída a helper `InvoicePdf::generate()`)_
