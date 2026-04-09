@@ -52,6 +52,9 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - `app/Controllers/PurchaseController.php` — `store()` y `update()` reemplazados validaciones manuales
   repetidas por llamada a `$purchaseModel->validateData($data)`; flujo simplificado: recopilación de datos
   → validación centralizada en modelo → operación transaccional o redirección con errores
+- `app/Models/Purchase.php` — `validateData()` mejorado con validaciones exhaustivas en servidor:
+  comprobante mínimo 3 caracteres (como valida JS), precio > 0 (como valida JS); servidor es la verdad
+  absoluta y no se deja bypassar por DevTools
 
 ---
 
