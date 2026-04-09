@@ -9,14 +9,33 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+---
+
+## [1.4.0] - 2026-04-09
+
 ### Agregado
 
+- `app/Helpers/PurchaseReportPdf.php` — nuevo helper que encapsula la generación del comprobante PDF
+  de compra: configuración de TCPDF, sección de proveedor, tabla de producto con cantidad/precio/total,
+  código QR y emisión inline; expone `PurchaseReportPdf::generate(array $purchase, string $comprador, int $id): void`
 - `app/Helpers/InvoicePdf.php` — nuevo helper que encapsula toda la generación del PDF de factura:
   configuración de TCPDF, construcción del HTML con ítems y totales, código QR y emisión inline;
   expone `InvoicePdf::generate(array $sale, array $totals, string $vendedor, int $id): void`
+- Ruta `GET /purchases/report/{id}` — nueva ruta para emitir el comprobante PDF de una compra
+- Botón "Reporte PDF" en `views/purchases/show.php` — abre el comprobante en nueva pestaña
 
 ### Modificado
 
+- `app/Controllers/PurchaseController.php` — añadido `report()`: obtiene la compra con
+  `findWithDetails()` y delega la generación del PDF a `PurchaseReportPdf::generate()`;
+  el nombre del comprador se obtiene de `nombre_usuario` del registro (usuario real que creó la compra),
+  no del usuario en sesión
+- `app/Models/Purchase.php` — `findWithDetails()` incluye ahora `us.nombres AS nombre_usuario`
+  para exponer el nombre del creador de la compra en el reporte PDF
+- `app/Helpers/InvoicePdf.php` — datos del QR reformateados con `\n` entre campos para mejor
+  legibilidad al escanear; QR reposicionado y ampliado a 40×40mm
+- `app/Helpers/PurchaseReportPdf.php` — info box simplificado a 2 columnas (sin columna vacía central);
+  datos del QR con `\n` entre campos; QR 40×40mm; `RoundedRect` calibrado a h=30
 - `app/Models/Sale.php` — fat model: añadido `computeInvoiceTotals(array $items): array` que calcula
   `precio_total`, `cantidad_total` y `total_unitarios` a partir de los ítems del carrito; lógica que
   antes vivía en `SaleController::invoice()`
@@ -25,17 +44,6 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
   eliminado `use App\Helpers\NumberToWords` (ahora lo consume `InvoicePdf` internamente);
   documentado el early-return de carrito vacío en `store()` como capa de UX, independiente de la
   verificación de integridad en `Sale::storeWithStock()`
-
-### Eliminado
-
-- `views/users/show.php` — vista de detalle de usuario eliminada por ser redundante con el listado
-  (`index` ya expone nombre, email y rol); acciones de editar/eliminar disponibles directamente desde la tabla
-- `UserController::show()` — método eliminado junto con su vista
-- Ruta `GET /users/show/{id}` — removida de `routes/web.php`
-- Botón "Ver detalles" (ojo) del listado de usuarios — reemplazado por acceso directo a Editar/Eliminar
-
-### Modificado
-
 - `app/Models/Client.php` — fat model: añadido `isValidEmail(string $email): bool` que encapsula
   `filter_var(FILTER_VALIDATE_EMAIL)`; la validación de formato de email ya no vive en el controlador
 - `app/Controllers/ClientController.php` — eliminados los dos llamados directos a `filter_var()` en
@@ -65,13 +73,19 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
   que PhpStorm infiera correctamente el flujo de control tras estos métodos
 - `app/Models/Purchase.php` — fat model: añadido `validateData(array $data): bool|array` que encapsula
   todas las validaciones de datos (campos obligatorios, tipos numéricos, cantidad > 0); retorna `true`
-  si válidos o array de errores con claves de campo
+  si válidos o array de errores con claves de campo; `validateData()` incluye validaciones exhaustivas:
+  comprobante mínimo 3 caracteres, precio > 0
 - `app/Controllers/PurchaseController.php` — `store()` y `update()` reemplazados validaciones manuales
   repetidas por llamada a `$purchaseModel->validateData($data)`; flujo simplificado: recopilación de datos
   → validación centralizada en modelo → operación transaccional o redirección con errores
-- `app/Models/Purchase.php` — `validateData()` mejorado con validaciones exhaustivas en servidor:
-  comprobante mínimo 3 caracteres (como valida JS), precio > 0 (como valida JS); servidor es la verdad
-  absoluta y no se deja bypassar por DevTools
+
+### Eliminado
+
+- `views/users/show.php` — vista de detalle de usuario eliminada por ser redundante con el listado
+  (`index` ya expone nombre, email y rol); acciones de editar/eliminar disponibles directamente desde la tabla
+- `UserController::show()` — método eliminado junto con su vista
+- Ruta `GET /users/show/{id}` — removida de `routes/web.php`
+- Botón "Ver detalles" (ojo) del listado de usuarios — reemplazado por acceso directo a Editar/Eliminar
 
 ---
 

@@ -50,7 +50,8 @@ Sistema_de_Ventas_PHP/
 │   │   └── SaleController.php
 │   ├── Helpers/              ← PSR-4, namespace App\Helpers
 │   │   ├── NumberToWords.php
-│   │   └── InvoicePdf.php
+│   │   ├── InvoicePdf.php
+│   │   └── PurchaseReportPdf.php
 │   ├── Models/               ← PSR-4, namespace App\Models
 │   │   ├── User.php
 │   │   ├── Role.php
@@ -181,7 +182,9 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
   pueden exponer queries enriquecidas (`Product::findWithCategory()`, `Product::allWithCategories()`) para evitar
   joins manuales en el controlador; `Sale::computeInvoiceTotals(array $items)` encapsula el cálculo de totales de
   factura (precio_total, cantidad_total, total_unitarios) — la generación del PDF se delega al helper
-  `InvoicePdf::generate()` en `app/Helpers/`, manteniendo `SaleController::invoice()` en ~20 líneas
+  `InvoicePdf::generate()` en `app/Helpers/`, manteniendo `SaleController::invoice()` en ~20 líneas;
+  el comprobante de compras sigue el mismo patrón: `PurchaseReportPdf::generate()` invocado desde
+  `PurchaseController::report()` vía `GET /purchases/report/{id}`
 
 ### PHP — Seguridad
 
@@ -270,5 +273,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-09 — Unreleased (fat model en `ventas`: `Sale::computeInvoiceTotals()` encapsula
-cálculo de totales de factura; generación PDF extraída a helper `InvoicePdf::generate()`)_
+_Última actualización: 2026-04-09 — v1.4.0 (fat model en todos los módulos; helpers `InvoicePdf` y
+`PurchaseReportPdf` para generación de PDFs; `PurchaseController::report()` — comprobante de compra inline)_
