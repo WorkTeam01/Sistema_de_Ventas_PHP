@@ -232,6 +232,7 @@ class Purchase extends Model
 
     /**
      * Valida los datos de una compra.
+     * Realiza validaciones exhaustivas en el servidor (verdad absoluta).
      *
      * @param array $data Datos a validar.
      * @return bool|array true si válidos, array de errores si no.
@@ -254,12 +255,18 @@ class Purchase extends Model
         }
         if (empty($data['comprobante'])) {
             $errors['comprobante'] = 'Comprobante requerido.';
+        } elseif (strlen(trim($data['comprobante'])) < 3) {
+            $errors['comprobante'] = 'Comprobante debe tener al menos 3 caracteres.';
         }
         if (!is_numeric($data['precio_compra'] ?? '')) {
             $errors['precio_compra'] = 'Precio debe ser numérico.';
+        } elseif ((float)$data['precio_compra'] <= 0) {
+            $errors['precio_compra'] = 'Precio debe ser mayor a 0.';
         }
-        if (!is_numeric($data['cantidad'] ?? '') || (int)$data['cantidad'] < 1) {
-            $errors['cantidad'] = 'Cantidad debe ser un número mayor a cero.';
+        if (!is_numeric($data['cantidad'] ?? '')) {
+            $errors['cantidad'] = 'Cantidad debe ser numérica.';
+        } elseif ((int)$data['cantidad'] < 1) {
+            $errors['cantidad'] = 'Cantidad debe ser mayor a cero.';
         }
 
         return empty($errors) ? true : $errors;
