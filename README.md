@@ -227,8 +227,8 @@ Sistema_de_Ventas_PHP/
 
 | Archivo                            | Propósito                                                   |
 |------------------------------------|-------------------------------------------------------------|
-| [AGENT.md](AGENT.md)               | 🏗️ Arquitectura completa, stack, convenciones globales     |
-| [CLAUDE.md](CLAUDE.md)             | 🛠️ Estructura MVC, rutas activas, patrones de código       |
+| [AGENT.md](AGENT.md)               | 🏗️ Arquitectura MVC, stack, convenciones, prohibiciones    |
+| [CLAUDE.md](CLAUDE.md)             | 🛠️ Instrucciones operacionales locales (XAMPP, BD, rutas)  |
 | [PROMPTS.md](PROMPTS.md)           | 📝 Plantillas de prompts efectivos para agentes IA          |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 🤝 Guía para colaboradores — flujo de PRs, commits, testing |
 
@@ -243,7 +243,7 @@ Sistema_de_Ventas_PHP/
 1. **Lee primero** [CONTRIBUTING.md](CONTRIBUTING.md) — contiene todo lo necesario
 2. **Abre un issue** describiendo tu propuesta (feature, bug fix, docs)
 3. **Fork + Branch:** `git checkout -b feature/nombre-funcionalidad`
-4. **Código:** Sigue convenciones de [AGENT.md](AGENT.md) y [CLAUDE.md](CLAUDE.md)
+4. **Código:** Sigue convenciones de [AGENT.md](AGENT.md)
 5. **Commit:** Usa formato convencional → `feat(scope): description`
 6. **Push + PR:** Abre pull request con descripción clara
 
