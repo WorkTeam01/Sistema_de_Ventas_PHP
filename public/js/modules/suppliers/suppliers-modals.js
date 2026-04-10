@@ -224,6 +224,50 @@ $(document).ready(function () {
     }
 
     // ========================================================================
+    // VER DETALLE DEL PROVEEDOR
+    // ========================================================================
+    $(document).on('click', '.btn-show', function () {
+        if ($(this).data('processing')) return false;
+
+        const $button = $(this);
+        const id = $button.data('id');
+
+        $button.data('processing', true).prop('disabled', true);
+
+        ToastUtils.loadingWithMinTime('Cargando datos del proveedor...', function (loadingToast) {
+            $.ajax({
+                url: BASE_URL + '/suppliers/show/' + id,
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    loadingToast.close();
+                    $button.data('processing', false).prop('disabled', false);
+
+                    if (response.success) {
+                        const data = response.data;
+
+                        $('#show_nombre_proveedor').text(data.nombre_proveedor || '—');
+                        $('#show_empresa').text(data.empresa || '—');
+                        $('#show_celular').text(data.celular || '—');
+                        $('#show_telefono').text(data.telefono || '—');
+                        $('#show_email').text(data.email || '—');
+                        $('#show_direccion').text(data.direccion || '—');
+
+                        $('#modalShow').modal('show');
+                    } else {
+                        ToastUtils.error(response.message);
+                    }
+                },
+                error: function () {
+                    loadingToast.close();
+                    $button.data('processing', false).prop('disabled', false);
+                    ToastUtils.error('Error en la comunicación con el servidor, por favor intente nuevamente.');
+                }
+            });
+        }, 1500);
+    });
+
+    // ========================================================================
     // CARGAR DATOS PARA EDITAR
     // ========================================================================
     $(document).on('click', '.btn-edit', function () {
@@ -365,9 +409,12 @@ $(document).ready(function () {
     $('.modal').on('hidden.bs.modal', function () {
         isSubmitting = false;
 
-        $(this).find('form')[0].reset();
-        $(this).find('form').validate().resetForm();
-        $(this).find('.is-invalid').removeClass('is-invalid');
+        const $form = $(this).find('form');
+        if ($form.length) {
+            $form[0].reset();
+            $form.validate().resetForm();
+            $(this).find('.is-invalid').removeClass('is-invalid');
+        }
 
         $(this).find('button[type="submit"]').prop('disabled', false).each(function () {
             const $btn = $(this);
