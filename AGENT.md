@@ -234,6 +234,12 @@ Auth::check()  // bool
 - Layout de formularios CRUD: col-md-8 (form) + col-md-4 (tarjeta informativa)
 - Layout de formularios POS (ventas/create): patrón wizard — col-md-9 con 3 tabs numerados (steps) + barra de
   progreso animada + validación entre pasos; col-md-3 sidebar sticky "Resumen de venta"
+- Layout de páginas de detalle (`show`): dos columnas — `col-md-4 col-lg-3` izquierda con imagen, nombre, código,
+  categoría y acciones (editar, volver, PDF si aplica); `col-md-8 col-lg-9` derecha con tarjetas de métricas
+  (`info-box`) y tabla/sección de datos; aplicado en `products/show.php`, `purchases/show.php` y `sales/show.php`
+- **Partial de modales** (`views/[modulo]/partial/_modals.php`): cuando una vista acumula múltiples modales
+  (crear, editar, ver detalle), extraerlos a un partial e incluirlos con `<?php include ... ?>` al final de la vista
+  principal; aplicado en `suppliers/partial/_modals.php` incluido desde `suppliers/index.php`
 - Breadcrumb obligatorio en cada vista (`<section class="content-header">`)
 
 ---
@@ -273,5 +279,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-09 — v1.4.0 (fat model en todos los módulos; helpers `InvoicePdf` y
-`PurchaseReportPdf` para generación de PDFs; `PurchaseController::report()` — comprobante de compra inline)_
+_Última actualización: 2026-04-10 — v1.4.1 (layout de detalle en dos columnas para products/purchases/sales;
+partial `views/suppliers/partial/_modals.php`; botón "Ver detalle" en proveedores)_

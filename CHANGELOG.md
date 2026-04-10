@@ -11,6 +11,34 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.4.1] - 2026-04-10
+
+### Agregado
+
+- `views/suppliers/partial/_modals.php` — modales de crear, editar y ver detalle de proveedor
+  extraídos de `views/suppliers/index.php` a su propio partial para reducir tamaño de la vista principal
+- Botón "Ver detalle" (`btn-show`, ícono `fa-eye`) en la tabla de proveedores que abre el modal de detalle
+
+### Modificado
+
+- `views/suppliers/index.php` — eliminados los bloques HTML de los modales (ahora en `_modals.php`);
+  se incluye el partial al final de la vista con `<?php include ... ?>`
+- `public/js/modules/suppliers/suppliers-modals.js` — añadido handler para `btn-show` que carga y muestra
+  los datos del proveedor en el modal de detalle vía AJAX a `/suppliers/show/{id}`
+- `views/products/show.php` — rediseño con layout de dos columnas: columna izquierda con imagen, nombre,
+  código, categoría y acciones; columna derecha con tarjetas de métricas (precio venta, precio compra, stock)
+  y tabla de detalles del producto
+- `views/purchases/show.php` — mismo patrón de dos columnas aplicado: imagen del producto a la izquierda
+  con acciones (PDF, editar, volver), métricas y datos de la compra a la derecha
+- `views/sales/show.php` — rediseño: cálculo de totales (`total_cantidad`, `precio_total`, `total_productos`)
+  movido a PHP antes del HTML; encabezado con número de venta y acciones (imprimir factura, volver)
+- `views/sales/delete.php` — refactor menor de marcado: tabla de resumen reemplazada por `<dl class="row">`,
+  ajustes de espaciado y clases CSS
+- `views/users/profile.php` — eliminado ítem ID de usuario del listado de información de perfil
+- `public/css/core/ui-components.css` — ajustes de estilos de apoyo para los nuevos layouts de detalle
+
+---
+
 ## [1.4.0] - 2026-04-09
 
 ### Agregado

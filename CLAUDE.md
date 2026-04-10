@@ -1,7 +1,7 @@
 # CLAUDE.md — Guía Local para Claude Code
 
 > Instrucciones operacionales para trabajar con Sistema de Ventas en Claude Code.
-> 
+>
 > Para **arquitectura, convenciones de código, stack tecnológico y prohibiciones explícitas**, ver [AGENT.md](AGENT.md).
 
 ---
@@ -68,6 +68,7 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 ```
 
 El seeder crea usuarios de prueba:
+
 - `admin@sistema.com` / `admin123`
 - `vendedor@sistema.com` / `vendedor123`
 - `comprador@sistema.com` / `comprador123`
@@ -165,10 +166,10 @@ APP_TIMEZONE=America/La_Paz
 
 ## Archivos de Referencia
 
-| Archivo         | Propósito                                                              |
-|-----------------|------------------------------------------------------------------------|
-| [AGENT.md](AGENT.md) | Arquitectura MVC, convenciones de código, stack, prohibiciones explícitas |
-| [PROMPTS.md](PROMPTS.md) | Plantillas de prompts para migración, debugging, code review |
+| Archivo                  | Propósito                                                                 |
+|--------------------------|---------------------------------------------------------------------------|
+| [AGENT.md](AGENT.md)     | Arquitectura MVC, convenciones de código, stack, prohibiciones explícitas |
+| [PROMPTS.md](PROMPTS.md) | Plantillas de prompts para migración, debugging, code review              |
 
 ---
 
@@ -185,6 +186,7 @@ Sistema_de_Ventas_PHP/
 ├── views/
 │   ├── layouts/       ← header.php, footer.php, messages.php, partials/_sidebar.php
 │   ├── [modulo]/      ← índice, create, edit, show (por cada módulo)
+│   │   └── partial/   ← partials de modales cuando el módulo los usa (ej: suppliers/partial/_modals.php)
 │   └── errors/        ← 404, 403, 500
 ├── routes/
 │   └── web.php        ← Todas las rutas MVC
@@ -229,6 +231,7 @@ chmod 755 public/uploads/products/  # Directorio de carga de imágenes
 | `tb_categorias`  | Categorías de productos                                     |
 
 Convenciones:
+
 - `fyh_creacion` — `DEFAULT CURRENT_TIMESTAMP`; no insertar manualmente
 - `fyh_actualizacion` — `ON UPDATE CURRENT_TIMESTAMP`; queda `NULL` al crear
 - Precios: `DECIMAL(10,2)`, no VARCHAR
@@ -237,19 +240,20 @@ Convenciones:
 
 ## Referencia Rápida: Estado de Migración MVC
 
-Todos los módulos están migrados a MVC. Ver [AGENT.md](AGENT.md) para detalles de cada módulo (fat model, patrones de eliminación, validaciones).
+Todos los módulos están migrados a MVC. Ver [AGENT.md](AGENT.md) para detalles de cada módulo (fat model, patrones de
+eliminación, validaciones).
 
-| Módulo       | Estado    |
-|--------------|-----------|
-| `roles`      | ✅ Migrado |
-| `categories` | ✅ Migrado |
-| `suppliers`  | ✅ Migrado |
-| `clients`    | ✅ Migrado |
-| `almacen`    | ✅ Migrado |
-| `compras`    | ✅ Migrado |
-| `ventas`     | ✅ Migrado |
+| Módulo       | Estado         |
+|--------------|----------------|
+| `roles`      | ✅ Migrado      |
+| `categories` | ✅ Migrado      |
+| `suppliers`  | ✅ Migrado      |
+| `clients`    | ✅ Migrado      |
+| `almacen`    | ✅ Migrado      |
+| `compras`    | ✅ Migrado      |
+| `ventas`     | ✅ Migrado      |
 | `perfil`     | ✅ Implementado |
 
 ---
 
-_Última actualización: 2026-04-09 — v1.4.0_
+_Última actualización: 2026-04-10 — v1.4.1_
