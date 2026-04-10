@@ -48,10 +48,6 @@
                                     <b><i class="fas fa-calendar-alt mr-1"></i> Miembro desde</b>
                                     <span class="float-right"><?= $fechaSafe ?></span>
                                 </li>
-                                <li class="list-group-item">
-                                    <b><i class="fas fa-hashtag mr-1"></i> ID</b>
-                                    <span class="float-right">#<?= $id_usuario ?></span>
-                                </li>
                             </ul>
 
                         </div>

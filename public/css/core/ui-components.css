@@ -1,9 +1,20 @@
 /**
  * UI Components Custom Styles
- * 
+ *
  * Estilos personalizados para mejorar los componentes UI
  * como Select2, Tooltips, y otros elementos.
  */
+
+/* ============================================
+   FIREFOX FIX - Scroll bloqueado por AdminLTE
+   AdminLTE aplica overflow-x:hidden al body, lo cual
+   en Firefox propaga el overflow al viewport (html),
+   bloqueando el scroll vertical. Esta regla lo corrige.
+   ============================================ */
+html {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
 /* ============================================
    SELECT2 - Animación de flecha
