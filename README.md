@@ -5,7 +5,7 @@
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y
 control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.4.1-blue)
+![Versión](https://img.shields.io/badge/Versión-1.5.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -31,6 +31,8 @@ estándares de seguridad web modernos:
 - **Validaciones Back-End**: Todo envío por _POST_ recibe depuración estricta en el servidor para forzar cast a valores
   numéricos, tipados seguros y sanitización antes del contacto con la BDD.
 - **Encriptado Seguro**: Uso de API moderna de Hashes de contraseñas de PHP (`PASSWORD_DEFAULT` / BCRYPT).
+- **Restablecimiento de Contraseña**: Flujo completo con tokens seguros (`bin2hex(random_bytes(32))`), expiración
+  de 1 hora, invalidación de un solo uso y envío por email vía PHPMailer + Gmail SMTP.
 - **Optimizaciones de UI**: Control Sidebar de AdminLTE implementado de forma 100% nativa con un script dedicado,
   integrando persistencia automatizada en `localStorage` y mecanismos Anti-FOUC para prevenir "flashes" blancos al
   navegar con la temática oscura.
@@ -129,9 +131,23 @@ DB_USER=root
 DB_PASS=
 APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
 APP_TIMEZONE=America/La_Paz
+APP_DEBUG=false
+```
+
+Para habilitar el restablecimiento de contraseña por email, agregar también:
+
+```dotenv
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tu_email@gmail.com
+MAIL_PASSWORD=xxxx_xxxx_xxxx_xxxx
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=tu_email@gmail.com
+MAIL_FROM_NAME="Sistema de Ventas"
 ```
 
 > `APP_URL` debe incluir `/public` — es la ruta al front controller.
+> `MAIL_PASSWORD` debe ser una **Contraseña de Aplicación** de Google (no la contraseña de la cuenta).
 
 ### 5. Configurar permisos (Linux / macOS)
 
@@ -173,7 +189,8 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 
 ## Stack Tecnológico
 
-**Backend:** PHP con PDO (prepared statements), TCPDF (`tecnickcom/tcpdf` vía Composer) para generación de facturas.
+**Backend:** PHP con PDO (prepared statements), TCPDF (`tecnickcom/tcpdf`) para generación de facturas PDF, PHPMailer (
+`phpmailer/phpmailer`) para envío de emails.
 
 **Frontend:** AdminLTE 3.2.0 sobre Bootstrap 4, jQuery, DataTables, SweetAlert2.
 
@@ -188,13 +205,14 @@ Sistema_de_Ventas_PHP/
 ├── app/
 │   ├── Controllers/        # Controladores MVC (Auth, Dashboard, User, Role, Category, Supplier, Client, Product, Purchase, Sale)
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
-│   ├── Helpers/            # Helpers PSR-4 (NumberToWords, InvoicePdf)
+│   ├── Helpers/            # Helpers PSR-4 (NumberToWords, InvoicePdf, PurchaseReportPdf)
 │   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware, SellerMiddleware)
-│   └── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem)
+│   ├── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem)
+│   └── Services/           # Servicios PSR-4 (EmailService — PHPMailer SMTP)
 ├── views/
 │   ├── layouts/            # Plantillas compartidas (header, footer, messages) + partials/_sidebar.php
 │   ├── errors/             # Páginas de error standalone (404, 403, 500)
-│   ├── auth/               # Vista de login
+│   ├── auth/               # Vistas de autenticación (login, forgot-password, reset-password, show-reset-link)
 │   ├── dashboard/          # Vista del dashboard
 │   ├── users/              # Vistas CRUD del módulo users
 │   ├── roles/              # Módulo roles — patrón modal + AJAX (solo index.php)

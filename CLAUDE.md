@@ -84,7 +84,21 @@ DB_USER=root
 DB_PASS=root
 APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
 APP_TIMEZONE=America/La_Paz
+APP_DEBUG=false
+
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tu_email@gmail.com
+MAIL_PASSWORD=xxxx_xxxx_xxxx_xxxx
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=tu_email@gmail.com
+MAIL_FROM_NAME="Sistema de Ventas"
 ```
+
+> `APP_DEBUG=true` activa el modo desarrollo: muestra el link de restablecimiento en pantalla
+> en lugar de (solo) enviarlo por email. Usar `false` en producción.
+>
+> `MAIL_PASSWORD` debe ser una **Contraseña de Aplicación** de Google — no la contraseña de tu cuenta.
 
 `public/index.php` carga `.env` vía phpdotenv y expone:
 
@@ -96,71 +110,75 @@ APP_TIMEZONE=America/La_Paz
 
 ## Estructura de Rutas
 
-| Método | Ruta                       | Controller                          | Middleware       |
-|--------|----------------------------|-------------------------------------|------------------|
-| GET    | `/`                        | `DashboardController::index()`      | `auth`           |
-| GET    | `/profile`                 | `UserController::profile()`         | `auth`           |
-| POST   | `/profile/update`          | `UserController::updateProfile()`   | `auth`           |
-| POST   | `/profile/password`        | `UserController::updatePassword()`  | `auth`           |
-| GET    | `/auth`                    | `AuthController::showLogin()`       | `guest`          |
-| POST   | `/auth/login`              | `AuthController::store()`           | `guest`          |
-| GET    | `/auth/logout`             | `AuthController::logout()`          | `auth`           |
-| GET    | `/users`                   | `UserController::index()`           | `auth`, `admin`  |
-| GET    | `/users/create`            | `UserController::create()`          | `auth`, `admin`  |
-| POST   | `/users`                   | `UserController::store()`           | `auth`, `admin`  |
-| GET    | `/users/edit/{id}`         | `UserController::edit()`            | `auth`, `admin`  |
-| POST   | `/users/update`            | `UserController::update()`          | `auth`, `admin`  |
-| GET    | `/users/delete/{id}`       | `UserController::delete()`          | `auth`, `admin`  |
-| POST   | `/users/delete`            | `UserController::destroy()`         | `auth`, `admin`  |
-| GET    | `/roles`                   | `RoleController::index()`           | `auth`, `admin`  |
-| POST   | `/roles/store`             | `RoleController::store()`           | `auth`, `admin`  |
-| GET    | `/roles/show/{id}`         | `RoleController::show()`            | `auth`, `admin`  |
-| POST   | `/roles/update/{id}`       | `RoleController::update()`          | `auth`, `admin`  |
-| POST   | `/roles/check-nombre`      | `RoleController::checkNombre()`     | `auth`, `admin`  |
-| GET    | `/categories`              | `CategoryController::index()`       | `auth`           |
-| POST   | `/categories/store`        | `CategoryController::store()`       | `auth`           |
-| GET    | `/categories/show/{id}`    | `CategoryController::show()`        | `auth`           |
-| POST   | `/categories/update/{id}`  | `CategoryController::update()`      | `auth`           |
-| POST   | `/categories/check-nombre` | `CategoryController::checkNombre()` | `auth`           |
-| GET    | `/suppliers`               | `SupplierController::index()`       | `auth`           |
-| POST   | `/suppliers/store`         | `SupplierController::store()`       | `auth`           |
-| GET    | `/suppliers/show/{id}`     | `SupplierController::show()`        | `auth`           |
-| POST   | `/suppliers/update/{id}`   | `SupplierController::update()`      | `auth`           |
-| POST   | `/suppliers/check-nombre`  | `SupplierController::checkNombre()` | `auth`           |
-| POST   | `/suppliers/delete`        | `SupplierController::destroy()`     | `auth`           |
-| GET    | `/clients`                 | `ClientController::index()`         | `auth`           |
-| POST   | `/clients/store`           | `ClientController::store()`         | `auth`           |
-| POST   | `/clients/check-nit-ci`    | `ClientController::checkNitCi()`    | `auth`           |
-| POST   | `/clients/check-email`     | `ClientController::checkEmail()`    | `auth`           |
-| GET    | `/clients/show/{id}`       | `ClientController::show()`          | `auth`           |
-| POST   | `/clients/update/{id}`     | `ClientController::update()`        | `auth`           |
-| POST   | `/clients/delete`          | `ClientController::destroy()`       | `auth`           |
-| GET    | `/products`                | `ProductController::index()`        | `auth`           |
-| GET    | `/products/show/{id}`      | `ProductController::show()`         | `auth`           |
-| GET    | `/products/create`         | `ProductController::create()`       | `auth`           |
-| POST   | `/products`                | `ProductController::store()`        | `auth`           |
-| GET    | `/products/edit/{id}`      | `ProductController::edit()`         | `auth`           |
-| POST   | `/products/update`         | `ProductController::update()`       | `auth`           |
-| GET    | `/products/check/{id}`     | `ProductController::check()`        | `auth`           |
-| GET    | `/products/delete/{id}`    | `ProductController::delete()`       | `auth`           |
-| POST   | `/products/delete`         | `ProductController::destroy()`      | `auth`           |
-| GET    | `/purchases`               | `PurchaseController::index()`       | `auth`           |
-| GET    | `/purchases/create`        | `PurchaseController::create()`      | `auth`           |
-| POST   | `/purchases`               | `PurchaseController::store()`       | `auth`           |
-| GET    | `/purchases/show/{id}`     | `PurchaseController::show()`        | `auth`           |
-| GET    | `/purchases/report/{id}`   | `PurchaseController::report()`      | `auth`           |
-| GET    | `/purchases/edit/{id}`     | `PurchaseController::edit()`        | `auth`           |
-| POST   | `/purchases/update`        | `PurchaseController::update()`      | `auth`           |
-| POST   | `/purchases/delete`        | `PurchaseController::destroy()`     | `auth`           |
-| GET    | `/sales`                   | `SaleController::index()`           | `auth`, `seller` |
-| GET    | `/sales/create`            | `SaleController::create()`          | `auth`, `seller` |
-| POST   | `/sales/cart/add`          | `SaleController::addToCart()`       | `auth`, `seller` |
-| POST   | `/sales/cart/remove`       | `SaleController::removeFromCart()`  | `auth`, `seller` |
-| POST   | `/sales`                   | `SaleController::store()`           | `auth`, `seller` |
-| GET    | `/sales/show/{id}`         | `SaleController::show()`            | `auth`, `seller` |
-| GET    | `/sales/delete/{id}`       | `SaleController::confirmDelete()`   | `auth`, `seller` |
-| GET    | `/sales/invoice/{id}`      | `SaleController::invoice()`         | `auth`, `seller` |
-| POST   | `/sales/delete`            | `SaleController::destroy()`         | `auth`, `seller` |
+| Método | Ruta                           | Controller                          | Middleware       |
+|--------|--------------------------------|-------------------------------------|------------------|
+| GET    | `/`                            | `DashboardController::index()`      | `auth`           |
+| GET    | `/profile`                     | `UserController::profile()`         | `auth`           |
+| POST   | `/profile/update`              | `UserController::updateProfile()`   | `auth`           |
+| POST   | `/profile/password`            | `UserController::updatePassword()`  | `auth`           |
+| GET    | `/auth`                        | `AuthController::showLogin()`       | `guest`          |
+| POST   | `/auth/login`                  | `AuthController::store()`           | `guest`          |
+| GET    | `/auth/logout`                 | `AuthController::logout()`          | `auth`           |
+| GET    | `/auth/forgot-password`        | `AuthController::forgotPassword()`  | `guest`          |
+| POST   | `/auth/forgot-password`        | `AuthController::sendResetLink()`   | `guest`          |
+| GET    | `/auth/reset-password/{token}` | `AuthController::showResetForm()`   | `guest`          |
+| POST   | `/auth/reset-password`         | `AuthController::resetPassword()`   | `guest`          |
+| GET    | `/users`                       | `UserController::index()`           | `auth`, `admin`  |
+| GET    | `/users/create`                | `UserController::create()`          | `auth`, `admin`  |
+| POST   | `/users`                       | `UserController::store()`           | `auth`, `admin`  |
+| GET    | `/users/edit/{id}`             | `UserController::edit()`            | `auth`, `admin`  |
+| POST   | `/users/update`                | `UserController::update()`          | `auth`, `admin`  |
+| GET    | `/users/delete/{id}`           | `UserController::delete()`          | `auth`, `admin`  |
+| POST   | `/users/delete`                | `UserController::destroy()`         | `auth`, `admin`  |
+| GET    | `/roles`                       | `RoleController::index()`           | `auth`, `admin`  |
+| POST   | `/roles/store`                 | `RoleController::store()`           | `auth`, `admin`  |
+| GET    | `/roles/show/{id}`             | `RoleController::show()`            | `auth`, `admin`  |
+| POST   | `/roles/update/{id}`           | `RoleController::update()`          | `auth`, `admin`  |
+| POST   | `/roles/check-nombre`          | `RoleController::checkNombre()`     | `auth`, `admin`  |
+| GET    | `/categories`                  | `CategoryController::index()`       | `auth`           |
+| POST   | `/categories/store`            | `CategoryController::store()`       | `auth`           |
+| GET    | `/categories/show/{id}`        | `CategoryController::show()`        | `auth`           |
+| POST   | `/categories/update/{id}`      | `CategoryController::update()`      | `auth`           |
+| POST   | `/categories/check-nombre`     | `CategoryController::checkNombre()` | `auth`           |
+| GET    | `/suppliers`                   | `SupplierController::index()`       | `auth`           |
+| POST   | `/suppliers/store`             | `SupplierController::store()`       | `auth`           |
+| GET    | `/suppliers/show/{id}`         | `SupplierController::show()`        | `auth`           |
+| POST   | `/suppliers/update/{id}`       | `SupplierController::update()`      | `auth`           |
+| POST   | `/suppliers/check-nombre`      | `SupplierController::checkNombre()` | `auth`           |
+| POST   | `/suppliers/delete`            | `SupplierController::destroy()`     | `auth`           |
+| GET    | `/clients`                     | `ClientController::index()`         | `auth`           |
+| POST   | `/clients/store`               | `ClientController::store()`         | `auth`           |
+| POST   | `/clients/check-nit-ci`        | `ClientController::checkNitCi()`    | `auth`           |
+| POST   | `/clients/check-email`         | `ClientController::checkEmail()`    | `auth`           |
+| GET    | `/clients/show/{id}`           | `ClientController::show()`          | `auth`           |
+| POST   | `/clients/update/{id}`         | `ClientController::update()`        | `auth`           |
+| POST   | `/clients/delete`              | `ClientController::destroy()`       | `auth`           |
+| GET    | `/products`                    | `ProductController::index()`        | `auth`           |
+| GET    | `/products/show/{id}`          | `ProductController::show()`         | `auth`           |
+| GET    | `/products/create`             | `ProductController::create()`       | `auth`           |
+| POST   | `/products`                    | `ProductController::store()`        | `auth`           |
+| GET    | `/products/edit/{id}`          | `ProductController::edit()`         | `auth`           |
+| POST   | `/products/update`             | `ProductController::update()`       | `auth`           |
+| GET    | `/products/check/{id}`         | `ProductController::check()`        | `auth`           |
+| GET    | `/products/delete/{id}`        | `ProductController::delete()`       | `auth`           |
+| POST   | `/products/delete`             | `ProductController::destroy()`      | `auth`           |
+| GET    | `/purchases`                   | `PurchaseController::index()`       | `auth`           |
+| GET    | `/purchases/create`            | `PurchaseController::create()`      | `auth`           |
+| POST   | `/purchases`                   | `PurchaseController::store()`       | `auth`           |
+| GET    | `/purchases/show/{id}`         | `PurchaseController::show()`        | `auth`           |
+| GET    | `/purchases/report/{id}`       | `PurchaseController::report()`      | `auth`           |
+| GET    | `/purchases/edit/{id}`         | `PurchaseController::edit()`        | `auth`           |
+| POST   | `/purchases/update`            | `PurchaseController::update()`      | `auth`           |
+| POST   | `/purchases/delete`            | `PurchaseController::destroy()`     | `auth`           |
+| GET    | `/sales`                       | `SaleController::index()`           | `auth`, `seller` |
+| GET    | `/sales/create`                | `SaleController::create()`          | `auth`, `seller` |
+| POST   | `/sales/cart/add`              | `SaleController::addToCart()`       | `auth`, `seller` |
+| POST   | `/sales/cart/remove`           | `SaleController::removeFromCart()`  | `auth`, `seller` |
+| POST   | `/sales`                       | `SaleController::store()`           | `auth`, `seller` |
+| GET    | `/sales/show/{id}`             | `SaleController::show()`            | `auth`, `seller` |
+| GET    | `/sales/delete/{id}`           | `SaleController::confirmDelete()`   | `auth`, `seller` |
+| GET    | `/sales/invoice/{id}`          | `SaleController::invoice()`         | `auth`, `seller` |
+| POST   | `/sales/delete`                | `SaleController::destroy()`         | `auth`, `seller` |
 
 ---
 
@@ -182,7 +200,8 @@ Sistema_de_Ventas_PHP/
 │   ├── Controllers/   ← PSR-4, namespace App\Controllers
 │   ├── Models/        ← PSR-4, namespace App\Models
 │   ├── Middleware/    ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
-│   └── Helpers/       ← PSR-4, NumberToWords, InvoicePdf, PurchaseReportPdf
+│   ├── Helpers/       ← PSR-4, NumberToWords, InvoicePdf, PurchaseReportPdf
+│   └── Services/      ← PSR-4, namespace App\Services (EmailService)
 ├── views/
 │   ├── layouts/       ← header.php, footer.php, messages.php, partials/_sidebar.php
 │   ├── [modulo]/      ← índice, create, edit, show (por cada módulo)
@@ -218,17 +237,17 @@ chmod 755 public/uploads/products/  # Directorio de carga de imágenes
 
 ## Tablas Principales de Base de Datos
 
-| Tabla            | Propósito                                                   |
-|------------------|-------------------------------------------------------------|
-| `tb_almacen`     | Productos/inventario con stock, precios e imágenes          |
-| `tb_ventas`      | Encabezados de venta (vinculados a `tb_carrito` para ítems) |
-| `tb_carrito`     | Ítems de venta (producto y cantidad por venta)              |
-| `tb_compras`     | Registros de compras a proveedores                          |
-| `tb_clientes`    | Base de datos de clientes                                   |
-| `tb_proveedores` | Base de datos de proveedores                                |
-| `tb_usuarios`    | Usuarios con contraseñas hasheadas y FK de rol              |
-| `tb_roles`       | Definiciones de roles                                       |
-| `tb_categorias`  | Categorías de productos                                     |
+| Tabla            | Propósito                                                                                |
+|------------------|------------------------------------------------------------------------------------------|
+| `tb_almacen`     | Productos/inventario con stock, precios e imágenes                                       |
+| `tb_ventas`      | Encabezados de venta (vinculados a `tb_carrito` para ítems)                              |
+| `tb_carrito`     | Ítems de venta (producto y cantidad por venta)                                           |
+| `tb_compras`     | Registros de compras a proveedores                                                       |
+| `tb_clientes`    | Base de datos de clientes                                                                |
+| `tb_proveedores` | Base de datos de proveedores                                                             |
+| `tb_usuarios`    | Usuarios con contraseñas hasheadas, FK de rol y tokens de restablecimiento de contraseña |
+| `tb_roles`       | Definiciones de roles                                                                    |
+| `tb_categorias`  | Categorías de productos                                                                  |
 
 Convenciones:
 
@@ -256,4 +275,4 @@ eliminación, validaciones).
 
 ---
 
-_Última actualización: 2026-04-10 — v1.4.1_
+_Última actualización: 2026-04-10 — v1.5.0_

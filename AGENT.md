@@ -20,6 +20,7 @@ Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir 
 - **Frontend:** AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2
 - **Base de datos:** MySQL / MariaDB (PDO)
 - **PDF:** TCPDF (`tecnickcom/tcpdf` vía Composer)
+- **Email:** PHPMailer (`phpmailer/phpmailer ^7.0` vía Composer) — SMTP Gmail con App Password
 - **Control de versiones:** Git + GitHub (`WorkTeam01/Sistema_de_Ventas_PHP`)
 
 ---
@@ -52,6 +53,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── NumberToWords.php
 │   │   ├── InvoicePdf.php
 │   │   └── PurchaseReportPdf.php
+│   ├── Services/             ← PSR-4, namespace App\Services
+│   │   └── EmailService.php  ← PHPMailer SMTP — sendResetLink()
 │   ├── Models/               ← PSR-4, namespace App\Models
 │   │   ├── User.php
 │   │   ├── Role.php
@@ -71,7 +74,7 @@ Sistema_de_Ventas_PHP/
 │   │   └── partials/
 │   │       └── _sidebar.php  ← Sidebar con control de rol
 │   ├── errors/               ← Páginas de error standalone (404, 403, 500)
-│   ├── auth/
+│   ├── auth/                 ← login.php, forgot-password.php, reset-password.php, show-reset-link.php
 │   ├── dashboard/
 │   ├── users/
 │   ├── roles/
@@ -206,6 +209,15 @@ Auth::role()   // nombre del rol
 Auth::check()  // bool
 ```
 
+**Flujo de restablecimiento de contraseña:**
+
+- Token: `bin2hex(random_bytes(32))` — 64 caracteres hex, expiración 1 hora
+- Columnas en `tb_usuarios`: `reset_token VARCHAR(255) NULL`, `reset_token_expiracion DATETIME NULL`
+- `User::storeResetToken()` / `findByResetToken()` / `clearResetToken()` — gestión del token
+- `App\Services\EmailService::sendResetLink()` — envío vía PHPMailer + Gmail SMTP
+- `APP_DEBUG=true` en `.env` → muestra el link en pantalla + envía email (modo desarrollo)
+- `APP_DEBUG=false` → solo envía email con mensaje genérico (modo producción)
+
 ### JavaScript / Frontend
 
 - jQuery para DOM y eventos
@@ -279,5 +291,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-10 — v1.4.1 (layout de detalle en dos columnas para products/purchases/sales;
-partial `views/suppliers/partial/_modals.php`; botón "Ver detalle" en proveedores)_
+_Última actualización: 2026-04-10 — v1.5.0 (flujo de restablecimiento de contraseña; EmailService con PHPMailer;
+`App\Services\` namespace; columnas `reset_token` / `reset_token_expiracion` en `tb_usuarios`)_

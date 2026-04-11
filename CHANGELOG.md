@@ -11,6 +11,45 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.5.0] - 2026-04-10
+
+### Agregado
+
+- **Flujo de restablecimiento de contraseña** — implementación completa portada desde sistema-hielo-cambita
+  y adaptada a las convenciones del proyecto (`tb_usuarios`, `id_usuario`, `password_user`, `fyh_*`)
+- `app/Services/EmailService.php` — nuevo servicio de envío de email vía PHPMailer + Gmail SMTP;
+  template HTML responsivo con tabla de presentación, botón CTA y enlace alternativo en texto plano
+- `app/Controllers/AuthController.php` — métodos `forgotPassword()`, `sendResetLink()`,
+  `showResetForm()`, `resetPassword()` para el flujo completo de recuperación
+- `app/Models/User.php` — métodos `storeResetToken()`, `findByResetToken()`, `clearResetToken()`
+  para gestión segura del token de restablecimiento en BD
+- `views/auth/forgot-password.php` — formulario de solicitud de restablecimiento
+- `views/auth/reset-password.php` — formulario de nueva contraseña con indicador de fortaleza en tiempo real
+- `views/auth/show-reset-link.php` — vista exclusiva de modo desarrollo que muestra el link en pantalla
+  e indica si el email fue enviado correctamente
+- `public/js/modules/auth/forgot-password.js` — validación jQuery Validate + spinner de envío
+- `public/js/modules/auth/reset-password.js` — validación jQuery Validate + strength meter (4 niveles)
+- `public/css/modules/auth/reset-password.css` — estilos de la barra de fortaleza de contraseña
+- `composer.json` — dependencia `phpmailer/phpmailer ^7.0`
+- `.env.example` — variables `APP_DEBUG`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`,
+  `MAIL_ENCRYPTION`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`
+
+### Modificado
+
+- `database/schema.sql` — `tb_usuarios`: columna `token` reemplazada por `reset_token VARCHAR(255)`
+  y `reset_token_expiracion DATETIME` para el flujo de restablecimiento con expiración de 1 hora
+- `routes/web.php` — 4 rutas nuevas bajo `/auth/forgot-password` y `/auth/reset-password`
+  con middleware `guest`
+- `views/auth/login.php` — enlace "¿Olvidaste tu contraseña?" → `/auth/forgot-password`;
+  icono del toast ahora dinámico (soporta `success` además de `error`)
+
+### Comportamiento en modo desarrollo (`APP_DEBUG=true`)
+
+- Email no encontrado en BD → error explícito en lugar del mensaje genérico de seguridad
+- Email encontrado → envía el email Y muestra el link en pantalla con indicación de si el envío fue exitoso
+
+---
+
 ## [1.4.1] - 2026-04-10
 
 ### Agregado
