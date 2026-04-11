@@ -4,14 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login</title>
+    <title>Recuperar contraseña</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
-    <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
     <!-- SweetAlert2 -->
@@ -27,9 +25,9 @@
 
 <body class="hold-transition login-page">
     <div class="login-box">
-        <?php if ($respuesta): ?>
+        <?php if ($mensaje): ?>
             <script>
-                showToast(<?= json_encode($icono ?? 'error') ?>, <?= json_encode($respuesta) ?>);
+                showToast(<?= json_encode($icono) ?>, <?= json_encode($mensaje) ?>);
             </script>
         <?php endif; ?>
 
@@ -41,11 +39,14 @@
                 <a href="#" class="h1"><b>SISTEMA DE</b> VENTAS</a>
             </div>
             <div class="card-body">
-                <h5 class="login-box-msg">Iniciar Sesión</h5>
+                <h5 class="login-box-msg">Recuperar contraseña</h5>
+                <p class="text-muted text-center" style="font-size:14px;">
+                    Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
+                </p>
 
-                <form id="loginForm" action="<?= BASE_URL ?>/auth/login" method="post">
-                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
-                    <div class="input-group">
+                <form id="forgotForm" action="<?= BASE_URL ?>/auth/forgot-password" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <div class="input-group mb-3">
                         <input type="email" id="email" name="email" class="form-control" placeholder="Correo electrónico" autocomplete="email">
                         <div class="input-group-append">
                             <div class="input-group-text">
@@ -53,22 +54,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="input-group">
-                        <input type="password" id="password_user" name="password_user" class="form-control" placeholder="Contraseña" autocomplete="current-password">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-default" id="togglePassword">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-custom btn-block" id="btnLogin">
-                        INGRESAR
+                    <button type="submit" class="btn btn-custom btn-block" id="btnSend">
+                        ENVIAR ENLACE
                     </button>
                 </form>
 
                 <p class="mt-3 mb-0 text-center">
-                    <a href="<?= BASE_URL ?>/auth/forgot-password" class="text-muted" style="font-size:14px;">
-                        ¿Olvidaste tu contraseña?
+                    <a href="<?= BASE_URL ?>/auth" class="text-muted" style="font-size:14px;">
+                        <i class="fas fa-arrow-left mr-1"></i>Volver al inicio de sesión
                     </a>
                 </p>
             </div>
@@ -83,8 +76,8 @@
         <!-- jQuery Validate -->
         <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/jquery.validate.min.js"></script>
         <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/localization/messages_es.min.js"></script>
-        <!-- Login JS -->
-        <script src="<?= BASE_URL ?>/js/modules/auth/login.js"></script>
+        <!-- Forgot Password JS -->
+        <script src="<?= BASE_URL ?>/js/modules/auth/forgot-password.js"></script>
 </body>
 
 </html>

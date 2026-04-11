@@ -30,10 +30,14 @@ $router = new Router();
 // Dashboard
 $router->get('/', [DashboardController::class, 'index'], ['auth']);
 
-// Rutas del módulo auth (login/logout)
+// Rutas del módulo auth (login/logout/password reset)
 $router->get('/auth',        [AuthController::class, 'showLogin'], ['guest']);
 $router->post('/auth/login', [AuthController::class, 'store'], ['guest']);
 $router->get('/auth/logout', [AuthController::class, 'logout'], ['auth']);
+$router->get('/auth/forgot-password',          [AuthController::class, 'forgotPassword'], ['guest']);
+$router->post('/auth/forgot-password',         [AuthController::class, 'sendResetLink'],  ['guest']);
+$router->get('/auth/reset-password/{token}',   [AuthController::class, 'showResetForm'],  ['guest']);
+$router->post('/auth/reset-password',          [AuthController::class, 'resetPassword'],  ['guest']);
 
 // Perfil propio (cualquier rol autenticado)
 $router->get('/profile',           [UserController::class, 'profile'],        ['auth']);

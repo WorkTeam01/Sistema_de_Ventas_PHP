@@ -223,6 +223,57 @@ class User extends Model
     }
 
     /**
+     * Guarda el token de restablecimiento y su fecha de expiración.
+     *
+     * @param int $id_usuario ID del usuario.
+     * @param string $token Token generado con bin2hex(random_bytes(32)).
+     * @param string $expiracion Fecha/hora de expiración en formato 'Y-m-d H:i:s'.
+     * @return bool True si la actualización fue exitosa.
+     */
+    public function storeResetToken(int $id_usuario, string $token, string $expiracion): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE $this->table
+             SET reset_token = ?, reset_token_expiracion = ?
+             WHERE $this->primaryKey = ?"
+        );
+        return $stmt->execute([$token, $expiracion, $id_usuario]);
+    }
+
+    /**
+     * Busca un usuario por su reset_token verificando que no haya expirado.
+     *
+     * @param string $token Token de restablecimiento.
+     * @return array|false Datos del usuario o false si el token es inválido o expirado.
+     */
+    public function findByResetToken(string $token): array|false
+    {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM $this->table
+             WHERE reset_token = ? AND reset_token_expiracion > NOW()
+             LIMIT 1"
+        );
+        $stmt->execute([$token]);
+        return $stmt->fetch();
+    }
+
+    /**
+     * Limpia el token de restablecimiento después de usarlo.
+     *
+     * @param int $id_usuario ID del usuario.
+     * @return bool True si la actualización fue exitosa.
+     */
+    public function clearResetToken(int $id_usuario): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE $this->table
+             SET reset_token = NULL, reset_token_expiracion = NULL
+             WHERE $this->primaryKey = ?"
+        );
+        return $stmt->execute([$id_usuario]);
+    }
+
+    /**
      * Actualiza los datos de un usuario. Si $plainPassword es null, no modifica la contraseña.
      *
      * @param int $id ID del usuario a actualizar.
