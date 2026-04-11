@@ -32,9 +32,21 @@ $('#saleTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     }
 });
 
-// ---- Restaurar tab tras recarga por carrito (sessionStorage) ----
+// ---- Restaurar tab y cliente tras recarga por carrito (sessionStorage) ----
 
 $(function () {
+    // Restaurar cliente seleccionado
+    const savedClient = sessionStorage.getItem('pos_client');
+    if (savedClient) {
+        try {
+            const c = JSON.parse(savedClient);
+            seleccionarCliente(c.id, c.nombre, c.nit, c.celular, c.email);
+        } catch (e) {
+            sessionStorage.removeItem('pos_client');
+        }
+    }
+
+    // Restaurar paso del wizard
     const savedStep = sessionStorage.getItem('pos_step');
     if (savedStep !== null) {
         sessionStorage.removeItem('pos_step');
@@ -159,32 +171,167 @@ $(document).on('click', '.btn-seleccionar', function () {
 
 // ---- Seleccionar cliente del modal ----
 
-$(document).on('click', '.btn-seleccionar-cliente', function () {
-    const nombre = $(this).data('nombre');
-
-    $('#id_cliente_hidden').val($(this).data('id'));
+function seleccionarCliente(id, nombre, nit, celular, email) {
+    $('#id_cliente_hidden').val(id);
     $('#cliente_nombre').val(nombre);
-    $('#cliente_nit').val($(this).data('nit'));
-    $('#cliente_celular').val($(this).data('celular'));
-    $('#cliente_email').val($(this).data('email'));
+    $('#cliente_nit').val(nit);
+    $('#cliente_celular').val(celular);
+    $('#cliente_email').val(email);
 
-    // Actualizar estado visual en el tab Cliente
+    // Mostrar campos, ocultar alert
     $('#alert-sin-cliente').addClass('d-none');
-    $('#alert-cliente-ok').removeClass('d-none');
+    $('#cliente-fields').removeClass('d-none');
 
     // Actualizar resumen lateral
     $('#resumen-cliente').removeClass('text-muted font-italic').text(nombre);
 
+    // Persistir en sessionStorage para sobrevivir recargas del carrito
+    sessionStorage.setItem('pos_client', JSON.stringify({id, nombre, nit, celular, email}));
+}
+
+$(document).on('click', '.btn-seleccionar-cliente', function () {
+    seleccionarCliente(
+        $(this).data('id'),
+        $(this).data('nombre'),
+        $(this).data('nit'),
+        $(this).data('celular'),
+        $(this).data('email')
+    );
     $('#modal-buscar_cliente').modal('hide');
+});
+
+// ---- Crear nuevo cliente desde ventas ----
+
+$('#formNuevoCliente').validate({
+    rules: {
+        nombre_cliente: {required: true, minlength: 3, maxlength: 255},
+        nit_ci_cliente: {
+            required: true, minlength: 3, maxlength: 50,
+            remote: {
+                url: BASE_URL + '/clients/check-nit-ci',
+                type: 'POST',
+                data: {
+                    nit_ci_cliente: function () {
+                        return $('#nc_nit_ci').val();
+                    },
+                    id: function () {
+                        return null;
+                    }
+                }
+            }
+        },
+        celular_cliente: {required: true, minlength: 7, maxlength: 50},
+        email_cliente: {
+            required: true, email: true, maxlength: 254,
+            remote: {
+                url: BASE_URL + '/clients/check-email',
+                type: 'POST',
+                data: {
+                    email_cliente: function () {
+                        return $('#nc_email').val();
+                    },
+                    id: function () {
+                        return null;
+                    }
+                }
+            }
+        }
+    },
+    messages: {
+        nombre_cliente: {
+            required: 'El nombre es obligatorio.',
+            minlength: 'Mínimo 3 caracteres.'
+        },
+        nit_ci_cliente: {
+            required: 'El NIT/CI es obligatorio.',
+            minlength: 'Mínimo 3 caracteres.'
+        },
+        celular_cliente: {
+            required: 'El celular es obligatorio.',
+            minlength: 'Mínimo 7 caracteres.'
+        },
+        email_cliente: {
+            required: 'El correo es obligatorio.',
+            email: 'Ingrese un correo válido.'
+        }
+    },
+    errorElement: 'span',
+    errorPlacement: function (error, element) {
+        error.addClass('invalid-feedback');
+        element.closest('.form-group').append(error);
+    },
+    highlight: function (element) {
+        $(element).addClass('is-invalid');
+    },
+    unhighlight: function (element) {
+        $(element).removeClass('is-invalid');
+    },
+    submitHandler: function () {
+        crearNuevoCliente();
+    }
+});
+
+let isCreatingClient = false;
+
+function crearNuevoCliente() {
+    if (isCreatingClient) return;
+
+    const formData = $('#formNuevoCliente').serialize();
+    const $btn = $('#btnNuevoCliente');
+    const originalHtml = $btn.html();
+
+    isCreatingClient = true;
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
+
+    ToastUtils.loadingWithMinTime('Guardando cliente...', function (loadingToast) {
+        $.ajax({
+            url: BASE_URL + '/clients/store',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function (response) {
+                loadingToast.close();
+                isCreatingClient = false;
+                $btn.prop('disabled', false).html(originalHtml);
+
+                if (response.success) {
+                    const d = response.data;
+                    seleccionarCliente(d.id_cliente, d.nombre_cliente, d.nit_ci_cliente, d.celular_cliente, d.email_cliente);
+
+                    $('#modal-nuevo_cliente').modal('hide');
+                    $('#formNuevoCliente')[0].reset();
+                    $('#formNuevoCliente').validate().resetForm();
+                    $('#formNuevoCliente').find('.is-invalid').removeClass('is-invalid');
+
+                    ToastUtils.success(response.message || 'Cliente creado y seleccionado.');
+                } else {
+                    ToastUtils.error(response.message);
+                }
+            },
+            error: function () {
+                loadingToast.close();
+                isCreatingClient = false;
+                $btn.prop('disabled', false).html(originalHtml);
+                ToastUtils.error('Error en la comunicación con el servidor.');
+            }
+        });
+    }, 1500);
+}
+
+$('#modal-nuevo_cliente').on('hidden.bs.modal', function () {
+    isCreatingClient = false;
+    $('#formNuevoCliente')[0].reset();
+    $('#formNuevoCliente').validate().resetForm();
+    $('#formNuevoCliente').find('.is-invalid').removeClass('is-invalid');
 });
 
 // ---- Calcular cambio ----
 
-$('#total_pagado').on('input', function () {
+$(document).on('input keyup', '#total_pagado', function () {
     const cancelar = parseFloat($('#total_a_cancelar_hidden').val()) || 0;
     const pagado = parseFloat($(this).val()) || 0;
     const cambio = pagado - cancelar;
-    $('#cambio').val(isNaN(cambio) ? '' : cambio.toFixed(2));
+    $('#cambio').val(cambio.toFixed(2));
 });
 
 // ---- Validar antes de guardar la venta ----
@@ -193,6 +340,10 @@ $('#formVenta').on('submit', function (e) {
     if (!$('#id_cliente_hidden').val()) {
         e.preventDefault();
         AlertUtils.warning('Atención', 'Debe seleccionar un cliente antes de guardar la venta.');
-        goToStep(0); // Llevar al Tab 1: Cliente
+        goToStep(0);
+        return;
     }
+    // Limpiar sesión al confirmar la venta
+    sessionStorage.removeItem('pos_client');
+    sessionStorage.removeItem('pos_step');
 });

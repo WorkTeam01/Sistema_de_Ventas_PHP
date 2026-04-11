@@ -245,7 +245,10 @@ Auth::check()  // bool
 - Layout de páginas de listado: full width, DataTables con export (PDF/Excel/CSV/Imprimir)
 - Layout de formularios CRUD: col-md-8 (form) + col-md-4 (tarjeta informativa)
 - Layout de formularios POS (ventas/create): patrón wizard — col-md-9 con 3 tabs numerados (steps) + barra de
-  progreso animada + validación entre pasos; col-md-3 sidebar sticky "Resumen de venta"
+  progreso animada + validación entre pasos; col-md-3 sidebar sticky "Resumen de venta"; Tab 1 incluye card
+  colapsable "Datos del cliente" con alerta de advertencia por defecto (sin cliente) y campos ocultos hasta
+  selección; botones "Nuevo cliente" (modal inline) y "Buscar cliente" (modal tabla); estado del cliente
+  persiste en `sessionStorage('pos_client')` para sobrevivir recargas por operaciones de carrito
 - Layout de páginas de detalle (`show`): dos columnas — `col-md-4 col-lg-3` izquierda con imagen, nombre, código,
   categoría y acciones (editar, volver, PDF si aplica); `col-md-8 col-lg-9` derecha con tarjetas de métricas
   (`info-box`) y tabla/sección de datos; aplicado en `products/show.php`, `purchases/show.php` y `sales/show.php`
@@ -291,5 +294,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-10 — v1.5.0 (flujo de restablecimiento de contraseña; EmailService con PHPMailer;
-`App\Services\` namespace; columnas `reset_token` / `reset_token_expiracion` en `tb_usuarios`)_
+_Última actualización: 2026-04-11 — v1.6.0 (POS wizard: rediseño Tab 1, creación inline de cliente, persistencia
+en sessionStorage, fix cambio no calculaba)_

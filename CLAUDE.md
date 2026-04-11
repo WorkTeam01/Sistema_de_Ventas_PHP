@@ -275,4 +275,4 @@ eliminación, validaciones).
 
 ---
 
-_Última actualización: 2026-04-10 — v1.5.0_
+_Última actualización: 2026-04-11 — v1.6.0_

@@ -103,58 +103,81 @@
 
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <h5 class="mb-0">Selección de cliente</h5>
-                                            <button type="button" class="btn btn-primary btn-sm"
-                                                    data-toggle="modal" data-target="#modal-buscar_cliente">
-                                                <i class="fas fa-search mr-1"></i> Buscar cliente
-                                            </button>
-                                        </div>
-
-                                        <div class="card card-body bg-light py-3">
-                                            <h6 class="mb-3">Datos del cliente</h6>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-2">
-                                                        <label class="small text-muted mb-1">Nombre</label>
-                                                        <input type="text" id="cliente_nombre"
-                                                               class="form-control form-control-sm"
-                                                               autocomplete="off" disabled>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-2">
-                                                        <label class="small text-muted mb-1">Nit / CI</label>
-                                                        <input type="text" id="cliente_nit"
-                                                               class="form-control form-control-sm"
-                                                               autocomplete="off" disabled>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-2">
-                                                        <label class="small text-muted mb-1">Celular</label>
-                                                        <input type="text" id="cliente_celular"
-                                                               class="form-control form-control-sm"
-                                                               autocomplete="off" disabled>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group mb-0">
-                                                        <label class="small text-muted mb-1">Correo</label>
-                                                        <input type="text" id="cliente_email"
-                                                               class="form-control form-control-sm"
-                                                               autocomplete="off" disabled>
-                                                    </div>
-                                                </div>
+                                            <div>
+                                                <button type="button" class="btn btn-success btn-sm mr-1"
+                                                        data-toggle="modal" data-target="#modal-nuevo_cliente">
+                                                    <i class="fas fa-user-plus mr-1"></i> Nuevo cliente
+                                                </button>
+                                                <button type="button" class="btn btn-primary btn-sm"
+                                                        data-toggle="modal" data-target="#modal-buscar_cliente">
+                                                    <i class="fas fa-search mr-1"></i> Buscar cliente
+                                                </button>
                                             </div>
                                         </div>
 
-                                        <div id="alert-sin-cliente" class="alert alert-warning py-2 mt-3">
-                                            <i class="fas fa-exclamation-triangle mr-1"></i>
-                                            No se ha seleccionado ningún cliente. Por favor, busque y seleccione un
-                                            cliente para continuar.
-                                        </div>
-                                        <div id="alert-cliente-ok" class="alert alert-success py-2 mt-3 d-none">
-                                            <i class="fas fa-check-circle mr-1"></i>
-                                            Cliente seleccionado correctamente.
+                                        <div class="card card-outline card-primary mb-0">
+                                            <div class="card-header">
+                                                <h3 class="card-title font-weight-bold">Datos del cliente</h3>
+                                                <div class="card-tools m-0">
+                                                    <button type="button" class="btn btn-tool"
+                                                            data-card-widget="collapse">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="alert-sin-cliente" class="alert alert-warning py-2 mb-0">
+                                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                    No se ha seleccionado ningún cliente. Por favor, busque y seleccione
+                                                    un cliente para continuar.
+                                                </div>
+                                                <div id="cliente-fields" class="d-none">
+                                                    <div id="alert-cliente-ok"
+                                                         class="alert alert-success alert-dismissible fade show"
+                                                         role="alert">
+                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                        Cliente seleccionado correctamente.
+                                                        <button type="button" class="close" data-dismiss="alert"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group mb-2">
+                                                                <label class="small text-muted mb-1">Nombre</label>
+                                                                <input type="text" id="cliente_nombre"
+                                                                       class="form-control form-control-sm"
+                                                                       autocomplete="off" disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group mb-2">
+                                                                <label class="small text-muted mb-1">Nit / CI</label>
+                                                                <input type="text" id="cliente_nit"
+                                                                       class="form-control form-control-sm"
+                                                                       autocomplete="off" disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group mb-2">
+                                                                <label class="small text-muted mb-1">Celular</label>
+                                                                <input type="text" id="cliente_celular"
+                                                                       class="form-control form-control-sm"
+                                                                       autocomplete="off" disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group mb-0">
+                                                                <label class="small text-muted mb-1">Correo</label>
+                                                                <input type="text" id="cliente_email"
+                                                                       class="form-control form-control-sm"
+                                                                       autocomplete="off" disabled>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="text-right mt-3">
@@ -551,6 +574,67 @@
     </div>
 </div>
 <!-- /Modal producto -->
+
+<!-- ===== Modal: Nuevo cliente ===== -->
+<div class="modal fade" id="modal-nuevo_cliente" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title"><i class="fas fa-user-plus mr-1"></i> Registrar nuevo cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formNuevoCliente" autocomplete="off">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nc_nombre">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nc_nombre" name="nombre_cliente"
+                                       maxlength="255" placeholder="Nombre completo del cliente">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nc_nit_ci">NIT/CI <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nc_nit_ci" name="nit_ci_cliente"
+                                       maxlength="50" placeholder="Número de NIT o CI">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nc_celular">Celular <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nc_celular" name="celular_cliente"
+                                       maxlength="50" placeholder="Número de celular">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nc_email">Correo electrónico <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="nc_email" name="email_cliente"
+                                       maxlength="254" placeholder="correo@ejemplo.com">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="btnNuevoCliente">
+                        <i class="fas fa-check"></i> Crear y seleccionar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- /Modal nuevo cliente -->
 
 <!-- Form oculto para agregar al carrito -->
 <form id="formCarrito" action="<?= BASE_URL ?>/sales/cart/add" method="post" style="display:none;">

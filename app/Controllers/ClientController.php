@@ -53,13 +53,25 @@ class ClientController extends Controller
             $this->json(['success' => false, 'message' => 'Ya existe un cliente con ese correo electrónico.']);
         }
 
-        if ($clientModel->create([
+        $newId = $clientModel->create([
             'nombre_cliente' => $nombre_cliente,
             'nit_ci_cliente' => $nit_ci_cliente,
             'celular_cliente' => $celular_cliente,
             'email_cliente' => $email_cliente,
-        ])) {
-            $this->json(['success' => true, 'message' => 'El cliente se registró exitosamente.']);
+        ]);
+
+        if ($newId) {
+            $this->json([
+                'success' => true,
+                'message' => 'El cliente se registró exitosamente.',
+                'data' => [
+                    'id_cliente'      => $newId,
+                    'nombre_cliente'  => $nombre_cliente,
+                    'nit_ci_cliente'  => $nit_ci_cliente,
+                    'celular_cliente' => $celular_cliente,
+                    'email_cliente'   => $email_cliente,
+                ],
+            ]);
         }
 
         $this->json(['success' => false, 'message' => 'Error al registrar el cliente.']);

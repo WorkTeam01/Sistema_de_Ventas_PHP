@@ -11,6 +11,40 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.6.0] - 2026-04-11
+
+### Agregado
+
+- **POS: creación de cliente inline** — nuevo modal "Nuevo cliente" en `views/sales/create.php`
+  (`#modal-nuevo_cliente`, form `#formNuevoCliente`) que permite registrar un cliente sin salir del wizard;
+  al crearlo se auto-selecciona y se rellenan los campos del Tab 1
+- **POS: validación inline con jQuery Validate** — `#formNuevoCliente` valida en tiempo real con reglas
+  `remote` para NIT/CI y email (reutiliza los endpoints `/clients/check-nit-ci` y `/clients/check-email`)
+- **POS: persistencia del cliente en recarga** — `seleccionarCliente()` guarda los datos en
+  `sessionStorage('pos_client')` para sobrevivir la recarga de página que dispara al agregar/eliminar
+  productos del carrito; se restaura automáticamente en `$(function(){})` al volver a cargar
+
+### Modificado
+
+- `views/sales/create.php` — Tab 1 rediseñado: card interna colapsable "Datos del cliente",
+  alerta de advertencia visible por defecto cuando no hay cliente, campos ocultos con `d-none`
+  hasta seleccionar uno, alerta de éxito dismissible al seleccionarlo; botones "Nuevo cliente" (verde)
+  y "Buscar cliente" (azul) en la cabecera del tab
+- `public/js/modules/sales/sales-create.js` — función `seleccionarCliente()` extraída y unificada;
+  handler de cambio migrado a `$(document).on('input keyup', '#total_pagado')` para mayor fiabilidad
+- `app/Controllers/ClientController.php` — `store()` ahora retorna los datos del cliente creado
+  (`id_cliente`, `nombre_cliente`, `nit_ci_cliente`, `celular_cliente`, `email_cliente`) en la respuesta JSON
+- `app/Controllers/SaleController.php` — `create()` agrega `'validation'` a los plugins opcionales
+  cargados por `renderWithLayout()` (necesario para jQuery Validate en el wizard POS)
+
+### Corregido
+
+- **Cambio no calculaba** — la ausencia del plugin `validation` provocaba un error JS que detenía
+  la ejecución del script antes de registrar el listener `#total_pagado`; corregido al agregar
+  `'validation'` en `SaleController::create()`
+
+---
+
 ## [1.5.0] - 2026-04-10
 
 ### Agregado

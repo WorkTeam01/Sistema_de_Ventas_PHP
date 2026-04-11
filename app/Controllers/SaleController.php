@@ -54,7 +54,7 @@ class SaleController extends Controller
                 'pageStyles' => ['/css/modules/sales/create.css'],
                 'pageScripts' => ['/js/modules/sales/sales-create.js'],
             ]
-        ), true, ['datatable']);
+        ), true, ['datatable', 'validation']);
     }
 
     /**
