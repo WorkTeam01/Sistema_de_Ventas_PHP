@@ -176,8 +176,8 @@ class Purchase extends Model
         $rows = $this->query(
             "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
              FROM tb_compras
-             WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
-               AND MONTH(fyh_creacion) = MONTH(CURDATE())"
+             WHERE YEAR(fecha_compra) = YEAR(CURDATE())
+               AND MONTH(fecha_compra) = MONTH(CURDATE())"
         );
         return (float)$rows[0]['total'];
     }
@@ -188,8 +188,8 @@ class Purchase extends Model
         $rows = $this->query(
             "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
              FROM tb_compras
-             WHERE YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
-               AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)"
+             WHERE YEAR(fecha_compra) = YEAR(CURDATE() - INTERVAL 1 MONTH)
+               AND MONTH(fecha_compra) = MONTH(CURDATE() - INTERVAL 1 MONTH)"
         );
         return (float)$rows[0]['total'];
     }
@@ -203,11 +203,11 @@ class Purchase extends Model
     {
         $interval = $months - 1;
         return $this->query(
-            "SELECT DATE_FORMAT(fyh_creacion, '%Y-%m') AS mes,
+            "SELECT DATE_FORMAT(fecha_compra, '%Y-%m') AS mes,
                     COALESCE(SUM(precio_compra * cantidad), 0) AS total
              FROM tb_compras
-             WHERE fyh_creacion >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')
-             GROUP BY DATE_FORMAT(fyh_creacion, '%Y-%m')
+             WHERE fecha_compra >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')
+             GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m')
              ORDER BY mes ASC"
         );
     }
