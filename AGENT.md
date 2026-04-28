@@ -139,7 +139,7 @@ tb_ventas
     tb_carrito
     (id_carrito, id_venta, id_almacen, cantidad, precio)
     tb_compras
-(id_compra, id_proveedor, id_almacen, cantidad, precio_total, fyh_creacion)
+(id_compra, id_proveedor, id_almacen, cantidad, precio_compra, precio_total, fecha_compra, fyh_creacion)
 
 -- Roles de usuario (almacenados en tb_roles)
 Administrador
@@ -294,5 +294,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-11 — v1.6.0 (POS wizard: rediseño Tab 1, creación inline de cliente, persistencia
-en sessionStorage, fix cambio no calculaba)_
+_Última actualización: 2026-04-28 — v1.6.1 (fix dashboard: compras agrupadas por `fecha_compra` en lugar de `fyh_creacion`)_

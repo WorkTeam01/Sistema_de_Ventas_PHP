@@ -5,7 +5,7 @@
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y
 control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.6.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.6.1-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)

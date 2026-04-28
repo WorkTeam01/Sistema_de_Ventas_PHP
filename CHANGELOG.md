@@ -11,6 +11,35 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.6.1] - 2026-04-28
+
+### Corregido
+
+- `app/Models/Purchase.php` — `totalsByMonth()`, `totalCurrentMonth()` y `totalPreviousMonth()` usaban `fyh_creacion`
+  (fecha de inserción del registro) en lugar de `fecha_compra` (fecha real de la compra); todas las compras aparecían
+  agrupadas en el mes de inserción, causando que la barra de Compras en el gráfico del dashboard se acumulara en el mes
+  actual en lugar de distribuirse por mes como las Ventas
+
+### Modificado
+
+- `views/layouts/partials/_sidebar.php` — reescrito con detección de ruta activa basada en `REQUEST_URI`; cada ítem
+  de menú y árbol treeview recibe clases `active` / `menu-open` dinámicamente según la ruta actual; nombre de usuario
+  en el panel lateral enlaza a `/profile` con `htmlspecialchars()`; se eliminó la clase `active` hardcodeada en todos
+  los ítems; lógica de roles centralizada en variables `$isAdmin`, `$isSeller`, `$isBuyer`
+- `views/layouts/header.php` — reformateo de indentación para consistencia (sin cambio funcional)
+- `database/seeder.sql` — compras de ejemplo expandidas de 5 a 18 registros distribuidos en cuatro meses
+  (Enero–Abril 2026) para que el gráfico del dashboard muestre datos representativos desde el primer uso;
+  datos de proveedores y clientes alineados con columnas reales del schema; ajuste en `tb_usuarios`
+  (columna `reset_token` añadida al INSERT)
+- `public/.htaccess` — movido desde raíz a `public/` para que Apache redirija correctamente al front controller
+  desde el directorio público; eliminado `.htaccess` de la raíz del proyecto
+
+### Eliminado
+
+- `docs/plan-password-reset.md` — documento de planificación interno eliminado por ser contenido de trabajo temporal
+
+---
+
 ## [1.6.0] - 2026-04-11
 
 ### Agregado

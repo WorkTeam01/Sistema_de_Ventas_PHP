@@ -1,8 +1,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /Sistema_de_Ventas_PHP/public/
+
     # Servir archivos y directorios existentes directamente
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    # Rutas no-archivo van al entry point del router
-    RewriteRule ^(.*)$ public/index.php [QSA,L]
+    # Rutas no-archivo van al front controller
+    RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
