@@ -11,6 +11,28 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.6.2] - 2026-04-29
+
+### Refactorizado
+
+- `public/css/` y `public/js/` — reorganización de vendors y plugins en subdirectorios explícitos:
+  `css/lib/` (AdminLTE, FontAwesome, Bootstrap), `css/plugins/` (SweetAlert2, DataTables, Select2),
+  `js/lib/` (jQuery, Bootstrap, AdminLTE) y `js/plugins/` (SweetAlert2); los archivos copiados de
+  `public/templates/AdminLTE-3.2.0/plugins/` y los sueltos `css/sweetalert2.min.css` /
+  `js/sweetalert2.min.js` / `css/style.css` son reemplazados por esta nueva estructura
+- `views/auth/login.php`, `forgot-password.php`, `reset-password.php`, `show-reset-link.php` —
+  rutas de assets actualizadas a la nueva estructura `css/lib/`, `css/plugins/`, `js/lib/`, `js/plugins/`
+- `views/errors/403.php`, `404.php`, `500.php` — rutas de assets actualizadas
+- `views/layouts/header.php`, `footer.php` — rutas de assets actualizadas; eliminada referencia a
+  `css/style.css` (absorbida por `css/core/ui-components.css`)
+
+### Documentación
+
+- `AGENT.md`, `CLAUDE.md`, `README.md` — estructura `public/` actualizada con los nuevos subdirectorios
+  `lib/` y `plugins/`; prohibición extendida a `public/css/lib/` y `public/js/lib/` (no modificar vendors)
+
+---
+
 ## [1.6.1] - 2026-04-28
 
 ### Corregido

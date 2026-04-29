@@ -91,11 +91,15 @@ Sistema_de_Ventas_PHP/
 │   ├── .htaccess             ← Redirige al Router
 │   ├── css/
 │   │   ├── core/             ← Utilitarios globales (ui-components.css)
-│   │   └── modules/          ← CSS por módulo (auth/login.css, …)
+│   │   ├── modules/          ← CSS por módulo (auth/login.css, …)
+│   │   ├── lib/              ← Vendors CSS (adminlte/, fontawesome/, bootstrap/)
+│   │   └── plugins/          ← Plugins CSS (sweetalert2/, datatables/, select2/)
 │   ├── js/
 │   │   ├── core/             ← Utilitarios globales (sweetalert-utils.js, control_sidebar.js)
-│   │   └── modules/          ← JS por módulo (auth/login.js, users/users-index.js, …)
-│   └── templates/            ← Assets AdminLTE (no modificar)
+│   │   ├── modules/          ← JS por módulo (auth/login.js, users/users-index.js, …)
+│   │   ├── lib/              ← Vendors JS (jquery/, bootstrap/, adminlte/)
+│   │   └── plugins/          ← Plugins JS (sweetalert2/)
+│   └── templates/            ← AdminLTE fuente completa (no modificar)
 └── database/
     ├── schema.sql
     └── seeder.sql
@@ -288,10 +292,12 @@ refactor(modulo): descripción del cambio
 - **NO** inventar métodos de controlador fuera del estándar (`index`, `create`, `store`, `edit`, `update`, `destroy`)
 - **NO** usar `alert()` nativo — usar SweetAlert2 con el patrón de formulario oculto para eliminaciones
 - **NO** interpolar variables PHP directamente en strings JS — usar `json_encode()`
-- **NO** modificar assets de `public/templates/` (AdminLTE)
+- **NO** modificar archivos dentro de `public/templates/` (fuente AdminLTE) ni los vendors copiados en `public/css/lib/`
+  y `public/js/lib/`
 - **NO** acceder a `Auth::` directamente en vistas — calcular datos en el controlador y pasarlos via
   `renderWithLayout()`
 
 ---
 
-_Última actualización: 2026-04-28 — v1.6.1 (fix dashboard: compras agrupadas por `fecha_compra` en lugar de `fyh_creacion`)_
+_Última actualización: 2026-04-28 — v1.6.1 (fix dashboard: compras agrupadas por `fecha_compra` en lugar
+de `fyh_creacion`)_

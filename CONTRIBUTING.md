@@ -223,7 +223,8 @@ git commit -m "docs: actualizar CLAUDE.md y CHANGELOG.md con módulo reportes"
 
 ❌ **Nunca hacer esto:**
 
-- Modificar `public/templates/` (AdminLTE) — no está para cambios
+- Modificar `public/templates/` (fuente AdminLTE), `public/css/lib/` o `public/js/lib/` (vendors copiados) — no están
+  para cambios
 - Concatenar variables en SQL: `"WHERE id = '$id'"` → usar `?` con `execute()`
 - `alert()` nativo o `Swal.fire()` directo — usar `AlertUtils`
 - Borrado lógico con `is_active` — este proyecto usa **borrado físico** con `isReferenced()`

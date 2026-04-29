@@ -214,12 +214,16 @@ Sistema_de_Ventas_PHP/
 │   ├── .htaccess      ← Redirige al Router
 │   ├── css/
 │   │   ├── core/      ← Utilitarios globales
-│   │   └── modules/   ← CSS por módulo
+│   │   ├── modules/   ← CSS por módulo
+│   │   ├── lib/       ← Vendors CSS (adminlte/, fontawesome/, bootstrap/)
+│   │   └── plugins/   ← Plugins CSS (sweetalert2/, datatables/, select2/)
 │   ├── js/
 │   │   ├── core/      ← Utilitarios globales (sweetalert-utils.js, control_sidebar.js)
-│   │   └── modules/   ← JS por módulo
+│   │   ├── modules/   ← JS por módulo
+│   │   ├── lib/       ← Vendors JS (jquery/, bootstrap/, adminlte/)
+│   │   └── plugins/   ← Plugins JS (sweetalert2/)
 │   ├── uploads/       ← Imágenes de productos (chmod 755)
-│   └── templates/     ← AdminLTE (no modificar)
+│   └── templates/     ← AdminLTE fuente completa (no modificar)
 └── database/
     ├── schema.sql
     └── seeder.sql
