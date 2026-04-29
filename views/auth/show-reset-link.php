@@ -9,11 +9,11 @@
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/lib/fontawesome/all.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/lib/adminlte/adminlte.min.css">
     <!-- SweetAlert2 -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/plugins/sweetalert2/sweetalert2.min.css">
     <!-- Custom Auth Style -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/modules/auth/login.css">
     <!-- Icono del sitio -->
@@ -71,9 +71,9 @@
         </div>
 
         <!-- jQuery -->
-        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
+        <script src="<?= BASE_URL ?>/js/lib/jquery/jquery.min.js"></script>
         <!-- Bootstrap 4 -->
-        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="<?= BASE_URL ?>/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
         <script>
             document.getElementById('btnCopy').addEventListener('click', function () {
                 const input = document.getElementById('resetLink');

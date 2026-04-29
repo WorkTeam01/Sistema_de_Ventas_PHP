@@ -9,19 +9,19 @@
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/lib/fontawesome/all.min.css">
     <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/lib/bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/lib/adminlte/adminlte.min.css">
     <!-- SweetAlert2 -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/plugins/sweetalert2/sweetalert2.min.css">
     <!-- Custom Auth Style -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/modules/auth/login.css">
     <!-- Icono del sitio -->
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>/img/logo.png">
 
-    <script src="<?= BASE_URL ?>/js/sweetalert2.min.js"></script>
+    <script src="<?= BASE_URL ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
     <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js"></script>
 </head>
 
@@ -75,14 +75,14 @@
         </div>
 
         <!-- jQuery -->
-        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery/jquery.min.js"></script>
+        <script src="<?= BASE_URL ?>/js/lib/jquery/jquery.min.js"></script>
         <!-- Bootstrap 4 -->
-        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="<?= BASE_URL ?>/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
         <!-- AdminLTE App -->
-        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/dist/js/adminlte.min.js"></script>
+        <script src="<?= BASE_URL ?>/js/lib/adminlte/adminlte.min.js"></script>
         <!-- jQuery Validate -->
-        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/jquery.validate.min.js"></script>
-        <script src="<?= BASE_URL ?>/templates/AdminLTE-3.2.0/plugins/jquery-validation/localization/messages_es.min.js"></script>
+        <script src="<?= BASE_URL ?>/js/lib/jquery/jquery.validate.min.js"></script>
+        <script src="<?= BASE_URL ?>/js/lib/jquery/messages_es.min.js"></script>
         <!-- Login JS -->
         <script src="<?= BASE_URL ?>/js/modules/auth/login.js"></script>
 </body>
