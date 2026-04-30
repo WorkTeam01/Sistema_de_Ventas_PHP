@@ -85,6 +85,8 @@ DB_PASS=root
 APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
 APP_TIMEZONE=America/La_Paz
 APP_DEBUG=false
+SESSION_LIFETIME=60
+REMEMBER_LIFETIME=14
 
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
@@ -241,17 +243,17 @@ chmod 755 public/uploads/products/  # Directorio de carga de imágenes
 
 ## Tablas Principales de Base de Datos
 
-| Tabla            | Propósito                                                                                |
-|------------------|------------------------------------------------------------------------------------------|
-| `tb_almacen`     | Productos/inventario con stock, precios e imágenes                                       |
-| `tb_ventas`      | Encabezados de venta (vinculados a `tb_carrito` para ítems)                              |
-| `tb_carrito`     | Ítems de venta (producto y cantidad por venta)                                           |
-| `tb_compras`     | Registros de compras a proveedores                                                       |
-| `tb_clientes`    | Base de datos de clientes                                                                |
-| `tb_proveedores` | Base de datos de proveedores                                                             |
-| `tb_usuarios`    | Usuarios con contraseñas hasheadas, FK de rol y tokens de restablecimiento de contraseña |
-| `tb_roles`       | Definiciones de roles                                                                    |
-| `tb_categorias`  | Categorías de productos                                                                  |
+| Tabla            | Propósito                                                                                                    |
+|------------------|--------------------------------------------------------------------------------------------------------------|
+| `tb_almacen`     | Productos/inventario con stock, precios e imágenes                                                           |
+| `tb_ventas`      | Encabezados de venta (vinculados a `tb_carrito` para ítems)                                                  |
+| `tb_carrito`     | Ítems de venta (producto y cantidad por venta)                                                               |
+| `tb_compras`     | Registros de compras a proveedores                                                                           |
+| `tb_clientes`    | Base de datos de clientes                                                                                    |
+| `tb_proveedores` | Base de datos de proveedores                                                                                 |
+| `tb_usuarios`    | Usuarios con contraseñas hasheadas, FK de rol, tokens de restablecimiento y remember_token para "Recordarme" |
+| `tb_roles`       | Definiciones de roles                                                                                        |
+| `tb_categorias`  | Categorías de productos                                                                                      |
 
 Convenciones:
 
@@ -279,4 +281,4 @@ eliminación, validaciones).
 
 ---
 
-_Última actualización: 2026-04-28 — v1.6.1_
+_Última actualización: 2026-04-30 — v1.6.3_

@@ -208,19 +208,44 @@ $router->get('/ruta', [Controller::class, 'method'], ['auth']);          // cual
 $router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']); // solo Administrador
 
 // Datos del usuario en sesión:
-Auth::user()   // array con datos del usuario
-Auth::role()   // nombre del rol
-Auth::check()  // bool
+Auth::user()            // array con datos del usuario
+Auth::role()            // nombre del rol
+Auth::check()           // bool — verifica sesión y timeout de inactividad
+Auth::login($user, $remember) // inicia sesión; $remember=true emite cookie de 14 días
+Auth::loginWithCookie() // auto-login desde cookie remember_token; rota el token
+Auth::logout()          // limpia sesión, BD y cookie
 ```
+
+**Timeout de sesión:**
+
+- Controlado por `SESSION_LIFETIME` en `.env` (minutos de inactividad). Default: `60`.
+- `Auth::check()` compara `$_SESSION['last_activity']` con `time()` y llama a `logout()` si expiró.
+
+**"Recordarme":**
+
+- Cookie `remember_token` = `"{id_usuario}:{plain_token}"` — httponly, samesite=Strict, 14 días.
+- BD almacena `hash('sha256', $plain)` en `remember_token` + fecha de expiración en `remember_token_expiry`.
+- Lifetime configurable con `REMEMBER_LIFETIME` en `.env` (días). Default: `14`.
+- `AuthMiddleware` intenta `Auth::loginWithCookie()` antes de redirigir a `/auth`.
+- El token rota en cada auto-login para mitigar robo de cookie.
+- Columnas en `tb_usuarios`: `remember_token VARCHAR(64) NULL`, `remember_token_expiry DATETIME NULL`.
+- `User::storeRememberToken()` / `findByRememberToken()` / `clearRememberToken()`.
 
 **Flujo de restablecimiento de contraseña:**
 
-- Token: `bin2hex(random_bytes(32))` — 64 caracteres hex, expiración 1 hora
-- Columnas en `tb_usuarios`: `reset_token VARCHAR(255) NULL`, `reset_token_expiracion DATETIME NULL`
-- `User::storeResetToken()` / `findByResetToken()` / `clearResetToken()` — gestión del token
-- `App\Services\EmailService::sendResetLink()` — envío vía PHPMailer + Gmail SMTP
-- `APP_DEBUG=true` en `.env` → muestra el link en pantalla + envía email (modo desarrollo)
-- `APP_DEBUG=false` → solo envía email con mensaje genérico (modo producción)
+- Token: `bin2hex(random_bytes(32))` — 64 caracteres hex, expiración 1 hora.
+- Columnas en `tb_usuarios`: `reset_token VARCHAR(255) NULL`, `reset_token_expiracion DATETIME NULL`.
+- `User::storeResetToken()` / `findByResetToken()` / `clearResetToken()` — gestión del token.
+- `App\Services\EmailService::sendResetLink()` — envío vía PHPMailer + Gmail SMTP.
+- `APP_DEBUG=true` en `.env` → muestra el link en pantalla + envía email (modo desarrollo).
+- `APP_DEBUG=false` → solo envía email con mensaje genérico (modo producción).
+
+**Toasts en vistas de auth:**
+
+- Las vistas `login.php`, `forgot-password.php` y `reset-password.php` **no** contienen `<script>showToast()</script>`
+  inline.
+- `AuthController` llama a `$this->view(..., withMessages: true)` — `Controller::view()` incluye `messages.php` al
+  final, que consume `$_SESSION['mensaje']` / `$_SESSION['icono']` y dispara `ToastUtils` desde JS.
 
 ### JavaScript / Frontend
 
@@ -299,5 +324,5 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-28 — v1.6.1 (fix dashboard: compras agrupadas por `fecha_compra` en lugar
-de `fyh_creacion`)_
+_Última actualización: 2026-04-30 — v1.6.3 (auth: timeout de sesión, "Recordarme" con cookie segura, toasts movidos a
+ToastUtils)_

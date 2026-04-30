@@ -11,6 +11,50 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.6.3] - 2026-04-30
+
+### Agregado
+
+- `app/Core/Auth.php` — `Auth::loginWithCookie()`: auto-login desde cookie `remember_token`; rota el token en cada
+  uso para mitigar robo de cookie; limpia BD y cookie si el token es inválido o expirado
+- `app/Core/Auth.php` — `Auth::clearRememberCookie()` (privado): borra la cookie con `expires` en el pasado,
+  httponly, samesite=Strict
+- `app/Models/User.php` — `storeRememberToken(int $userId, string $tokenHash, string $expiryDatetime): bool`
+- `app/Models/User.php` — `findByRememberToken(int $userId, string $tokenHash): ?array` — verifica
+  `remember_token_expiry > NOW()` en la misma query
+- `app/Models/User.php` — `clearRememberToken(int $userId): bool`
+- `database/schema.sql` — `tb_usuarios`: columnas `remember_token VARCHAR(64) NULL` y
+  `remember_token_expiry DATETIME NULL`; índice `idx_usuarios_remember_token`
+- `views/auth/login.php` — checkbox "Recordarme" con icheck-bootstrap (ya incluido); envía `remember=1`
+- `.env` / `.env.example` — variables `SESSION_LIFETIME=60` (minutos de inactividad) y `REMEMBER_LIFETIME=14`
+  (días de vida de la cookie)
+
+### Modificado
+
+- `app/Core/Auth.php` — `login(array $user, bool $remember = false)`: acepta parámetro `$remember`; si es
+  `true` genera token plain, almacena su SHA-256 en BD y emite cookie httponly/samesite=Strict/secure según entorno;
+  lifetime configurable con `REMEMBER_LIFETIME` en `.env` (default: 14 días)
+- `app/Core/Auth.php` — `check()`: añade timeout de inactividad; lee `SESSION_LIFETIME` de `.env` (default: 60
+  minutos); llama a `logout()` y retorna `false` si el tiempo excede el límite; actualiza `last_activity` en cada
+  petición válida
+- `app/Core/Auth.php` — `logout()`: antes de destruir la sesión, llama a `User::clearRememberToken()` y
+  `clearRememberCookie()` para invalidar el token en BD y borrar la cookie
+- `app/Core/Controller.php` — `view()` acepta tercer parámetro `bool $withMessages = false`; si es `true`
+  incluye `views/layouts/messages.php` al final (mismo patrón que `renderWithLayout()`)
+- `app/Controllers/AuthController.php` — `store()` lee `$_POST['remember']` y lo pasa a `Auth::login()`;
+  todas las llamadas a `view()` usan `withMessages: true`; `showLogin()` elimina lectura manual de
+  `$_SESSION['mensaje']`
+- `app/Middleware/AuthMiddleware.php` — intenta `Auth::loginWithCookie()` antes de redirigir a `/auth`
+- `views/auth/login.php` — eliminado bloque `<?php if ($respuesta): ?><script>showToast()</script><?php endif ?>`
+- `views/auth/forgot-password.php` — eliminado bloque `showToast()` inline
+- `views/auth/reset-password.php` — eliminado bloque `showToast()` inline
+
+### Eliminado
+
+- `docs/plan-auth.md` — documento de planificación interno eliminado tras implementación completa
+
+---
+
 ## [1.6.2] - 2026-04-29
 
 ### Refactorizado

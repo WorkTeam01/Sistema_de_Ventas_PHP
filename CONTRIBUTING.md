@@ -106,6 +106,7 @@ Antes de hacer commit, verifica:
 - ✅ CSRF: token presente en todos los formularios POST
 - ✅ Seguridad: sin SQL injection, XSS, campos sensibles protegidos
 - ✅ Acceso por rol: middleware restringe correctamente
+- ✅ Autenticación: login normal, "Recordarme", logout limpia cookie y BD
 - ✅ Edge cases: campos null, strings largos, caracteres especiales
 
 ### 5️⃣ Commit con Conventional Commits
@@ -250,5 +251,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: Abril 2026_
+_Última actualización: 2026-04-30 — v1.6.3_
 _Sigue las prácticas de AGENT.md y CLAUDE.md — son la fuente de verdad._

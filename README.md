@@ -5,7 +5,7 @@
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y
 control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.6.2-blue)
+![Versión](https://img.shields.io/badge/Versión-1.6.3-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -33,6 +33,9 @@ estándares de seguridad web modernos:
 - **Encriptado Seguro**: Uso de API moderna de Hashes de contraseñas de PHP (`PASSWORD_DEFAULT` / BCRYPT).
 - **Restablecimiento de Contraseña**: Flujo completo con tokens seguros (`bin2hex(random_bytes(32))`), expiración
   de 1 hora, invalidación de un solo uso y envío por email vía PHPMailer + Gmail SMTP.
+- **"Recordarme"**: Cookie httponly/samesite=Strict con token SHA-256 almacenado en BD; rotación en cada
+  auto-login; lifetime configurable (`REMEMBER_LIFETIME`, default 14 días).
+- **Timeout de sesión**: Expiración por inactividad configurable (`SESSION_LIFETIME`, default 60 minutos).
 - **Optimizaciones de UI**: Control Sidebar de AdminLTE implementado de forma 100% nativa con un script dedicado,
   integrando persistencia automatizada en `localStorage` y mecanismos Anti-FOUC para prevenir "flashes" blancos al
   navegar con la temática oscura.
@@ -132,6 +135,8 @@ DB_PASS=
 APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
 APP_TIMEZONE=America/La_Paz
 APP_DEBUG=false
+SESSION_LIFETIME=60
+REMEMBER_LIFETIME=14
 ```
 
 Para habilitar el restablecimiento de contraseña por email, agregar también:
