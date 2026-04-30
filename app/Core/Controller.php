@@ -22,7 +22,7 @@ class Controller
      * @param string $viewPath Ruta relativa a la raíz del proyecto.
      * @param array  $data     Variables a inyectar en la vista.
      */
-    protected function view(string $viewPath, array $data = []): void
+    protected function view(string $viewPath, array $data = [], bool $withMessages = false): void
     {
         extract($data);
 
@@ -31,6 +31,10 @@ class Controller
         }
 
         require_once __DIR__ . '/../../' . ltrim($viewPath, '/');
+
+        if ($withMessages) {
+            require __DIR__ . '/../../views/layouts/messages.php';
+        }
     }
 
     /**

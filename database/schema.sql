@@ -129,12 +129,15 @@ CREATE TABLE IF NOT EXISTS `tb_usuarios` (
   `password_user` text NOT NULL,
   `reset_token` varchar(255) DEFAULT NULL,
   `reset_token_expiracion` datetime DEFAULT NULL,
+  `remember_token` varchar(64) NULL DEFAULT NULL,
+  `remember_token_expiry` datetime NULL DEFAULT NULL,
   `id_rol` int(11) NOT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `email` (`email`),
-  KEY `id_rol` (`id_rol`)
+  KEY `id_rol` (`id_rol`),
+  KEY `idx_usuarios_remember_token` (`remember_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------

@@ -27,12 +27,6 @@
 
 <body class="hold-transition login-page">
     <div class="login-box">
-        <?php if ($mensaje): ?>
-            <script>
-                showToast(<?= json_encode($icono) ?>, <?= json_encode($mensaje) ?>);
-            </script>
-        <?php endif; ?>
-
         <div class="login-logo">
             <img src="<?= BASE_URL ?>/img/logo_2.png" class="img-circle" width="150" height="150" alt="Logo Sistema de Ventas">
         </div>

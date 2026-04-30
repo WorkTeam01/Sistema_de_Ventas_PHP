@@ -273,6 +273,38 @@ class User extends Model
         return $stmt->execute([$id_usuario]);
     }
 
+    public function storeRememberToken(int $userId, string $tokenHash, string $expiryDatetime): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE $this->table
+             SET remember_token = ?, remember_token_expiry = ?
+             WHERE $this->primaryKey = ?"
+        );
+        return $stmt->execute([$tokenHash, $expiryDatetime, $userId]);
+    }
+
+    public function findByRememberToken(int $userId, string $tokenHash): ?array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM $this->table
+             WHERE $this->primaryKey = ? AND remember_token = ? AND remember_token_expiry > NOW()
+             LIMIT 1"
+        );
+        $stmt->execute([$userId, $tokenHash]);
+        $result = $stmt->fetch();
+        return $result ?: null;
+    }
+
+    public function clearRememberToken(int $userId): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE $this->table
+             SET remember_token = NULL, remember_token_expiry = NULL
+             WHERE $this->primaryKey = ?"
+        );
+        return $stmt->execute([$userId]);
+    }
+
     /**
      * Actualiza los datos de un usuario. Si $plainPassword es null, no modifica la contraseña.
      *

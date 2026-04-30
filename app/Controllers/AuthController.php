@@ -23,11 +23,7 @@ class AuthController extends Controller
 
         Auth::generateCsrfToken();
 
-        $respuesta = $_SESSION['mensaje'] ?? null;
-        $icono = $_SESSION['icono'] ?? 'error';
-        unset($_SESSION['mensaje'], $_SESSION['icono']);
-
-        $this->view('views/auth/login.php', ['URL' => BASE_URL, 'respuesta' => $respuesta, 'icono' => $icono]);
+        $this->view('views/auth/login.php', ['URL' => BASE_URL], withMessages: true);
     }
 
     /**
@@ -42,16 +38,18 @@ class AuthController extends Controller
 
         $email = trim($_POST['email'] ?? '');
         $password_user = $_POST['password_user'] ?? '';
+        $remember = isset($_POST['remember']) && $_POST['remember'] === '1';
 
         $userModel = new User();
         $usuario = $userModel->verifyCredentials($email, $password_user);
 
         if ($usuario) {
-            Auth::login($usuario);
+            Auth::login($usuario, $remember);
             $_SESSION['welcome_user'] = $usuario['nombres'];
             $this->redirect(BASE_URL . '/');
         } else {
             $_SESSION['mensaje'] = "Datos incorrectos";
+            $_SESSION['icono'] = 'error';
             $this->redirect(BASE_URL . '/auth');
         }
     }
@@ -73,15 +71,7 @@ class AuthController extends Controller
         Auth::startSession();
         Auth::generateCsrfToken();
 
-        $mensaje = $_SESSION['mensaje'] ?? null;
-        $icono = $_SESSION['icono'] ?? 'success';
-        unset($_SESSION['mensaje'], $_SESSION['icono']);
-
-        $this->view('views/auth/forgot-password.php', [
-            'URL' => BASE_URL,
-            'mensaje' => $mensaje,
-            'icono' => $icono,
-        ]);
+        $this->view('views/auth/forgot-password.php', ['URL' => BASE_URL], withMessages: true);
     }
 
     /**
@@ -153,16 +143,7 @@ class AuthController extends Controller
 
         Auth::generateCsrfToken();
 
-        $mensaje = $_SESSION['mensaje'] ?? null;
-        $icono = $_SESSION['icono'] ?? 'error';
-        unset($_SESSION['mensaje'], $_SESSION['icono']);
-
-        $this->view('views/auth/reset-password.php', [
-            'URL' => BASE_URL,
-            'token' => $token,
-            'mensaje' => $mensaje,
-            'icono' => $icono,
-        ]);
+        $this->view('views/auth/reset-password.php', ['URL' => BASE_URL, 'token' => $token], withMessages: true);
     }
 
     /**

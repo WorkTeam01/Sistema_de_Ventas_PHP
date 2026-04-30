@@ -6,9 +6,7 @@ if (isset($_SESSION['welcome_user'])):
 ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof Swal !== 'undefined' && Swal.isVisible && Swal.isVisible()) {
-                Swal.close();
-            }
+            if (typeof Swal !== 'undefined') Swal.close();
             if (typeof AlertUtils !== 'undefined') {
                 AlertUtils.welcome(<?= json_encode($welcomeName) ?>);
             }
@@ -23,6 +21,12 @@ if (isset($_SESSION['welcome_user'])):
     unset($_SESSION['mensaje'], $_SESSION['icono']);
     ?>
     <script>
-        showToast(<?= json_encode($icono) ?>, <?= json_encode($respuesta) ?>);
+        document.addEventListener('DOMContentLoaded', function () {
+            const type = <?= json_encode($icono) ?>;
+            const msg  = <?= json_encode($respuesta) ?>;
+            if (typeof ToastUtils !== 'undefined' && typeof ToastUtils[type] === 'function') {
+                ToastUtils[type](msg);
+            }
+        });
     </script>
 <?php endif; ?>

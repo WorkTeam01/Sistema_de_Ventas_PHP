@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use App\Models\User;
+
 /**
  * Gestiona la sesión de usuario y los tokens CSRF.
  *
@@ -20,12 +22,25 @@ class Auth
     }
 
     /**
-     * Indica si existe una sesión activa (email guardado en sesión).
+     * Indica si existe una sesión activa y no ha expirado por inactividad.
      */
     public static function check(): bool
     {
         self::startSession();
-        return !empty($_SESSION['sesion_email']);
+
+        if (empty($_SESSION['sesion_email'])) {
+            return false;
+        }
+
+        $lifetime = (int)($_ENV['SESSION_LIFETIME'] ?? 30) * 60;
+
+        if (isset($_SESSION['last_activity']) && time() - $_SESSION['last_activity'] > $lifetime) {
+            self::logout();
+            return false;
+        }
+
+        $_SESSION['last_activity'] = time();
+        return true;
     }
 
     /**
@@ -82,22 +97,87 @@ class Auth
 
     /**
      * Inicia sesión: regenera el ID de sesión y guarda el email del usuario.
+     * Si $remember es true, emite una cookie de remember_token (30 días).
      *
-     * @param array $user Datos del usuario; debe contener la clave 'email'.
+     * @param array $user     Datos del usuario; debe contener 'email' e 'id_usuario'.
+     * @param bool  $remember Si se debe emitir cookie de recordarme.
      */
-    public static function login(array $user): void
+    public static function login(array $user, bool $remember = false): void
     {
         self::startSession();
         session_regenerate_id(true);
-        $_SESSION['sesion_email'] = $user['email'] ?? null;
+        $_SESSION['sesion_email']  = $user['email'] ?? null;
+        $_SESSION['last_activity'] = time();
+
+        if ($remember && !empty($user['id_usuario'])) {
+            $plain        = bin2hex(random_bytes(32));
+            $hash         = hash('sha256', $plain);
+            $days         = (int)($_ENV['REMEMBER_LIFETIME'] ?? 14);
+            $seconds      = $days * 24 * 3600;
+            $expiry       = date('Y-m-d H:i:s', time() + $seconds);
+
+            $userModel = new User();
+            $userModel->storeRememberToken((int)$user['id_usuario'], $hash, $expiry);
+
+            setcookie('remember_token', $user['id_usuario'] . ':' . $plain, [
+                'expires'  => time() + $seconds,
+                'path'     => '/',
+                'secure'   => !empty($_SERVER['HTTPS']),
+                'httponly' => true,
+                'samesite' => 'Strict',
+            ]);
+        }
     }
 
     /**
-     * Cierra la sesión: limpia $_SESSION, elimina la cookie de sesión y destruye la sesión.
+     * Intenta autenticar al usuario a partir de la cookie remember_token.
+     * Rota el token en cada auto-login para mitigar robo de cookie.
+     */
+    public static function loginWithCookie(): bool
+    {
+        if (empty($_COOKIE['remember_token'])) {
+            return false;
+        }
+
+        $parts = explode(':', $_COOKIE['remember_token'], 2);
+
+        if (count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
+            self::clearRememberCookie();
+            return false;
+        }
+
+        [$id, $plain] = $parts;
+        $hash = hash('sha256', $plain);
+
+        $userModel = new User();
+        $user = $userModel->findByRememberToken((int)$id, $hash);
+
+        if (!$user) {
+            $userModel->clearRememberToken((int)$id);
+            self::clearRememberCookie();
+            return false;
+        }
+
+        self::login($user, remember: true);
+        return true;
+    }
+
+    /**
+     * Cierra la sesión: limpia el remember_token en BD, borra cookie y destruye la sesión.
      */
     public static function logout(): void
     {
         self::startSession();
+
+        if (!empty($_SESSION['sesion_email'])) {
+            $user = self::user();
+            if ($user) {
+                $userModel = new User();
+                $userModel->clearRememberToken((int)$user['id_usuario']);
+            }
+        }
+
+        self::clearRememberCookie();
         $_SESSION = [];
 
         if (isset($_COOKIE[session_name()])) {
@@ -114,6 +194,22 @@ class Auth
         }
 
         session_destroy();
+    }
+
+    /**
+     * Borra la cookie remember_token emitiendo una expiración en el pasado.
+     */
+    private static function clearRememberCookie(): void
+    {
+        if (isset($_COOKIE['remember_token'])) {
+            setcookie('remember_token', '', [
+                'expires'  => time() - 42000,
+                'path'     => '/',
+                'secure'   => !empty($_SERVER['HTTPS']),
+                'httponly' => true,
+                'samesite' => 'Strict',
+            ]);
+        }
     }
 
     /**

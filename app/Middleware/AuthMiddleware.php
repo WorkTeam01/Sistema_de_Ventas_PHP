@@ -23,6 +23,10 @@ class AuthMiddleware implements Middleware
             return true;
         }
 
+        if (Auth::loginWithCookie()) {
+            return true;
+        }
+
         Auth::startSession();
         $_SESSION['mensaje'] = 'Debes iniciar sesión para acceder a esta página.';
         $_SESSION['icono'] = 'warning';
