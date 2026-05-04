@@ -80,4 +80,22 @@ class Database
     {
         return self::getInstance()->getConnection();
     }
+
+    /**
+     * Inyecta una conexión PDO externa (útil para tests con SQLite in-memory).
+     * No afecta al flujo normal de producción si nunca se llama.
+     */
+    public static function set(PDO $pdo): void
+    {
+        self::$instance = new self();
+        self::$instance->connection = $pdo;
+    }
+
+    /**
+     * Limpia el singleton (útil en tearDown de tests de integración).
+     */
+    public static function reset(): void
+    {
+        self::$instance = null;
+    }
 }

@@ -96,3 +96,8 @@ robots.txt
 # Archivos de configuración local
 local_config.php
 config_local.php
+
+# PHPUnit
+.phpunit.cache/
+.phpunit.result.cache
+coverage.xml
