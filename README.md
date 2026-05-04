@@ -11,7 +11,7 @@ control de acceso por roles.
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-4-7952B3?logo=bootstrap&logoColor=white)
 ![PHPUnit](https://img.shields.io/badge/PHPUnit-11.x-6C6EAA?logo=php&logoColor=white)
-![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
+![Tests](https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/actions/workflows/tests.yml/badge.svg)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
 
 </div>
