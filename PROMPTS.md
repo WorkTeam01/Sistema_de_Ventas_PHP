@@ -296,5 +296,55 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: v1.3.4 (2026-04-06)_
+## Plantilla 5 — Escribir tests para un modelo existente
+
+Usar cuando: se quiere agregar cobertura de tests a un modelo que ya existe,
+siguiendo el patrón PHPUnit 11 del proyecto.
+
+```
+[Rol]
+Actúa como desarrollador PHP Senior especializado en testing con PHPUnit 11
+y SQLite in-memory para proyectos MVC custom.
+
+[Contexto]
+Proyecto: Sistema de Ventas — PHP MVC custom, PHP 8.x, Composer/PSR-4.
+Testing: PHPUnit 11.x con dos suites: Unit (lógica pura) e Integration (SQLite in-memory).
+Singleton PDO resuelto con Database::set(PDO) en tests/bootstrap.php y trait RefreshDatabase.
+Trait aliasing para setUp: `use RefreshDatabase { setUp as setUpDatabase; }`.
+DataProvider con atributos PHP 8: #[\PHPUnit\Framework\Attributes\DataProvider('method')].
+Schema SQLite en tests/fixtures/schema.sqlite.sql.
+
+Modelo a testear: [App\Models\NombreModelo]
+Archivo del modelo: app/Models/[Nombre].php
+Tests de referencia: tests/Integration/Models/UserRepositoryTest.php
+
+[Tarea]
+Escribir tests para [App\Models\Nombre]:
+
+Métodos a cubrir:
+- [método1]: [descripción del comportamiento esperado]
+- [método2]: [descripción]
+
+Casos edge a incluir:
+- [ej: campos opcionales vacíos deben persistir como NULL]
+- [ej: nextCode cuando la tabla está vacía vs con registros]
+
+[Restricciones]
+- PHPUnit 11: #[\PHPUnit\Framework\Attributes\DataProvider(...)] para DataProviders
+- Integration tests: usar trait RefreshDatabase con aliasing de setUp
+- Seeders mínimos — solo los registros necesarios por test
+- No testear SQL exacto — probar comportamiento observable (valores retornados, tipos, nulls)
+- No testear métodos con NOW() en SQLite (findByResetToken, findByRememberToken)
+- Clase final, métodos snake_case: test_nombreMetodo_condicion()
+- Si hay dependencias FK, semillarlas en seedDependencies() o directamente con $this->pdo->exec()
+
+[Formato de salida]
+1. Archivo completo tests/Integration/Models/[Nombre]RepositoryTest.php
+   (o tests/Unit/Models/[Nombre]ValidationTest.php si es lógica pura)
+2. Lista de casos cubiertos vs casos que quedan fuera y por qué
+```
+
+---
+
+_Última actualización: v1.7.0 (2026-05-04)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._

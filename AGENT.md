@@ -292,6 +292,36 @@ Migración MVC completada. No quedan módulos legacy pendientes.
 
 ---
 
+## Testing
+
+### Suites y estrategia
+
+| Suite         | Directorio           | Estrategia                                           |
+|---------------|----------------------|------------------------------------------------------|
+| `Unit`        | `tests/Unit/`        | Lógica pura sin BD — Helpers, validaciones, cálculos |
+| `Integration` | `tests/Integration/` | SQLite in-memory con schema completo                 |
+
+```bash
+composer test             # todas las suites
+composer test:unit        # solo Unit (rápido, ideal pre-commit)
+composer test:integration # solo Integration
+composer test:coverage    # con reporte de cobertura (requiere PCOV)
+```
+
+### Convenciones de testing
+
+- PHPUnit 11: usar `#[\PHPUnit\Framework\Attributes\DataProvider('method')]` — `@dataProvider` en docblock está deprecado
+- Trait `RefreshDatabase`: BD limpia por test via `setUp as setUpDatabase` (trait aliasing — ver `UserRepositoryTest` como referencia)
+- Seeders mínimos por test — solo los registros que el test necesita
+- No testear Controllers, Middleware, Vistas ni Router (ver CLAUDE.md §Lo que NO se testea)
+- Al agregar columnas o tablas a `database/schema.sql`, actualizar también `tests/fixtures/schema.sqlite.sql`
+
+### Inyección del singleton para tests
+
+`Database::set(PDO $pdo)` sobrescribe el singleton para inyectar SQLite en tests. `Database::reset()` lo limpia. `getInstance()` queda intacto para producción.
+
+---
+
 ## Flujo de Trabajo Git
 
 ```
@@ -324,5 +354,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-04-30 — v1.6.3 (auth: timeout de sesión, "Recordarme" con cookie segura, toasts movidos a
-ToastUtils)_
+_Última actualización: 2026-05-04 — v1.7.0 (PHPUnit 11 + GitHub Actions CI, suites Unit e Integration con SQLite in-memory)_

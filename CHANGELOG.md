@@ -11,6 +11,38 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.7.0] - 2026-05-04
+
+### Agregado
+
+- **PHPUnit 11.x** — suite `Unit` (lógica pura, sin BD) y suite `Integration` (SQLite in-memory); 90 tests, 149 assertions
+- `tests/bootstrap.php` — carga autoload e inyecta PDO SQLite vacío en `Database::set()` para que los tests Unit puedan instanciar modelos sin MySQL
+- `tests/TestCase.php` — clase base mínima que extiende `PHPUnit\Framework\TestCase`
+- `tests/Concerns/RefreshDatabase.php` — trait que construye un PDO `sqlite::memory:` fresco, llama `Database::set()` y ejecuta el schema antes de cada test de integración; en `tearDown` reinyecta un PDO vacío para no romper los tests Unit que sigan
+- `tests/fixtures/schema.sqlite.sql` — schema portado a SQLite (sin `AUTO_INCREMENT`, `DECIMAL→NUMERIC`, `datetime→TEXT`, sin `ON UPDATE CURRENT_TIMESTAMP`, sin `ENGINE`/`CHARSET`)
+- `tests/Unit/Helpers/NumberToWordsTest.php` — 9 tests para `NumberToWords::convert()` con `#[DataProvider]` (PHPUnit 11)
+- `tests/Unit/Models/ClientValidationTest.php` — 10 tests para `Client::isValidEmail()` con dataProviders de casos válidos e inválidos
+- `tests/Unit/Models/SaleComputeTotalsTest.php` — 8 tests para `Sale::computeInvoiceTotals()`: carrito vacío, ítem único, múltiples ítems, precisión decimal, claves retornadas
+- `tests/Integration/Models/UserRepositoryTest.php` — 11 tests: `createUser`, `updateUser` con/sin contraseña, `storeResetToken`/`clearResetToken`, `storeRememberToken`/`clearRememberToken`, `isReferenced` (falso, con productos, con compras)
+- `tests/Integration/Models/ClientRepositoryTest.php` — 11 tests: CRUD completo, `isReferenced`, `nitCiExists`/`emailExists` con exclusión por ID
+- `tests/Integration/Models/SupplierRepositoryTest.php` — 12 tests: `createSupplier`/`updateSupplier` con normalización de campos opcionales vacíos → `null`, `isReferenced`, `nameExists` con exclusión
+- `tests/Integration/Models/ProductRepositoryTest.php` — 11 tests: `createProduct` con normalización, `findWithCategory`/`allWithCategories` (JOINs), `nextCode`, `isReferenced` con carrito y compras
+- `.github/workflows/tests.yml` — CI con matrix PHP 8.2/8.3, PCOV para coverage (solo PHP 8.3), caché de Composer, pasos `Unit` e `Integration` separados; sin MySQL (SQLite in-memory)
+- `phpunit.xml.dist` — configuración PHPUnit: dos suites, `executionOrder="random"`, `failOnWarning="true"`, cobertura excluye Controllers y Middleware
+- `CLAUDE.md` — nueva sección "Testing" con comandos `composer test`, tabla de suites, convenciones y tabla de diferencias MySQL→SQLite para mantener el schema sincronizado
+
+### Modificado
+
+- `app/Core/Database.php` — agregados `set(PDO $pdo): void` y `reset(): void` (métodos estáticos de inyección para tests); `getInstance()` existente intacto — si nadie llamó `set()`, construye el PDO MySQL normal
+- `composer.json` — `require-dev`: `phpunit/phpunit ^11.0`, `fakerphp/faker ^1.23`; `autoload-dev`: namespace `Tests\` → `tests/`; scripts `test`, `test:unit`, `test:integration`, `test:coverage`
+- `.gitignore` — agregados `.phpunit.cache/`, `.phpunit.result.cache`, `coverage.xml`
+
+### Eliminado
+
+- `docs/plan-phpunit.md` — documento de planificación interno eliminado tras implementación completa
+
+---
+
 ## [1.6.3] - 2026-04-30
 
 ### Agregado

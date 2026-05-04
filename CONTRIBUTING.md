@@ -95,9 +95,18 @@ Ver más detalles en **Convenciones de Seguridad** de [AGENT.md](AGENT.md).
 - Usar `AlertUtils` / `ToastUtils` desde `public/js/core/sweetalert-utils.js`
 - Nunca `alert()` nativo ni `Swal.fire()` directamente
 
-### 4️⃣ Testing Manual
+### 4️⃣ Testing
 
-Antes de hacer commit, verifica:
+**Tests automáticos — ejecutar antes de commit:**
+
+```bash
+composer test:unit        # suite Unit (rápida, lógica pura sin BD)
+composer test             # todas las suites (Unit + Integration)
+```
+
+Si agregas lógica de negocio nueva en un modelo (validación, normalización, cálculo), agrégale un test en `tests/Unit/Models/` o `tests/Integration/Models/` siguiendo los tests existentes como referencia.
+
+**Testing manual — verificar en el navegador:**
 
 - ✅ Listado (DataTables, filtros, búsqueda)
 - ✅ Crear: formulario válido + error si campos vacíos
@@ -251,5 +260,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-04-30 — v1.6.3_
+_Última actualización: 2026-05-04 — v1.7.0_
 _Sigue las prácticas de AGENT.md y CLAUDE.md — son la fuente de verdad._
