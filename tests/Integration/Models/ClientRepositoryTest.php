@@ -67,7 +67,9 @@ final class ClientRepositoryTest extends TestCase
     public function test_all_returns_all_clients(): void
     {
         $this->createClient('a@example.com');
-        $this->createClient('b@example.com');
+        $this->pdo->exec("INSERT INTO tb_clientes
+            (nombre_cliente, nit_ci_cliente, celular_cliente, email_cliente)
+            VALUES ('Cliente B', '87654321', '71111111', 'b@example.com')");
 
         $this->assertCount(2, $this->client->all());
     }
@@ -134,5 +136,27 @@ final class ClientRepositoryTest extends TestCase
     public function test_emailExists_returns_false_for_new_email(): void
     {
         $this->assertFalse($this->client->emailExists('nuevo@example.com'));
+    }
+
+    // -------------------------------------------------------------------------
+    // Constraints únicos a nivel BD
+    // -------------------------------------------------------------------------
+
+    public function test_db_rejects_duplicate_nit_ci(): void
+    {
+        $this->createClient();
+        $this->expectException(\PDOException::class);
+        $this->pdo->exec("INSERT INTO tb_clientes
+            (nombre_cliente, nit_ci_cliente, celular_cliente, email_cliente)
+            VALUES ('Otro Cliente', '12345678', '79999999', 'otro@example.com')");
+    }
+
+    public function test_db_rejects_duplicate_email(): void
+    {
+        $this->createClient('dup@example.com');
+        $this->expectException(\PDOException::class);
+        $this->pdo->exec("INSERT INTO tb_clientes
+            (nombre_cliente, nit_ci_cliente, celular_cliente, email_cliente)
+            VALUES ('Otro Cliente', '99999999', '79999999', 'dup@example.com')");
     }
 }

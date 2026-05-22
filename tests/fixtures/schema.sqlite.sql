@@ -46,9 +46,9 @@ CREATE TABLE IF NOT EXISTS tb_proveedores (
 CREATE TABLE IF NOT EXISTS tb_clientes (
     id_cliente          INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre_cliente      TEXT    NOT NULL,
-    nit_ci_cliente      TEXT    NOT NULL,
+    nit_ci_cliente      TEXT    NOT NULL UNIQUE,
     celular_cliente     TEXT    NOT NULL,
-    email_cliente       TEXT    NOT NULL,
+    email_cliente       TEXT    NOT NULL UNIQUE,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_actualizacion   TEXT    DEFAULT NULL
 );

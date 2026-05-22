@@ -68,7 +68,9 @@ CREATE TABLE IF NOT EXISTS `tb_clientes` (
   `email_cliente` varchar(255) NOT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_cliente`)
+  PRIMARY KEY (`id_cliente`),
+  UNIQUE KEY `nit_ci_cliente` (`nit_ci_cliente`),
+  UNIQUE KEY `email_cliente` (`email_cliente`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
