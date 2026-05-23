@@ -5,7 +5,7 @@
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y
 control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.7.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.8.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -38,6 +38,9 @@ estándares de seguridad web modernos:
 - **"Recordarme"**: Cookie httponly/samesite=Strict con token SHA-256 almacenado en BD; rotación en cada
   auto-login; lifetime configurable (`REMEMBER_LIFETIME`, default 14 días).
 - **Timeout de sesión**: Expiración por inactividad configurable (`SESSION_LIFETIME`, default 60 minutos).
+- **Rate Limiting en Login**: Bloqueo temporal de cuenta tras 5 intentos fallidos consecutivos (15 minutos). Estado
+  persistido en columnas `login_intentos` y `login_bloqueado_hasta` de `tb_usuarios`, sin tabla adicional. Al quedar
+  bloqueado, el sistema indica al usuario usar la opción "¿Olvidaste tu contraseña?".
 - **Optimizaciones de UI**: Control Sidebar de AdminLTE implementado de forma 100% nativa con un script dedicado,
   integrando persistencia automatizada en `localStorage` y mecanismos Anti-FOUC para prevenir "flashes" blancos al
   navegar con la temática oscura.
@@ -47,7 +50,7 @@ estándares de seguridad web modernos:
 ## Módulos
 
 | Módulo          | Descripción                                                                                           |
-|-----------------|-------------------------------------------------------------------------------------------------------|
+| --------------- | ----------------------------------------------------------------------------------------------------- |
 | **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías                                        |
 | **Ventas**      | POS wizard (Cliente → Carrito → Pago), creación inline de clientes, cálculo de totales y facturas PDF |
 | **Compras**     | Registro de compras a proveedores con actualización automática de stock                               |
@@ -112,7 +115,7 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 El seeder crea los siguientes usuarios de prueba:
 
 | Rol           | Email                 | Contraseña   |
-|---------------|-----------------------|--------------|
+| ------------- | --------------------- | ------------ |
 | Administrador | admin@sistema.com     | admin123     |
 | Vendedor      | vendedor@sistema.com  | vendedor123  |
 | Comprador     | comprador@sistema.com | comprador123 |
@@ -187,7 +190,7 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol del usuario autenticado:
 
 | Rol             | Acceso                                        |
-|-----------------|-----------------------------------------------|
+| --------------- | --------------------------------------------- |
 | `Administrador` | Acceso completo a todos los módulos           |
 | `Vendedor`      | Ventas, clientes y consulta de inventario     |
 | `Comprador`     | Compras, proveedores y consulta de inventario |
@@ -257,9 +260,9 @@ Sistema_de_Ventas_PHP/
 ## 📖 Documentación para Desarrolladores
 
 | Archivo                            | Propósito                                                   |
-|------------------------------------|-------------------------------------------------------------|
-| [AGENT.md](AGENT.md)               | 🏗️ Arquitectura MVC, stack, convenciones, prohibiciones    |
-| [CLAUDE.md](CLAUDE.md)             | 🛠️ Instrucciones operacionales locales (XAMPP, BD, rutas)  |
+| ---------------------------------- | ----------------------------------------------------------- |
+| [AGENT.md](AGENT.md)               | 🏗️ Arquitectura MVC, stack, convenciones, prohibiciones     |
+| [CLAUDE.md](CLAUDE.md)             | 🛠️ Instrucciones operacionales locales (XAMPP, BD, rutas)   |
 | [PROMPTS.md](PROMPTS.md)           | 📝 Plantillas de prompts efectivos para agentes IA          |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 🤝 Guía para colaboradores — flujo de PRs, commits, testing |
 

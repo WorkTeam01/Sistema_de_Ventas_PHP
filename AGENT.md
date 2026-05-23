@@ -112,7 +112,7 @@ Sistema_de_Ventas_PHP/
 El proyecto usa **dos sistemas de ruteo en paralelo**:
 
 | Tipo    | Cómo funciona                              | Módulos                                                                                           |
-|---------|--------------------------------------------|---------------------------------------------------------------------------------------------------|
+| ------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales (todos) |
 
 Todos los módulos están migrados. No quedan módulos legacy.
@@ -240,6 +240,16 @@ Auth::logout()          // limpia sesión, BD y cookie
 - `APP_DEBUG=true` en `.env` → muestra el link en pantalla + envía email (modo desarrollo).
 - `APP_DEBUG=false` → solo envía email con mensaje genérico (modo producción).
 
+**Rate limiting en login:**
+
+- 5 intentos fallidos consecutivos → cuenta bloqueada 15 minutos.
+- Columnas en `tb_usuarios`: `login_intentos TINYINT UNSIGNED DEFAULT 0`, `login_bloqueado_hasta DATETIME NULL`.
+- `User::recordFailedLogin(int $id)` — incrementa contador y activa bloqueo al llegar a 5 (timestamp calculado en PHP, no `NOW() + INTERVAL`, para compatibilidad con SQLite en tests).
+- `User::isLocked(array $user): bool` — compara `login_bloqueado_hasta` con `time()`.
+- `User::clearLoginAttempts(int $id)` — resetea contador y timestamp al login exitoso.
+- `AuthController::store()` verifica bloqueo **antes** de `password_verify()` — sin revelar intentos restantes.
+- Mensaje de bloqueo dirige al usuario a "¿Olvidaste tu contraseña?" como salida de emergencia.
+
 **Toasts en vistas de auth:**
 
 - Las vistas `login.php`, `forgot-password.php` y `reset-password.php` **no** contienen `<script>showToast()</script>`
@@ -252,12 +262,12 @@ Auth::logout()          // limpia sesión, BD y cookie
 - jQuery para DOM y eventos
 - **DataTables** sin AJAX: datos cargados desde PHP en la vista, sin filtros server-side
 - **SweetAlert2** para confirmaciones de eliminación. Dos patrones según el módulo:
-    - **Patrón página dedicada** (products): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
-      `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con
-      formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
-    - **Patrón formulario inline** (purchases, sales, users): formulario oculto `#formEliminar` en `index.php`
-      con CSRF + campos hidden del ID; confirmación con `AlertUtils.confirm()` + `ToastUtils.loadingWithMinTime()` →
-      `form.submit()`; el JS vive en un archivo separado bajo `public/js/modules/[modulo]/`
+  - **Patrón página dedicada** (products): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
+    `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con
+    formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
+  - **Patrón formulario inline** (purchases, sales, users): formulario oculto `#formEliminar` en `index.php`
+    con CSRF + campos hidden del ID; confirmación con `AlertUtils.confirm()` + `ToastUtils.loadingWithMinTime()` →
+    `form.submit()`; el JS vive en un archivo separado bajo `public/js/modules/[modulo]/`
 - Anti-FOUC del sidebar/tema: script inline en `layouts/header.php`, preferencias en `localStorage`
 - **Patrón modal + AJAX** (roles, categories, suppliers, clients): CRUD completo en `index.php` via modales Bootstrap;
   endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`/`checkNitCi`/`checkEmail`); eliminación con
@@ -297,7 +307,7 @@ Migración MVC completada. No quedan módulos legacy pendientes.
 ### Suites y estrategia
 
 | Suite         | Directorio           | Estrategia                                           |
-|---------------|----------------------|------------------------------------------------------|
+| ------------- | -------------------- | ---------------------------------------------------- |
 | `Unit`        | `tests/Unit/`        | Lógica pura sin BD — Helpers, validaciones, cálculos |
 | `Integration` | `tests/Integration/` | SQLite in-memory con schema completo                 |
 
@@ -354,4 +364,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-05-04 — v1.7.0 (PHPUnit 11 + GitHub Actions CI, suites Unit e Integration con SQLite in-memory)_
+_Última actualización: 2026-05-22 — v1.8.0 (rate limiting en login, carrito huérfano en POS, índices únicos en tb_clientes)_

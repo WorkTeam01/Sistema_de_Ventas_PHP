@@ -8,7 +8,7 @@ colaboración.
 Lee estos archivos de referencia según tu rol:
 
 | Archivo                      | Propósito                                            | Para quién                  |
-|------------------------------|------------------------------------------------------|-----------------------------|
+| ---------------------------- | ---------------------------------------------------- | --------------------------- |
 | [AGENT.md](AGENT.md)         | Arquitectura global, stack tecnológico, convenciones | **Todos los colaboradores** |
 | [CLAUDE.md](CLAUDE.md)       | Instrucciones operacionales locales (XAMPP, BD)      | Desarrolladores locales     |
 | [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts efectivos con agentes IA       | Equipo de desarrollo        |
@@ -129,7 +129,7 @@ git commit -m "type(scope): description"
 **Tipos válidos:**
 
 | Tipo       | Descripción                      | Ejemplo                                         |
-|------------|----------------------------------|-------------------------------------------------|
+| ---------- | -------------------------------- | ----------------------------------------------- |
 | `feat`     | Feature nueva                    | `feat(products): agregar filtro por categoría`  |
 | `fix`      | Bug fix                          | `fix(sales): corregir cálculo de descuento`     |
 | `refactor` | Mejora sin cambiar funcionalidad | `refactor(auth): simplificar lógica de sesión`  |
@@ -260,5 +260,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-05-04 — v1.7.0_
+_Última actualización: 2026-05-22 — v1.8.0_
 _Sigue las prácticas de AGENT.md y CLAUDE.md — son la fuente de verdad._

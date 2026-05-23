@@ -113,7 +113,7 @@ MAIL_FROM_NAME="Sistema de Ventas"
 ## Estructura de Rutas
 
 | Método | Ruta                           | Controller                          | Middleware       |
-|--------|--------------------------------|-------------------------------------|------------------|
+| ------ | ------------------------------ | ----------------------------------- | ---------------- |
 | GET    | `/`                            | `DashboardController::index()`      | `auth`           |
 | GET    | `/profile`                     | `UserController::profile()`         | `auth`           |
 | POST   | `/profile/update`              | `UserController::updateProfile()`   | `auth`           |
@@ -187,7 +187,7 @@ MAIL_FROM_NAME="Sistema de Ventas"
 ## Archivos de Referencia
 
 | Archivo                  | Propósito                                                                 |
-|--------------------------|---------------------------------------------------------------------------|
+| ------------------------ | ------------------------------------------------------------------------- |
 | [AGENT.md](AGENT.md)     | Arquitectura MVC, convenciones de código, stack, prohibiciones explícitas |
 | [PROMPTS.md](PROMPTS.md) | Plantillas de prompts para migración, debugging, code review              |
 
@@ -244,7 +244,7 @@ chmod 755 public/uploads/products/  # Directorio de carga de imágenes
 ## Tablas Principales de Base de Datos
 
 | Tabla            | Propósito                                                                                                    |
-|------------------|--------------------------------------------------------------------------------------------------------------|
+| ---------------- | ------------------------------------------------------------------------------------------------------------ |
 | `tb_almacen`     | Productos/inventario con stock, precios e imágenes                                                           |
 | `tb_ventas`      | Encabezados de venta (vinculados a `tb_carrito` para ítems)                                                  |
 | `tb_carrito`     | Ítems de venta (producto y cantidad por venta)                                                               |
@@ -283,10 +283,10 @@ composer test:coverage
 
 ### Suites
 
-| Suite         | Directorio            | Estrategia                          |
-|---------------|-----------------------|-------------------------------------|
-| `Unit`        | `tests/Unit/`         | Lógica pura, sin BD                 |
-| `Integration` | `tests/Integration/`  | SQLite in-memory, schema completo   |
+| Suite         | Directorio           | Estrategia                        |
+| ------------- | -------------------- | --------------------------------- |
+| `Unit`        | `tests/Unit/`        | Lógica pura, sin BD               |
+| `Integration` | `tests/Integration/` | SQLite in-memory, schema completo |
 
 ### Convenciones
 
@@ -299,13 +299,13 @@ composer test:coverage
 `tests/fixtures/schema.sqlite.sql` es la versión SQLite-compatible de `database/schema.sql`.
 **Cada vez que se agregue una columna o tabla nueva a `schema.sql`, actualizar también `schema.sqlite.sql`** con las diferencias de sintaxis:
 
-| MySQL                    | SQLite equivalente            |
-|--------------------------|-------------------------------|
-| `AUTO_INCREMENT`         | `AUTOINCREMENT`               |
-| `DECIMAL(10,2)`          | `NUMERIC`                     |
-| `datetime`               | `TEXT`                        |
-| `ON UPDATE CURRENT_TIMESTAMP` | (omitir)               |
-| `ENGINE=InnoDB CHARSET=` | (omitir)                      |
+| MySQL                         | SQLite equivalente |
+| ----------------------------- | ------------------ |
+| `AUTO_INCREMENT`              | `AUTOINCREMENT`    |
+| `DECIMAL(10,2)`               | `NUMERIC`          |
+| `datetime`                    | `TEXT`             |
+| `ON UPDATE CURRENT_TIMESTAMP` | (omitir)           |
+| `ENGINE=InnoDB CHARSET=`      | (omitir)           |
 
 ### Lo que NO se testea
 
@@ -318,8 +318,8 @@ Controllers, Middleware, Vistas y Router quedan fuera — ver §9 de [`docs/plan
 Todos los módulos están migrados a MVC. Ver [AGENT.md](AGENT.md) para detalles de cada módulo (fat model, patrones de
 eliminación, validaciones).
 
-| Módulo       | Estado         |
-|--------------|----------------|
+| Módulo       | Estado          |
+| ------------ | --------------- |
 | `roles`      | ✅ Migrado      |
 | `categories` | ✅ Migrado      |
 | `suppliers`  | ✅ Migrado      |
@@ -331,4 +331,4 @@ eliminación, validaciones).
 
 ---
 
-_Última actualización: 2026-05-04 — v1.6.3_
+_Última actualización: 2026-05-22 — v1.8.0_

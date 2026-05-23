@@ -11,6 +11,33 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.8.0] - 2026-05-22
+
+### Agregado
+
+- **Rate limiting en login** — bloqueo de cuenta tras 5 intentos fallidos consecutivos (15 minutos)
+- `app/Models/User.php` — `isLocked(array $user): bool`, `recordFailedLogin(int $id): void`, `clearLoginAttempts(int $id): void`
+- `database/schema.sql` y `tests/fixtures/schema.sqlite.sql` — columnas `login_intentos TINYINT UNSIGNED DEFAULT 0` y `login_bloqueado_hasta DATETIME NULL` en `tb_usuarios`; timestamp calculado en PHP para compatibilidad SQLite en tests
+- `tests/Integration/Models/UserRepositoryTest.php` — 6 tests nuevos: `isLocked` con null/pasado/futuro, `recordFailedLogin` sin bloqueo (4 intentos) y con bloqueo (5 intentos), `clearLoginAttempts`
+
+### Modificado
+
+- `app/Controllers/AuthController.php` — `store()` reescrito: verifica bloqueo antes de `password_verify()`; llama `recordFailedLogin()` en fallo y `clearLoginAttempts()` en éxito; mensaje de bloqueo dirige al usuario a "¿Olvidaste tu contraseña?" sin revelar intentos restantes
+- `app/Models/CartItem.php` — `purgeOrphans(int $excludeNroVenta)` elimina carritos sin venta finalizada excluyendo el `nro_venta` activo (previene borrado del carrito en construcción); `clearCart(int $nroVenta)` para cancelación explícita
+- `app/Controllers/SaleController.php` — `create()` llama `nextNumber()` antes de `purgeOrphans()` para excluir el carrito activo; `cancel()` limpia el carrito del `nro_venta` activo y redirige al listado
+- `routes/web.php` — ruta `POST /sales/cancel` registrada con middleware `auth, seller`
+- `views/sales/create.php` — botón Cancelar usa `data-nro-venta` y `data-csrf` sin form adicional
+- `public/js/modules/sales/sales-create.js` — handler de cancelación con `fetch().finally()` limpia `sessionStorage` y redirige independientemente del resultado
+- `database/schema.sql` — `UNIQUE KEY nit_ci_cliente` y `UNIQUE KEY email_cliente` en `tb_clientes` como red de seguridad complementaria a las validaciones de modelo
+- `tests/fixtures/schema.sqlite.sql` — `nit_ci_cliente TEXT NOT NULL UNIQUE` y `email_cliente TEXT NOT NULL UNIQUE` en `tb_clientes`
+
+### Corregido
+
+- **Carrito huérfano en POS** — ítems en `tb_carrito` sin venta finalizada en `tb_ventas` (sesión abandonada) se purgan al iniciar una nueva venta
+- **Cancelar venta disparaba validación de cliente** — botón dentro de `#formVenta` activaba jQuery Validate; resuelto moviendo la lógica al JS con `fetch()` en lugar de un form separado
+
+---
+
 ## [1.7.0] - 2026-05-04
 
 ### Agregado
@@ -347,11 +374,10 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Refactorizado
 
-- `views/sales/create.php` — rediseño del POS con patrón wizard de 3 tabs numerados (1. Cliente → 2. Carrito →
-    3. Pago) + sidebar sticky "Resumen de venta"; barra de progreso animada "Paso X de 3"; validación entre tabs
-       (no avanza sin cliente seleccionado / sin productos en carrito); tab de pago con `input-group` Bs. para total
-       pagado y cambio; estado vacío en tabla del carrito con icono orientativo; modales de búsqueda fuera del
-       `<form>` principal; patrón col-md-9 + col-md-3
+- `views/sales/create.php` — rediseño del POS con patrón wizard de 3 tabs numerados (1. Cliente → 2. Carrito → 3. Pago) + sidebar sticky "Resumen de venta"; barra de progreso animada "Paso X de 3"; validación entre tabs
+  (no avanza sin cliente seleccionado / sin productos en carrito); tab de pago con `input-group` Bs. para total
+  pagado y cambio; estado vacío en tabla del carrito con icono orientativo; modales de búsqueda fuera del
+  `<form>` principal; patrón col-md-9 + col-md-3
 - `public/js/modules/sales/sales-create.js` — reescrito con estado wizard (`currentStep`, `goToStep()`,
   `updateProgress()`); navegación Siguiente/Anterior con validación; sincronización de progreso al hacer click
   directo en tabs; restauración del tab activo via `sessionStorage` tras recarga por operaciones de carrito;
@@ -432,7 +458,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
   presentación `ventas_var_cls/ico/bar` y `compras_var_cls/ico/bar` dentro de `$kpis`, flag `stock_critico`, y flag
   `critico` por producto en `low_stock_products`
 - `views/dashboard/index.php` — eliminado bloque PHP de 59 líneas en el tope de la vista y los snippets `<?php $var =
-  ...; ?>` inline; la vista ahora solo consume variables inyectadas por el controlador; `$chartData` reemplaza las
+...; ?>` inline; la vista ahora solo consume variables inyectadas por el controlador; `$chartData` reemplaza las
   variables separadas `$chartLabels`/`$chartDatasets`
 
 ### Notas de Versión
