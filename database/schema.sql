@@ -160,6 +160,31 @@ CREATE TABLE IF NOT EXISTS `tb_ventas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
+-- Tabla: tb_activity_log (auditoría de operaciones sensibles)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_activity_log` (
+  `id_log`            int(11)       NOT NULL AUTO_INCREMENT,
+  `id_usuario`        int(11)       DEFAULT NULL,
+  `usuario_nombre`    varchar(250)  NOT NULL,
+  `accion`            varchar(50)   NOT NULL,
+  `entidad`           varchar(50)   NOT NULL,
+  `entidad_id`        int(11)       DEFAULT NULL,
+  `descripcion`       varchar(255)  DEFAULT NULL,
+  `datos_anteriores`  text          DEFAULT NULL,
+  `datos_nuevos`      text          DEFAULT NULL,
+  `ip_address`        varchar(45)   DEFAULT NULL,
+  `fyh_creacion`      datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_log`),
+  KEY `idx_log_usuario` (`id_usuario`),
+  KEY `idx_log_entidad` (`entidad`, `entidad_id`),
+  KEY `idx_log_fecha`   (`fyh_creacion`),
+  KEY `idx_log_accion`  (`accion`),
+  CONSTRAINT `tb_activity_log_ibfk_1`
+    FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+-- --------------------------------------------------------
 -- Restricciones (Foreign Keys)
 -- --------------------------------------------------------
 ALTER TABLE `tb_almacen`

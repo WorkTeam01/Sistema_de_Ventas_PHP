@@ -3,6 +3,21 @@
 -- Diferencias respecto a MySQL: sin ENGINE/CHARSET/COLLATE, AUTO_INCREMENT → AUTOINCREMENT,
 -- DECIMAL → NUMERIC, datetime → TEXT, sin ON UPDATE CURRENT_TIMESTAMP, sin ALTER TABLE FK.
 
+CREATE TABLE IF NOT EXISTS tb_activity_log (
+    id_log              INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_usuario          INTEGER DEFAULT NULL,
+    usuario_nombre      TEXT    NOT NULL,
+    accion              TEXT    NOT NULL,
+    entidad             TEXT    NOT NULL,
+    entidad_id          INTEGER DEFAULT NULL,
+    descripcion         TEXT    DEFAULT NULL,
+    datos_anteriores    TEXT    DEFAULT NULL,
+    datos_nuevos        TEXT    DEFAULT NULL,
+    ip_address          TEXT    DEFAULT NULL,
+    fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios(id_usuario) ON DELETE SET NULL
+);
+
 CREATE TABLE IF NOT EXISTS tb_roles (
     id_rol              INTEGER PRIMARY KEY AUTOINCREMENT,
     rol                 TEXT    NOT NULL,

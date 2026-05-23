@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Helpers\PurchaseReportPdf;
+use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
@@ -311,9 +312,26 @@ class PurchaseController extends Controller
         }
 
         $purchaseModel = new Purchase();
+        $snapshot = $purchaseModel->findWithDetails($id_compra);
         $ok = $purchaseModel->destroyWithStock($id_compra, $id_producto, $cantidad);
 
         if ($ok) {
+            if ($snapshot) {
+                ActivityLog::record(
+                    'delete',
+                    'purchase',
+                    $id_compra,
+                    "Compra Nro {$snapshot['nro_compra']} eliminada — producto: {$snapshot['nombre_producto']} (x{$snapshot['cantidad']}); stock revertido.",
+                    [
+                        'nro_compra'      => $snapshot['nro_compra'],
+                        'nombre_producto' => $snapshot['nombre_producto'],
+                        'cantidad'        => $snapshot['cantidad'],
+                        'precio_compra'   => $snapshot['precio_compra'],
+                        'nombre_proveedor' => $snapshot['nombre_proveedor'],
+                        'fecha_compra'    => $snapshot['fecha_compra'],
+                    ]
+                );
+            }
             $this->flash('La compra se eliminó exitosamente.', 'success');
             $this->redirect(BASE_URL . '/purchases');
             return;

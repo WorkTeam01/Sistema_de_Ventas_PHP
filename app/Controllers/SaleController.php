@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Helpers\InvoicePdf;
+use App\Models\ActivityLog;
 use App\Models\CartItem;
 use App\Models\Client;
 use App\Models\Product;
@@ -299,9 +300,25 @@ class SaleController extends Controller
         }
 
         $saleModel = new Sale();
+        $snapshot = $saleModel->findWithDetails($id_venta);
         $ok = $saleModel->destroyWithStock($id_venta);
 
         if ($ok) {
+            if ($snapshot) {
+                ActivityLog::record(
+                    'delete',
+                    'sale',
+                    $id_venta,
+                    "Venta Nro {$snapshot['nro_venta']} eliminada (total Bs. {$snapshot['total_pagado']}); stock restaurado.",
+                    [
+                        'nro_venta'      => $snapshot['nro_venta'],
+                        'nombre_cliente' => $snapshot['nombre_cliente'],
+                        'total_pagado'   => $snapshot['total_pagado'],
+                        'fyh_creacion'   => $snapshot['fyh_creacion'],
+                        'items'          => $snapshot['items'],
+                    ]
+                );
+            }
             $this->flash('La venta se eliminó exitosamente y el stock fue restaurado.', 'success');
             $this->redirect(BASE_URL . '/sales');
             return;
