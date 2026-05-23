@@ -206,7 +206,7 @@ custom, diseño de base de datos y patrones de diseño.
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
 Estado actual: MVP completado con módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas.
 BD implementada: tb_usuarios, tb_roles, tb_categorias, tb_proveedores, tb_clientes, tb_almacen,
-                 tb_compras, tb_ventas, tb_carrito.
+                 tb_compras, tb_ventas, tb_carrito, tb_activity_log.
 
 [Tarea]
 Necesito decidir: [describe la decisión técnica]
@@ -346,5 +346,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: v1.8.0 (2026-05-22)_
+_Última actualización: v1.9.0 (2026-05-23)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._

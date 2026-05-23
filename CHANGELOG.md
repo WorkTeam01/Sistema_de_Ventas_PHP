@@ -11,6 +11,43 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.9.0] - 2026-05-23
+
+### Agregado
+
+- **Módulo de auditoría completo** — registro de operaciones sensibles en `tb_activity_log` con filtros obligatorios de fecha (máximo 90 días), listado paginado con DataTables y vista de detalle por evento
+- `database/schema.sql` y `tests/fixtures/schema.sqlite.sql` — tabla `tb_activity_log` con FK nullable `ON DELETE SET NULL` a `tb_usuarios`; `usuario_nombre` desnormalizado para persistir el actor incluso si el usuario es eliminado; índices en `fyh_creacion`, `accion` y `entidad`
+- `app/Models/ActivityLog.php` — modelo con `record()` (try/catch centralizado, nunca interrumpe la operación principal), `search()` (filtros + COALESCE para usuarios eliminados), `availableEntities()`, `availableActions()`, `purgeOlderThan()`
+- `app/Controllers/ActivityLogController.php` — `index()` con `resolveRange()` (máximo 90 días, default 7), `show()` con datos preparados para partials
+- `app/Helpers/ActivityLogRenderer.php` — helper sin HTML: decodifica JSON del log y devuelve filas `{label, value, type}` listas para las vistas; `label()` traduce claves técnicas a español
+- `views/activity-log/index.php` — filtros colapsables con select2, date inputs con `showPicker()`, DataTable con traducción manual al español
+- `views/activity-log/show.php` — tabla de información del evento + partials reutilizables para datos anteriores/nuevos
+- `views/activity-log/partial/_data-panel.php` — renderiza tabla key-value con HTML puro
+- `views/activity-log/partial/_item-accordion.php` — acordeón Bootstrap para listas de ítems (ventas/compras con múltiples productos)
+- `public/js/modules/activity-log/activity-log-index.js` — validación de rango de fechas + DataTable con traducción manual
+- Rutas `GET /activity-log` y `GET /activity-log/show/{id}` con middleware `auth, admin`
+- Link "Auditoría" en el sidebar (solo rol Administrador)
+
+### Modificado
+
+- `app/Controllers/ProductController.php` — registra `price_change` en `ActivityLog` cuando cambia `precio_venta` o `precio_compra` (snapshot antes del update, log solo si los precios difieren)
+- `app/Controllers/UserController.php` — registra `role_change` al cambiar `id_rol` de un usuario; registra `delete` al eliminar un usuario con snapshot de datos
+- `app/Controllers/ClientController.php` — registra `delete` al eliminar un cliente con snapshot de datos
+- `app/Controllers/SupplierController.php` — registra `delete` al eliminar un proveedor con snapshot de datos
+- `app/Controllers/SaleController.php` — registra `delete` al eliminar una venta con snapshot de ítems y datos de cabecera
+- `app/Controllers/PurchaseController.php` — registra `delete` al eliminar una compra con snapshot de datos
+- `routes/web.php` — 2 rutas nuevas para el módulo activity-log
+- `views/layouts/partials/_sidebar.php` — link "Auditoría" en sección Administración
+
+### Técnico
+
+- Patrón snapshot: captura del estado del registro **antes** de la mutación; el log se escribe solo si la operación fue exitosa
+- `ActivityLog::record()` con try/catch centralizado — un fallo en el log nunca interrumpe la operación principal
+- `ActivityLogRenderer` sin HTML: separación limpia entre lógica de presentación (helper) y markup (partials PHP/HTML)
+- Tests de integración en `tests/Integration/Models/ActivityLogRepositoryTest.php` — 6 casos cubriendo campos nullable, JSON, persistencia de `usuario_nombre` y orden de resultados
+
+---
+
 ## [1.8.0] - 2026-05-22
 
 ### Agregado

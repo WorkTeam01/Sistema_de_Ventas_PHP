@@ -48,11 +48,13 @@ Sistema_de_Ventas_PHP/
 │   │   ├── ClientController.php
 │   │   ├── ProductController.php
 │   │   ├── PurchaseController.php
-│   │   └── SaleController.php
+│   │   ├── SaleController.php
+│   │   └── ActivityLogController.php
 │   ├── Helpers/              ← PSR-4, namespace App\Helpers
 │   │   ├── NumberToWords.php
 │   │   ├── InvoicePdf.php
-│   │   └── PurchaseReportPdf.php
+│   │   ├── PurchaseReportPdf.php
+│   │   └── ActivityLogRenderer.php  ← decodifica JSON del log y prepara filas para las vistas
 │   ├── Services/             ← PSR-4, namespace App\Services
 │   │   └── EmailService.php  ← PHPMailer SMTP — sendResetLink()
 │   ├── Models/               ← PSR-4, namespace App\Models
@@ -64,7 +66,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── Product.php
 │   │   ├── Purchase.php
 │   │   ├── Sale.php
-│   │   └── CartItem.php
+│   │   ├── CartItem.php
+│   │   └── ActivityLog.php
 │   └── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
 ├── views/
 │   ├── layouts/
@@ -83,7 +86,8 @@ Sistema_de_Ventas_PHP/
 │   ├── clients/
 │   ├── products/
 │   ├── purchases/
-│   └── sales/
+│   ├── sales/
+│   └── activity-log/         ← index.php, show.php; partial/_data-panel.php, _item-accordion.php
 ├── routes/
 │   └── web.php               ← Todas las rutas MVC registradas
 ├── public/
@@ -113,7 +117,7 @@ El proyecto usa **dos sistemas de ruteo en paralelo**:
 
 | Tipo    | Cómo funciona                              | Módulos                                                                                           |
 | ------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales (todos) |
+| **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales, activity-log (todos) |
 
 Todos los módulos están migrados. No quedan módulos legacy.
 
@@ -144,6 +148,12 @@ tb_ventas
     (id_carrito, id_venta, id_almacen, cantidad, precio)
     tb_compras
 (id_compra, id_proveedor, id_almacen, cantidad, precio_compra, precio_total, fecha_compra, fyh_creacion)
+    tb_activity_log
+(id_log, id_usuario [FK NULL → ON DELETE SET NULL], usuario_nombre, accion, entidad, entidad_id,
+    descripcion, datos_anteriores [JSON], datos_nuevos [JSON], ip_address, fyh_creacion)
+    -- acciones registradas: 'delete', 'price_change', 'role_change'
+    -- entidades: 'sale', 'purchase', 'product', 'user', 'client', 'supplier'
+    -- usuario_nombre desnormalizado para persistir incluso si el usuario es eliminado
 
 -- Roles de usuario (almacenados en tb_roles)
 Administrador
@@ -364,4 +374,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-05-22 — v1.8.0 (rate limiting en login, carrito huérfano en POS, índices únicos en tb_clientes)_
+_Última actualización: 2026-05-23 — v1.9.0 (módulo de auditoría completo: tb_activity_log, ActivityLog model, ActivityLogRenderer helper, ActivityLogController, vistas con partials reutilizables, integración en ProductController, UserController, ClientController y SupplierController)_

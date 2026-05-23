@@ -181,6 +181,8 @@ MAIL_FROM_NAME="Sistema de Ventas"
 | GET    | `/sales/delete/{id}`           | `SaleController::confirmDelete()`   | `auth`, `seller` |
 | GET    | `/sales/invoice/{id}`          | `SaleController::invoice()`         | `auth`, `seller` |
 | POST   | `/sales/delete`                | `SaleController::destroy()`         | `auth`, `seller` |
+| GET    | `/activity-log`                | `ActivityLogController::index()`    | `auth`, `admin`  |
+| GET    | `/activity-log/show/{id}`      | `ActivityLogController::show()`     | `auth`, `admin`  |
 
 ---
 
@@ -202,7 +204,7 @@ Sistema_de_Ventas_PHP/
 │   ├── Controllers/   ← PSR-4, namespace App\Controllers
 │   ├── Models/        ← PSR-4, namespace App\Models
 │   ├── Middleware/    ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
-│   ├── Helpers/       ← PSR-4, NumberToWords, InvoicePdf, PurchaseReportPdf
+│   ├── Helpers/       ← PSR-4, NumberToWords, InvoicePdf, PurchaseReportPdf, ActivityLogRenderer
 │   └── Services/      ← PSR-4, namespace App\Services (EmailService)
 ├── views/
 │   ├── layouts/       ← header.php, footer.php, messages.php, partials/_sidebar.php
@@ -254,6 +256,7 @@ chmod 755 public/uploads/products/  # Directorio de carga de imágenes
 | `tb_usuarios`    | Usuarios con contraseñas hasheadas, FK de rol, tokens de restablecimiento y remember_token para "Recordarme" |
 | `tb_roles`       | Definiciones de roles                                                                                        |
 | `tb_categorias`  | Categorías de productos                                                                                      |
+| `tb_activity_log`| Auditoría de operaciones sensibles (delete, price_change, role_change); FK nullable a `tb_usuarios`          |
 
 Convenciones:
 
@@ -327,8 +330,9 @@ eliminación, validaciones).
 | `almacen`    | ✅ Migrado      |
 | `compras`    | ✅ Migrado      |
 | `ventas`     | ✅ Migrado      |
-| `perfil`     | ✅ Implementado |
+| `perfil`        | ✅ Implementado |
+| `activity-log`  | ✅ Implementado |
 
 ---
 
-_Última actualización: 2026-05-22 — v1.8.0_
+_Última actualización: 2026-05-23 — v1.9.0_
