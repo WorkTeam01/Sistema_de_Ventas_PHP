@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 
 class UserController extends Controller
@@ -150,6 +151,8 @@ class UserController extends Controller
         }
 
         $userModel = new User();
+        $usuarioActual = $userModel->findWithRoleById($id_usuario);
+
         if ($userModel->emailExists($email, $id_usuario)) {
             $this->flash('El correo electrónico ya está registrado por otro usuario.', 'error');
             $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
@@ -165,6 +168,14 @@ class UserController extends Controller
         }
 
         if ($userModel->updateUser($id_usuario, $nombres, $email, $rol, $newPassword)) {
+            if ($usuarioActual && (int)$usuarioActual['id_rol'] !== $rol) {
+                ActivityLog::record(
+                    'role_change', 'user', $id_usuario,
+                    "Cambio de rol para '{$usuarioActual['nombres']}'",
+                    ['id_rol' => $usuarioActual['id_rol'], 'rol' => $usuarioActual['rol']],
+                    ['id_rol' => $rol]
+                );
+            }
             $this->flash('El usuario se actualizó exitosamente', 'success');
             $this->redirect(BASE_URL . '/users');
         }
@@ -418,8 +429,16 @@ class UserController extends Controller
         }
 
         $userModel = new User();
+        $snapshot = $userModel->findWithRoleById($id_usuario);
 
         if ($userModel->delete($id_usuario)) {
+            if ($snapshot) {
+                ActivityLog::record(
+                    'delete', 'user', $id_usuario,
+                    "Usuario '{$snapshot['nombres']}' ({$snapshot['email']}) eliminado — rol: {$snapshot['rol']}",
+                    ['nombres' => $snapshot['nombres'], 'email' => $snapshot['email'], 'rol' => $snapshot['rol']]
+                );
+            }
             $this->flash('Se eliminó el usuario exitosamente', 'success');
             $this->redirect(BASE_URL . '/users');
         }

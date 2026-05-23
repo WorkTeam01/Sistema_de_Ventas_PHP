@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
 
@@ -266,6 +267,7 @@ class ProductController extends Controller
         }
 
         $productModel = new Product();
+        $actual = $productModel->find($id_producto);
         $id_usuario = Auth::user()['id_usuario'];
 
         if ($productModel->updateProduct($id_producto, [
@@ -281,6 +283,17 @@ class ProductController extends Controller
             'id_usuario' => $id_usuario,
             'id_categoria' => $id_categoria,
         ])) {
+            if ($actual && (
+                (float)$actual['precio_venta'] !== (float)$precio_venta ||
+                (float)$actual['precio_compra'] !== (float)$precio_compra
+            )) {
+                ActivityLog::record(
+                    'price_change', 'product', $id_producto,
+                    "Cambio de precio en '{$actual['nombre']}'",
+                    ['precio_venta' => $actual['precio_venta'], 'precio_compra' => $actual['precio_compra']],
+                    ['precio_venta' => $precio_venta,           'precio_compra' => $precio_compra]
+                );
+            }
             $this->flash('El producto se actualizó exitosamente.', 'success');
             $this->redirect(BASE_URL . '/products');
             return;

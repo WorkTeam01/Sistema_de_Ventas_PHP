@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\Supplier;
 
 class SupplierController extends Controller
@@ -130,7 +131,16 @@ class SupplierController extends Controller
             $this->json(['success' => false, 'message' => 'No se puede eliminar el proveedor porque tiene compras registradas.']);
         }
 
+        $snapshot = $supplierModel->find($id);
+
         if ($supplierModel->delete($id)) {
+            if ($snapshot) {
+                ActivityLog::record(
+                    'delete', 'supplier', $id,
+                    "Proveedor '{$snapshot['nombre_proveedor']}' (empresa: {$snapshot['empresa']}) eliminado.",
+                    ['nombre_proveedor' => $snapshot['nombre_proveedor'], 'empresa' => $snapshot['empresa'], 'email' => $snapshot['email']]
+                );
+            }
             $this->json(['success' => true, 'message' => 'El proveedor se eliminó exitosamente.']);
         }
 

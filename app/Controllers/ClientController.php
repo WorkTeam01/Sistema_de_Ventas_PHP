@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\Client;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -165,7 +166,16 @@ class ClientController extends Controller
             $this->json(['success' => false, 'message' => 'No se puede eliminar el cliente porque tiene ventas registradas.']);
         }
 
+        $snapshot = $clientModel->find($id);
+
         if ($clientModel->delete($id)) {
+            if ($snapshot) {
+                ActivityLog::record(
+                    'delete', 'client', $id,
+                    "Cliente '{$snapshot['nombre_cliente']}' (NIT/CI: {$snapshot['nit_ci_cliente']}) eliminado.",
+                    ['nombre_cliente' => $snapshot['nombre_cliente'], 'nit_ci_cliente' => $snapshot['nit_ci_cliente'], 'email_cliente' => $snapshot['email_cliente']]
+                );
+            }
             $this->json(['success' => true, 'message' => 'El cliente se eliminó exitosamente.']);
         }
 
