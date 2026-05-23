@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\ActivityLogController;
 use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
 use App\Controllers\ClientController;
@@ -118,6 +119,10 @@ $router->get('/sales/show/{id}',      [SaleController::class, 'show'],          
 $router->get('/sales/delete/{id}',    [SaleController::class, 'confirmDelete'], ['auth', 'seller']);
 $router->get('/sales/invoice/{id}',   [SaleController::class, 'invoice'],       ['auth', 'seller']);
 $router->post('/sales/delete',        [SaleController::class, 'destroy'],       ['auth', 'seller']);
+
+// Rutas del módulo activity-log (solo Administrador)
+$router->get('/activity-log',           [ActivityLogController::class, 'index'], ['auth', 'admin']);
+$router->get('/activity-log/show/{id}', [ActivityLogController::class, 'show'],  ['auth', 'admin']);
 
 // Error pages
 $router->get('/errors/403', function () {

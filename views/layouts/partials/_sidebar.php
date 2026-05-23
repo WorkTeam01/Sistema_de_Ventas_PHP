@@ -34,6 +34,9 @@ $clientsActive = str_starts_with($_currentPath, '/clients');
 // — Módulo Ventas —
 $salesActive = str_starts_with($_currentPath, '/sales');
 
+// — Módulo Activity Log —
+$activityLogActive = str_starts_with($_currentPath, '/activity-log');
+
 $isAdmin  = $rol_sesion === 'Administrador';
 $isSeller = $rol_sesion === 'Vendedor';
 $isBuyer  = $rol_sesion === 'Comprador';
@@ -89,6 +92,13 @@ $link = fn(bool $on) => $on ? ' active' : '';
                         <a href="<?= BASE_URL ?>/roles" class="nav-link<?= $link($rolesActive) ?>">
                             <i class="nav-icon fas fa-address-card"></i>
                             <p>Roles</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= BASE_URL ?>/activity-log" class="nav-link<?= $link($activityLogActive) ?>">
+                            <i class="nav-icon fas fa-history"></i>
+                            <p>Auditoría</p>
                         </a>
                     </li>
                 <?php endif; ?>
