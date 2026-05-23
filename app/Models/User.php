@@ -295,6 +295,38 @@ class User extends Model
         return $result ?: null;
     }
 
+    public function isLocked(array $user): bool
+    {
+        if (!$user['login_bloqueado_hasta']) return false;
+        return strtotime($user['login_bloqueado_hasta']) > time();
+    }
+
+    public function recordFailedLogin(int $id): void
+    {
+        $this->db->prepare(
+            "UPDATE $this->table
+                SET login_intentos = login_intentos + 1,
+                    login_bloqueado_hasta = CASE
+                        WHEN login_intentos + 1 >= 5
+                        THEN ?
+                        ELSE login_bloqueado_hasta
+                    END
+              WHERE $this->primaryKey = ?"
+        )->execute([
+            date('Y-m-d H:i:s', time() + 15 * 60),
+            $id,
+        ]);
+    }
+
+    public function clearLoginAttempts(int $id): void
+    {
+        $this->db->prepare(
+            "UPDATE $this->table
+                SET login_intentos = 0, login_bloqueado_hasta = NULL
+              WHERE $this->primaryKey = ?"
+        )->execute([$id]);
+    }
+
     public function clearRememberToken(int $userId): bool
     {
         $stmt = $this->db->prepare(

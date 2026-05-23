@@ -41,14 +41,25 @@ class AuthController extends Controller
         $remember = isset($_POST['remember']) && $_POST['remember'] === '1';
 
         $userModel = new User();
-        $usuario = $userModel->verifyCredentials($email, $password_user);
+        $usuario = $userModel->findByEmail($email);
 
-        if ($usuario) {
+        if ($usuario && $userModel->isLocked($usuario)) {
+            $_SESSION['mensaje'] = 'Demasiados intentos fallidos. Tu cuenta está bloqueada por 15 minutos. Si olvidaste tu contraseña, usa la opción ¿Olvidaste tu contraseña?';
+            $_SESSION['icono'] = 'warning';
+            $this->redirect(BASE_URL . '/auth');
+            return;
+        }
+
+        if ($usuario && isset($usuario['password_user']) && password_verify($password_user, $usuario['password_user'])) {
+            $userModel->clearLoginAttempts((int)$usuario['id_usuario']);
             Auth::login($usuario, $remember);
             $_SESSION['welcome_user'] = $usuario['nombres'];
             $this->redirect(BASE_URL . '/');
         } else {
-            $_SESSION['mensaje'] = "Datos incorrectos";
+            if ($usuario) {
+                $userModel->recordFailedLogin((int)$usuario['id_usuario']);
+            }
+            $_SESSION['mensaje'] = 'Datos incorrectos';
             $_SESSION['icono'] = 'error';
             $this->redirect(BASE_URL . '/auth');
         }

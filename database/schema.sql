@@ -133,6 +133,8 @@ CREATE TABLE IF NOT EXISTS `tb_usuarios` (
   `reset_token_expiracion` datetime DEFAULT NULL,
   `remember_token` varchar(64) NULL DEFAULT NULL,
   `remember_token_expiry` datetime NULL DEFAULT NULL,
+  `login_intentos` tinyint UNSIGNED NOT NULL DEFAULT 0,
+  `login_bloqueado_hasta` datetime NULL DEFAULT NULL,
   `id_rol` int(11) NOT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,

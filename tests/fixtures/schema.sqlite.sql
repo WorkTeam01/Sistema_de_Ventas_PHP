@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS tb_usuarios (
     reset_token_expiracion  TEXT    DEFAULT NULL,
     remember_token          TEXT    DEFAULT NULL,
     remember_token_expiry   TEXT    DEFAULT NULL,
+    login_intentos          INTEGER NOT NULL DEFAULT 0,
+    login_bloqueado_hasta   TEXT    DEFAULT NULL,
     id_rol                  INTEGER NOT NULL,
     fyh_creacion            TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_actualizacion       TEXT    DEFAULT NULL

@@ -150,6 +150,76 @@ final class UserRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // Rate limiting — isLocked, recordFailedLogin, clearLoginAttempts
+    // -------------------------------------------------------------------------
+
+    public function test_isLocked_returns_false_when_bloqueado_hasta_is_null(): void
+    {
+        $id = $this->createUser();
+        $row = $this->user->find($id);
+        $this->assertFalse($this->user->isLocked($row));
+    }
+
+    public function test_isLocked_returns_false_with_past_timestamp(): void
+    {
+        $id = $this->createUser();
+        $past = date('Y-m-d H:i:s', time() - 1);
+        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$past' WHERE id_usuario = $id");
+
+        $row = $this->user->find($id);
+        $this->assertFalse($this->user->isLocked($row));
+    }
+
+    public function test_isLocked_returns_true_with_future_timestamp(): void
+    {
+        $id = $this->createUser();
+        $future = date('Y-m-d H:i:s', time() + 900);
+        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$future' WHERE id_usuario = $id");
+
+        $row = $this->user->find($id);
+        $this->assertTrue($this->user->isLocked($row));
+    }
+
+    public function test_recordFailedLogin_does_not_lock_before_5_attempts(): void
+    {
+        $id = $this->createUser();
+
+        for ($i = 0; $i < 4; $i++) {
+            $this->user->recordFailedLogin($id);
+        }
+
+        $row = $this->user->find($id);
+        $this->assertSame(4, (int)$row['login_intentos']);
+        $this->assertNull($row['login_bloqueado_hasta']);
+    }
+
+    public function test_recordFailedLogin_locks_on_5th_attempt(): void
+    {
+        $id = $this->createUser();
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->user->recordFailedLogin($id);
+        }
+
+        $row = $this->user->find($id);
+        $this->assertTrue($this->user->isLocked($row));
+    }
+
+    public function test_clearLoginAttempts_resets_counter_and_timestamp(): void
+    {
+        $id = $this->createUser();
+        for ($i = 0; $i < 5; $i++) {
+            $this->user->recordFailedLogin($id);
+        }
+
+        $this->user->clearLoginAttempts($id);
+
+        $row = $this->user->find($id);
+        $this->assertSame(0, (int)$row['login_intentos']);
+        $this->assertNull($row['login_bloqueado_hasta']);
+    }
+
+    // -------------------------------------------------------------------------
     // isReferenced — User::isReferenced verifica tb_almacen y tb_compras
     // -------------------------------------------------------------------------
 
