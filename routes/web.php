@@ -112,6 +112,7 @@ $router->get('/sales',                [SaleController::class, 'index'],         
 $router->get('/sales/create',         [SaleController::class, 'create'],        ['auth', 'seller']);
 $router->post('/sales/cart/add',      [SaleController::class, 'addToCart'],     ['auth', 'seller']);
 $router->post('/sales/cart/remove',   [SaleController::class, 'removeFromCart'],['auth', 'seller']);
+$router->post('/sales/cancel',        [SaleController::class, 'cancel'],        ['auth', 'seller']);
 $router->post('/sales',               [SaleController::class, 'store'],         ['auth', 'seller']);
 $router->get('/sales/show/{id}',      [SaleController::class, 'show'],          ['auth', 'seller']);
 $router->get('/sales/delete/{id}',    [SaleController::class, 'confirmDelete'], ['auth', 'seller']);

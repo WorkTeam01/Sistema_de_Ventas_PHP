@@ -347,3 +347,22 @@ $('#formVenta').on('submit', function (e) {
     sessionStorage.removeItem('pos_client');
     sessionStorage.removeItem('pos_step');
 });
+
+// ---- Cancelar venta ----
+
+$('#btn-cancelar-venta').on('click', function () {
+    const $btn      = $(this);
+    const nroVenta  = $btn.data('nro-venta');
+    const csrfToken = $btn.data('csrf');
+
+    sessionStorage.removeItem('pos_client');
+    sessionStorage.removeItem('pos_step');
+
+    fetch(BASE_URL + '/sales/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'nro_venta=' + encodeURIComponent(nroVenta) + '&csrf_token=' + encodeURIComponent(csrfToken)
+    }).finally(function () {
+        window.location.href = BASE_URL + '/sales';
+    });
+});

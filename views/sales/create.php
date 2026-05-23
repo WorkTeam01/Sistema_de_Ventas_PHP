@@ -389,9 +389,11 @@
                                 </ul>
                             </div>
                             <div class="card-footer">
-                                <a href="<?= BASE_URL ?>/sales" class="btn btn-default btn-block">
+                                <button type="button" id="btn-cancelar-venta" class="btn btn-default btn-block"
+                                        data-nro-venta="<?= (int)$nro_venta ?>"
+                                        data-csrf="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                                     <i class="fas fa-times mr-1"></i> Cancelar
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -402,6 +404,7 @@
 
             </form>
             <!-- /formVenta -->
+
 
         </div><!-- /.container-fluid -->
     </div>

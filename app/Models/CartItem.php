@@ -71,6 +71,39 @@ class CartItem extends Model
     }
 
     /**
+     * Elimina todos los ítems del carrito para un nro_venta dado.
+     * Se usa al cancelar explícitamente una venta en curso.
+     *
+     * @param int $nroVenta Número de venta a limpiar.
+     * @return int Número de filas eliminadas.
+     */
+    public function clearCart(int $nroVenta): int
+    {
+        $stmt = $this->db->prepare('DELETE FROM tb_carrito WHERE nro_venta = ?');
+        $stmt->execute([$nroVenta]);
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Elimina carritos huérfanos: filas en tb_carrito cuyo nro_venta
+     * no tiene venta finalizada en tb_ventas (el usuario abandonó el POS).
+     * El nro_venta activo se excluye para no borrar el carrito en construcción.
+     *
+     * @param int $excludeNroVenta nro_venta activo que no debe purgarse.
+     * @return int Número de filas eliminadas.
+     */
+    public function purgeOrphans(int $excludeNroVenta): int
+    {
+        $stmt = $this->db->prepare(
+            'DELETE FROM tb_carrito
+             WHERE nro_venta NOT IN (SELECT nro_venta FROM tb_ventas)
+               AND nro_venta != ?'
+        );
+        $stmt->execute([$excludeNroVenta]);
+        return $stmt->rowCount();
+    }
+
+    /**
      * Cuenta los ítems del carrito para un número de venta dado.
      * Útil para validar que el carrito no está vacío antes de finalizar la venta.
      *

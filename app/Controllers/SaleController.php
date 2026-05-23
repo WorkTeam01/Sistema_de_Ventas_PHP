@@ -41,6 +41,7 @@ class SaleController extends Controller
         $clientModel = new Client();
 
         $nro_venta = $saleModel->nextNumber();
+        $cartItemModel->purgeOrphans($nro_venta);
         $cart_items = $cartItemModel->getByNroVenta($nro_venta);
 
         $this->renderWithLayout('views/sales/create.php', array_merge(
@@ -55,6 +56,23 @@ class SaleController extends Controller
                 'pageScripts' => ['/js/modules/sales/sales-create.js'],
             ]
         ), true, ['datatable', 'validation']);
+    }
+
+    /**
+     * Cancela la venta en curso: elimina el carrito activo y redirige al listado.
+     */
+    public function cancel(): void
+    {
+        $this->validateCsrfOrFail();
+
+        $nro_venta = (int)($_POST['nro_venta'] ?? 0);
+
+        if ($nro_venta > 0) {
+            $cartItemModel = new CartItem();
+            $cartItemModel->clearCart($nro_venta);
+        }
+
+        $this->redirect(BASE_URL . '/sales');
     }
 
     /**
