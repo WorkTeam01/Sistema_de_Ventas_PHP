@@ -11,6 +11,77 @@ $(document).ready(function () {
         $('#adjustmentsTable').DataTable({
             responsive: true,
             autoWidth: false,
+            buttons: [{
+                extend: 'collection',
+                text: 'Reportes',
+                orientation: 'landscape',
+                buttons: [{
+                    text: 'Copiar',
+                    extend: 'copy',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                }, {
+                    extend: 'pdf',
+                    title: 'Ajustes de Stock - Sistema de Ventas',
+                    filename: 'ajustes_stock_' + new Date().toISOString().slice(0, 10),
+                    pageSize: 'LETTER',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 10;
+                        doc.styles.tableHeader.fontSize = 11;
+                        doc.styles.tableHeader.fillColor = '#4b545c';
+                        doc.styles.tableHeader.color = '#ffffff';
+
+                        doc.content.splice(0, 1, {
+                            text: 'AJUSTES DE STOCK - SISTEMA DE VENTAS',
+                            style: { fontSize: 16, alignment: 'center', bold: true, margin: [0, 10, 0, 10] }
+                        });
+
+                        doc.content.splice(1, 0, {
+                            text: 'Historial de ajustes manuales de inventario',
+                            style: { fontSize: 11, alignment: 'center', italic: true, margin: [0, 0, 0, 10] }
+                        });
+
+                        doc.content.splice(2, 0, {
+                            text: 'Generado el: ' + new Date().toLocaleString('es-BO'),
+                            style: { fontSize: 9, alignment: 'right', margin: [0, 0, 0, 10] }
+                        });
+
+                        doc.footer = function (currentPage, pageCount) {
+                            return {
+                                columns: [
+                                    { text: 'Sistema de Ventas', alignment: 'left', fontSize: 8 },
+                                    { text: 'Página ' + currentPage + ' de ' + pageCount, alignment: 'center', fontSize: 8 },
+                                    { text: 'Confidencial', alignment: 'right', fontSize: 8 }
+                                ],
+                                margin: [40, 0]
+                            };
+                        };
+                    }
+                }, {
+                    extend: 'excel',
+                    title: 'Ajustes de Stock - Sistema de Ventas',
+                    messageTop: 'Historial de ajustes manuales de inventario',
+                    messageBottom: 'Documento generado el ' + new Date().toLocaleDateString('es-BO'),
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                }, {
+                    extend: 'csv',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                }, {
+                    extend: 'print',
+                    text: 'Imprimir',
+                    title: 'Ajustes de Stock - Sistema de Ventas',
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                    customize: function (win) {
+                        $(win.document.body).find('table')
+                            .addClass('table-striped')
+                            .css('font-size', '12px');
+                    }
+                }]
+            }, {
+                extend: 'colvis',
+                text: 'Columnas'
+            }],
             pageLength: 25,
             order: [[0, 'desc']],
             columnDefs: [
@@ -20,7 +91,7 @@ $(document).ready(function () {
             initComplete: function () {
                 $(this.api().table().node()).css('visibility', 'visible');
             },
-        });
+        }).buttons().container().appendTo('#adjustmentsTable_wrapper .col-md-6:eq(0)');
     }
 
     // ── Select2 dentro del modal ──────────────────────────────────────────────
