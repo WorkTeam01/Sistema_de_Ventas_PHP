@@ -14,7 +14,7 @@ class ActivityLog extends Model
      * Registra una operación sensible en el log de auditoría.
      * Nunca lanza excepciones: si el log falla, la operación principal no se interrumpe.
      *
-     * @param string     $action      Verbo: 'delete', 'price_change', 'role_change', 'update'
+     * @param string     $action      Verbo: 'delete', 'price_change', 'role_change', 'update', 'stock_adjustment'
      * @param string     $entity      Entidad: 'sale', 'purchase', 'product', 'user', 'client', 'supplier'
      * @param int|null   $entityId    PK del registro afectado
      * @param string     $description Texto legible para la vista de auditoría

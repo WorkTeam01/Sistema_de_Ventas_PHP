@@ -54,12 +54,6 @@ class Product extends Model
         return ($inCart[0]['total'] ?? 0) > 0 || ($inPurchase[0]['total'] ?? 0) > 0;
     }
 
-    /**
-     * Devuelve un desglose de cuántos registros tiene el producto en cada tabla referenciada.
-     *
-     * @param int $id ID del producto.
-     * @return array{carrito: int, compras: int}
-     */
     /** Cuenta productos con stock por debajo del mínimo (o 5 si stock_minimo es NULL). */
     public function countLowStock(): int
     {
@@ -168,5 +162,56 @@ class Product extends Model
             'id_usuario' => $data['id_usuario'],
             'id_categoria' => $data['id_categoria'],
         ]);
+    }
+
+    /**
+     * Lista productos con sus datos de inventario y categoría, filtrados por estado de stock.
+     *
+     * @param string $estado 'todos' | 'agotado' | 'bajo'
+     * @return array Lista de productos con columnas de inventario y nombre_categoria.
+     */
+    public function inventoryList(string $estado = 'todos'): array
+    {
+        $where = match ($estado) {
+            'agotado' => 'WHERE al.stock = 0',
+            'bajo'    => 'WHERE al.stock > 0 AND al.stock <= COALESCE(al.stock_minimo, 5)',
+            default   => '',
+        };
+
+        return $this->query(
+            "SELECT al.id_producto, al.codigo, al.nombre, al.stock,
+                    al.stock_minimo, al.stock_maximo, al.precio_compra,
+                    cat.nombre_categoria
+             FROM tb_almacen al
+             INNER JOIN tb_categorias cat ON al.id_categoria = cat.id_categoria
+             {$where}
+             ORDER BY al.nombre ASC"
+        );
+    }
+
+    /**
+     * Devuelve estadísticas globales del inventario.
+     *
+     * @return array{total: int, agotados: int, bajo_minimo: int, valor_total: float}
+     */
+    public function inventoryStats(): array
+    {
+        $rows = $this->query(
+            "SELECT
+               COUNT(*) AS total,
+               SUM(CASE WHEN stock = 0 THEN 1 ELSE 0 END) AS agotados,
+               SUM(CASE WHEN stock > 0 AND stock <= COALESCE(stock_minimo, 5) THEN 1 ELSE 0 END) AS bajo_minimo,
+               SUM(stock * precio_compra) AS valor_total
+             FROM tb_almacen"
+        );
+
+        $row = $rows[0] ?? [];
+
+        return [
+            'total'       => (int)($row['total']       ?? 0),
+            'agotados'    => (int)($row['agotados']     ?? 0),
+            'bajo_minimo' => (int)($row['bajo_minimo']  ?? 0),
+            'valor_total' => (float)($row['valor_total'] ?? 0.0),
+        ];
     }
 }
