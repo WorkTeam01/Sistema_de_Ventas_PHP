@@ -11,6 +11,39 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.10.0] - 2026-06-03
+
+### Agregado
+
+- **Módulo de inventario completo** — dos tabs en `/inventory` (solo Administrador): "Control de Stock" y "Ajustes de Stock"
+- `database/schema.sql` y `tests/fixtures/schema.sqlite.sql` — tabla `tb_ajustes_stock` con FK a `tb_almacen` y FK nullable `ON DELETE SET NULL` a `tb_usuarios`; campos `tipo` (enum entrada/salida), `cantidad`, `stock_anterior`, `stock_posterior`, `motivo`, `usuario_nombre` (desnormalizado), `fyh_creacion`
+- `app/Models/StockAdjustment.php` — `register()` con transacción atómica (UPDATE stock + INSERT ajuste + ActivityLog::record()); `history()` con filtros opcionales (desde, hasta, tipo, id_producto) y parámetro `$limit` para limitar resultados
+- `app/Models/Product.php` — `inventoryList(string $estado): array` con JOIN a `tb_categorias` y filtro por estado (todos/bajo/agotado); `inventoryStats(): array` con conteos y valor total del inventario
+- `app/Controllers/InventoryController.php` — `index()` con whitelist de tabs; tab stock carga productos + últimos 10 ajustes; tab ajustes aplica filtros server-side; `storeAdjustment()` con CSRF + validación completa
+- `views/inventory/index.php` — tabs server-side con `?tab=`, modal de ajuste con form y CSRF fuera del card principal
+- `views/inventory/partials/stock-control.php` — card "Alertas de Stock Bajo" (colapsable, danger outline); tabla "Estado del Inventario" con barras de progreso y scroll (max-height 400px); tabla "Últimos Ajustes" con link a historial completo
+- `views/inventory/partials/adjustments.php` — filtros colapsables en dos filas responsivas (desde, hasta, tipo, producto); historial en card con DataTable y botón "Ajustar Stock" en card-header
+- `views/inventory/partials/adjustment-form.php` — campos del modal: select2 de producto con stock visible en opción, tipo con labels descriptivos, cantidad con input-group (icono + "unidades"), motivo con maxlength; preview de stock proyectado en tiempo real
+- `public/js/modules/inventory/inventory.js` — DataTable para historial; Select2 con destroy/reinit en cada apertura del modal; preview de stock proyectado; confirmación `AlertUtils.confirm()` + `ToastUtils.loadingWithMinTime()`; redirección a compras desde alertas con confirmación
+- Rutas `GET /inventory` y `POST /inventory/adjustments` con middleware `auth, admin`
+- Link "Inventario" en sidebar (solo rol Administrador)
+- Tests de integración: `StockAdjustmentTest.php` (6 tests: entrada, salida, stock insuficiente, producto inexistente, ok+posterior, filtro por tipo) y `InventoryListFieldsTest.php` (3 tests: campos para badge, stats con producto, stats tabla vacía)
+
+### Modificado
+
+- `app/Models/ActivityLog.php` — acción `'stock_adjustment'` documentada en docblock de `record()`
+- `views/purchases/create.php` — pre-selección de producto via `$_GET['id_producto']` para redirección rápida desde alertas de inventario
+- `views/layouts/partials/_sidebar.php` — link "Inventario" en sección Administración (solo `$isAdmin`)
+
+### Técnico
+
+- Transacción atómica en `StockAdjustment::register()`: si falla el UPDATE de stock, el INSERT de ajuste no se ejecuta y el log de auditoría tampoco (ActivityLog tiene try/catch interno, nunca interrumpe la transacción)
+- `history()` acepta `$limit` opcional para evitar cargar todo el historial en el tab de Control de Stock
+- Select2 en modal: destroy antes de reinicializar en cada `shown.bs.modal` para evitar duplicación del dropdown
+- Preview de stock proyectado: lee `data-stock` del option seleccionado, actualiza en tiempo real al cambiar producto, tipo o cantidad
+
+---
+
 ## [1.9.0] - 2026-05-23
 
 ### Agregado

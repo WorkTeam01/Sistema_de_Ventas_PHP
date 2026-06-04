@@ -49,7 +49,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── ProductController.php
 │   │   ├── PurchaseController.php
 │   │   ├── SaleController.php
-│   │   └── ActivityLogController.php
+│   │   ├── ActivityLogController.php
+│   │   └── InventoryController.php
 │   ├── Helpers/              ← PSR-4, namespace App\Helpers
 │   │   ├── NumberToWords.php
 │   │   ├── InvoicePdf.php
@@ -67,7 +68,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── Purchase.php
 │   │   ├── Sale.php
 │   │   ├── CartItem.php
-│   │   └── ActivityLog.php
+│   │   ├── ActivityLog.php
+│   │   └── StockAdjustment.php
 │   └── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
 ├── views/
 │   ├── layouts/
@@ -115,9 +117,9 @@ Sistema_de_Ventas_PHP/
 
 El proyecto usa **dos sistemas de ruteo en paralelo**:
 
-| Tipo    | Cómo funciona                              | Módulos                                                                                           |
-| ------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales, activity-log (todos) |
+| Tipo    | Cómo funciona                              | Módulos                                                                                                                    |
+| ------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales, activity-log, inventory (todos) |
 
 Todos los módulos están migrados. No quedan módulos legacy.
 
@@ -151,9 +153,14 @@ tb_ventas
     tb_activity_log
 (id_log, id_usuario [FK NULL → ON DELETE SET NULL], usuario_nombre, accion, entidad, entidad_id,
     descripcion, datos_anteriores [JSON], datos_nuevos [JSON], ip_address, fyh_creacion)
-    -- acciones registradas: 'delete', 'price_change', 'role_change'
+    -- acciones registradas: 'delete', 'price_change', 'role_change', 'stock_adjustment'
     -- entidades: 'sale', 'purchase', 'product', 'user', 'client', 'supplier'
     -- usuario_nombre desnormalizado para persistir incluso si el usuario es eliminado
+    tb_ajustes_stock
+(id_ajuste, id_producto [FK → tb_almacen], tipo [enum: entrada|salida], cantidad,
+    stock_anterior, stock_posterior, motivo, id_usuario [FK NULL → ON DELETE SET NULL],
+    usuario_nombre, fyh_creacion)
+    -- registrado atómicamente junto con UPDATE tb_almacen en StockAdjustment::register()
 
 -- Roles de usuario (almacenados en tb_roles)
 Administrador
@@ -374,4 +381,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-05-23 — v1.9.0 (módulo de auditoría completo: tb_activity_log, ActivityLog model, ActivityLogRenderer helper, ActivityLogController, vistas con partials reutilizables, integración en ProductController, UserController, ClientController y SupplierController)_
+_Última actualización: 2026-06-03 — v1.10.0 (módulo de inventario completo: tb_ajustes_stock, StockAdjustment model, InventoryController, vistas con tabs Control de Stock / Ajustes — alertas, barras de progreso, historial; integración con purchases/create para compras rápidas desde alertas)_
