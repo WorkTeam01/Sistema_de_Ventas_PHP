@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\ActivityLogController;
+use App\Controllers\InventoryController;
 use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
 use App\Controllers\ClientController;
@@ -61,7 +62,7 @@ $router->get('/roles',                 [RoleController::class, 'index'],      ['
 $router->post('/roles/store',          [RoleController::class, 'store'],      ['auth', 'admin']);
 $router->get('/roles/show/{id}',       [RoleController::class, 'show'],       ['auth', 'admin']);
 $router->post('/roles/update/{id}',    [RoleController::class, 'update'],     ['auth', 'admin']);
-$router->post('/roles/check-nombre',   [RoleController::class, 'checkNombre'],['auth', 'admin']);
+$router->post('/roles/check-nombre',   [RoleController::class, 'checkNombre'], ['auth', 'admin']);
 
 // Rutas del módulo categories (MVC)
 $router->get('/categories',                 [CategoryController::class, 'index'],       ['auth']);
@@ -112,7 +113,7 @@ $router->post('/purchases/delete',     [PurchaseController::class, 'destroy'], [
 $router->get('/sales',                [SaleController::class, 'index'],         ['auth', 'seller']);
 $router->get('/sales/create',         [SaleController::class, 'create'],        ['auth', 'seller']);
 $router->post('/sales/cart/add',      [SaleController::class, 'addToCart'],     ['auth', 'seller']);
-$router->post('/sales/cart/remove',   [SaleController::class, 'removeFromCart'],['auth', 'seller']);
+$router->post('/sales/cart/remove',   [SaleController::class, 'removeFromCart'], ['auth', 'seller']);
 $router->post('/sales/cancel',        [SaleController::class, 'cancel'],        ['auth', 'seller']);
 $router->post('/sales',               [SaleController::class, 'store'],         ['auth', 'seller']);
 $router->get('/sales/show/{id}',      [SaleController::class, 'show'],          ['auth', 'seller']);
@@ -123,6 +124,10 @@ $router->post('/sales/delete',        [SaleController::class, 'destroy'],       
 // Rutas del módulo activity-log (solo Administrador)
 $router->get('/activity-log',           [ActivityLogController::class, 'index'], ['auth', 'admin']);
 $router->get('/activity-log/show/{id}', [ActivityLogController::class, 'show'],  ['auth', 'admin']);
+
+// Rutas del módulo inventario (solo Administrador)
+$router->get('/inventory',              [InventoryController::class, 'index'],           ['auth', 'admin']);
+$router->post('/inventory/adjustments', [InventoryController::class, 'storeAdjustment'], ['auth', 'admin']);
 
 // Error pages
 $router->get('/errors/403', function () {

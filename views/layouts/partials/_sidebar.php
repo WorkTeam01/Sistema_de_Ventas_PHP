@@ -37,6 +37,9 @@ $salesActive = str_starts_with($_currentPath, '/sales');
 // — Módulo Activity Log —
 $activityLogActive = str_starts_with($_currentPath, '/activity-log');
 
+// — Módulo Inventario —
+$inventoryActive = str_starts_with($_currentPath, '/inventory');
+
 $isAdmin  = $rol_sesion === 'Administrador';
 $isSeller = $rol_sesion === 'Vendedor';
 $isBuyer  = $rol_sesion === 'Comprador';
@@ -48,7 +51,7 @@ $link = fn(bool $on) => $on ? ' active' : '';
     <!-- Brand Logo -->
     <a href="<?= BASE_URL ?>" class="brand-link">
         <img src="<?= BASE_URL ?>/img/logo_2.png" alt="Logo" loading="eager"
-             class="brand-image img-circle elevation-1" style="opacity: .8">
+            class="brand-image img-circle elevation-1" style="opacity: .8">
         <span class="brand-text font-weight-light">Pagina principal</span>
     </a>
 
@@ -58,7 +61,7 @@ $link = fn(bool $on) => $on ? ' active' : '';
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
                 <img src="<?= BASE_URL ?>/img/user2-160x160.jpg"
-                     class="img-circle elevation-2" alt="User Image">
+                    class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
                 <a href="<?= BASE_URL ?>/profile" class="d-block"><?= htmlspecialchars($nombres_sesion) ?></a>
@@ -120,6 +123,15 @@ $link = fn(bool $on) => $on ? ' active' : '';
                             <p>Almacén</p>
                         </a>
                     </li>
+
+                    <?php if ($isAdmin): ?>
+                        <li class="nav-item">
+                            <a href="<?= BASE_URL ?>/inventory" class="nav-link<?= $link($inventoryActive) ?>">
+                                <i class="nav-icon fas fa-warehouse"></i>
+                                <p>Inventario</p>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <?php if ($isAdmin || $isBuyer): ?>
