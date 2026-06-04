@@ -107,8 +107,12 @@
                                                 <select id="id_producto" name="id_producto"
                                                         class="form-control select2 mr-2" required>
                                                     <option value="">Seleccionar producto...</option>
-                                                    <?php foreach ($products as $product) : ?>
-                                                        <option value="<?= $product['id_producto']; ?>">
+                                                    <?php
+                                                    $preselectedProducto = (int)($_GET['id_producto'] ?? 0);
+                                                    foreach ($products as $product) :
+                                                    ?>
+                                                        <option value="<?= $product['id_producto']; ?>"
+                                                            <?= $preselectedProducto === (int)$product['id_producto'] ? 'selected' : '' ?>>
                                                             <?= htmlspecialchars($product['codigo'] . ' — ' . $product['nombre'], ENT_QUOTES, 'UTF-8'); ?>
                                                         </option>
                                                     <?php endforeach; ?>
