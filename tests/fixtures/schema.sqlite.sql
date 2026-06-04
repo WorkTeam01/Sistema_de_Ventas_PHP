@@ -119,3 +119,17 @@ CREATE TABLE IF NOT EXISTS tb_compras (
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_actualizacion   TEXT    DEFAULT NULL
 );
+
+CREATE TABLE IF NOT EXISTS tb_ajustes_stock (
+  id_ajuste       INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_producto     INTEGER NOT NULL,
+  tipo            TEXT    NOT NULL,
+  cantidad        INTEGER NOT NULL,
+  stock_anterior  INTEGER NOT NULL,
+  stock_posterior INTEGER NOT NULL,
+  motivo          TEXT    NOT NULL,
+  id_usuario      INTEGER,
+  usuario_nombre  TEXT,
+  fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto)
+);

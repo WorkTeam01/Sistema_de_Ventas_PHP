@@ -185,6 +185,26 @@ CREATE TABLE IF NOT EXISTS `tb_activity_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
+-- Tabla: tb_ajustes_stock (auditoría de ajustes de inventario)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_ajustes_stock` (
+  `id_ajuste`       int(11)        NOT NULL AUTO_INCREMENT,
+  `id_producto`     int(11)        NOT NULL,
+  `tipo`            enum('entrada','salida') NOT NULL,
+  `cantidad`        int(11)        NOT NULL,
+  `stock_anterior`  int(11)        NOT NULL,
+  `stock_posterior` int(11)        NOT NULL,
+  `motivo`          varchar(255)   NOT NULL,
+  `id_usuario`      int(11)        DEFAULT NULL,
+  `usuario_nombre`  varchar(150)   DEFAULT NULL,
+  `fyh_creacion`    datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_ajuste`),
+  KEY `idx_ajuste_producto` (`id_producto`),
+  KEY `idx_ajuste_tipo`     (`tipo`),
+  KEY `idx_ajuste_fecha`    (`fyh_creacion`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
 -- Restricciones (Foreign Keys)
 -- --------------------------------------------------------
 ALTER TABLE `tb_almacen`
@@ -205,6 +225,10 @@ ALTER TABLE `tb_usuarios`
 ALTER TABLE `tb_ventas`
   ADD CONSTRAINT `tb_ventas_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `tb_clientes` (`id_cliente`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `tb_ventas_ibfk_2` FOREIGN KEY (`nro_venta`) REFERENCES `tb_carrito` (`nro_venta`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `tb_ajustes_stock`
+  ADD CONSTRAINT `tb_ajustes_stock_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `tb_almacen` (`id_producto`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `tb_ajustes_stock_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 COMMIT;
 
