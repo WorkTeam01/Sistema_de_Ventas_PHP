@@ -100,11 +100,52 @@
             </div>
             <!-- /.row KPIs -->
 
-            <!-- ===== Gráfico + Últimas ventas ===== -->
+            <!-- ===== KPIs Admin ===== -->
+            <?php if ($rol_sesion === 'Administrador') : ?>
+                <a href="#admin-kpis" data-toggle="collapse" id="admin-kpis-toggle" class="text-secondary d-inline-flex align-items-center mb-2" style="font-size:0.78rem;" aria-expanded="true">
+                    <i class="fas fa-coins mr-1"></i>
+                    <span>Flujo del mes</span>
+                    <i class="fas fa-arrow-up ml-1" id="admin-kpis-icon"></i>
+                </a>
+                <div class="row collapse show" id="admin-kpis">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="info-box elevation-1">
+                            <span class="info-box-icon <?= $kpis['utilidad_positiva'] ? 'bg-primary' : 'bg-danger' ?>">
+                                <i class="fas fa-coins"></i>
+                            </span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Ventas &minus; Compras del mes</span>
+                                <span class="info-box-number <?= $kpis['utilidad_positiva'] ? 'text-primary' : 'text-danger' ?>">
+                                    Bs <?= number_format($kpis['utilidad_bruta'], 2, ',', '.') ?>
+                                </span>
+                                <div class="progress">
+                                    <div class="progress-bar <?= $kpis['utilidad_positiva'] ? 'bg-primary' : 'bg-danger' ?>" style="width: 100%"></div>
+                                </div>
+                                <span class="progress-description text-muted">flujo del mes actual</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="info-box elevation-1">
+                            <span class="info-box-icon bg-teal"><i class="fas fa-user-plus"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Clientes nuevos</span>
+                                <span class="info-box-number"><?= $kpis['clientes_nuevos'] ?></span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-teal" style="width: 100%"></div>
+                                </div>
+                                <span class="progress-description text-muted">registrados este mes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- ===== Gráficos ===== -->
             <?php if (!empty($chartData['datasets'])) : ?>
-                <div class="row">
+                <div class="row align-items-stretch mb-3">
                     <div class="col-lg-8 col-12">
-                        <div class="card card-outline card-success">
+                        <div class="card card-outline card-success h-100">
                             <div class="card-header">
                                 <h3 class="card-title">
                                     <i class="fas fa-chart-bar mr-1"></i>
@@ -119,119 +160,73 @@
                         </div>
                     </div>
 
-                    <?php if (!empty($kpis['ultimas_ventas'])) : ?>
+                    <?php if (!empty($topChart['quantities'])) : ?>
                         <div class="col-lg-4 col-12">
-                            <div class="card card-outline card-info">
+                            <div class="card card-outline card-success h-100">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <i class="fas fa-history mr-1"></i>
-                                        Últimas ventas
+                                        <i class="fas fa-trophy mr-1"></i>
+                                        Top 5 productos &mdash; histórico
                                     </h3>
                                 </div>
-                                <div class="card-body p-0">
-                                    <table class="table table-sm table-striped mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>N°</th>
-                                                <th>Cliente</th>
-                                                <th class="text-right">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($kpis['ultimas_ventas'] as $venta) : ?>
-                                                <tr>
-                                                    <td>
-                                                        <a href="<?= BASE_URL ?>/sales/show/<?= $venta['id_venta'] ?>">
-                                                            #<?= $venta['nro_venta'] ?>
-                                                        </a>
-                                                    </td>
-                                                    <td><?= htmlspecialchars($venta['nombre_cliente']) ?></td>
-                                                    <td class="text-right text-success font-weight-bold">
-                                                        Bs <?= number_format($venta['total_pagado'], 2, ',', '.') ?>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="card-footer text-center p-2">
-                                    <a href="<?= BASE_URL ?>/sales" class="text-info">
-                                        Ver todas <i class="fas fa-arrow-right"></i>
-                                    </a>
+                                <div class="card-body">
+                                    <div class="chart-container-sm">
+                                        <canvas id="topProductsChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
+                            <script type="application/json" id="dashboard-top-data">
+                                <?= json_encode($topChart, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+                            </script>
                         </div>
                     <?php endif; ?>
                 </div>
 
                 <script type="application/json" id="dashboard-chart-data">
-                    <?= json_encode($chartData, JSON_THROW_ON_ERROR) ?>
+                    <?= json_encode($chartData, JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
                 </script>
             <?php endif; ?>
 
-            <!-- ===== Productos con stock bajo ===== -->
-            <?php if (!empty($kpis['low_stock_products'])) : ?>
+            <!-- ===== Últimas ventas ===== -->
+            <?php if (!empty($kpis['ultimas_ventas'])) : ?>
                 <div class="row">
                     <div class="col-12">
-                        <div class="card card-outline card-warning">
+                        <div class="card card-outline card-info">
                             <div class="card-header">
                                 <h3 class="card-title">
-                                    <i class="fas fa-exclamation-triangle mr-1 text-warning"></i>
-                                    Productos con stock bajo
+                                    <i class="fas fa-history mr-1"></i>
+                                    Últimas ventas
                                 </h3>
                             </div>
                             <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-striped mb-0">
-                                        <thead>
+                                <table class="table table-sm table-striped mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>N°</th>
+                                            <th>Cliente</th>
+                                            <th class="text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($kpis['ultimas_ventas'] as $venta) : ?>
                                             <tr>
-                                                <th style="width:45px"></th>
-                                                <th class="d-none d-sm-table-cell">Código</th>
-                                                <th>Producto</th>
-                                                <th class="d-none d-md-table-cell">Categoría</th>
-                                                <th class="text-center">Stock actual</th>
-                                                <th class="text-center d-none d-sm-table-cell">Mínimo</th>
-                                                <th class="text-center">Estado</th>
+                                                <td>
+                                                    <a href="<?= BASE_URL ?>/sales/show/<?= $venta['id_venta'] ?>">
+                                                        #<?= $venta['nro_venta'] ?>
+                                                    </a>
+                                                </td>
+                                                <td><?= htmlspecialchars($venta['nombre_cliente']) ?></td>
+                                                <td class="text-right text-success font-weight-bold">
+                                                    Bs <?= number_format($venta['total_pagado'], 2, ',', '.') ?>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($kpis['low_stock_products'] as $prod) : ?>
-                                                <tr>
-                                                    <td>
-                                                        <?php if ($prod['imagen']) : ?>
-                                                            <img src="<?= BASE_URL ?>/uploads/products/<?= htmlspecialchars($prod['imagen']) ?>"
-                                                                class="dashboard-product-img" alt="">
-                                                        <?php else : ?>
-                                                            <span class="dashboard-product-img d-inline-flex align-items-center justify-content-center bg-light text-muted">
-                                                                <i class="fas fa-image"></i>
-                                                            </span>
-                                                        <?php endif; ?>
-                                                    </td>
-                                                    <td class="d-none d-sm-table-cell"><?= htmlspecialchars($prod['codigo']) ?></td>
-                                                    <td>
-                                                        <a href="<?= BASE_URL ?>/products/show/<?= $prod['id_producto'] ?>">
-                                                            <?= htmlspecialchars($prod['nombre']) ?>
-                                                        </a>
-                                                    </td>
-                                                    <td class="d-none d-md-table-cell"><?= htmlspecialchars($prod['nombre_categoria']) ?></td>
-                                                    <td class="text-center font-weight-bold <?= $prod['critico'] ? 'text-danger' : 'text-warning' ?>">
-                                                        <?= $prod['stock'] ?>
-                                                    </td>
-                                                    <td class="text-center d-none d-sm-table-cell"><?= $prod['stock_minimo'] ?></td>
-                                                    <td class="text-center">
-                                                        <span class="badge <?= $prod['critico'] ? 'badge-stock-critical' : 'badge-stock-warning' ?>">
-                                                            <?= $prod['critico'] ? 'Sin stock' : 'Stock bajo' ?>
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             </div>
                             <div class="card-footer text-center p-2">
-                                <a href="<?= BASE_URL ?>/products" class="text-warning">
-                                    Ver inventario completo <i class="fas fa-arrow-right"></i>
+                                <a href="<?= BASE_URL ?>/sales" class="text-info">
+                                    Ver todas <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
