@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\Client;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Sale;
@@ -17,18 +18,13 @@ class DashboardController extends Controller
         $productModel  = new Product();
         $purchaseModel = new Purchase();
         $saleModel     = new Sale();
+        $clientModel   = new Client();
 
         $kpis = [];
 
         // Stock bajo — todos los roles
-        $kpis['low_stock_count']    = $productModel->countLowStock();
-        $kpis['low_stock_products'] = $productModel->lowStockProducts(10);
-        $kpis['stock_critico']      = $kpis['low_stock_count'] > 0;
-
-        foreach ($kpis['low_stock_products'] as &$prod) {
-            $prod['critico'] = (int)$prod['stock'] === 0;
-        }
-        unset($prod);
+        $kpis['low_stock_count'] = $productModel->countLowStock();
+        $kpis['stock_critico']   = $kpis['low_stock_count'] > 0;
 
         // Ventas — Admin y Vendedor
         if ($rol === 'Administrador' || $rol === 'Vendedor') {
@@ -45,6 +41,7 @@ class DashboardController extends Controller
             $kpis['ventas_hoy']     = $saleModel->todaySummary();
             $kpis['ultimas_ventas'] = $saleModel->latest(5);
             $kpis['ventas_por_mes'] = $saleModel->totalsByMonth(6);
+            $kpis['top_productos']  = $productModel->getTopSelling(5);
         }
 
         // Compras — Admin y Comprador
@@ -60,6 +57,13 @@ class DashboardController extends Controller
             $kpis['compras_var_ico'] = $var > 0 ? 'fa-arrow-up' : ($var < 0 ? 'fa-arrow-down' : 'fa-minus');
             $kpis['compras_var_bar'] = min(abs($var), 100);
             $kpis['compras_por_mes'] = $purchaseModel->totalsByMonth(6);
+        }
+
+        // KPIs exclusivos del Administrador
+        if ($rol === 'Administrador') {
+            $kpis['utilidad_bruta']    = ($kpis['ventas_mes'] ?? 0) - ($kpis['compras_mes'] ?? 0);
+            $kpis['utilidad_positiva'] = $kpis['utilidad_bruta'] >= 0;
+            $kpis['clientes_nuevos']   = $clientModel->countNewThisMonth();
         }
 
         // Datos del gráfico
@@ -107,6 +111,16 @@ class DashboardController extends Controller
 
         $chartData = ['labels' => $chartLabels, 'datasets' => $chartDatasets];
 
+        // Dataset para el doughnut de top productos
+        $topChart = ['labels' => [], 'quantities' => [], 'revenues' => []];
+        if (!empty($kpis['top_productos'])) {
+            foreach ($kpis['top_productos'] as $p) {
+                $topChart['labels'][]     = $p['nombre'];
+                $topChart['quantities'][] = (int)$p['cantidad_vendida'];
+                $topChart['revenues'][]   = round((float)$p['ingresos'], 2);
+            }
+        }
+
         // Clase de columna Bootstrap según cuántos KPIs ve el rol
         $kpiCount = 1;
         if ($rol === 'Administrador' || $rol === 'Vendedor') {
@@ -120,6 +134,7 @@ class DashboardController extends Controller
         $this->renderWithLayout('views/dashboard/index.php', array_merge($sessionData, [
             'kpis'        => $kpis,
             'chartData'   => $chartData,
+            'topChart'    => $topChart,
             'kpiCol'      => $kpiCol,
             'pageStyles'  => ['/css/modules/dashboard/dashboard.css'],
             'pageScripts' => ['/js/modules/dashboard/dashboard.js'],
