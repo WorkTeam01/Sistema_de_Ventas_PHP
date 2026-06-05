@@ -21,7 +21,7 @@
 /* Chart container responsive height */
 .chart-container {
     position: relative;
-    min-height: 280px;
+    height: 300px;
 }
 
 /* Stock badges */
@@ -34,10 +34,8 @@
     color: #212529;
 }
 
-/* Product thumbnail in low-stock table */
-.dashboard-product-img {
-    width: 35px;
-    height: 35px;
-    object-fit: cover;
-    border-radius: 4px;
+/* Doughnut chart container */
+.chart-container-sm {
+    position: relative;
+    height: 300px;
 }
