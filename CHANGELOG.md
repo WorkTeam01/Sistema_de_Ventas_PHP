@@ -11,6 +11,34 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.11.0] - 2026-06-05
+
+### Agregado
+
+- **Dashboard — KPIs admin colapsables** — fila "Flujo del mes" (toggle con ícono fa-coins + flecha) visible solo para Administrador; incluye KPI "Ventas − Compras del mes" (color según signo) y KPI "Clientes nuevos este mes"
+- `app/Models/Product.php` — `getTopSelling(int $limit = 5): array` — top productos por cantidad vendida (JOIN tb_carrito + tb_ventas para excluir carritos huérfanos); calcula ingresos con precio_venta actual
+- `app/Models/Client.php` — `countNewThisMonth(): int` — clientes registrados en el mes actual via `YEAR/MONTH(CURDATE())`
+- **Gráfico doughnut** top 5 productos histórico en dashboard — tooltip enriquecido (nombre, cantidad, ingresos en Bs); usa Chart.js 2.x existente sin librerías nuevas
+- `public/css/modules/dashboard/dashboard.css` — clase `.chart-container-sm` (height: 300px) para el doughnut; `.chart-container` unificado a height: 300px para paridad visual entre gráficos
+
+### Modificado
+
+- `app/Controllers/DashboardController.php` — elimina `low_stock_products` y su foreach de marcado crítico; agrega `top_productos`, KPIs admin (`utilidad_bruta`, `utilidad_positiva`, `clientes_nuevos`) y dataset `$topChart` para el doughnut
+- `views/dashboard/index.php` — elimina tabla "Productos con stock bajo" (cubierta por `/inventory`); agrega fila KPIs admin colapsable; reestructura fila gráficos a dos columnas; mueve "Últimas ventas" a fila col-12 independiente
+- `public/js/modules/dashboard/dashboard.js` — agrega inicialización del doughnut y toggle del ícono de colapso
+
+### Seguridad
+
+- `json_encode()` en scripts embebidos actualizado a `JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT` para prevenir XSS via inyección de `</script>` en nombres de productos
+
+### Técnico
+
+- `tests/Integration/Models/ProductRepositoryTest.php` — 4 tests nuevos para `getTopSelling()`: orden descendente, respeto de límite, exclusión de carritos huérfanos, cálculo de ingresos
+- `Client::countNewThisMonth()` no es testeable con SQLite in-memory (usa `CURDATE()`) — documentado en `ClientRepositoryTest.php` con la misma nota que `findByResetToken` / `findByRememberToken`
+- 192 tests totales, todos en verde
+
+---
+
 ## [1.10.0] - 2026-06-03
 
 ### Agregado

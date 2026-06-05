@@ -381,4 +381,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-06-03 — v1.10.0 (módulo de inventario completo: tb_ajustes_stock, StockAdjustment model, InventoryController, vistas con tabs Control de Stock / Ajustes — alertas, barras de progreso, historial; integración con purchases/create para compras rápidas desde alertas)_
+_Última actualización: 2026-06-05 — v1.11.0 (mejora dashboard: KPIs admin colapsables — Ventas−Compras del mes y Clientes nuevos; gráfico doughnut top 5 productos histórico con tooltip enriquecido; tabla stock bajo eliminada — cubierta por /inventory; JSON_HEX_TAG en json_encode de scripts embebidos)_
