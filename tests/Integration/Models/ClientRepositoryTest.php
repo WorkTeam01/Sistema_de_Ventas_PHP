@@ -159,4 +159,7 @@ final class ClientRepositoryTest extends TestCase
             (nombre_cliente, nit_ci_cliente, celular_cliente, email_cliente)
             VALUES ('Otro Cliente', '99999999', '79999999', 'dup@example.com')");
     }
+
+    // countNewThisMonth usa CURDATE() — no es testeable con SQLite in-memory
+    // (misma restricción que findByResetToken / findByRememberToken con NOW())
 }

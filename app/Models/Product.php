@@ -79,6 +79,22 @@ class Product extends Model
         );
     }
 
+    public function getTopSelling(int $limit = 5): array
+    {
+        $limit = max(1, (int)$limit);
+        return $this->query(
+            "SELECT al.id_producto, al.codigo, al.nombre,
+                    SUM(car.cantidad) AS cantidad_vendida,
+                    SUM(car.cantidad * al.precio_venta) AS ingresos
+             FROM tb_carrito car
+             INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
+             INNER JOIN tb_ventas v ON car.nro_venta = v.nro_venta
+             GROUP BY al.id_producto, al.codigo, al.nombre
+             ORDER BY cantidad_vendida DESC
+             LIMIT $limit"
+        );
+    }
+
     public function getReferenceCount(int $id): array
     {
         $carrito = $this->query(

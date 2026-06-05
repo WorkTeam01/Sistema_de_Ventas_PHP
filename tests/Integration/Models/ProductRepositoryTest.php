@@ -177,4 +177,68 @@ final class ProductRepositoryTest extends TestCase
 
         $this->assertTrue($this->product->isReferenced($id));
     }
+
+    // -------------------------------------------------------------------------
+    // getTopSelling
+    // -------------------------------------------------------------------------
+
+    private function seedSale(int $nroVenta, int $idCliente): void
+    {
+        $this->pdo->exec("INSERT INTO tb_clientes
+            (nombre_cliente, nit_ci_cliente, celular_cliente, email_cliente)
+            VALUES ('Cliente $idCliente', '$idCliente', '7000000$idCliente', 'c$idCliente@test.com')");
+        $clientId = (int)$this->pdo->lastInsertId();
+        $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_cliente, total_pagado)
+            VALUES ($nroVenta, $clientId, 0)");
+    }
+
+    public function test_getTopSelling_ordena_por_cantidad_descendente(): void
+    {
+        $p1 = $this->createProduct(['codigo' => 'P-00001', 'nombre' => 'Producto A', 'precio_venta' => 10.00]);
+        $p2 = $this->createProduct(['codigo' => 'P-00002', 'nombre' => 'Producto B', 'precio_venta' => 10.00]);
+
+        $this->seedSale(1, 1);
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (1, $p1, 3)");
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (1, $p2, 7)");
+
+        $result = $this->product->getTopSelling(5);
+
+        $this->assertSame('Producto B', $result[0]['nombre']);
+        $this->assertSame('Producto A', $result[1]['nombre']);
+    }
+
+    public function test_getTopSelling_respeta_limit(): void
+    {
+        $this->seedSale(1, 1);
+        for ($i = 1; $i <= 4; $i++) {
+            $pid = $this->createProduct(['codigo' => "P-0000$i", 'nombre' => "Prod $i", 'precio_venta' => 5.00]);
+            $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (1, $pid, $i)");
+        }
+
+        $this->assertCount(2, $this->product->getTopSelling(2));
+    }
+
+    public function test_getTopSelling_ignora_carrito_sin_venta_confirmada(): void
+    {
+        $pid = $this->createProduct(['codigo' => 'P-00001', 'nombre' => 'Producto A', 'precio_venta' => 10.00]);
+        // Carrito huérfano: nro_venta 99 no existe en tb_ventas
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (99, $pid, 5)");
+
+        $result = $this->product->getTopSelling(5);
+
+        $this->assertEmpty($result);
+    }
+
+    public function test_getTopSelling_calcula_ingresos(): void
+    {
+        $pid = $this->createProduct(['codigo' => 'P-00001', 'nombre' => 'Producto A', 'precio_venta' => 15.50]);
+        $this->seedSale(1, 1);
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (1, $pid, 4)");
+
+        $result = $this->product->getTopSelling(5);
+
+        $this->assertCount(1, $result);
+        $this->assertEqualsWithDelta(62.00, (float)$result[0]['ingresos'], 0.001);
+        $this->assertSame(4, (int)$result[0]['cantidad_vendida']);
+    }
 }

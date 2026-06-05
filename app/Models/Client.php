@@ -29,6 +29,16 @@ class Client extends Model
         return ($result[0]['total'] ?? 0) > 0;
     }
 
+    public function countNewThisMonth(): int
+    {
+        $rows = $this->query(
+            "SELECT COUNT(*) AS total FROM tb_clientes
+             WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
+               AND MONTH(fyh_creacion) = MONTH(CURDATE())"
+        );
+        return (int)$rows[0]['total'];
+    }
+
     /**
      * Verifica si el NIT/CI ya existe en la base de datos.
      *
