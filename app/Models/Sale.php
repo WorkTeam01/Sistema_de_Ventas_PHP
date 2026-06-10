@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Core\Auth;
 use App\Core\Model;
 
 /**
@@ -99,25 +100,41 @@ class Sale extends Model
                 return false;
             }
 
+            // Calcular total real desde los precios actuales del catálogo
+            $totalsStmt = $db->prepare(
+                "SELECT SUM(car.cantidad * al.precio_venta) AS total
+                 FROM tb_carrito car
+                 JOIN tb_almacen al ON al.id_producto = car.id_producto
+                 WHERE car.nro_venta = ?"
+            );
+            $totalsStmt->execute([$data['nro_venta']]);
+            $totalReal = (float)($totalsStmt->fetchColumn() ?? 0.0);
+
             // INSERT cabecera de venta
+            $idUsuario = Auth::user()['id_usuario'] ?? null;
             $db->prepare(
-                "INSERT INTO tb_ventas (nro_venta, id_cliente, total_pagado) VALUES (?, ?, ?)"
+                "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado) VALUES (?, ?, ?, ?)"
             )->execute([
                 $data['nro_venta'],
                 $data['id_cliente'],
-                $data['total_pagado'],
+                $idUsuario,
+                $totalReal,
             ]);
 
-            // Decrementar stock de cada ítem del carrito
+            // Decrementar stock de cada ítem — la cláusula AND stock >= ? previene stock negativo
             $items = $db->prepare(
                 "SELECT id_producto, cantidad FROM tb_carrito WHERE nro_venta = ?"
             );
             $items->execute([$data['nro_venta']]);
             $updateStock = $db->prepare(
-                "UPDATE tb_almacen SET stock = stock - ? WHERE id_producto = ?"
+                "UPDATE tb_almacen SET stock = stock - ? WHERE id_producto = ? AND stock >= ?"
             );
             foreach ($items->fetchAll(\PDO::FETCH_ASSOC) as $item) {
-                $updateStock->execute([$item['cantidad'], $item['id_producto']]);
+                $updateStock->execute([$item['cantidad'], $item['id_producto'], $item['cantidad']]);
+                if ($updateStock->rowCount() === 0) {
+                    $db->rollBack();
+                    return false;
+                }
             }
 
             $db->commit();
@@ -186,7 +203,7 @@ class Sale extends Model
      */
     public function totalsByMonth(int $months = 6): array
     {
-        $interval = $months - 1;
+        $interval = (int)($months - 1);
         return $this->query(
             "SELECT DATE_FORMAT(fyh_creacion, '%Y-%m') AS mes,
                     COALESCE(SUM(total_pagado), 0) AS total
@@ -200,6 +217,7 @@ class Sale extends Model
     /** Últimas N ventas con nombre del cliente. */
     public function latest(int $limit = 5): array
     {
+        $limit = (int)$limit;
         return $this->query(
             "SELECT v.id_venta, v.nro_venta, c.nombre_cliente, v.total_pagado, v.fyh_creacion
              FROM tb_ventas v

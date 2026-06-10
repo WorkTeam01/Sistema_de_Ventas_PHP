@@ -69,7 +69,8 @@ class Purchase extends Model
      */
     public function nextNumber(): int
     {
-        return $this->count() + 1;
+        $rows = $this->query("SELECT COALESCE(MAX(nro_compra), 0) + 1 AS next FROM tb_compras");
+        return (int)($rows[0]['next'] ?? 1);
     }
 
     /**
@@ -201,7 +202,7 @@ class Purchase extends Model
      */
     public function totalsByMonth(int $months = 6): array
     {
-        $interval = $months - 1;
+        $interval = (int)($months - 1);
         return $this->query(
             "SELECT DATE_FORMAT(fecha_compra, '%Y-%m') AS mes,
                     COALESCE(SUM(precio_compra * cantidad), 0) AS total
