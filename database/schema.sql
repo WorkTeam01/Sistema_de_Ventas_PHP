@@ -151,12 +151,14 @@ CREATE TABLE IF NOT EXISTS `tb_ventas` (
   `id_venta` int(11) NOT NULL AUTO_INCREMENT,
   `nro_venta` int(11) NOT NULL,
   `id_cliente` int(11) NOT NULL,
+  `id_usuario` int(11) DEFAULT NULL,
   `total_pagado` DECIMAL(10,2) NOT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_venta`),
   KEY `id_cliente` (`id_cliente`),
-  KEY `nro_venta` (`nro_venta`)
+  KEY `nro_venta` (`nro_venta`),
+  KEY `id_usuario` (`id_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
@@ -224,7 +226,8 @@ ALTER TABLE `tb_usuarios`
 
 ALTER TABLE `tb_ventas`
   ADD CONSTRAINT `tb_ventas_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `tb_clientes` (`id_cliente`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `tb_ventas_ibfk_2` FOREIGN KEY (`nro_venta`) REFERENCES `tb_carrito` (`nro_venta`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `tb_ventas_ibfk_2` FOREIGN KEY (`nro_venta`) REFERENCES `tb_carrito` (`nro_venta`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `tb_ventas_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `tb_ajustes_stock`
   ADD CONSTRAINT `tb_ajustes_stock_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `tb_almacen` (`id_producto`) ON UPDATE CASCADE,

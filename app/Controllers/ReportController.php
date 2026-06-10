@@ -41,11 +41,14 @@ class ReportController extends Controller
 
     public function sales(): void
     {
-        $filters = ReportFilters::parseDateRange($_GET);
-        $report  = new Report();
+        $filters  = ReportFilters::parseDateRange($_GET);
+        $report   = new Report();
+        $session  = $this->sessionData();
+        $isAdmin  = $session['rol_sesion'] === 'Administrador';
+        $userId   = $isAdmin ? null : (int)$session['id_usuario_sesion'];
 
-        $rows   = $report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta']);
-        $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta']);
+        $rows   = $report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
+        $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
 
         $export = trim($_GET['export'] ?? '');
         if ($export !== '') {

@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS tb_ventas (
     id_venta            INTEGER PRIMARY KEY AUTOINCREMENT,
     nro_venta           INTEGER NOT NULL,
     id_cliente          INTEGER NOT NULL,
+    id_usuario          INTEGER DEFAULT NULL,
     total_pagado        NUMERIC NOT NULL,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_actualizacion   TEXT    DEFAULT NULL

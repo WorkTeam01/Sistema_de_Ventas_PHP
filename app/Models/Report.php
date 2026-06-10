@@ -15,8 +15,11 @@ class Report
 
     // ── Ventas ────────────────────────────────────────────────────────────────
 
-    public function salesByPeriod(string $desde, string $hasta): array
+    public function salesByPeriod(string $desde, string $hasta, ?int $userId = null): array
     {
+        $scopeSql = $userId !== null ? ' AND v.id_usuario = ?' : '';
+        $params   = $userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta];
+
         $stmt = $this->pdo->prepare("
             SELECT v.id_venta, v.nro_venta, v.fyh_creacion,
                    c.nombre_cliente AS cliente,
@@ -24,22 +27,27 @@ class Report
             FROM tb_ventas v
             LEFT JOIN tb_clientes c ON c.id_cliente = v.id_cliente
             WHERE v.fyh_creacion BETWEEN ? AND ?
+            {$scopeSql}
             ORDER BY v.fyh_creacion DESC
         ");
-        $stmt->execute([$desde, $hasta]);
+        $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function salesTotals(string $desde, string $hasta): array
+    public function salesTotals(string $desde, string $hasta, ?int $userId = null): array
     {
+        $scopeSql = $userId !== null ? ' AND v.id_usuario = ?' : '';
+        $params   = $userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta];
+
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*)                          AS num_ventas,
                    COALESCE(SUM(v.total_pagado), 0)  AS total_ingresos,
                    COALESCE(AVG(v.total_pagado), 0)  AS ticket_promedio
             FROM tb_ventas v
             WHERE v.fyh_creacion BETWEEN ? AND ?
+            {$scopeSql}
         ");
-        $stmt->execute([$desde, $hasta]);
+        $stmt->execute($params);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
