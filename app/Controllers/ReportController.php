@@ -12,10 +12,27 @@ class ReportController extends Controller
 {
     public function index(): void
     {
+        $session = $this->sessionData();
+        $filters = ReportFilters::parseDateRange([]);
+        $report  = new Report();
+
+        $isAdmin  = $session['rol_sesion'] === 'Administrador';
+        $userId   = $isAdmin ? null : (int)$session['id_usuario_sesion'];
+
+        $salesSummary     = $report->salesSummary($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
+        $purchaseSummary  = $isAdmin ? $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta']) : null;
+        $topProductos     = $isAdmin ? $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], 5) : [];
+        $clientesActivos  = $isAdmin ? count($report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'])) : 0;
+
         $this->renderWithLayout(
             'views/reports/index.php',
-            array_merge($this->sessionData(), [
-                'pageStyles' => ['/css/modules/reports/reports.css'],
+            array_merge($session, [
+                'filters'         => $filters,
+                'salesSummary'    => $salesSummary,
+                'purchaseSummary' => $purchaseSummary,
+                'topProductos'    => $topProductos,
+                'clientesActivos' => $clientesActivos,
+                'pageStyles'      => ['/css/modules/reports/reports.css'],
             ]),
             true,
             []

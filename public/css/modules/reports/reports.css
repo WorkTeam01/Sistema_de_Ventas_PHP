@@ -1,3 +1,12 @@
+/* ── Cards de navegación ──────────────────────────────────────── */
+.info-box-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.info-box-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
 /* ── Totalizadores ────────────────────────────────────────────── */
 .report-totals .info-box {
     min-height: 70px;

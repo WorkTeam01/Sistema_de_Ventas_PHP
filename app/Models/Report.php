@@ -131,6 +131,24 @@ class Report
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    // ── Resumen index ─────────────────────────────────────────────────────────
+
+    public function salesSummary(string $desde, string $hasta, ?int $userId = null): array
+    {
+        $scopeSql = $userId !== null ? ' AND v.id_usuario = ?' : '';
+        $params   = $userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta];
+
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*)                          AS num_ventas,
+                   COALESCE(SUM(v.total_pagado), 0)  AS total_ingresos
+            FROM tb_ventas v
+            WHERE v.fyh_creacion BETWEEN ? AND ?
+            {$scopeSql}
+        ");
+        $stmt->execute($params);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+
     // ── Clientes ──────────────────────────────────────────────────────────────
 
     public function clientsByPeriod(string $desde, string $hasta): array
