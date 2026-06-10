@@ -67,6 +67,11 @@ class UserController extends Controller
             $this->redirect(BASE_URL . '/users/create');
         }
 
+        if (strlen($password_user) < 6) {
+            $this->flash('La contraseña debe tener al menos 6 caracteres.', 'error');
+            $this->redirect(BASE_URL . '/users/create');
+        }
+
         if ($password_user !== $password_repeat) {
             $this->flash('Las contraseñas no coinciden', 'error');
             $this->redirect(BASE_URL . '/users/create');
@@ -160,6 +165,10 @@ class UserController extends Controller
 
         $newPassword = null;
         if ($password_user !== '') {
+            if (strlen($password_user) < 6) {
+                $this->flash('La contraseña debe tener al menos 6 caracteres.', 'error');
+                $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
+            }
             if ($password_user !== $password_repeat) {
                 $this->flash('Las contraseñas no coinciden', 'error');
                 $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
@@ -428,7 +437,20 @@ class UserController extends Controller
             $this->redirect(BASE_URL . '/users');
         }
 
+        if ($id_usuario === (int)Auth::user()['id_usuario']) {
+            $this->flash('No puedes eliminar tu propio usuario.', 'error');
+            $this->redirect(BASE_URL . '/users');
+            return;
+        }
+
         $userModel = new User();
+
+        if ($userModel->isReferenced($id_usuario)) {
+            $this->flash('No se puede eliminar: el usuario tiene registros asociados.', 'error');
+            $this->redirect(BASE_URL . '/users');
+            return;
+        }
+
         $snapshot = $userModel->findWithRoleById($id_usuario);
 
         if ($userModel->delete($id_usuario)) {

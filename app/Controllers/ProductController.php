@@ -418,7 +418,7 @@ class ProductController extends Controller
             return ['error' => 'Imagen no válida. Solo se permiten JPG, PNG o WEBP de hasta 2MB.', 'filename' => null];
         }
 
-        $filename = date('Y-m-d-h-i-s') . '__' . $extension;
+        $filename = date('Y-m-d-H-i-s') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
         $destino = dirname(__DIR__, 2) . '/public/uploads/products/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $destino)) {

@@ -11,6 +11,8 @@ use App\Models\User;
  */
 class Auth
 {
+    private static ?array $cachedUser = null;
+
     /**
      * Inicia la sesión PHP si aún no está activa.
      */
@@ -58,6 +60,10 @@ class Auth
      */
     public static function user(): ?array
     {
+        if (self::$cachedUser !== null) {
+            return self::$cachedUser;
+        }
+
         $email = self::email();
         if (!$email) {
             return null;
@@ -74,7 +80,8 @@ class Auth
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
-        return $user ?: null;
+        self::$cachedUser = $user ?: null;
+        return self::$cachedUser;
     }
 
     /**
@@ -104,6 +111,7 @@ class Auth
      */
     public static function login(array $user, bool $remember = false): void
     {
+        self::$cachedUser = null;
         self::startSession();
         session_regenerate_id(true);
         $_SESSION['sesion_email']  = $user['email'] ?? null;
@@ -177,6 +185,7 @@ class Auth
             }
         }
 
+        self::$cachedUser = null;
         self::clearRememberCookie();
         $_SESSION = [];
 

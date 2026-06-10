@@ -302,10 +302,8 @@ class PurchaseController extends Controller
         $this->validateCsrfOrFail();
 
         $id_compra = (int)($_POST['id_compra'] ?? 0);
-        $id_producto = (int)($_POST['id_producto'] ?? 0);
-        $cantidad = (int)($_POST['cantidad'] ?? 0);
 
-        if ($id_compra <= 0 || $id_producto <= 0) {
+        if ($id_compra <= 0) {
             $this->flash('Compra inválida.', 'error');
             $this->redirect(BASE_URL . '/purchases');
             return;
@@ -313,7 +311,14 @@ class PurchaseController extends Controller
 
         $purchaseModel = new Purchase();
         $snapshot = $purchaseModel->findWithDetails($id_compra);
-        $ok = $purchaseModel->destroyWithStock($id_compra, $id_producto, $cantidad);
+
+        if (!$snapshot) {
+            $this->flash('No se encontró la compra solicitada.', 'error');
+            $this->redirect(BASE_URL . '/purchases');
+            return;
+        }
+
+        $ok = $purchaseModel->destroyWithStock($id_compra, (int)$snapshot['id_producto'], (int)$snapshot['cantidad']);
 
         if ($ok) {
             if ($snapshot) {
