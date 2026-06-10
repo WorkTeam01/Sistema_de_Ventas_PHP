@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Core\Auth;
 use App\Core\Controller;
 use App\Helpers\ReportFilters;
 use App\Helpers\ReportPdf;
@@ -25,13 +24,11 @@ class ReportController extends Controller
 
     public function sales(): void
     {
-        $filters   = ReportFilters::parseDateRange($_GET);
-        $report    = new Report();
-        $isSeller  = $this->currentRole() === 'Vendedor';
-        $scopeId   = $isSeller ? $this->sessionData()['id_usuario_sesion'] : 0;
+        $filters = ReportFilters::parseDateRange($_GET);
+        $report  = new Report();
 
-        $rows   = $report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $scopeId);
-        $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $scopeId);
+        $rows   = $report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta']);
+        $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta']);
 
         $export = trim($_GET['export'] ?? '');
         if ($export !== '') {
@@ -39,13 +36,13 @@ class ReportController extends Controller
             return;
         }
 
-        $session = $this->sessionData();
         $this->renderWithLayout(
             'views/reports/sales.php',
-            array_merge($session, [
-                'filters'    => $filters,
-                'rows'       => $rows,
-                'totals'     => $totals,
+            array_merge($this->sessionData(), [
+                'filters'     => $filters,
+                'rows'        => $rows,
+                'totals'      => $totals,
+                'pageStyles'  => ['/css/modules/reports/reports.css'],
                 'pageScripts' => ['/js/modules/reports/reports.js'],
             ]),
             true,
@@ -82,17 +79,15 @@ class ReportController extends Controller
 
     public function topProducts(): void
     {
-        $filters  = ReportFilters::parseDateRange($_GET);
-        $report   = new Report();
-        $isSeller = $this->currentRole() === 'Vendedor';
-        $scopeId  = $isSeller ? $this->sessionData()['id_usuario_sesion'] : 0;
+        $filters = ReportFilters::parseDateRange($_GET);
+        $report  = new Report();
 
         $topWhitelist = [5, 10, 20, 50];
-        $top      = in_array((int)($_GET['top'] ?? 10), $topWhitelist, true) ? (int)$_GET['top'] : 10;
-        $orden    = in_array($_GET['orden'] ?? '', ['cantidad', 'ingresos'], true) ? $_GET['orden'] : 'cantidad';
+        $top       = in_array((int)($_GET['top'] ?? 10), $topWhitelist, true) ? (int)$_GET['top'] : 10;
+        $orden     = in_array($_GET['orden'] ?? '', ['cantidad', 'ingresos'], true) ? $_GET['orden'] : 'cantidad';
         $categoria = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int)$_GET['categoria'] : 0;
 
-        $rows       = $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], $top, $orden, $categoria, $scopeId);
+        $rows       = $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], $top, $orden, $categoria);
         $categories = (new Category())->all();
 
         $export = trim($_GET['export'] ?? '');
@@ -146,13 +141,12 @@ class ReportController extends Controller
 
     private function exportSales(string $format, array $filters, array $rows, array $totals): void
     {
-        $headers = ['N° Venta', 'Fecha', 'Cliente', 'Vendedor', 'Total (Bs.)'];
+        $headers = ['N° Venta', 'Fecha', 'Cliente', 'Total (Bs.)'];
         $data = array_map(fn($r) => [
-            $r['numero_venta'],
+            $r['nro_venta'],
             date('d/m/Y H:i', strtotime($r['fyh_creacion'])),
             $r['cliente'],
-            $r['vendedor'],
-            number_format((float)$r['monto_total'], 2),
+            number_format((float)$r['total_pagado'], 2),
         ], $rows);
 
         $subtitulo = 'Período: ' . date('d/m/Y', strtotime($filters['desde_display'])) . ' — ' . date('d/m/Y', strtotime($filters['hasta_display']));
@@ -169,8 +163,8 @@ class ReportController extends Controller
     {
         $headers = ['N° Compra', 'Fecha', 'Proveedor', 'Registrado por', 'Total (Bs.)'];
         $data = array_map(fn($r) => [
-            $r['numero_compra'],
-            date('d/m/Y H:i', strtotime($r['fyh_creacion'])),
+            $r['nro_compra'],
+            date('d/m/Y', strtotime($r['fecha_compra'])),
             $r['proveedor'],
             $r['registrado_por'],
             number_format((float)$r['monto_total'], 2),
@@ -259,11 +253,5 @@ class ReportController extends Controller
         exit();
     }
 
-    // ── Helpers privados ──────────────────────────────────────────────────────
-
-    private function currentRole(): string
-    {
-        Auth::startSession();
-        return Auth::user()['rol'] ?? '';
-    }
 }
+
