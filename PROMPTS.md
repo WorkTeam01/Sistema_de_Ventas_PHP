@@ -206,7 +206,7 @@ custom, diseño de base de datos y patrones de diseño.
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
 Estado actual: MVP completado con módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas.
 BD implementada: tb_usuarios, tb_roles, tb_categorias, tb_proveedores, tb_clientes, tb_almacen,
-                 tb_compras, tb_ventas, tb_carrito, tb_activity_log.
+                 tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito, tb_activity_log, tb_ajustes_stock.
 
 [Tarea]
 Necesito decidir: [describe la decisión técnica]
@@ -248,14 +248,16 @@ Stack: AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2, TCPDF, MySQ
 Módulo: reportes (nuevo módulo o extensión).
 
 BD relevante:
-- tb_usuarios (usuario_id, nombre, apellido, email, contraseña, id_rol, fyh_creacion, fyh_actualizacion)
-- tb_roles (rol_id, nombre) — valores: Administrador, Vendedor, Comprador
-- tb_almacen (producto_id, nombre, descripcion, precio_venta, precio_costo, stock, id_categoria,
-  imagen, fyh_creacion, fyh_actualizacion)
-- tb_categorias (categoria_id, nombre)
-- tb_ventas (venta_id, numero_venta, usuario_id, cliente_id, fyh_creacion, monto_total)
-- tb_carrito (carrito_id, venta_id, producto_id, cantidad, precio_unitario)
-- tb_compras (compra_id, numero_compra, proveedor_id, usuario_id, fyh_creacion, monto_total)
+- tb_usuarios (id_usuario, nombres, email, password, id_rol, login_intentos, login_bloqueado_hasta, remember_token, reset_token, fyh_creacion)
+- tb_roles (id_rol, rol)
+- tb_almacen (id_producto, nombre, descripcion, precio_venta, precio_compra, stock, stock_minimo, stock_maximo, id_categoria, imagen, codigo)
+- tb_categorias (id_categoria, nombre_categoria)
+- tb_ventas (id_venta, nro_venta, id_cliente, id_usuario [FK NULL], total_pagado, fyh_creacion)
+  -- total_pagado calculado server-side; id_usuario registra al vendedor (desde v1.12.1)
+- tb_carrito (id_carrito, nro_venta, id_producto, cantidad)
+- tb_compras (id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad)
+- tb_activity_log (id_log, id_usuario [FK NULL], usuario_nombre, accion, entidad, entidad_id, descripcion, datos_anteriores, datos_nuevos, ip_address, fyh_creacion)
+- tb_ajustes_stock (id_ajuste, id_producto, tipo [entrada|salida], cantidad, stock_anterior, stock_posterior, motivo, id_usuario [FK NULL], usuario_nombre, fyh_creacion)
 
 Módulo de referencia para patrones: productos (Products).
 
@@ -346,5 +348,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: v1.12.0 (2026-06-09)_
+_Última actualización: v1.12.1 (2026-06-10)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._

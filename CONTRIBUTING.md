@@ -75,13 +75,17 @@ Para nuevo módulo [nombre]:
 
 **Convenciones de código:**
 
-- **SQL:** Siempre usar placeholders `?` con `execute([$var])`; nunca concatenación
+- **SQL:** Siempre usar placeholders `?` con `execute([$var])`; nunca concatenación; enteros interpolados (LIMIT, INTERVAL) con cast `(int)` explícito
 - **Controladores:** Solo estos 6 métodos estándar: `index()`, `create()`, `store()`, `edit()`, `update()`, `destroy()`.
   No inventar métodos como `showCreate()`, `toggle()`, `activate()`, etc.
 - **Modelos:** Extender de `App\Core\Model`; implementar `isReferenced()` si hay FKs
 - **Vistas:** Usar `renderWithLayout()` desde controlador; no variable `Auth::` directo
 - **JavaScript:** Usar `json_encode()` para pasar datos PHP → JS; nunca comillas simples
-- **Seguridad:** `htmlspecialchars()` en outputs HTML; `password_hash()` para contraseñas
+- **Seguridad:** `htmlspecialchars()` en outputs HTML; `password_hash()` para contraseñas; mínimo 6 caracteres en todos los flujos de contraseña
+- **Totales:** Calcular siempre server-side desde la BD — nunca confiar en totales del POST
+- **Operaciones críticas:** Usar datos del snapshot de BD (no del POST) para revertir stock u otras operaciones irreversibles
+- **Guards en destroy:** `isReferenced()` y auto-eliminación del propio usuario siempre server-side — el check cliente (AJAX) es solo UX
+- **Stock:** Decrementos con `AND stock >= ?` + verificación de `rowCount()` para prevenir valores negativos
 
 Ver más detalles en **Convenciones de Seguridad** de [AGENT.md](AGENT.md).
 
@@ -260,5 +264,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-06-09 — v1.12.0_
+_Última actualización: 2026-06-10 — v1.12.1_
 _Sigue las prácticas de AGENT.md y CLAUDE.md — son la fuente de verdad._

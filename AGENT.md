@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0).
+**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1).
 
 ---
 
@@ -150,11 +150,13 @@ tb_almacen
 (id_almacen, nombre_almacen, descripcion, precio_compra, precio_venta,
     stock, imagen, id_categoria, fyh_creacion, fyh_actualizacion)
 tb_ventas
-    (id_venta, id_cliente, total, fyh_creacion)
+    (id_venta, nro_venta, id_cliente, id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
+    -- id_usuario registra al vendedor; NULL en registros anteriores a v1.12.1
+    -- total_pagado calculado server-side (precio_venta × cantidad desde tb_almacen), nunca del POST
     tb_carrito
-    (id_carrito, id_venta, id_almacen, cantidad, precio)
+    (id_carrito, nro_venta, id_producto, cantidad)
     tb_compras
-(id_compra, id_proveedor, id_almacen, cantidad, precio_compra, precio_total, fecha_compra, fyh_creacion)
+(id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion)
     tb_activity_log
 (id_log, id_usuario [FK NULL → ON DELETE SET NULL], usuario_nombre, accion, entidad, entidad_id,
     descripcion, datos_anteriores [JSON], datos_nuevos [JSON], ip_address, fyh_creacion)
@@ -217,10 +219,14 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 
 ### PHP — Seguridad
 
-- Passwords: `password_hash()` al guardar, `password_verify()` al validar
+- Passwords: `password_hash()` al guardar, `password_verify()` al validar; mínimo 6 caracteres validado server-side en todos los flujos (create, update, reset)
 - Inputs: `htmlspecialchars()` en outputs HTML, validación server-side obligatoria
 - CSRF: token en todos los formularios POST (`Auth::generateCsrfToken()` / `validateCsrfOrFail()`)
-- SQL: siempre placeholders `?` con `execute([$var])` — nunca interpolar en el string SQL
+- SQL: siempre placeholders `?` con `execute([$var])` — nunca interpolar en el string SQL; `$interval` y `$limit` siempre con cast `(int)` explícito antes de interpolación
+- Stock: el decremento en `Sale::storeWithStock()` usa `AND stock >= ?` y verifica `rowCount() === 0` para rollback — nunca produce stock negativo
+- Totales: `Sale::storeWithStock()` calcula `total_pagado` desde `precio_venta × cantidad` de la BD dentro de la transacción — ignorar siempre el valor del POST
+- Guards en destroy: `isReferenced()` y verificación de auto-eliminación siempre server-side en `UserController::destroy()` — la verificación cliente-side (AJAX) es solo UX
+- Datos para operaciones críticas: usar siempre el snapshot de BD (ej: `$snapshot['id_producto']`, no `$_POST['id_producto']`) para revertir stock u otras operaciones irreversibles
 
 ### PHP — Autenticación
 

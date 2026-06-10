@@ -255,7 +255,7 @@ chmod 755 public/uploads/products/  # Directorio de carga de imágenes
 | Tabla              | Propósito                                                                                                             |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------- |
 | `tb_almacen`       | Productos/inventario con stock, precios e imágenes                                                                    |
-| `tb_ventas`        | Encabezados de venta (vinculados a `tb_carrito` para ítems)                                                           |
+| `tb_ventas`        | Encabezados de venta (vinculados a `tb_carrito` para ítems); `id_usuario` FK nullable registra al vendedor (v1.12.1)  |
 | `tb_carrito`       | Ítems de venta (producto y cantidad por venta)                                                                        |
 | `tb_compras`       | Registros de compras a proveedores                                                                                    |
 | `tb_clientes`      | Base de datos de clientes                                                                                             |
@@ -345,4 +345,4 @@ eliminación, validaciones).
 
 ---
 
-_Última actualización: 2026-06-09 — v1.12.0_
+_Última actualización: 2026-06-10 — v1.12.1_

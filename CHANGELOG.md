@@ -11,6 +11,38 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.12.1] - 2026-06-10
+
+### Corregido
+
+- **Bug crítico — `PurchaseController::destroy()`**: usaba `id_producto` y `cantidad` del `$_POST` para revertir stock en lugar de los datos reales del registro. Un usuario podía manipular el POST para decrementar el stock de cualquier producto en cualquier cantidad. Ahora se usan exclusivamente los valores del snapshot de BD.
+- **Bug alto — `Purchase::nextNumber()`**: usaba `COUNT(*) + 1`, produciendo números de compra duplicados tras eliminaciones. Migrado a `MAX(nro_compra) + 1` (mismo patrón que `Sale`).
+- **Bug alto — Stock negativo en ventas**: `Sale::storeWithStock()` decrementaba stock sin verificación dentro de la transacción. Ahora el `UPDATE` incluye `AND stock >= ?` y hace rollback si `rowCount() === 0`.
+- **Bug alto — Total de venta manipulable**: `total_pagado` se tomaba directamente del POST. Ahora `storeWithStock()` calcula el total real multiplicando `precio_venta × cantidad` desde la BD, ignorando el valor enviado por el cliente.
+- **Bug alto — Vendedor veía ventas de todos en `/reports/sales`**: `salesByPeriod()` y `salesTotals()` no filtraban por usuario. Corregido con parámetro `?int $userId` (mismo patrón de `salesSummary()`). Requiere migración de schema (ver abajo).
+- **Bug alto — `UserController::destroy()` sin validación server-side**: la verificación de referencias (`isReferenced()`) solo existía en el cliente vía AJAX. Un POST directo bypasseaba la validación. Agregados dos guards: auto-eliminación del propio usuario y `isReferenced()` server-side antes del `DELETE`.
+- **Bug alto — Sin longitud mínima de contraseña en create/update de usuarios**: `store()` y `update()` aceptaban contraseñas de cualquier longitud. Agregada validación `strlen < 6` (consistente con `updatePassword()`).
+- **Bug medio — Colisión de nombres en subida de imágenes**: `date('Y-m-d-h-i-s')` usaba reloj de 12h (dos colisiones por día al mismo segundo). Corregido a `date('Y-m-d-H-i-s') . '_' . bin2hex(random_bytes(4))`.
+- **Bug medio — N+1 queries en `Auth::user()`**: se ejecutaba un `SELECT JOIN` en cada llamada. Agregado caché estático `$cachedUser` vaciado en `login()` y `logout()`.
+- **Bug medio — Interpolación de enteros en SQL sin cast explícito**: `$interval` en `totalsByMonth()` y `$limit` en `latest()` (Sale y Purchase) ahora tienen cast `(int)` explícito antes de la interpolación.
+
+### Agregado
+
+- Columna `id_usuario INT NULL` en `tb_ventas` (FK → `tb_usuarios` ON DELETE SET NULL ON UPDATE CASCADE) para registrar qué vendedor realizó cada venta y habilitar el scope por vendedor en reportes.
+
+### Migración para instancias existentes
+
+```sql
+ALTER TABLE tb_ventas
+  ADD COLUMN id_usuario INT NULL AFTER id_cliente,
+  ADD KEY id_usuario (id_usuario),
+  ADD CONSTRAINT tb_ventas_ibfk_3
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario)
+    ON DELETE SET NULL ON UPDATE CASCADE;
+```
+
+---
+
 ## [1.12.0] - 2026-06-09
 
 ### Agregado

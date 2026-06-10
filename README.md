@@ -5,7 +5,7 @@
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y
 control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.12.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.12.1-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -29,9 +29,13 @@ estándares de seguridad web modernos:
 - **Escudos XSS**: Renderizado condicionado de entidades HTML (`htmlspecialchars()`) para neutralizar ejecución de
   _scripts_ reflejados/almacenados.
 - **Integridad Transaccional**: Operaciones de control de inventario/ventas están bajo control transaccional estricto (
-  `PDO::beginTransaction()` / `commit` / `rollBack`), garantizando un stock 100% consistente ante fallas.
+  `PDO::beginTransaction()` / `commit` / `rollBack`), garantizando un stock 100% consistente ante fallas. El decremento
+  de stock incluye `AND stock >= ?` para prevenir valores negativos por condiciones de carrera.
+- **Totales calculados server-side**: El total de cada venta se calcula dentro de la transacción multiplicando
+  `precio_venta × cantidad` desde la BD — el valor enviado por el cliente se ignora completamente.
 - **Validaciones Back-End**: Todo envío por _POST_ recibe depuración estricta en el servidor para forzar cast a valores
-  numéricos, tipados seguros y sanitización antes del contacto con la BDD.
+  numéricos, tipados seguros y sanitización antes del contacto con la BDD. Los guards de eliminación (`isReferenced()`,
+  auto-eliminación del propio usuario) se verifican siempre en el servidor, independientemente del cliente.
 - **Encriptado Seguro**: Uso de API moderna de Hashes de contraseñas de PHP (`PASSWORD_DEFAULT` / BCRYPT).
 - **Restablecimiento de Contraseña**: Flujo completo con tokens seguros (`bin2hex(random_bytes(32))`), expiración
   de 1 hora, invalidación de un solo uso y envío por email vía PHPMailer + Gmail SMTP.
