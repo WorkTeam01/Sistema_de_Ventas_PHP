@@ -67,9 +67,10 @@ class ReportController extends Controller
         $this->renderWithLayout(
             'views/reports/purchases.php',
             array_merge($this->sessionData(), [
-                'filters'    => $filters,
-                'rows'       => $rows,
-                'totals'     => $totals,
+                'filters'     => $filters,
+                'rows'        => $rows,
+                'totals'      => $totals,
+                'pageStyles'  => ['/css/modules/reports/reports.css'],
                 'pageScripts' => ['/js/modules/reports/reports.js'],
             ]),
             true,
