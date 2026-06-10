@@ -161,6 +161,54 @@ $(function () {
         }).buttons().container().appendTo('#topProductsTable_wrapper .col-md-6:eq(0)');
     }
 
+    // ── DataTable: Reporte de Clientes ────────────────────────────────────────
+    if ($('#clientsTable').length) {
+        $('#clientsTable').DataTable({
+            responsive: true,
+            autoWidth: false,
+            order: [[4, 'desc']],
+            pageLength: 25,
+            buttons: [{
+                extend: 'collection',
+                text: '<i class="fas fa-download mr-1"></i> Exportar',
+                buttons: [{
+                    text: 'Copiar',
+                    extend: 'copy',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                }, {
+                    extend: 'excel',
+                    title: 'Reporte de Clientes - Sistema de Ventas',
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                }, {
+                    extend: 'csv',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                }, {
+                    extend: 'print',
+                    text: 'Imprimir',
+                    title: 'Reporte de Clientes - Sistema de Ventas',
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                    customize: function (win) {
+                        $(win.document.body).find('table')
+                            .addClass('table-striped')
+                            .css('font-size', '12px');
+                    }
+                }]
+            }, {
+                extend: 'colvis',
+                text: '<i class="fas fa-columns mr-1"></i> Columnas'
+            }],
+            columnDefs: [
+                { className: 'text-right', targets: [3, 4] }
+            ],
+            language: dtLanguage(),
+            initComplete: function () {
+                $(this.api().table().node()).css('visibility', 'visible');
+            }
+        }).buttons().container().appendTo('#clientsTable_wrapper .col-md-6:eq(0)');
+    }
+
     function dtLanguage() {
         return {
             sProcessing: 'Procesando...',
