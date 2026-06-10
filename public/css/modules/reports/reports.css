@@ -1,0 +1,37 @@
+/* ── Totalizadores ────────────────────────────────────────────── */
+.report-totals .info-box {
+    min-height: 70px;
+}
+
+.report-totals .info-box-content {
+    padding: 8px 10px;
+}
+
+/* ── Botones de export ────────────────────────────────────────── */
+.btn-group-export .btn {
+    font-size: 0.82rem;
+}
+
+/* ── Print ────────────────────────────────────────────────────── */
+@media print {
+
+    .main-sidebar,
+    .main-header,
+    .content-header,
+    .btn-group-export,
+    #btn-clear-filters,
+    [data-card-widget],
+    .card-tools,
+    .breadcrumb {
+        display: none !important;
+    }
+
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}

@@ -40,6 +40,9 @@ $activityLogActive = str_starts_with($_currentPath, '/activity-log');
 // — Módulo Inventario —
 $inventoryActive = str_starts_with($_currentPath, '/inventory');
 
+// — Módulo Reportes —
+$reportsActive = str_starts_with($_currentPath, '/reports');
+
 $isAdmin  = $rol_sesion === 'Administrador';
 $isSeller = $rol_sesion === 'Vendedor';
 $isBuyer  = $rol_sesion === 'Comprador';
@@ -129,6 +132,41 @@ $link = fn(bool $on) => $on ? ' active' : '';
                             <a href="<?= BASE_URL ?>/inventory" class="nav-link<?= $link($inventoryActive) ?>">
                                 <i class="nav-icon fas fa-warehouse"></i>
                                 <p>Inventario</p>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                <?php endif; ?>
+
+                <?php if ($isAdmin || $isSeller): ?>
+                    <!-- SECCIÓN: Reportes -->
+                    <li class="nav-header">REPORTES</li>
+
+                    <li class="nav-item">
+                        <a href="<?= BASE_URL ?>/reports/sales" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/sales')) ?>">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>Ventas</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= BASE_URL ?>/reports/top-products" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/top-products')) ?>">
+                            <i class="nav-icon fas fa-trophy"></i>
+                            <p>Top Productos</p>
+                        </a>
+                    </li>
+
+                    <?php if ($isAdmin): ?>
+                        <li class="nav-item">
+                            <a href="<?= BASE_URL ?>/reports/purchases" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/purchases')) ?>">
+                                <i class="nav-icon fas fa-shopping-cart"></i>
+                                <p>Compras</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="<?= BASE_URL ?>/reports/clients" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/clients')) ?>">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>Clientes</p>
                             </a>
                         </li>
                     <?php endif; ?>

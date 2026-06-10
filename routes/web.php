@@ -2,6 +2,7 @@
 
 use App\Controllers\ActivityLogController;
 use App\Controllers\InventoryController;
+use App\Controllers\ReportController;
 use App\Controllers\AuthController;
 use App\Controllers\CategoryController;
 use App\Controllers\ClientController;
@@ -128,6 +129,13 @@ $router->get('/activity-log/show/{id}', [ActivityLogController::class, 'show'], 
 // Rutas del módulo inventario (solo Administrador)
 $router->get('/inventory',              [InventoryController::class, 'index'],           ['auth', 'admin']);
 $router->post('/inventory/adjustments', [InventoryController::class, 'storeAdjustment'], ['auth', 'admin']);
+
+// Rutas del módulo reportes
+$router->get('/reports',              [ReportController::class, 'index'],       ['auth']);
+$router->get('/reports/sales',        [ReportController::class, 'sales'],       ['auth', 'seller']);
+$router->get('/reports/purchases',    [ReportController::class, 'purchases'],   ['auth', 'admin']);
+$router->get('/reports/top-products', [ReportController::class, 'topProducts'], ['auth', 'seller']);
+$router->get('/reports/clients',      [ReportController::class, 'clients'],     ['auth', 'admin']);
 
 // Error pages
 $router->get('/errors/403', function () {
