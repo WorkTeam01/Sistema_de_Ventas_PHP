@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC.
+**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0).
 
 ---
 
@@ -50,12 +50,15 @@ Sistema_de_Ventas_PHP/
 │   │   ├── PurchaseController.php
 │   │   ├── SaleController.php
 │   │   ├── ActivityLogController.php
-│   │   └── InventoryController.php
+│   │   ├── InventoryController.php
+│   │   └── ReportController.php     ← index(), sales(), purchases(), topProducts(), clients(); export PDF/CSV/Excel
 │   ├── Helpers/              ← PSR-4, namespace App\Helpers
 │   │   ├── NumberToWords.php
 │   │   ├── InvoicePdf.php
 │   │   ├── PurchaseReportPdf.php
-│   │   └── ActivityLogRenderer.php  ← decodifica JSON del log y prepara filas para las vistas
+│   │   ├── ActivityLogRenderer.php  ← decodifica JSON del log y prepara filas para las vistas
+│   │   ├── ReportFilters.php        ← parseDateRange() — normaliza rango GET; default = mes actual
+│   │   └── ReportPdf.php            ← generate() estático — tabla TCPDF landscape con totalizadores y emisor
 │   ├── Services/             ← PSR-4, namespace App\Services
 │   │   └── EmailService.php  ← PHPMailer SMTP — sendResetLink()
 │   ├── Models/               ← PSR-4, namespace App\Models
@@ -69,7 +72,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── Sale.php
 │   │   ├── CartItem.php
 │   │   ├── ActivityLog.php
-│   │   └── StockAdjustment.php
+│   │   ├── StockAdjustment.php
+│   │   └── Report.php               ← queries agregadas: salesByPeriod, salesTotals, purchasesByPeriod, purchasesTotals, topProducts, clientsByPeriod, salesSummary
 │   └── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
 ├── views/
 │   ├── layouts/
@@ -89,7 +93,8 @@ Sistema_de_Ventas_PHP/
 │   ├── products/
 │   ├── purchases/
 │   ├── sales/
-│   └── activity-log/         ← index.php, show.php; partial/_data-panel.php, _item-accordion.php
+│   ├── activity-log/         ← index.php, show.php; partial/_data-panel.php, _item-accordion.php
+│   └── reports/              ← index.php, sales.php, purchases.php, top-products.php, clients.php; partial/_date_filter.php
 ├── routes/
 │   └── web.php               ← Todas las rutas MVC registradas
 ├── public/
@@ -117,9 +122,9 @@ Sistema_de_Ventas_PHP/
 
 El proyecto usa **dos sistemas de ruteo en paralelo**:
 
-| Tipo    | Cómo funciona                              | Módulos                                                                                                                    |
-| ------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales, activity-log, inventory (todos) |
+| Tipo    | Cómo funciona                              | Módulos                                                                                                                             |
+| ------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **MVC** | `public/index.php` → `Router` → Controller | auth, dashboard, users, roles, categories, suppliers, clients, products, purchases, sales, activity-log, inventory, reports (todos) |
 
 Todos los módulos están migrados. No quedan módulos legacy.
 
@@ -381,4 +386,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-06-05 — v1.11.0 (mejora dashboard: KPIs admin colapsables — Ventas−Compras del mes y Clientes nuevos; gráfico doughnut top 5 productos histórico con tooltip enriquecido; tabla stock bajo eliminada — cubierta por /inventory; JSON_HEX_TAG en json_encode de scripts embebidos)_
+_Última actualización: 2026-06-09 — v1.12.0 (módulo de reportes: ventas por período, compras por período, top productos, clientes; export PDF/CSV/Excel; index con resumen del mes; ReportFilters, ReportPdf, Report model con queries agregadas)_

@@ -11,6 +11,36 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.12.0] - 2026-06-09
+
+### Agregado
+
+- **Módulo de Reportes** — nuevo módulo solo lectura con 4 reportes y página de índice con resumen del mes
+- `app/Controllers/ReportController.php` — métodos `index()`, `sales()`, `purchases()`, `topProducts()`, `clients()`; export PDF/CSV/Excel unificado en `dispatchExport()`
+- `app/Models/Report.php` — fat model con queries agregadas: `salesByPeriod`, `salesTotals`, `purchasesByPeriod`, `purchasesTotals`, `topProducts`, `clientsByPeriod`, `salesSummary` (con scope opcional por `usuario_id`)
+- `app/Helpers/ReportFilters.php` — `parseDateRange(array $get): array`; default = primer y último día del mes actual; fechas inválidas caen al default
+- `app/Helpers/ReportPdf.php` — `generate()` estático con TCPDF landscape; tabla con totalizadores y línea de emisor + fecha
+- `views/reports/index.php` — índice con tarjetas de navegación (hover elevación) y card "Resumen del mes actual": stat boxes (ventas, compras, clientes activos, margen bruto) + tabla top 5 productos con medallas; responsivo con `col-sm-6 col-lg-3`
+- `views/reports/sales.php` — listado con filtros de fecha, 3 totalizadores (N° ventas, total ingresos, ticket promedio), DataTable con export DataTables (copy/excel/csv/print) y botón PDF server-side
+- `views/reports/purchases.php` — listado con filtros, 2 totalizadores, DataTable + botón PDF; solo Admin
+- `views/reports/top-products.php` — filtros de fecha + categoría + top N + orden; DataTable con toggle cantidad/ingresos; export PDF/DataTables
+- `views/reports/clients.php` — ranking de clientes por monto acumulado; 2 totalizadores; `data-order` en columna fecha; export PDF/DataTables; solo Admin
+- `views/reports/partial/_date_filter.php` — partial compartido `collapsed-card` con inputs fecha `showPicker()`, `$extraFields` para filtros adicionales, botones Filtrar/Limpiar
+- `public/css/modules/reports/reports.css` — estilos totalizadores, cards de navegación (`.info-box-hover`), `@media print` (oculta sidebar/navbar/botones)
+- `public/js/modules/reports/reports.js` — validación `fecha_desde ≤ fecha_hasta`; DataTables con botones export para los 4 reportes; idioma español
+- `tests/Integration/Models/ReportClientsTest.php` — 6 tests: orden por monto desc, conteo múltiples compras, `MAX(fecha)` como última compra, exclusión fuera de rango, cliente sin compras excluido, campos NIT/CI y email
+- Rutas GET: `/reports`, `/reports/sales`, `/reports/purchases`, `/reports/top-products`, `/reports/clients`; export vía `?export=pdf|csv|excel` en el mismo método
+- Sidebar actualizado con ítem "Reportes" visible para Admin y Vendedor
+
+### Seguridad
+
+- Scope del vendedor tomado de `$_SESSION`, nunca del GET — Vendedor no puede ver datos de otros manipulando la URL
+- `orden` y `top` en top-productos validados contra whitelist fija antes de cualquier uso en query
+- `ORDER BY` columna mapeada por clave PHP — nunca interpolada del request
+- Cero ocurrencias de `$_GET` en queries SQL del módulo (solo placeholders `?`)
+
+---
+
 ## [1.11.0] - 2026-06-05
 
 ### Agregado

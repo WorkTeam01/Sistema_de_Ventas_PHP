@@ -5,7 +5,7 @@
 Sistema web de gestión de ventas con control de inventario, facturación en PDF, gestión de clientes/proveedores y
 control de acceso por roles.
 
-![Versión](https://img.shields.io/badge/Versión-1.11.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.12.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -60,6 +60,7 @@ estándares de seguridad web modernos:
 | **Perfil**      | Perfil propio para todos los roles: editar datos y cambiar contraseña                                 |
 | **Auditoría**   | Registro de operaciones sensibles (eliminaciones, cambios de precio y rol) con vista de detalle       |
 | **Inventario**  | Control de stock con alertas, barras de progreso y ajustes manuales (entrada/salida) con historial    |
+| **Reportes**    | Ventas por período, compras, top productos y clientes; export PDF/CSV/Excel; resumen del mes actual   |
 
 ---
 
@@ -217,11 +218,11 @@ El sistema cuenta con tres roles. Cada módulo restringe el acceso según el rol
 ```
 Sistema_de_Ventas_PHP/
 ├── app/
-│   ├── Controllers/        # Controladores MVC (Auth, Dashboard, User, Role, Category, Supplier, Client, Product, Purchase, Sale, ActivityLog, Inventory)
+│   ├── Controllers/        # Controladores MVC (Auth, Dashboard, User, Role, Category, Supplier, Client, Product, Purchase, Sale, ActivityLog, Inventory, Report)
 │   ├── Core/               # Núcleo MVC (Router, Controller, Model, Database, Auth, Config)
-│   ├── Helpers/            # Helpers PSR-4 (NumberToWords, InvoicePdf, PurchaseReportPdf, ActivityLogRenderer)
+│   ├── Helpers/            # Helpers PSR-4 (NumberToWords, InvoicePdf, PurchaseReportPdf, ActivityLogRenderer, ReportFilters, ReportPdf)
 │   ├── Middleware/         # Middlewares PSR-4 (AuthMiddleware, GuestMiddleware, AdminMiddleware, SellerMiddleware)
-│   ├── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem, ActivityLog, StockAdjustment)
+│   ├── Models/             # Modelos de dominio (User, Role, Category, Supplier, Client, Product, Purchase, Sale, CartItem, ActivityLog, StockAdjustment, Report)
 │   └── Services/           # Servicios PSR-4 (EmailService — PHPMailer SMTP)
 ├── views/
 │   ├── layouts/            # Plantillas compartidas (header, footer, messages) + partials/_sidebar.php
@@ -237,7 +238,8 @@ Sistema_de_Ventas_PHP/
 │   ├── purchases/          # Vistas CRUD del módulo compras (index, create, edit, show)
 │   ├── sales/              # Vistas del módulo ventas (index, create, show, delete, invoice vía TCPDF)
 │   ├── activity-log/       # Módulo auditoría (index, show) + partial/_data-panel.php, _item-accordion.php
-│   └── inventory/          # Módulo inventario — tabs Control de Stock y Ajustes; partials: stock-control, adjustments, adjustment-form
+│   ├── inventory/          # Módulo inventario — tabs Control de Stock y Ajustes; partials: stock-control, adjustments, adjustment-form
+│   └── reports/            # Módulo reportes (index, sales, purchases, top-products, clients) + partial/_date_filter.php
 ├── routes/
 │   └── web.php             # Registro de rutas MVC
 ├── public/

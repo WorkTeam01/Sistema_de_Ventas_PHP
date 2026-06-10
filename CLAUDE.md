@@ -185,6 +185,11 @@ MAIL_FROM_NAME="Sistema de Ventas"
 | GET    | `/activity-log/show/{id}`      | `ActivityLogController::show()`          | `auth`, `admin`  |
 | GET    | `/inventory`                   | `InventoryController::index()`           | `auth`, `admin`  |
 | POST   | `/inventory/adjustments`       | `InventoryController::storeAdjustment()` | `auth`, `admin`  |
+| GET    | `/reports`                     | `ReportController::index()`              | `auth`           |
+| GET    | `/reports/sales`               | `ReportController::sales()`              | `auth`, `seller` |
+| GET    | `/reports/purchases`           | `ReportController::purchases()`          | `auth`, `admin`  |
+| GET    | `/reports/top-products`        | `ReportController::topProducts()`        | `auth`, `seller` |
+| GET    | `/reports/clients`             | `ReportController::clients()`            | `auth`, `admin`  |
 
 ---
 
@@ -206,7 +211,7 @@ Sistema_de_Ventas_PHP/
 │   ├── Controllers/   ← PSR-4, namespace App\Controllers
 │   ├── Models/        ← PSR-4, namespace App\Models
 │   ├── Middleware/    ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
-│   ├── Helpers/       ← PSR-4, NumberToWords, InvoicePdf, PurchaseReportPdf, ActivityLogRenderer
+│   ├── Helpers/       ← PSR-4, NumberToWords, InvoicePdf, PurchaseReportPdf, ActivityLogRenderer, ReportFilters, ReportPdf
 │   └── Services/      ← PSR-4, namespace App\Services (EmailService)
 ├── views/
 │   ├── layouts/       ← header.php, footer.php, messages.php, partials/_sidebar.php
@@ -336,7 +341,8 @@ eliminación, validaciones).
 | `perfil`       | ✅ Implementado |
 | `activity-log` | ✅ Implementado |
 | `inventory`    | ✅ Implementado |
+| `reports`      | ✅ Implementado |
 
 ---
 
-_Última actualización: 2026-06-05 — v1.11.0_
+_Última actualización: 2026-06-09 — v1.12.0_
