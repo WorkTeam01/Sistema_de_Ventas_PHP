@@ -97,13 +97,12 @@ class Report
         $top      = in_array($top, self::TOP_WHITELIST, true) ? $top : 10;
         $orderCol = self::ORDER_MAP[$orden] ?? 'unidades_vendidas';
 
-        $params = [$desde, $hasta];
         $catSql = '';
+        $catParam = null;
         if ($categoria > 0) {
-            $catSql = ' AND a.id_categoria = ?';
-            $params[] = $categoria;
+            $catSql   = ' AND a.id_categoria = ?';
+            $catParam = $categoria;
         }
-        $params[] = $top;
 
         $stmt = $this->pdo->prepare("
             SELECT a.id_producto, a.nombre,
@@ -120,8 +119,15 @@ class Report
             ORDER BY {$orderCol} DESC
             LIMIT ?
         ");
-        $stmt->bindValue(count($params), $top, \PDO::PARAM_INT);
-        $stmt->execute($params);
+
+        $pos = 1;
+        $stmt->bindValue($pos++, $desde);
+        $stmt->bindValue($pos++, $hasta);
+        if ($catParam !== null) {
+            $stmt->bindValue($pos++, $catParam, \PDO::PARAM_INT);
+        }
+        $stmt->bindValue($pos, $top, \PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 

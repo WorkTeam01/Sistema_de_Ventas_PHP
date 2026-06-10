@@ -7,7 +7,8 @@
  *   $filters     — array con claves 'desde_display' y 'hasta_display'
  *   $extraFields — (opcional) array de strings HTML con inputs adicionales
  */
-$extraFields = $extraFields ?? [];
+$extraFields   = $extraFields   ?? [];
+$dateColClass  = $dateColClass  ?? 'col-lg-3';
 ?>
 <div class="card card-outline card-secondary collapsed-card mb-3">
     <div class="card-header">
@@ -21,7 +22,7 @@ $extraFields = $extraFields ?? [];
     <div class="card-body">
         <form id="form-filters" action="<?= $action ?>" method="GET">
             <div class="row align-items-end">
-                <div class="col-sm-6 col-lg-3">
+                <div class="col-sm-6 <?= $dateColClass ?>">
                     <div class="form-group mb-0">
                         <label for="fecha_desde">Desde</label>
                         <div class="input-group">
@@ -34,7 +35,7 @@ $extraFields = $extraFields ?? [];
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-6 col-lg-3">
+                <div class="col-sm-6 <?= $dateColClass ?>">
                     <div class="form-group mb-0">
                         <label for="fecha_hasta">Hasta</label>
                         <div class="input-group">

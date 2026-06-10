@@ -100,16 +100,17 @@ class ReportController extends Controller
         $this->renderWithLayout(
             'views/reports/top-products.php',
             array_merge($this->sessionData(), [
-                'filters'    => $filters,
-                'rows'       => $rows,
-                'categories' => $categories,
-                'top'        => $top,
-                'orden'      => $orden,
-                'categoria'  => $categoria,
+                'filters'     => $filters,
+                'rows'        => $rows,
+                'categories'  => $categories,
+                'top'         => $top,
+                'orden'       => $orden,
+                'categoria'   => $categoria,
+                'pageStyles'  => ['/css/modules/reports/reports.css'],
                 'pageScripts' => ['/js/modules/reports/reports.js'],
             ]),
             true,
-            ['datatable']
+            ['datatable', 'select2']
         );
     }
 
@@ -253,6 +254,4 @@ class ReportController extends Controller
         fclose($out);
         exit();
     }
-
 }
-

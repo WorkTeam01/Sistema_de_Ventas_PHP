@@ -109,6 +109,58 @@ $(function () {
         }).buttons().container().appendTo('#purchasesTable_wrapper .col-md-6:eq(0)');
     }
 
+    // ── DataTable: Top Productos ──────────────────────────────────────────────
+    if ($('#topProductsTable').length) {
+        const topOrden = $('#topProductsTable').data('orden');
+        const topOrderCol = topOrden === 'ingresos' ? 4 : 3;
+
+        $('#topProductsTable').DataTable({
+            responsive: true,
+            autoWidth: false,
+            order: [[topOrderCol, 'desc']],
+            pageLength: 25,
+            paging: false,
+            buttons: [{
+                extend: 'collection',
+                text: '<i class="fas fa-download mr-1"></i> Exportar',
+                buttons: [{
+                    text: 'Copiar',
+                    extend: 'copy',
+                    exportOptions: { columns: [0, 1, 2, 3, 4] }
+                }, {
+                    extend: 'excel',
+                    title: 'Top Productos más Vendidos - Sistema de Ventas',
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    exportOptions: { columns: [0, 1, 2, 3, 4] }
+                }, {
+                    extend: 'csv',
+                    exportOptions: { columns: [0, 1, 2, 3, 4] }
+                }, {
+                    extend: 'print',
+                    text: 'Imprimir',
+                    title: 'Top Productos más Vendidos - Sistema de Ventas',
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    exportOptions: { columns: [0, 1, 2, 3, 4] },
+                    customize: function (win) {
+                        $(win.document.body).find('table')
+                            .addClass('table-striped')
+                            .css('font-size', '12px');
+                    }
+                }]
+            }, {
+                extend: 'colvis',
+                text: '<i class="fas fa-columns mr-1"></i> Columnas'
+            }],
+            columnDefs: [
+                { className: 'text-right', targets: [3, 4] }
+            ],
+            language: dtLanguage(),
+            initComplete: function () {
+                $(this.api().table().node()).css('visibility', 'visible');
+            }
+        }).buttons().container().appendTo('#topProductsTable_wrapper .col-md-6:eq(0)');
+    }
+
     function dtLanguage() {
         return {
             sProcessing: 'Procesando...',
