@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\ActivityLog;
 use App\Models\Client;
@@ -21,7 +22,8 @@ class ClientController extends Controller
             $this->sessionData(),
             [
                 'clients_datos' => $clients_datos,
-                'pageScripts' => ['/js/modules/clients/clients-datatable.js', '/js/modules/clients/clients-modals.js'],
+                'csrf_token'    => Auth::generateCsrfToken(),
+                'pageScripts'   => ['/js/modules/clients/clients-datatable.js', '/js/modules/clients/clients-modals.js'],
             ]
         ), true, ['datatable', 'validation']);
     }
@@ -31,6 +33,8 @@ class ClientController extends Controller
      */
     public function store(): void
     {
+        $this->validateCsrfOrFailJson();
+
         $nombre_cliente = trim($this->input('nombre_cliente') ?? '');
         $nit_ci_cliente = trim($this->input('nit_ci_cliente') ?? '');
         $celular_cliente = trim($this->input('celular_cliente') ?? '');
@@ -108,6 +112,8 @@ class ClientController extends Controller
      */
     public function update(?int $id = null): void
     {
+        $this->validateCsrfOrFailJson();
+
         $id = $id ?? (int)($_POST['id'] ?? 0);
 
         $nombre_cliente = trim($this->input('nombre_cliente') ?? '');
@@ -154,6 +160,8 @@ class ClientController extends Controller
      */
     public function destroy(): void
     {
+        $this->validateCsrfOrFailJson();
+
         $id = (int)($this->input('id_cliente') ?? 0);
 
         if ($id <= 0) {

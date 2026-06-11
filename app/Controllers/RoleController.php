@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Role;
 
@@ -19,7 +20,8 @@ class RoleController extends Controller
             $this->sessionData(),
             [
                 'roles_datos' => $roles_datos,
-                'pageScripts' => ['/js/modules/roles/roles-datatable.js', '/js/modules/roles/roles-modals.js']
+                'csrf_token'  => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/roles/roles-datatable.js', '/js/modules/roles/roles-modals.js'],
             ]
         ), true, ['datatable', 'validation']);
     }
@@ -29,20 +31,25 @@ class RoleController extends Controller
      */
     public function store(): void
     {
+        $this->validateCsrfOrFailJson();
+
         $rol = trim($this->input('rol') ?? '');
 
         if ($rol === '') {
             $this->json(['success' => false, 'message' => 'El nombre del rol es obligatorio.']);
+            return;
         }
 
         $roleModel = new Role();
 
         if ($roleModel->nameExists($rol)) {
             $this->json(['success' => false, 'message' => 'Ya existe un rol con ese nombre.']);
+            return;
         }
 
         if ($roleModel->create(['rol' => $rol])) {
             $this->json(['success' => true, 'message' => 'Rol creado exitosamente.']);
+            return;
         }
 
         $this->json(['success' => false, 'message' => 'Error al crear el rol.']);
@@ -59,6 +66,7 @@ class RoleController extends Controller
 
         if ($id <= 0) {
             $this->json(['success' => false, 'message' => 'ID de rol inválido.']);
+            return;
         }
 
         $roleModel = new Role();
@@ -66,6 +74,7 @@ class RoleController extends Controller
 
         if ($role) {
             $this->json(['success' => true, 'data' => $role]);
+            return;
         }
 
         $this->json(['success' => false, 'message' => 'Rol no encontrado.']);
@@ -78,25 +87,31 @@ class RoleController extends Controller
      */
     public function update(?int $id = null): void
     {
+        $this->validateCsrfOrFailJson();
+
         $id = $id ?? (int)($_POST['id'] ?? 0);
         $rol = trim($this->input('rol') ?? '');
 
         if ($id <= 0 || $rol === '') {
             $this->json(['success' => false, 'message' => 'Datos inválidos para actualizar el rol.']);
+            return;
         }
 
         $roleModel = new Role();
 
         if (!$roleModel->find($id)) {
             $this->json(['success' => false, 'message' => 'Rol no encontrado.']);
+            return;
         }
 
         if ($roleModel->nameExists($rol, $id)) {
             $this->json(['success' => false, 'message' => 'Ya existe otro rol con ese nombre.']);
+            return;
         }
 
         if ($roleModel->update($id, ['rol' => $rol])) {
             $this->json(['success' => true, 'message' => 'Rol actualizado exitosamente.']);
+            return;
         }
 
         $this->json(['success' => false, 'message' => 'Error al actualizar el rol.']);

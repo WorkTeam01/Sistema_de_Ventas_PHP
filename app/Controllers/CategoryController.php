@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Category;
 
@@ -19,7 +20,8 @@ class CategoryController extends Controller
             $this->sessionData(),
             [
                 'categories_datos' => $categories_datos,
-                'pageScripts' => ['/js/modules/categories/categories-datatable.js', '/js/modules/categories/categories-modals.js'],
+                'csrf_token'       => Auth::generateCsrfToken(),
+                'pageScripts'      => ['/js/modules/categories/categories-datatable.js', '/js/modules/categories/categories-modals.js'],
             ]
         ), true, ['datatable', 'validation']);
     }
@@ -29,6 +31,8 @@ class CategoryController extends Controller
      */
     public function store(): void
     {
+        $this->validateCsrfOrFailJson();
+
         $nombre_categoria = trim($this->input('nombre_categoria') ?? '');
 
         if ($nombre_categoria === '') {
@@ -83,6 +87,8 @@ class CategoryController extends Controller
      */
     public function update(?int $id = null): void
     {
+        $this->validateCsrfOrFailJson();
+
         $id = $id ?? (int)($_POST['id'] ?? 0);
 
         if ($id <= 0) {

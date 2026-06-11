@@ -137,11 +137,12 @@ $(document).ready(function () {
                         ToastUtils.error(response.message);
                     }
                 },
-                error: function () {
+                error: function (jqXHR) {
                     loadingToast.close();
                     isSubmitting = false;
                     submitBtn.prop('disabled', false).html(originalText);
-                    ToastUtils.error('Error en la comunicación con el servidor, por favor intente nuevamente.');
+                    const msg = jqXHR.responseJSON?.message || 'Error en la comunicación con el servidor, por favor intente nuevamente.';
+                    ToastUtils.error(msg);
                 }
             });
         }, 1500);
@@ -227,11 +228,12 @@ $(document).ready(function () {
                         ToastUtils.error(response.message);
                     }
                 },
-                error: function () {
+                error: function (jqXHR) {
                     loadingToast.close();
                     isSubmitting = false;
                     submitBtn.prop('disabled', false).html(originalText);
-                    ToastUtils.error('Error en la comunicación con el servidor.');
+                    const msg = jqXHR.responseJSON?.message || 'Error en la comunicación con el servidor, por favor intente nuevamente.';
+                    ToastUtils.error(msg);
                 }
             });
         }, 1500);

@@ -118,6 +118,8 @@
                 </button>
             </div>
             <form id="formCreate">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="create_rol">Nombre del rol <span class="text-danger">*</span></label>
@@ -150,6 +152,8 @@
             </div>
             <form id="formEdit">
                 <input type="hidden" id="edit_id" name="id">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="edit_rol">Nombre del rol <span class="text-danger">*</span></label>

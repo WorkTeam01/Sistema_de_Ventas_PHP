@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\ActivityLog;
 use App\Models\Supplier;
@@ -20,7 +21,8 @@ class SupplierController extends Controller
             $this->sessionData(),
             [
                 'suppliers_datos' => $suppliers_datos,
-                'pageScripts' => ['/js/modules/suppliers/suppliers-datatable.js', '/js/modules/suppliers/suppliers-modals.js']
+                'csrf_token'      => Auth::generateCsrfToken(),
+                'pageScripts'     => ['/js/modules/suppliers/suppliers-datatable.js', '/js/modules/suppliers/suppliers-modals.js'],
             ]
         ), true, ['datatable', 'validation']);
     }
@@ -30,6 +32,8 @@ class SupplierController extends Controller
      */
     public function store(): void
     {
+        $this->validateCsrfOrFailJson();
+
         $nombre_proveedor = trim($this->input('nombre_proveedor') ?? '');
         $empresa = trim($this->input('empresa') ?? '');
         $celular = trim($this->input('celular') ?? '');
@@ -84,6 +88,8 @@ class SupplierController extends Controller
      */
     public function update(?int $id = null): void
     {
+        $this->validateCsrfOrFailJson();
+
         $id = $id ?? (int)($_POST['id'] ?? 0);
 
         $nombre_proveedor = trim($this->input('nombre_proveedor') ?? '');
@@ -119,6 +125,8 @@ class SupplierController extends Controller
      */
     public function destroy(): void
     {
+        $this->validateCsrfOrFailJson();
+
         $id = (int)($this->input('id_proveedor') ?? 0);
 
         if ($id <= 0) {

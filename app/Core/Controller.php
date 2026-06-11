@@ -208,7 +208,33 @@ class Controller
     protected function validateCsrfOrFail(): void
     {
         if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
-            die('Error de seguridad: Token CSRF inválido.');
+            $this->flash('Tu sesión ha expirado. Por favor recarga la página e intenta de nuevo.', 'error');
+            $referer = $_SERVER['HTTP_REFERER'] ?? '';
+            $redirect = BASE_URL;
+            if ($referer !== '') {
+                $parsed = parse_url($referer);
+                $base   = parse_url(BASE_URL);
+                if ($parsed
+                    && isset($parsed['scheme'], $parsed['host'])
+                    && $parsed['scheme'] === $base['scheme']
+                    && strcasecmp($parsed['host'], $base['host']) === 0
+                    && ($parsed['port'] ?? null) === ($base['port'] ?? null)
+                ) {
+                    $redirect = $referer;
+                }
+            }
+            $this->redirect($redirect);
+        }
+    }
+
+    /**
+     * Valida el token CSRF y responde con JSON 403 si es inválido.
+     * Usar en acciones AJAX que esperan respuesta JSON.
+     */
+    protected function validateCsrfOrFailJson(): void
+    {
+        if (!Auth::validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            $this->json(['success' => false, 'message' => 'Tu sesión ha expirado. Por favor recarga la página e intenta de nuevo.'], 403);
         }
     }
 }

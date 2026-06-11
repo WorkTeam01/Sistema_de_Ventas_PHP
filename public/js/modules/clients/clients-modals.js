@@ -225,11 +225,12 @@ $(document).ready(function () {
                         ToastUtils.error(response.message);
                     }
                 },
-                error: function () {
+                error: function (jqXHR) {
                     loadingToast.close();
                     isSubmitting = false;
                     submitBtn.prop('disabled', false).html(originalText);
-                    ToastUtils.error('Error en la comunicación con el servidor, por favor intente nuevamente.');
+                    const msg = jqXHR.responseJSON?.message || 'Error en la comunicación con el servidor, por favor intente nuevamente.';
+                    ToastUtils.error(msg);
                 }
             });
         }, 1500);
@@ -318,11 +319,12 @@ $(document).ready(function () {
                         ToastUtils.error(response.message);
                     }
                 },
-                error: function () {
+                error: function (jqXHR) {
                     loadingToast.close();
                     isSubmitting = false;
                     submitBtn.prop('disabled', false).html(originalText);
-                    ToastUtils.error('Error en la comunicación con el servidor.');
+                    const msg = jqXHR.responseJSON?.message || 'Error en la comunicación con el servidor.';
+                    ToastUtils.error(msg);
                 }
             });
         }, 1500);
@@ -343,7 +345,7 @@ $(document).ready(function () {
                     $.ajax({
                         url: BASE_URL + '/clients/delete',
                         type: 'POST',
-                        data: {id_cliente: id},
+                        data: {id_cliente: id, csrf_token: $('input[name="csrf_token"]').first().val()},
                         dataType: 'json',
                         success: function (response) {
                             loadingToast.close();
@@ -358,9 +360,10 @@ $(document).ready(function () {
                                 ToastUtils.error(response.message);
                             }
                         },
-                        error: function () {
+                        error: function (jqXHR) {
                             loadingToast.close();
-                            ToastUtils.error('Error en la comunicación con el servidor.');
+                            const msg = jqXHR.responseJSON?.message || 'Error en la comunicación con el servidor.';
+                            ToastUtils.error(msg);
                         }
                     });
                 }, 1500);

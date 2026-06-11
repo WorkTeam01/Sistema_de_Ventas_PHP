@@ -118,6 +118,8 @@
                 </button>
             </div>
             <form id="formCreate">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="create_nombre_categoria">Nombre de categoría <span
@@ -150,6 +152,8 @@
                 </button>
             </div>
             <form id="formEdit">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" id="edit_id" name="id">
                 <div class="modal-body">
                     <div class="form-group">

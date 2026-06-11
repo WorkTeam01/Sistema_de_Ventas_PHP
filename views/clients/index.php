@@ -104,6 +104,8 @@
                 </button>
             </div>
             <form id="formCreate" autocomplete="off">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -163,6 +165,8 @@
                 </button>
             </div>
             <form id="formEdit" autocomplete="off">
+                <input type="hidden" name="csrf_token"
+                       value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" id="edit_id" name="id">
                 <div class="modal-body">
                     <div class="row">
