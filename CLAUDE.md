@@ -345,4 +345,4 @@ eliminación, validaciones).
 
 ---
 
-_Última actualización: 2026-06-10 — v1.12.1_
+_Última actualización: 2026-06-11 — v1.12.2_

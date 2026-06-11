@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1).
+**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1). Protección CSRF completada en módulo de Roles y mensajes de sesión expirada estandarizados (v1.12.2).
 
 ---
 
@@ -392,4 +392,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-06-09 — v1.12.0 (módulo de reportes: ventas por período, compras por período, top productos, clientes; export PDF/CSV/Excel; index con resumen del mes; ReportFilters, ReportPdf, Report model con queries agregadas)_
+_Última actualización: 2026-06-11 — v1.12.2 (CSRF roles: token en vista + validateCsrfOrFailJson en store/update + return guards; mensajes de sesión expirada amigables; console.log de debug eliminados)_

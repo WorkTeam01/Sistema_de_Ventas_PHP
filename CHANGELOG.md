@@ -11,6 +11,21 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.12.2] - 2026-06-11
+
+### Corregido
+
+- **Bug alto — CSRF sin protección en `RoleController`**: `store()` y `update()` no llamaban `validateCsrfOrFailJson()`; `index()` no pasaba `csrf_token` a la vista; los formularios `#formCreate` y `#formEdit` no incluían el campo oculto `csrf_token`. Cualquier POST a `/roles/store` o `/roles/update/{id}` era procesado sin validar el token.
+- **Bug medio — Ejecución en cascada en `RoleController`**: todos los `$this->json()` en `store()`, `show()` y `update()` carecían de `return` posterior. Aunque `json()` es de tipo `never` (llama `exit()`), el flujo lógico era incorrecto y generaba advertencias de análisis estático.
+- **Bug UX — Mensaje de error CSRF genérico en `roles-modals.js`**: los callbacks `error` de `crearRol()` y `actualizarRol()` no recibían `jqXHR` como parámetro, ignorando el cuerpo de la respuesta 403 del servidor y mostrando siempre el texto hardcodeado "Error en la comunicación con el servidor" en lugar del mensaje real.
+
+### Mejorado
+
+- **Mensajes de sesión expirada**: los mensajes de fallo CSRF en `Controller::validateCsrfOrFail()` y `Controller::validateCsrfOrFailJson()` cambian de `"Error de seguridad: token CSRF inválido"` a `"Tu sesión ha expirado. Por favor recarga la página e intenta de nuevo."` — orientado al usuario, sin exponer terminología técnica interna.
+- **Limpieza de debug**: eliminados 3 `console.log('[CSRF TEST] ...')` temporales de `suppliers-modals.js` que habían quedado del ciclo de debugging anterior.
+
+---
+
 ## [1.12.1] - 2026-06-10
 
 ### Corregido
