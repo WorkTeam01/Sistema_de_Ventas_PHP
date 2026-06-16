@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1). Protección CSRF completada en módulo de Roles y mensajes de sesión expirada estandarizados (v1.12.2).
+**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1). Protección CSRF completada en módulo de Roles y mensajes de sesión expirada estandarizados (v1.12.2). Bug de carritos concurrentes corregido (v1.12.3).
 
 ---
 
@@ -315,7 +315,10 @@ Auth::logout()          // limpia sesión, BD y cookie
   progreso animada + validación entre pasos; col-md-3 sidebar sticky "Resumen de venta"; Tab 1 incluye card
   colapsable "Datos del cliente" con alerta de advertencia por defecto (sin cliente) y campos ocultos hasta
   selección; botones "Nuevo cliente" (modal inline) y "Buscar cliente" (modal tabla); estado del cliente
-  persiste en `sessionStorage('pos_client')` para sobrevivir recargas por operaciones de carrito
+  persiste en `sessionStorage('pos_client')` para sobrevivir recargas por operaciones de carrito;
+  `$_SESSION['pos_nro_venta']` persiste el número de venta activo en el POS — se asigna al entrar a `create()` y
+  se limpia en `store()` (venta finalizada) y `cancel()` (venta cancelada); previene colisión de nro_venta entre
+  vendedores concurrentes junto con `Sale::nextNumber()` que considera `MAX(tb_ventas UNION tb_carrito)`
 - Layout de páginas de detalle (`show`): dos columnas — `col-md-4 col-lg-3` izquierda con imagen, nombre, código,
   categoría y acciones (editar, volver, PDF si aplica); `col-md-8 col-lg-9` derecha con tarjetas de métricas
   (`info-box`) y tabla/sección de datos; aplicado en `products/show.php`, `purchases/show.php` y `sales/show.php`
@@ -392,4 +395,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-06-11 — v1.12.2 (CSRF roles: token en vista + validateCsrfOrFailJson en store/update + return guards; mensajes de sesión expirada amigables; console.log de debug eliminados)_
+_Última actualización: 2026-06-16 — v1.12.3 (bug carritos concurrentes: Sale::nextNumber() con UNION ALL sobre tb_carrito; $_SESSION['pos_nro_venta'] sticky en SaleController::create/store/cancel)_

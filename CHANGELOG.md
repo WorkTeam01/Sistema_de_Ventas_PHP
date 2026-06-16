@@ -11,6 +11,18 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.12.3] - 2026-06-16
+
+### Corregido
+
+- **Bug — Carritos concurrentes con mismo `nro_venta`**: cuando dos vendedores abrían el POS simultáneamente, ambos obtenían el mismo número de venta (`MAX(tb_ventas) + 1` sin ningún registro aún finalizado). El segundo vendedor en entrar disparaba `purgeOrphans()` que borraba el carrito del primero.
+  - `Sale::nextNumber()` ahora calcula `MAX(tb_ventas UNION ALL tb_carrito) + 1`, considerando también los carritos en construcción. Dos vendedores simultáneos obtienen números distintos desde el primer cálculo.
+  - `SaleController::create()` persiste el `nro_venta` asignado en `$_SESSION['pos_nro_venta']` y lo reutiliza si el vendedor recarga la página, evitando que se genere un número nuevo que deje huérfano el carrito anterior.
+  - `SaleController::store()` y `cancel()` limpian `$_SESSION['pos_nro_venta']` al finalizar o cancelar la venta.
+- **2 tests de integración nuevos** en `SaleRepositoryTest` cubren: (1) `nextNumber()` con carrito activo en curso, (2) `nextNumber()` con mix de ventas finalizadas y carritos concurrentes. Total: 229 tests verdes.
+
+---
+
 ## [1.12.2] - 2026-06-11
 
 ### Corregido
