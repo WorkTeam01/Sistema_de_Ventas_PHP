@@ -75,7 +75,13 @@ class Sale extends Model
      */
     public function nextNumber(): int
     {
-        $rows = $this->query("SELECT COALESCE(MAX(nro_venta), 0) + 1 AS next FROM tb_ventas");
+        $rows = $this->query(
+            "SELECT COALESCE(MAX(n), 0) + 1 AS next FROM (
+                SELECT MAX(nro_venta) AS n FROM tb_ventas
+                UNION ALL
+                SELECT MAX(nro_venta) AS n FROM tb_carrito
+            ) sub"
+        );
         return (int)($rows[0]['next'] ?? 1);
     }
 

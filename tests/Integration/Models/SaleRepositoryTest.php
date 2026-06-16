@@ -67,6 +67,25 @@ final class SaleRepositoryTest extends TestCase
         $this->assertSame(6, $this->sale->nextNumber());
     }
 
+    public function test_nextNumber_considers_active_carts_to_avoid_collision(): void
+    {
+        // Carrito en construcción con nro_venta=3 (sin venta finalizada)
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (3, 1, 1)");
+
+        // nextNumber debe esquivar el 3 activo en tb_carrito
+        $this->assertSame(4, $this->sale->nextNumber());
+    }
+
+    public function test_nextNumber_returns_max_across_ventas_and_carrito(): void
+    {
+        $this->storeSale(2); // nro_venta=2 en tb_ventas
+        // Carrito en curso con nro_venta=5
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (5, 1, 1)");
+
+        // El máximo entre tb_ventas(2) y tb_carrito(5) es 5 → siguiente es 6
+        $this->assertSame(6, $this->sale->nextNumber());
+    }
+
     // -------------------------------------------------------------------------
     // storeWithStock
     // -------------------------------------------------------------------------

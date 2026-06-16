@@ -41,8 +41,14 @@ class SaleController extends Controller
         $productModel = new Product();
         $clientModel = new Client();
 
-        $nro_venta = $saleModel->nextNumber();
-        $cartItemModel->purgeOrphans($nro_venta);
+        if (!empty($_SESSION['pos_nro_venta'])) {
+            $nro_venta = (int)$_SESSION['pos_nro_venta'];
+        } else {
+            $nro_venta = $saleModel->nextNumber();
+            $_SESSION['pos_nro_venta'] = $nro_venta;
+            $cartItemModel->purgeOrphans($nro_venta);
+        }
+
         $cart_items = $cartItemModel->getByNroVenta($nro_venta);
 
         $this->renderWithLayout('views/sales/create.php', array_merge(
@@ -73,6 +79,7 @@ class SaleController extends Controller
             $cartItemModel->clearCart($nro_venta);
         }
 
+        unset($_SESSION['pos_nro_venta']);
         $this->redirect(BASE_URL . '/sales');
     }
 
@@ -164,6 +171,7 @@ class SaleController extends Controller
         ]);
 
         if ($ok) {
+            unset($_SESSION['pos_nro_venta']);
             $this->flash('La venta se registró exitosamente.', 'success');
             $this->redirect(BASE_URL . '/sales');
             return;
