@@ -181,25 +181,26 @@ INSERT INTO `tb_carrito` (`id_carrito`, `nro_venta`, `id_producto`, `cantidad`, 
 -- tb_ventas (depende de tb_clientes y tb_carrito.nro_venta)
 -- total_pagado = suma de (precio_venta * cantidad) por nro_venta
 -- -------------------------------------------------------------
-INSERT INTO `tb_ventas` (`id_venta`, `nro_venta`, `id_cliente`, `total_pagado`, `fyh_creacion`) VALUES
+-- id_usuario = 2 (Vendedor) — vendedor de prueba como autor de todas las ventas seed
+INSERT INTO `tb_ventas` (`id_venta`, `nro_venta`, `id_cliente`, `id_usuario`, `total_pagado`, `fyh_creacion`) VALUES
 -- Enero 2026
-(1,  1,  1, 3290.00, '2026-01-18 10:15:00'),  -- Laptop(3200) + 2xMouse(90)
-(2,  2,  2,  220.00, '2026-01-22 14:30:00'),  -- 3xArroz(135) + Camiseta(85)
-(3,  3,  3,  315.00, '2026-01-28 09:00:00'),  -- 5xMouse(225) + 2xArroz(90)
+(1,  1,  1, 2, 3290.00, '2026-01-18 10:15:00'),  -- Laptop(3200) + 2xMouse(90)
+(2,  2,  2, 2,  220.00, '2026-01-22 14:30:00'),  -- 3xArroz(135) + Camiseta(85)
+(3,  3,  3, 2,  315.00, '2026-01-28 09:00:00'),  -- 5xMouse(225) + 2xArroz(90)
 -- Febrero 2026
-(4,  4,  4, 3395.00, '2026-02-03 11:20:00'),  -- Laptop(3200) + Teclado(195)
-(5,  5,  5,  192.00, '2026-02-10 16:45:00'),  -- 2xDestornillador(120) + 4xAceite(72)
-(6,  6,  6, 1760.00, '2026-02-17 10:00:00'),  -- Monitor(1500) + 2xJeans(260)
-(7,  7,  7,  363.00, '2026-02-25 13:30:00'),  -- 3xCamiseta(255) + 6xAceite(108)
+(4,  4,  4, 2, 3395.00, '2026-02-03 11:20:00'),  -- Laptop(3200) + Teclado(195)
+(5,  5,  5, 2,  192.00, '2026-02-10 16:45:00'),  -- 2xDestornillador(120) + 4xAceite(72)
+(6,  6,  6, 2, 1760.00, '2026-02-17 10:00:00'),  -- Monitor(1500) + 2xJeans(260)
+(7,  7,  7, 2,  363.00, '2026-02-25 13:30:00'),  -- 3xCamiseta(255) + 6xAceite(108)
 -- Marzo 2026
-(8,  8,  8,  525.00, '2026-03-04 09:15:00'),  -- 2xTeclado(390) + 3xMouse(135)
-(9,  9,  1,  550.00, '2026-03-12 15:00:00'),  -- Jeans(130) + Taladro(420)
-(10, 10, 2,  279.00, '2026-03-20 11:45:00'),  -- 5xArroz(225) + 3xAceite(54)
+(8,  8,  8, 2,  525.00, '2026-03-04 09:15:00'),  -- 2xTeclado(390) + 3xMouse(135)
+(9,  9,  1, 2,  550.00, '2026-03-12 15:00:00'),  -- Jeans(130) + Taladro(420)
+(10, 10, 2, 2,  279.00, '2026-03-20 11:45:00'),  -- 5xArroz(225) + 3xAceite(54)
 -- Abril 2026
-(11, 11, 3, 7900.00, '2026-04-02 10:30:00'),  -- 2xLaptop(6400) + Monitor(1500)
-(12, 12, 4,  450.00, '2026-04-10 14:00:00'),  -- Destornillador(60) + 2xTeclado(390)
-(13, 13, 5,  300.00, '2026-04-18 09:30:00'),  -- 2xCamiseta(170) + Jeans(130)
-(14, 14, 6,  270.00, '2026-04-25 16:15:00');  -- 4xMouse(180) + 2xArroz(90)
+(11, 11, 3, 2, 7900.00, '2026-04-02 10:30:00'),  -- 2xLaptop(6400) + Monitor(1500)
+(12, 12, 4, 2,  450.00, '2026-04-10 14:00:00'),  -- Destornillador(60) + 2xTeclado(390)
+(13, 13, 5, 2,  300.00, '2026-04-18 09:30:00'),  -- 2xCamiseta(170) + Jeans(130)
+(14, 14, 6, 2,  270.00, '2026-04-25 16:15:00');  -- 4xMouse(180) + 2xArroz(90)
 
 -- -------------------------------------------------------------
 -- tb_compras (depende de tb_almacen, tb_proveedores, tb_usuarios)

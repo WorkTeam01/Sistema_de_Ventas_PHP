@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Helpers\ReportFilters;
 use App\Helpers\ReportPdf;
@@ -16,13 +17,14 @@ class ReportController extends Controller
         $filters = ReportFilters::parseDateRange([]);
         $report  = new Report();
 
-        $isAdmin  = $session['rol_sesion'] === 'Administrador';
-        $userId   = $isAdmin ? null : (int)$session['id_usuario_sesion'];
+        $userId = Auth::can('view_sales_all')
+            ? null
+            : (int)Auth::user()['id_usuario'];
 
         $salesSummary     = $report->salesSummary($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
-        $purchaseSummary  = $isAdmin ? $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta']) : null;
-        $topProductos     = $isAdmin ? $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], 5) : [];
-        $clientesActivos  = $isAdmin ? count($report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'])) : 0;
+        $purchaseSummary  = Auth::can('view_purchases_report') ? $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta']) : null;
+        $topProductos     = Auth::can('view_top_products_report') ? $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], 5) : [];
+        $clientesActivos  = Auth::can('view_clients_report') ? count($report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'])) : 0;
 
         $this->renderWithLayout(
             'views/reports/index.php',
@@ -44,8 +46,9 @@ class ReportController extends Controller
         $filters  = ReportFilters::parseDateRange($_GET);
         $report   = new Report();
         $session  = $this->sessionData();
-        $isAdmin  = $session['rol_sesion'] === 'Administrador';
-        $userId   = $isAdmin ? null : (int)$session['id_usuario_sesion'];
+        $userId = Auth::can('view_sales_all')
+            ? null
+            : (int)Auth::user()['id_usuario'];
 
         $rows   = $report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
         $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $userId);

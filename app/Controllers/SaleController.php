@@ -205,6 +205,12 @@ class SaleController extends Controller
             return;
         }
 
+        if (!Auth::can('view_sales_all') && (int)$sale['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->flash('No tienes permiso para ver esta venta.', 'error');
+            $this->redirect(BASE_URL . '/sales');
+            return;
+        }
+
         $this->renderWithLayout('views/sales/show.php', array_merge(
             $this->sessionData(),
             [
