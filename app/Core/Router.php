@@ -132,6 +132,12 @@ class Router
      */
     private function executeMiddleware(string $key): void
     {
+        if (str_starts_with($key, 'can:')) {
+            $permiso = substr($key, 4);
+            (new \App\Middleware\PermissionMiddleware($permiso))->handle();
+            return;
+        }
+
         $map = [
             'auth'   => \App\Middleware\AuthMiddleware::class,
             'guest'  => \App\Middleware\GuestMiddleware::class,

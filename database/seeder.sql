@@ -65,6 +65,7 @@ INSERT INTO `tb_rol_permiso` (`id_rol`, `id_permiso`)
 SELECT r.id_rol, p.id_permiso
 FROM `tb_roles` r JOIN `tb_permisos` p ON p.clave IN (
     'view_dashboard',
+    'view_categories',
     'view_clients', 'manage_clients',
     'view_products',
     'view_sales', 'manage_sales',

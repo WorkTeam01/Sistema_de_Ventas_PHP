@@ -252,6 +252,12 @@ class SaleController extends Controller
             return;
         }
 
+        if (!Auth::can('view_sales_all') && (int)$sale['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->flash('No tienes permiso para eliminar esta venta.', 'error');
+            $this->redirect(BASE_URL . '/sales');
+            return;
+        }
+
         $this->renderWithLayout('views/sales/delete.php', array_merge(
             $this->sessionData(),
             [
@@ -288,6 +294,12 @@ class SaleController extends Controller
 
         if (!$sale) {
             $this->flash('No se encontró la venta solicitada.', 'error');
+            $this->redirect(BASE_URL . '/sales');
+            return;
+        }
+
+        if (!Auth::can('view_sales_all') && (int)$sale['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->flash('No tienes permiso para ver esta factura.', 'error');
             $this->redirect(BASE_URL . '/sales');
             return;
         }
