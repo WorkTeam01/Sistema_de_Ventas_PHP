@@ -17,7 +17,7 @@ class Router
      *
      * @param string                    $path       Patrón de ruta (ej. '/users/{id}').
      * @param callable|array|string     $handler    Handler: closure, [Class, 'method'] o 'Class@method'.
-     * @param array                     $middleware Claves de middleware a ejecutar ('auth', 'guest', 'admin').
+     * @param array                     $middleware Claves de middleware a ejecutar ('auth', 'guest', 'can:permiso').
      */
     public function get(string $path, callable|array|string $handler, array $middleware = []): void
     {
@@ -128,7 +128,7 @@ class Router
      * Resuelve la clase de middleware por su clave e invoca handle().
      * Lanza RuntimeException si la clave no está registrada.
      *
-     * @param string $key Clave del middleware ('auth', 'guest', 'admin').
+     * @param string $key Clave del middleware ('auth', 'guest', 'can:permiso').
      */
     private function executeMiddleware(string $key): void
     {
@@ -139,10 +139,8 @@ class Router
         }
 
         $map = [
-            'auth'   => \App\Middleware\AuthMiddleware::class,
-            'guest'  => \App\Middleware\GuestMiddleware::class,
-            'admin'  => \App\Middleware\AdminMiddleware::class,
-            'seller' => \App\Middleware\SellerMiddleware::class,
+            'auth'  => \App\Middleware\AuthMiddleware::class,
+            'guest' => \App\Middleware\GuestMiddleware::class,
         ];
 
         if (!isset($map[$key])) {
