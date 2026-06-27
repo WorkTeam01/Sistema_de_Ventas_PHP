@@ -207,6 +207,30 @@ CREATE TABLE IF NOT EXISTS `tb_ajustes_stock` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
+-- Tabla: tb_permisos
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_permisos` (
+  `id_permiso`   INT(11)      NOT NULL AUTO_INCREMENT,
+  `clave`        VARCHAR(60)  NOT NULL,
+  `descripcion`  VARCHAR(150) NOT NULL,
+  `modulo`       VARCHAR(40)  NOT NULL,
+  `fyh_creacion` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_permiso`),
+  UNIQUE KEY `uq_permiso_clave` (`clave`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- Tabla: tb_rol_permiso
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_rol_permiso` (
+  `id_rol`     INT(11) NOT NULL,
+  `id_permiso` INT(11) NOT NULL,
+  PRIMARY KEY (`id_rol`, `id_permiso`),
+  CONSTRAINT `fk_rp_rol`     FOREIGN KEY (`id_rol`)     REFERENCES `tb_roles`(`id_rol`)     ON DELETE CASCADE,
+  CONSTRAINT `fk_rp_permiso` FOREIGN KEY (`id_permiso`) REFERENCES `tb_permisos`(`id_permiso`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
 -- Restricciones (Foreign Keys)
 -- --------------------------------------------------------
 ALTER TABLE `tb_almacen`

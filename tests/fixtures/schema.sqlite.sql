@@ -134,3 +134,19 @@ CREATE TABLE IF NOT EXISTS tb_ajustes_stock (
   fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto)
 );
+
+CREATE TABLE IF NOT EXISTS tb_permisos (
+  id_permiso   INTEGER PRIMARY KEY AUTOINCREMENT,
+  clave        TEXT NOT NULL UNIQUE,
+  descripcion  TEXT NOT NULL,
+  modulo       TEXT NOT NULL,
+  fyh_creacion TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tb_rol_permiso (
+  id_rol     INTEGER NOT NULL,
+  id_permiso INTEGER NOT NULL,
+  PRIMARY KEY (id_rol, id_permiso),
+  FOREIGN KEY (id_rol)     REFERENCES tb_roles(id_rol)     ON DELETE CASCADE,
+  FOREIGN KEY (id_permiso) REFERENCES tb_permisos(id_permiso) ON DELETE CASCADE
+);
