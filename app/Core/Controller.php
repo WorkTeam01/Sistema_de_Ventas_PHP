@@ -47,6 +47,7 @@ class Controller
      */
     protected function renderWithLayout(string $viewPath, array $data = [], bool $withMessages = true, array $assets = []): void
     {
+        $data['can'] = $this->permisosVista();
         extract($data);
 
         if (!isset($Año)) {
@@ -61,6 +62,41 @@ class Controller
         }
 
         require __DIR__ . '/../../views/layouts/footer.php';
+    }
+
+    protected function permisosVista(): array
+    {
+        $claves = [
+            'is_superadmin',
+            'view_dashboard',
+            'manage_users',
+            'manage_roles',
+            'view_categories',
+            'manage_categories',
+            'view_suppliers',
+            'manage_suppliers',
+            'view_clients',
+            'manage_clients',
+            'view_products',
+            'manage_products',
+            'view_purchases',
+            'manage_purchases',
+            'view_sales',
+            'manage_sales',
+            'view_sales_all',
+            'view_reports',
+            'view_sales_report',
+            'view_purchases_report',
+            'view_top_products_report',
+            'view_clients_report',
+            'view_activity_log',
+            'manage_inventory',
+        ];
+        $can = [];
+        foreach ($claves as $c) {
+            $can[$c] = Auth::can($c);
+        }
+        return $can;
     }
 
     /**
@@ -214,7 +250,8 @@ class Controller
             if ($referer !== '') {
                 $parsed = parse_url($referer);
                 $base   = parse_url(BASE_URL);
-                if ($parsed
+                if (
+                    $parsed
                     && isset($parsed['scheme'], $parsed['host'])
                     && $parsed['scheme'] === $base['scheme']
                     && strcasecmp($parsed['host'], $base['host']) === 0

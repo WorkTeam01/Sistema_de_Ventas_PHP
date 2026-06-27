@@ -22,7 +22,7 @@
 
             <!-- Navegación de reportes -->
             <div class="row">
-                <?php if ($rol_sesion === 'Administrador' || $rol_sesion === 'Vendedor'): ?>
+                <?php if ($can['view_sales_report']): ?>
                     <div class="col-sm-6 col-lg-3">
                         <a href="<?= BASE_URL ?>/reports/sales" class="text-decoration-none">
                             <div class="info-box info-box-hover">
@@ -52,7 +52,7 @@
                     </div>
                 <?php endif; ?>
 
-                <?php if ($rol_sesion === 'Administrador'): ?>
+                <?php if ($can['view_purchases_report']): ?>
                     <div class="col-sm-6 col-lg-3">
                         <a href="<?= BASE_URL ?>/reports/purchases" class="text-decoration-none">
                             <div class="info-box info-box-hover">
@@ -122,7 +122,7 @@
                                         </span>
                                         <div class="info-box-content">
                                             <span class="info-box-text">
-                                                <?= $rol_sesion === 'Vendedor' ? 'Mis Ventas' : 'Ventas' ?>
+                                                <?= !$can['view_sales_all'] ? 'Mis Ventas' : 'Ventas' ?>
                                             </span>
                                             <span class="info-box-number"><?= (int)$salesSummary['num_ventas'] ?></span>
                                             <span class="progress-description text-muted">
@@ -132,7 +132,7 @@
                                     </div>
                                 </div>
 
-                                <?php if ($rol_sesion === 'Administrador'): ?>
+                                <?php if ($can['view_purchases_report']): ?>
                                     <!-- Compras del mes -->
                                     <div class="col-sm-6 col-lg-3">
                                         <div class="info-box mb-3">
@@ -186,7 +186,7 @@
 
                             </div>
 
-                            <?php if ($rol_sesion === 'Administrador' && !empty($topProductos)): ?>
+                            <?php if ($can['view_purchases_report'] && !empty($topProductos)): ?>
                                 <hr>
                                 <h6 class="text-muted mb-2">
                                     <i class="fas fa-trophy mr-1 text-warning"></i> Top 5 productos más vendidos del mes
@@ -230,7 +230,7 @@
                                         <i class="fas fa-trophy mr-1"></i> Ver reporte completo
                                     </a>
                                 </div>
-                            <?php elseif ($rol_sesion === 'Administrador'): ?>
+                            <?php elseif ($can['view_purchases_report']): ?>
                                 <p class="text-muted text-center mb-0 mt-2">
                                     <i class="fas fa-info-circle mr-1"></i> Sin ventas registradas en este mes.
                                 </p>

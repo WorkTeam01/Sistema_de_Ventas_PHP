@@ -15,7 +15,7 @@
             <!-- ===== KPIs ===== -->
             <div class="row">
 
-                <?php if ($rol_sesion === 'Administrador' || $rol_sesion === 'Vendedor') : ?>
+                <?php if ($can['view_sales']) : ?>
                     <!-- KPI: Ventas del mes -->
                     <div class="<?= $kpiCol ?> col-sm-6 col-12">
                         <div class="info-box elevation-1">
@@ -56,7 +56,7 @@
 
                 <?php endif; ?>
 
-                <?php if ($rol_sesion === 'Administrador' || $rol_sesion === 'Comprador') : ?>
+                <?php if ($can['view_purchases']) : ?>
                     <!-- KPI: Compras del mes -->
                     <div class="<?= $kpiCol ?> col-sm-6 col-12">
                         <div class="info-box elevation-1">
@@ -101,7 +101,7 @@
             <!-- /.row KPIs -->
 
             <!-- ===== KPIs Admin ===== -->
-            <?php if ($rol_sesion === 'Administrador') : ?>
+            <?php if ($can['is_superadmin']) : ?>
                 <a href="#admin-kpis" data-toggle="collapse" id="admin-kpis-toggle" class="text-secondary d-inline-flex align-items-center mb-2" style="font-size:0.78rem;" aria-expanded="true">
                     <i class="fas fa-coins mr-1"></i>
                     <span>Flujo del mes</span>

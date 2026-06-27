@@ -43,9 +43,10 @@ $inventoryActive = str_starts_with($_currentPath, '/inventory');
 // — Módulo Reportes —
 $reportsActive = str_starts_with($_currentPath, '/reports');
 
-$isAdmin  = $rol_sesion === 'Administrador';
-$isSeller = $rol_sesion === 'Vendedor';
-$isBuyer  = $rol_sesion === 'Comprador';
+$can      = $can ?? [];
+$isAdmin  = $can['is_superadmin'] ?? false;
+$isSeller = ($can['view_sales'] ?? false) && !$isAdmin;
+$isBuyer  = ($can['view_purchases'] ?? false) && !$isAdmin && !$isSeller;
 
 $link = fn(bool $on) => $on ? ' active' : '';
 ?>
