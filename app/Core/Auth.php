@@ -109,6 +109,38 @@ class Auth
      * @param array $user     Datos del usuario; debe contener 'email' e 'id_usuario'.
      * @param bool  $remember Si se debe emitir cookie de recordarme.
      */
+    private static function loadPermissions(int $idRol): void
+    {
+        $pdo  = Database::getInstance()->getConnection();
+        $stmt = $pdo->prepare(
+            "SELECT p.clave
+             FROM tb_rol_permiso rp
+             INNER JOIN tb_permisos p ON p.id_permiso = rp.id_permiso
+             WHERE rp.id_rol = ?"
+        );
+        $stmt->execute([$idRol]);
+        $_SESSION['permisos'] = $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
+    }
+
+    public static function can(string $permiso): bool
+    {
+        self::startSession();
+        return in_array($permiso, $_SESSION['permisos'] ?? [], true);
+    }
+
+    public static function isAdmin(): bool
+    {
+        return self::can('is_superadmin');
+    }
+
+    public static function refreshPermissions(): void
+    {
+        $user = self::user();
+        if ($user) {
+            self::loadPermissions((int) $user['id_rol']);
+        }
+    }
+
     public static function login(array $user, bool $remember = false): void
     {
         self::$cachedUser = null;
@@ -116,6 +148,11 @@ class Auth
         session_regenerate_id(true);
         $_SESSION['sesion_email']  = $user['email'] ?? null;
         $_SESSION['last_activity'] = time();
+
+        $fullUser = self::user();
+        if ($fullUser) {
+            self::loadPermissions((int) $fullUser['id_rol']);
+        }
 
         if ($remember && !empty($user['id_usuario'])) {
             $plain        = bin2hex(random_bytes(32));
