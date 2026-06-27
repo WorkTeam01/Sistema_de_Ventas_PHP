@@ -11,6 +11,55 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.13.0] - 2026-06-27
+
+### Agregado
+
+- **Sistema RBAC granular** — permisos a nivel de acción desacoplados del nombre hardcodeado del rol
+- `database/schema.sql` — tablas `tb_permisos` (slug único `nombre`, descripción) y `tb_rol_permiso` (pivote muchos-a-muchos con `ON DELETE CASCADE`)
+- `database/seeder.sql` — seeder inicial con todos los permisos del sistema asignados a los roles Administrador, Vendedor y Comprador según sus accesos previos
+- `app/Core/Auth.php` — `Auth::can(string $permiso): bool` con caché en `$_SESSION['permisos']`; `Auth::isAdmin(): bool` como alias de `can('is_superadmin')`; `Auth::refreshPermissions()` para recargar permisos tras cambio de rol; `Auth::loadPermissions()` carga slugs de permisos del rol al hacer login
+- `app/Middleware/PermissionMiddleware.php` — resuelve el prefijo `can:` en la lista de middlewares de cada ruta; redirige a `/errors/403` si el usuario no tiene el permiso requerido
+
+### Modificado
+
+- `routes/web.php` — todas las rutas migradas de `['auth', 'admin']` / `['auth', 'seller']` a `['auth', 'can:permiso']` con slugs granulares (ej: `can:manage_users`, `can:view_sales`)
+- Controladores — comparaciones `Auth::role() === 'Administrador'` reemplazadas por `Auth::can('permiso')` para scoping de datos
+- Vistas — comparaciones de rol eliminadas; los controladores ahora pasan `$can` (array de permisos booleanos) via `renderWithLayout()`
+
+### Eliminado
+
+- `app/Middleware/AdminMiddleware.php` — reemplazado por `PermissionMiddleware` con `can:permiso`
+- `app/Middleware/SellerMiddleware.php` — reemplazado por `PermissionMiddleware` con `can:permiso`
+
+### Migración para instancias existentes
+
+```sql
+-- Ejecutar después del schema existente
+-- (incluido en database/schema.sql desde v1.13.0)
+
+CREATE TABLE IF NOT EXISTS `tb_permisos` (
+  `id_permiso` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(100) NOT NULL,
+  `descripcion` VARCHAR(255) NULL,
+  `fyh_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_permiso`),
+  UNIQUE KEY `uq_nombre` (`nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `tb_rol_permiso` (
+  `id_rol` INT NOT NULL,
+  `id_permiso` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id_rol`, `id_permiso`),
+  CONSTRAINT `fk_rp_rol`     FOREIGN KEY (`id_rol`)     REFERENCES `tb_roles`(`id_rol`)     ON DELETE CASCADE,
+  CONSTRAINT `fk_rp_permiso` FOREIGN KEY (`id_permiso`) REFERENCES `tb_permisos`(`id_permiso`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Luego correr database/seeder.sql (bloque de permisos) para poblar las tablas
+```
+
+---
+
 ## [1.12.3] - 2026-06-16
 
 ### Corregido

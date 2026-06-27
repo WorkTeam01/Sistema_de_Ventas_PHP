@@ -17,9 +17,22 @@
       // pero nos aseguramos que header, sidebar y brand también tengan sus clases
       // ANTES de que se construya la Interfaz de control.
       if (settings.header_class) $('.main-header').attr('class', settings.header_class);
-      if (settings.sidebar_class) $('.main-sidebar').attr('class', settings.sidebar_class);
+      if (settings.sidebar_class) {
+        var $mainSidebar = $('.main-sidebar');
+        // Only restore the skin class — preserve base classes set by PHP
+        var savedSkin = settings.sidebar_class.split(' ').find(function (c) {
+          return /^sidebar-(dark|light)-/.test(c);
+        });
+        if (savedSkin) {
+          $mainSidebar[0].className = $mainSidebar[0].className.replace(/sidebar-(dark|light)-\S+/g, '').trim();
+          $mainSidebar.addClass(savedSkin);
+        }
+        if (settings.sidebar_class.indexOf('sidebar-no-expand') > -1) {
+          $mainSidebar.addClass('sidebar-no-expand');
+        }
+      }
       if (settings.brand_class) $('.brand-link').attr('class', settings.brand_class);
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Rutina de guardado universal
@@ -29,10 +42,10 @@
     currentBodyClass = currentBodyClass.replace('control-sidebar-slide-open', '').replace(/\s+/g, ' ').trim();
 
     var settings = {
-        body_class: currentBodyClass,
-        header_class: $('.main-header').attr('class'),
-        sidebar_class: $('.main-sidebar').attr('class'),
-        brand_class: $('.brand-link').attr('class')
+      body_class: currentBodyClass,
+      header_class: $('.main-header').attr('class'),
+      sidebar_class: $('.main-sidebar').attr('class'),
+      brand_class: $('.brand-link').attr('class')
     };
     localStorage.setItem('controlSidebarSettings', JSON.stringify(settings));
   }
@@ -704,10 +717,10 @@
   }
 
   // --- Event listeners para Auto-guardar configuración al interactuar ---
-  $container.on('change click', 'input, select, a', function() {
+  $container.on('change click', 'input, select, a', function () {
     setTimeout(saveSettings, 100);
   });
-  $(window).on('resize', function() {
+  $(window).on('resize', function () {
     setTimeout(saveSettings, 100);
   });
 
@@ -715,11 +728,11 @@
   var $reset_wrapper = $('<div />', { class: 'mb-4 mt-4 text-center border-top pt-3 border-secondary' });
   var $reset_btn = $('<button />', { type: 'button', class: 'btn btn-outline-warning btn-sm' })
     .html('<i class="fas fa-undo mr-1"></i>Restablecer Diseño')
-    .on('click', function() {
-        if (confirm('¿Estás seguro de que deseas restablecer todas las configuraciones visuales a su estilo de fábrica?')) {
-            localStorage.removeItem('controlSidebarSettings');
-            location.reload();
-        }
+    .on('click', function () {
+      if (confirm('¿Estás seguro de que deseas restablecer todas las configuraciones visuales a su estilo de fábrica?')) {
+        localStorage.removeItem('controlSidebarSettings');
+        location.reload();
+      }
     });
 
   $reset_wrapper.append($reset_btn);

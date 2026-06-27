@@ -60,7 +60,7 @@ Sigue la arquitectura MVC descrita en [AGENT.md](AGENT.md):
 Para nuevo módulo [nombre]:
 ├── app/Controllers/[Nombre]Controller.php
 ├── app/Models/[Nombre].php
-├── app/Middleware/[Nombre]Middleware.php (si aplica)
+├── app/Middleware/PermissionMiddleware.php (existente — registrar permiso nuevo en tb_permisos + seeder)
 ├── views/[modulo]/
 │   ├── index.php
 │   ├── create.php
@@ -118,7 +118,7 @@ Si agregas lógica de negocio nueva en un modelo (validación, normalización, c
 - ✅ Eliminar: valida `isReferenced()`, muestra toast/alerta
 - ✅ CSRF: token presente en todos los formularios POST
 - ✅ Seguridad: sin SQL injection, XSS, campos sensibles protegidos
-- ✅ Acceso por rol: middleware restringe correctamente
+- ✅ Acceso por permiso: `can:permiso` en ruta restringe correctamente; `/errors/403` si no tiene permiso
 - ✅ Autenticación: login normal, "Recordarme", logout limpia cookie y BD
 - ✅ Edge cases: campos null, strings largos, caracteres especiales
 
@@ -264,5 +264,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-06-16 — v1.12.3_
+_Última actualización: 2026-06-27 — v1.13.0_
 _Sigue las prácticas de AGENT.md y CLAUDE.md — son la fuente de verdad._

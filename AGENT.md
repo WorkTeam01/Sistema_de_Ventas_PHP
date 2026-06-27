@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1). Protección CSRF completada en módulo de Roles y mensajes de sesión expirada estandarizados (v1.12.2). Bug de carritos concurrentes corregido (v1.12.3).
+**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1). Protección CSRF completada en módulo de Roles y mensajes de sesión expirada estandarizados (v1.12.2). Bug de carritos concurrentes corregido (v1.12.3). Sistema RBAC granular con `tb_permisos` + `PermissionMiddleware` implementado (v1.13.0).
 
 ---
 
@@ -74,7 +74,7 @@ Sistema_de_Ventas_PHP/
 │   │   ├── ActivityLog.php
 │   │   ├── StockAdjustment.php
 │   │   └── Report.php               ← queries agregadas: salesByPeriod, salesTotals, purchasesByPeriod, purchasesTotals, topProducts, clientsByPeriod, salesSummary
-│   └── Middleware/           ← AuthMiddleware, AdminMiddleware, GuestMiddleware, SellerMiddleware
+│   └── Middleware/           ← AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── views/
 │   ├── layouts/
 │   │   ├── header.php        ← Head HTML, navbar; incluye sidebar partial
@@ -168,6 +168,12 @@ tb_ventas
     stock_anterior, stock_posterior, motivo, id_usuario [FK NULL → ON DELETE SET NULL],
     usuario_nombre, fyh_creacion)
     -- registrado atómicamente junto con UPDATE tb_almacen en StockAdjustment::register()
+    tb_permisos
+    (id_permiso, nombre [VARCHAR unique], descripcion, fyh_creacion)
+    -- nombre es el slug del permiso (ej: 'manage_users', 'view_sales')
+    tb_rol_permiso
+    (id_rol [FK → tb_roles], id_permiso [FK → tb_permisos CASCADE DELETE], PRIMARY KEY compuesta)
+    -- tabla pivote muchos-a-muchos entre roles y permisos
 
 -- Roles de usuario (almacenados en tb_roles)
 Administrador
@@ -232,17 +238,29 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 
 ```php
 // En módulos MVC (via middleware en routes/web.php):
-$router->get('/ruta', [Controller::class, 'method'], ['auth']);          // cualquier rol
-$router->get('/ruta', [Controller::class, 'method'], ['auth', 'admin']); // solo Administrador
+$router->get('/ruta', [Controller::class, 'method'], ['auth']);                    // cualquier rol autenticado
+$router->get('/ruta', [Controller::class, 'method'], ['auth', 'can:permiso']);     // requiere permiso específico
 
 // Datos del usuario en sesión:
 Auth::user()            // array con datos del usuario
 Auth::role()            // nombre del rol
 Auth::check()           // bool — verifica sesión y timeout de inactividad
+Auth::can('permiso')    // bool — verifica si el usuario tiene el permiso; usa caché en $_SESSION['permisos']
+Auth::isAdmin()         // bool — alias de Auth::can('is_superadmin')
+Auth::refreshPermissions() // recarga permisos desde BD (llamar tras cambiar rol o permisos)
 Auth::login($user, $remember) // inicia sesión; $remember=true emite cookie de 14 días
 Auth::loginWithCookie() // auto-login desde cookie remember_token; rota el token
 Auth::logout()          // limpia sesión, BD y cookie
 ```
+
+**Permisos granulares (RBAC):**
+
+- Los permisos se almacenan en `tb_permisos` y se asignan a roles en `tb_rol_permiso`.
+- Al hacer login, `Auth::loadPermissions()` carga todos los slugs de permisos del rol en `$_SESSION['permisos']`.
+- `PermissionMiddleware` resuelve el prefijo `can:` en rutas — redirige a `/errors/403` si el permiso falta.
+- En controladores, usar `Auth::can('permiso')` para scoping de datos o restricciones inline.
+- En vistas, el controlador pasa `$can` (array) con los permisos necesarios via `renderWithLayout()` — nunca llamar `Auth::` directamente en vistas.
+- Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `manage_purchases`, `view_sales`, `manage_sales`, `view_activity_log`, `manage_inventory`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
 
 **Timeout de sesión:**
 
@@ -395,4 +413,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-06-16 — v1.12.3 (bug carritos concurrentes: Sale::nextNumber() con UNION ALL sobre tb_carrito; $_SESSION['pos_nro_venta'] sticky en SaleController::create/store/cancel)_
+_Última actualización: 2026-06-27 — v1.13.0 (RBAC granular: tb_permisos + tb_rol_permiso; Auth::can() con caché de sesión; PermissionMiddleware con sintaxis can:permiso; eliminación de AdminMiddleware y SellerMiddleware)_
