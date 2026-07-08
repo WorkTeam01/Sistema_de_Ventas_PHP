@@ -205,9 +205,10 @@ custom, diseño de base de datos y patrones de diseño.
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
 Estado actual: MVP completado con módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas.
-BD implementada: tb_usuarios, tb_roles, tb_categorias, tb_proveedores, tb_clientes, tb_almacen,
-                 tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito, tb_activity_log,
-                 tb_ajustes_stock, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0).
+BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_categorias, tb_proveedores,
+                 tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
+                 tb_activity_log, tb_ajustes_stock, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
+                 con UI de gestión — catálogo + asignación por rol — desde v1.14.0).
 
 [Tarea]
 Necesito decidir: [describe la decisión técnica]
@@ -349,5 +350,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: v1.13.0 (2026-06-27)_
+_Última actualización: v1.14.0 (2026-07-08)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._

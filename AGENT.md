@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** Migración MVC completada — todos los módulos migrados a MVC. Módulo de Reportes implementado (v1.12.0). Correcciones de seguridad y lógica de negocio aplicadas (v1.12.1). Protección CSRF completada en módulo de Roles y mensajes de sesión expirada estandarizados (v1.12.2). Bug de carritos concurrentes corregido (v1.12.3). Sistema RBAC granular con `tb_permisos` + `PermissionMiddleware` implementado (v1.13.0).
+**Estado actual:** v1.14.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -51,7 +51,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── SaleController.php
 │   │   ├── ActivityLogController.php
 │   │   ├── InventoryController.php
-│   │   └── ReportController.php     ← index(), sales(), purchases(), topProducts(), clients(); export PDF/CSV/Excel
+│   │   ├── ReportController.php     ← index(), sales(), purchases(), topProducts(), clients(); export PDF/CSV/Excel
+│   │   └── PermissionController.php ← index(), store(), show() (JSON), update(), checkClave() — catálogo de permisos
 │   ├── Helpers/              ← PSR-4, namespace App\Helpers
 │   │   ├── NumberToWords.php
 │   │   ├── InvoicePdf.php
@@ -73,7 +74,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── CartItem.php
 │   │   ├── ActivityLog.php
 │   │   ├── StockAdjustment.php
-│   │   └── Report.php               ← queries agregadas: salesByPeriod, salesTotals, purchasesByPeriod, purchasesTotals, topProducts, clientsByPeriod, salesSummary
+│   │   ├── Report.php               ← queries agregadas: salesByPeriod, salesTotals, purchasesByPeriod, purchasesTotals, topProducts, clientsByPeriod, salesSummary
+│   │   └── Permission.php           ← claveExists(), allGroupedByModulo(); Role.php agrega getAssignedPermissionIds()/syncPermissions()
 │   └── Middleware/           ← AuthMiddleware, GuestMiddleware, PermissionMiddleware
 ├── views/
 │   ├── layouts/
@@ -86,7 +88,8 @@ Sistema_de_Ventas_PHP/
 │   ├── auth/                 ← login.php, forgot-password.php, reset-password.php, show-reset-link.php
 │   ├── dashboard/
 │   ├── users/
-│   ├── roles/
+│   ├── roles/                ← index.php, permisos.php (asignación de permisos por rol)
+│   ├── permissions/          ← index.php; partial/_modals.php (crear/editar catálogo)
 │   ├── categories/
 │   ├── suppliers/
 │   ├── clients/
@@ -128,6 +131,10 @@ El proyecto usa **dos sistemas de ruteo en paralelo**:
 
 Todos los módulos están migrados. No quedan módulos legacy.
 
+> El detalle exacto de método + ruta + controller + middleware por endpoint vive en `routes/web.php` — es la fuente
+> de verdad; no se replica aquí para evitar desincronización. Los middlewares usan la sintaxis `can:permiso` (ver
+> slugs en §Autenticación).
+
 ---
 
 ## Base de Datos
@@ -137,7 +144,9 @@ Todos los módulos están migrados. No quedan módulos legacy.
 tb_usuarios
 (id_usuario, nombre, apellido, email, password, id_rol, fyh_creacion, fyh_actualizacion)
     tb_roles
-    (id_rol, nombre_rol, fyh_creacion, fyh_actualizacion)
+    (id_rol, rol, permisos_version, fyh_creacion, fyh_actualizacion)
+    -- permisos_version se incrementa en Role::syncPermissions(); Auth::check() la compara contra
+    -- $_SESSION['permisos_version'] para invalidar la caché de permisos sin requerir re-login
     tb_categorias
     (id_categoria, nombre_categoria, fyh_creacion, fyh_actualizacion)
     tb_proveedores
@@ -169,11 +178,11 @@ tb_ventas
     usuario_nombre, fyh_creacion)
     -- registrado atómicamente junto con UPDATE tb_almacen en StockAdjustment::register()
     tb_permisos
-    (id_permiso, nombre [VARCHAR unique], descripcion, fyh_creacion)
-    -- nombre es el slug del permiso (ej: 'manage_users', 'view_sales')
+    (id_permiso, clave [VARCHAR unique], descripcion, modulo, fyh_creacion)
+    -- clave es el slug del permiso (ej: 'manage_users', 'view_sales'); modulo agrupa el catálogo en la UI; sin columna status
     tb_rol_permiso
-    (id_rol [FK → tb_roles], id_permiso [FK → tb_permisos CASCADE DELETE], PRIMARY KEY compuesta)
-    -- tabla pivote muchos-a-muchos entre roles y permisos
+    (id_rol [FK → tb_roles CASCADE DELETE], id_permiso [FK → tb_permisos CASCADE DELETE], PRIMARY KEY compuesta)
+    -- tabla pivote muchos-a-muchos entre roles y permisos; reemplazada por completo en cada Role::syncPermissions()
 
 -- Roles de usuario (almacenados en tb_roles)
 Administrador
@@ -212,16 +221,13 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 - Usar PDO con prepared statements siempre — nunca concatenar variables en SQL
 - **Borrado físico** (no lógico) — protegido por `isReferenced()` antes de ejecutar DELETE
 - **Fat model:** la lógica de negocio vive en el modelo (hashing de contraseñas, validación de formato, normalización
-  de campos, cálculos, reglas de integridad); el controlador solo orquesta (leer input → llamar modelo → responder).
-  Ejemplos: `User::createUser()` / `updateUser()` encapsulan `password_hash()`; `Client::isValidEmail()` encapsula
-  `filter_var()`; `Supplier::createSupplier()` / `updateSupplier()` normalizan campos opcionales (vacío → `null`);
-  `Product::createProduct()` / `updateProduct()` normalizan campos opcionales y castean tipos; los modelos también
-  pueden exponer queries enriquecidas (`Product::findWithCategory()`, `Product::allWithCategories()`) para evitar
-  joins manuales en el controlador; `Sale::computeInvoiceTotals(array $items)` encapsula el cálculo de totales de
-  factura (precio_total, cantidad_total, total_unitarios) — la generación del PDF se delega al helper
-  `InvoicePdf::generate()` en `app/Helpers/`, manteniendo `SaleController::invoice()` en ~20 líneas;
-  el comprobante de compras sigue el mismo patrón: `PurchaseReportPdf::generate()` invocado desde
-  `PurchaseController::report()` vía `GET /purchases/report/{id}`
+  de campos, cálculos, reglas de integridad, transacciones); el controlador solo orquesta (leer input → llamar
+  modelo → responder). Ejemplos representativos: `User::createUser()` encapsula `password_hash()`;
+  `Sale::computeInvoiceTotals()` calcula totales de factura y delega el PDF a `InvoicePdf::generate()` en
+  `app/Helpers/`, manteniendo `SaleController::invoice()` en ~20 líneas; `Role::syncPermissions()` reemplaza el set
+  de permisos de un rol dentro de una transacción (DELETE + INSERT + incremento de `permisos_version`), con rollback
+  ante error. Los modelos también exponen queries enriquecidas para evitar joins manuales en el controlador
+  (`Product::findWithCategory()`, `Permission::allGroupedByModulo()`).
 
 ### PHP — Seguridad
 
@@ -255,12 +261,22 @@ Auth::logout()          // limpia sesión, BD y cookie
 
 **Permisos granulares (RBAC):**
 
-- Los permisos se almacenan en `tb_permisos` y se asignan a roles en `tb_rol_permiso`.
+- Los permisos se almacenan en `tb_permisos` y se asignan a roles en `tb_rol_permiso`. Se gestionan solo a nivel de
+  rol — no hay asignación individual por usuario.
 - Al hacer login, `Auth::loadPermissions()` carga todos los slugs de permisos del rol en `$_SESSION['permisos']`.
 - `PermissionMiddleware` resuelve el prefijo `can:` en rutas — redirige a `/errors/403` si el permiso falta.
 - En controladores, usar `Auth::can('permiso')` para scoping de datos o restricciones inline.
 - En vistas, el controlador pasa `$can` (array) con los permisos necesarios via `renderWithLayout()` — nunca llamar `Auth::` directamente en vistas.
 - Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `manage_purchases`, `view_sales`, `manage_sales`, `view_activity_log`, `manage_inventory`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
+- **Gestión vía UI:** catálogo de permisos en `/permissions` (CRUD de clave/descripción/módulo, `PermissionController`,
+  `views/permissions/`) y asignación por rol en `/roles/permisos/{id}` (checkboxes agrupados por `modulo`,
+  `RoleController::permisos()`/`syncPermisos()`, `views/roles/permisos.php`). Ambas rutas reutilizan el permiso
+  `manage_roles` — no se sembró un slug nuevo.
+- **Invalidación de caché por versión:** `tb_roles.permisos_version` se incrementa en cada `Role::syncPermissions()`.
+  `Auth::check()` compara la versión en sesión contra la de BD (una query barata por request) y llama
+  `refreshPermissions()` si difiere — así los usuarios activos del rol ven el cambio en su siguiente request, sin
+  re-login. El propio admin que edita su rol activo se refresca de inmediato vía `Auth::refreshPermissions()` en
+  `syncPermisos()`.
 
 **Timeout de sesión:**
 
@@ -372,8 +388,17 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 - PHPUnit 11: usar `#[\PHPUnit\Framework\Attributes\DataProvider('method')]` — `@dataProvider` en docblock está deprecado
 - Trait `RefreshDatabase`: BD limpia por test via `setUp as setUpDatabase` (trait aliasing — ver `UserRepositoryTest` como referencia)
 - Seeders mínimos por test — solo los registros que el test necesita
-- No testear Controllers, Middleware, Vistas ni Router (ver CLAUDE.md §Lo que NO se testea)
-- Al agregar columnas o tablas a `database/schema.sql`, actualizar también `tests/fixtures/schema.sqlite.sql`
+- No testear Controllers, Middleware, Vistas ni Router
+- Al agregar columnas o tablas a `database/schema.sql`, actualizar también `tests/fixtures/schema.sqlite.sql` con las diferencias de sintaxis:
+
+  | MySQL                         | SQLite equivalente |
+  | ------------------------------ | ------------------- |
+  | `AUTO_INCREMENT`              | `AUTOINCREMENT`    |
+  | `DECIMAL(10,2)`               | `NUMERIC`           |
+  | `datetime`                    | `TEXT`              |
+  | `INT(11)`                     | `INTEGER`           |
+  | `ON UPDATE CURRENT_TIMESTAMP` | (omitir)            |
+  | `ENGINE=InnoDB CHARSET=`      | (omitir)            |
 
 ### Inyección del singleton para tests
 
@@ -413,4 +438,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-06-27 — v1.13.0 (RBAC granular: tb_permisos + tb_rol_permiso; Auth::can() con caché de sesión; PermissionMiddleware con sintaxis can:permiso; eliminación de AdminMiddleware y SellerMiddleware)_
+_Última actualización: 2026-07-08 — v1.14.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
