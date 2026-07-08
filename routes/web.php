@@ -10,6 +10,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\ProductController;
 use App\Controllers\PurchaseController;
 use App\Controllers\SaleController;
+use App\Controllers\PermissionController;
 use App\Controllers\RoleController;
 use App\Controllers\SupplierController;
 use App\Controllers\UserController;
@@ -64,6 +65,13 @@ $router->post('/roles/store',        [RoleController::class, 'store'],       ['a
 $router->get('/roles/show/{id}',     [RoleController::class, 'show'],        ['auth', 'can:manage_roles']);
 $router->post('/roles/update/{id}',  [RoleController::class, 'update'],      ['auth', 'can:manage_roles']);
 $router->post('/roles/check-nombre', [RoleController::class, 'checkNombre'], ['auth', 'can:manage_roles']);
+
+// Rutas del módulo permissions (MVC)
+$router->get('/permissions',              [PermissionController::class, 'index'],      ['auth', 'can:manage_roles']);
+$router->post('/permissions/store',       [PermissionController::class, 'store'],      ['auth', 'can:manage_roles']);
+$router->get('/permissions/show/{id}',    [PermissionController::class, 'show'],       ['auth', 'can:manage_roles']);
+$router->post('/permissions/update/{id}', [PermissionController::class, 'update'],     ['auth', 'can:manage_roles']);
+$router->post('/permissions/check-clave', [PermissionController::class, 'checkClave'], ['auth', 'can:manage_roles']);
 
 // Rutas del módulo categories (MVC)
 $router->get('/categories',               [CategoryController::class, 'index'],       ['auth', 'can:view_categories']);

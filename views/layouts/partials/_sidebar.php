@@ -15,6 +15,7 @@ $usersActive = str_starts_with($_currentPath, '/users');
 
 // — Módulo Roles —
 $rolesActive = str_starts_with($_currentPath, '/roles');
+$permissionsActive = str_starts_with($_currentPath, '/permissions');
 
 // — Módulo Categorías —
 $categoriesActive = str_starts_with($_currentPath, '/categories');
@@ -99,6 +100,13 @@ $link = fn(bool $on) => $on ? ' active' : '';
                         <a href="<?= BASE_URL ?>/roles" class="nav-link<?= $link($rolesActive) ?>">
                             <i class="nav-icon fas fa-address-card"></i>
                             <p>Roles</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="<?= BASE_URL ?>/permissions" class="nav-link<?= $link($permissionsActive) ?>">
+                            <i class="nav-icon fas fa-key"></i>
+                            <p>Permisos</p>
                         </a>
                     </li>
 
