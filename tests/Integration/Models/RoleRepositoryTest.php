@@ -30,6 +30,20 @@ final class RoleRepositoryTest extends TestCase
         return (int)$this->pdo->lastInsertId();
     }
 
+    private function createPermission(string $clave, string $modulo = 'general'): int
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO tb_permisos (clave, descripcion, modulo) VALUES (?, ?, ?)');
+        $stmt->execute([$clave, $clave, $modulo]);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    private function getPermisosVersion(int $roleId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT permisos_version FROM tb_roles WHERE id_rol = ?');
+        $stmt->execute([$roleId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     // -------------------------------------------------------------------------
     // nameExists
     // -------------------------------------------------------------------------
@@ -109,5 +123,89 @@ final class RoleRepositoryTest extends TestCase
         $this->role->delete($id);
 
         $this->assertFalse($this->role->find($id));
+    }
+
+    // -------------------------------------------------------------------------
+    // getAssignedPermissionIds / syncPermissions
+    // -------------------------------------------------------------------------
+
+    public function test_getAssignedPermissionIds_returns_empty_array_when_no_permissions_assigned(): void
+    {
+        $roleId = $this->createRole();
+
+        $this->assertSame([], $this->role->getAssignedPermissionIds($roleId));
+    }
+
+    public function test_getAssignedPermissionIds_returns_assigned_ids(): void
+    {
+        $roleId = $this->createRole();
+        $p1 = $this->createPermission('view_products');
+        $p2 = $this->createPermission('manage_products');
+        $this->pdo->exec("INSERT INTO tb_rol_permiso (id_rol, id_permiso) VALUES ({$roleId}, {$p1}), ({$roleId}, {$p2})");
+
+        $ids = $this->role->getAssignedPermissionIds($roleId);
+
+        $this->assertCount(2, $ids);
+        $this->assertContains($p1, $ids);
+        $this->assertContains($p2, $ids);
+    }
+
+    public function test_syncPermissions_assigns_new_permissions(): void
+    {
+        $roleId = $this->createRole();
+        $p1 = $this->createPermission('view_products');
+        $p2 = $this->createPermission('manage_products');
+
+        $result = $this->role->syncPermissions($roleId, [$p1, $p2]);
+
+        $this->assertTrue($result);
+        $this->assertEqualsCanonicalizing([$p1, $p2], $this->role->getAssignedPermissionIds($roleId));
+    }
+
+    public function test_syncPermissions_replaces_previous_set(): void
+    {
+        $roleId = $this->createRole();
+        $p1 = $this->createPermission('view_products');
+        $p2 = $this->createPermission('manage_products');
+        $this->role->syncPermissions($roleId, [$p1]);
+
+        $result = $this->role->syncPermissions($roleId, [$p2]);
+
+        $this->assertTrue($result);
+        $this->assertSame([$p2], $this->role->getAssignedPermissionIds($roleId));
+    }
+
+    public function test_syncPermissions_with_empty_array_removes_all_permissions(): void
+    {
+        $roleId = $this->createRole();
+        $p1 = $this->createPermission('view_products');
+        $this->role->syncPermissions($roleId, [$p1]);
+
+        $result = $this->role->syncPermissions($roleId, []);
+
+        $this->assertTrue($result);
+        $this->assertSame([], $this->role->getAssignedPermissionIds($roleId));
+    }
+
+    public function test_syncPermissions_increments_permisos_version_by_one(): void
+    {
+        $roleId = $this->createRole();
+        $p1 = $this->createPermission('view_products');
+        $before = $this->getPermisosVersion($roleId);
+
+        $this->role->syncPermissions($roleId, [$p1]);
+
+        $this->assertSame($before + 1, $this->getPermisosVersion($roleId));
+    }
+
+    public function test_syncPermissions_increments_permisos_version_on_each_call(): void
+    {
+        $roleId = $this->createRole();
+        $p1 = $this->createPermission('view_products');
+
+        $this->role->syncPermissions($roleId, [$p1]);
+        $this->role->syncPermissions($roleId, []);
+
+        $this->assertSame(2, $this->getPermisosVersion($roleId));
     }
 }
