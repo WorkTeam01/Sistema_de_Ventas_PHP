@@ -56,12 +56,20 @@
                                         <td class="text-center"><?= ++$contador ?></td>
                                         <td><?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8') ?></td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-success btn-sm btn-edit"
-                                                    data-id="<?= $roles_dato['id_rol'] ?>"
-                                                    data-toggle="tooltip"
-                                                    title="Editar">
-                                                <i class="fas fa-pencil-alt"></i>
-                                            </button>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-success btn-sm btn-edit"
+                                                        data-id="<?= $roles_dato['id_rol'] ?>"
+                                                        data-toggle="tooltip"
+                                                        title="Editar">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
+                                                <a href="<?= BASE_URL ?>/roles/permisos/<?= $roles_dato['id_rol'] ?>"
+                                                   class="btn btn-primary btn-sm"
+                                                   data-toggle="tooltip"
+                                                   title="Permisos">
+                                                    <i class="fas fa-key"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

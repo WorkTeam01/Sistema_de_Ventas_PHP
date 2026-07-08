@@ -65,6 +65,8 @@ $router->post('/roles/store',        [RoleController::class, 'store'],       ['a
 $router->get('/roles/show/{id}',     [RoleController::class, 'show'],        ['auth', 'can:manage_roles']);
 $router->post('/roles/update/{id}',  [RoleController::class, 'update'],      ['auth', 'can:manage_roles']);
 $router->post('/roles/check-nombre', [RoleController::class, 'checkNombre'], ['auth', 'can:manage_roles']);
+$router->get('/roles/permisos/{id}',  [RoleController::class, 'permisos'],     ['auth', 'can:manage_roles']);
+$router->post('/roles/permisos/{id}', [RoleController::class, 'syncPermisos'], ['auth', 'can:manage_roles']);
 
 // Rutas del módulo permissions (MVC)
 $router->get('/permissions',              [PermissionController::class, 'index'],      ['auth', 'can:manage_roles']);

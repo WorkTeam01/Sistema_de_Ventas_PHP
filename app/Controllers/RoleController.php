@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\Permission;
 use App\Models\Role;
 
 class RoleController extends Controller
@@ -145,5 +146,70 @@ class RoleController extends Controller
 
         echo json_encode($exists ? 'Ya existe un rol con este nombre.' : true);
         exit;
+    }
+
+    /**
+     * Muestra la vista de asignación de permisos de un rol
+     * (checkboxes agrupados por módulo).
+     *
+     * @param int|null $id
+     */
+    public function permisos(?int $id = null): void
+    {
+        $id = $id ?? (int)($_GET['id'] ?? 0);
+
+        $roleModel = new Role();
+        $role = $roleModel->find($id);
+
+        if (!$role) {
+            $this->flash('Rol no encontrado.', 'error');
+            $this->redirect(BASE_URL . '/roles');
+        }
+
+        $permissionModel = new Permission();
+
+        $this->renderWithLayout('views/roles/permisos.php', array_merge(
+            $this->sessionData(),
+            [
+                'role'                => $role,
+                'permisos_agrupados'  => $permissionModel->allGroupedByModulo(),
+                'permisos_asignados'  => $roleModel->getAssignedPermissionIds($id),
+                'csrf_token'          => Auth::generateCsrfToken(),
+                'pageScripts'         => ['/js/modules/roles/roles-permisos.js'],
+            ]
+        ));
+    }
+
+    /**
+     * Sincroniza el conjunto de permisos asignados a un rol (AJAX).
+     * Incrementa permisos_version para invalidar la caché de sesión de otros usuarios
+     * del rol; si el admin edita su propio rol, refresca sus permisos de inmediato.
+     *
+     * @param int|null $id
+     */
+    public function syncPermisos(?int $id = null): void
+    {
+        $this->validateCsrfOrFailJson();
+
+        $id = $id ?? (int)($_POST['id'] ?? 0);
+
+        $roleModel = new Role();
+
+        if ($id <= 0 || !$roleModel->find($id)) {
+            $this->json(['success' => false, 'message' => 'Rol no encontrado.']);
+        }
+
+        $permisos = array_map('intval', (array)($_POST['permisos'] ?? []));
+
+        if (!$roleModel->syncPermissions($id, $permisos)) {
+            $this->json(['success' => false, 'message' => 'Error al actualizar los permisos del rol.']);
+        }
+
+        $usuario = Auth::user();
+        if ($usuario && (int)$usuario['id_rol'] === $id) {
+            Auth::refreshPermissions();
+        }
+
+        $this->json(['success' => true, 'message' => 'Permisos actualizados exitosamente.']);
     }
 }
