@@ -42,6 +42,14 @@ class Auth
         }
 
         $_SESSION['last_activity'] = time();
+
+        if (isset($_SESSION['id_rol'], $_SESSION['permisos_version'])) {
+            $currentVersion = self::fetchPermissionsVersion((int)$_SESSION['id_rol']);
+            if ($currentVersion !== (int)$_SESSION['permisos_version']) {
+                self::loadPermissions((int)$_SESSION['id_rol']);
+            }
+        }
+
         return true;
     }
 
@@ -106,8 +114,6 @@ class Auth
      * Inicia sesión: regenera el ID de sesión y guarda el email del usuario.
      * Si $remember es true, emite una cookie de remember_token (30 días).
      *
-     * @param array $user     Datos del usuario; debe contener 'email' e 'id_usuario'.
-     * @param bool  $remember Si se debe emitir cookie de recordarme.
      */
     private static function loadPermissions(int $idRol): void
     {
@@ -120,6 +126,24 @@ class Auth
         );
         $stmt->execute([$idRol]);
         $_SESSION['permisos'] = $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
+        $_SESSION['id_rol'] = $idRol;
+        $_SESSION['permisos_version'] = self::fetchPermissionsVersion($idRol);
+    }
+
+    /**
+     * Devuelve el contador permisos_version del rol, o 0 si la columna aún
+     * no existe (tolera despliegues donde el código llegó antes que la migración).
+     */
+    private static function fetchPermissionsVersion(int $idRol): int
+    {
+        try {
+            $pdo  = Database::getInstance()->getConnection();
+            $stmt = $pdo->prepare("SELECT permisos_version FROM tb_roles WHERE id_rol = ?");
+            $stmt->execute([$idRol]);
+            return (int)($stmt->fetchColumn() ?: 0);
+        } catch (\PDOException $e) {
+            return 0;
+        }
     }
 
     public static function can(string $permiso): bool

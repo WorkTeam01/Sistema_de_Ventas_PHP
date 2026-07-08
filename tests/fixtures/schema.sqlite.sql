@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS tb_activity_log (
 CREATE TABLE IF NOT EXISTS tb_roles (
     id_rol              INTEGER PRIMARY KEY AUTOINCREMENT,
     rol                 TEXT    NOT NULL,
+    permisos_version    INTEGER NOT NULL DEFAULT 0,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_actualizacion   TEXT    DEFAULT NULL
 );

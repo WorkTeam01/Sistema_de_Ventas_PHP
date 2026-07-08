@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS `tb_proveedores` (
 CREATE TABLE IF NOT EXISTS `tb_roles` (
   `id_rol` int(11) NOT NULL AUTO_INCREMENT,
   `rol` varchar(255) NOT NULL,
+  `permisos_version` INT(11) NOT NULL DEFAULT 0,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_rol`)
