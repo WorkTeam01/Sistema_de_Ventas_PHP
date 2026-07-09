@@ -35,6 +35,9 @@ class ActivityLogRenderer
         'cantidad'         => 'Cantidad',
         'precio_unitario'  => 'Precio unitario',
         'subtotal'         => 'Subtotal',
+        // exports
+        'formato'          => 'Formato',
+        'filas'            => 'Filas exportadas',
     ];
 
     public static function label(string $key): string
@@ -51,6 +54,7 @@ class ActivityLogRenderer
             'delete'       => 'badge-danger',
             'price_change' => 'badge-warning',
             'role_change'  => 'badge-info',
+            'export'       => 'badge-secondary',
             default        => 'badge-primary',
         };
     }

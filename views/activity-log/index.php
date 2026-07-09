@@ -67,7 +67,7 @@
                                                 <?php endif; ?>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge <?= \App\Helpers\ActivityLogRenderer::badgeClass($log['accion']) ?>">
+                                                <span class="badge <?= \App\Helpers\ActivityLogRenderer::badgeClass($log['accion']) ?> px-2 py-1">
                                                     <?= htmlspecialchars($log['accion'], ENT_QUOTES, 'UTF-8') ?>
                                                 </span>
                                             </td>

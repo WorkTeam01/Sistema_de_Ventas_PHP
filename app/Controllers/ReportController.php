@@ -6,6 +6,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Helpers\ReportFilters;
 use App\Helpers\ReportPdf;
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Report;
 
@@ -248,6 +249,15 @@ class ReportController extends Controller
     ): void {
         $session = $this->sessionData();
         $emisor  = $session['nombres_sesion'];
+
+        ActivityLog::record(
+            'export',
+            'report',
+            null,
+            "Exportó {$titulo} (" . strtoupper($format) . ')',
+            null,
+            ['formato' => $format, 'filas' => count($rows)]
+        );
 
         if ($format === 'pdf') {
             ReportPdf::generate($titulo, $subtitulo, $headers, $rows, $totals, $filename, $emisor);
