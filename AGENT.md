@@ -200,6 +200,11 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 
 ## Convenciones de Código
 
+- **Identificadores en inglés**: variables, métodos, funciones y clases nuevas se nombran en inglés (`$previousRole`,
+  `$newId`), incluso en archivos donde identificadores preexistentes usan español (`$rol`, `$permisos_datos`) por
+  convención histórica del dominio (ventas, roles, etc.). Los strings/mensajes de usuario siguen en español. No
+  renombrar identificadores preexistentes salvo pedido explícito.
+
 ### PHP — Controladores MVC
 
 - Un controlador por módulo: `SupplierController`, `ClientController`, etc.

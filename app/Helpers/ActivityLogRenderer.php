@@ -81,6 +81,11 @@ class ActivityLogRenderer
         $rows = [];
         foreach ($decoded as $key => $value) {
             $isList = is_array($value) && isset($value[0]) && is_array($value[0]);
+
+            if (is_array($value) && !$isList) {
+                $value = implode(', ', $value);
+            }
+
             $rows[] = [
                 'label' => self::label((string)$key),
                 'value' => $value,

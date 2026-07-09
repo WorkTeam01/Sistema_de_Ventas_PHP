@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\Permission;
 
 class PermissionController extends Controller
@@ -47,7 +48,10 @@ class PermissionController extends Controller
             $this->json(['success' => false, 'message' => 'Ya existe un permiso con esa clave.']);
         }
 
-        if ($permissionModel->create(['clave' => $clave, 'descripcion' => $descripcion, 'modulo' => $modulo])) {
+        $newId = $permissionModel->create(['clave' => $clave, 'descripcion' => $descripcion, 'modulo' => $modulo]);
+
+        if ($newId) {
+            ActivityLog::record('create', 'permission', (int)$newId, "Permiso '{$clave}' creado en módulo '{$modulo}'");
             $this->json(['success' => true, 'message' => 'El permiso se registró exitosamente.']);
         }
 
@@ -98,7 +102,9 @@ class PermissionController extends Controller
 
         $permissionModel = new Permission();
 
-        if (!$permissionModel->find($id)) {
+        $previousPermission = $permissionModel->find($id);
+
+        if (!$previousPermission) {
             $this->json(['success' => false, 'message' => 'Permiso no encontrado.']);
         }
 
@@ -107,6 +113,12 @@ class PermissionController extends Controller
         }
 
         if ($permissionModel->update($id, ['clave' => $clave, 'descripcion' => $descripcion, 'modulo' => $modulo])) {
+            ActivityLog::record(
+                'update', 'permission', $id,
+                "Permiso '{$previousPermission['clave']}' actualizado",
+                ['clave' => $previousPermission['clave'], 'descripcion' => $previousPermission['descripcion'], 'modulo' => $previousPermission['modulo']],
+                ['clave' => $clave, 'descripcion' => $descripcion, 'modulo' => $modulo]
+            );
             $this->json(['success' => true, 'message' => 'El permiso se actualizó exitosamente.']);
         }
 

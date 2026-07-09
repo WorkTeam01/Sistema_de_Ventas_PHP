@@ -36,6 +36,27 @@ class Permission extends Model
     }
 
     /**
+     * Devuelve las claves de los permisos indicados, en el mismo orden en que existan.
+     *
+     * @param int[] $ids
+     * @return string[]
+     */
+    public function findClavesByIds(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($ids), '?'));
+        $rows = $this->query(
+            "SELECT clave FROM {$this->table} WHERE {$this->primaryKey} IN ({$placeholders}) ORDER BY clave",
+            $ids
+        );
+
+        return array_column($rows, 'clave');
+    }
+
+    /**
      * Devuelve todos los permisos agrupados por módulo.
      *
      * @return array Arreglo asociativo modulo => lista de permisos.

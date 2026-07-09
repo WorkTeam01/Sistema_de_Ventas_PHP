@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\Permission;
 use App\Models\Role;
 
@@ -48,7 +49,10 @@ class RoleController extends Controller
             return;
         }
 
-        if ($roleModel->create(['rol' => $rol])) {
+        $newId = $roleModel->create(['rol' => $rol]);
+
+        if ($newId) {
+            ActivityLog::record('create', 'role', (int)$newId, "Rol '{$rol}' creado");
             $this->json(['success' => true, 'message' => 'Rol creado exitosamente.']);
             return;
         }
@@ -100,7 +104,9 @@ class RoleController extends Controller
 
         $roleModel = new Role();
 
-        if (!$roleModel->find($id)) {
+        $previousRole = $roleModel->find($id);
+
+        if (!$previousRole) {
             $this->json(['success' => false, 'message' => 'Rol no encontrado.']);
             return;
         }
@@ -111,6 +117,12 @@ class RoleController extends Controller
         }
 
         if ($roleModel->update($id, ['rol' => $rol])) {
+            ActivityLog::record(
+                'update', 'role', $id,
+                "Rol '{$previousRole['rol']}' renombrado a '{$rol}'",
+                ['rol' => $previousRole['rol']],
+                ['rol' => $rol]
+            );
             $this->json(['success' => true, 'message' => 'Rol actualizado exitosamente.']);
             return;
         }
@@ -195,15 +207,27 @@ class RoleController extends Controller
 
         $roleModel = new Role();
 
-        if ($id <= 0 || !$roleModel->find($id)) {
+        $role = $roleModel->find($id);
+
+        if ($id <= 0 || !$role) {
             $this->json(['success' => false, 'message' => 'Rol no encontrado.']);
         }
 
+        $previousPermissionIds = $roleModel->getAssignedPermissionIds($id);
         $permisos = array_map('intval', (array)($_POST['permisos'] ?? []));
 
         if (!$roleModel->syncPermissions($id, $permisos)) {
             $this->json(['success' => false, 'message' => 'Error al actualizar los permisos del rol.']);
         }
+
+        $permissionModel = new Permission();
+
+        ActivityLog::record(
+            'permission_change', 'role', $id,
+            "Permisos actualizados para el rol '{$role['rol']}'",
+            ['permisos' => $permissionModel->findClavesByIds($previousPermissionIds)],
+            ['permisos' => $permissionModel->findClavesByIds($permisos)]
+        );
 
         $usuario = Auth::user();
         if ($usuario && (int)$usuario['id_rol'] === $id) {
