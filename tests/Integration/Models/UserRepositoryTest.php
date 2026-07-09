@@ -44,7 +44,7 @@ final class UserRepositoryTest extends TestCase
     {
         $result = $this->user->createUser('Juan Pérez', 'juan@example.com', 1, 'password');
 
-        $this->assertTrue($result);
+        $this->assertIsInt($result);
 
         $row = $this->user->find(1);
         $this->assertIsArray($row);

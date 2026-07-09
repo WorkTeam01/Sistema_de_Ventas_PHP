@@ -83,7 +83,15 @@ class UserController extends Controller
             $this->redirect(BASE_URL . '/users/create');
         }
 
-        if ($userModel->createUser($nombres, $email, $rol, $password_user)) {
+        $newUserId = $userModel->createUser($nombres, $email, $rol, $password_user);
+        if ($newUserId !== false) {
+            $nuevo = $userModel->findWithRoleById($newUserId);
+            ActivityLog::record(
+                'create', 'user', $newUserId,
+                "Usuario '{$nombres}' ({$email}) creado — rol: " . ($nuevo['rol'] ?? ''),
+                null,
+                ['nombres' => $nombres, 'email' => $email, 'rol' => $nuevo['rol'] ?? null]
+            );
             $this->flash('El usuario se registró exitosamente', 'success');
             $this->redirect(BASE_URL . '/users');
         }
@@ -178,11 +186,22 @@ class UserController extends Controller
 
         if ($userModel->updateUser($id_usuario, $nombres, $email, $rol, $newPassword)) {
             if ($usuarioActual && (int)$usuarioActual['id_rol'] !== $rol) {
+                $usuarioNuevo = $userModel->findWithRoleById($id_usuario);
                 ActivityLog::record(
                     'role_change', 'user', $id_usuario,
                     "Cambio de rol para '{$usuarioActual['nombres']}'",
-                    ['id_rol' => $usuarioActual['id_rol'], 'rol' => $usuarioActual['rol']],
-                    ['id_rol' => $rol]
+                    [
+                        'nombres' => $usuarioActual['nombres'],
+                        'email' => $usuarioActual['email'],
+                        'id_rol' => $usuarioActual['id_rol'],
+                        'rol' => $usuarioActual['rol'],
+                    ],
+                    [
+                        'nombres' => $nombres,
+                        'email' => $email,
+                        'id_rol' => $rol,
+                        'rol' => $usuarioNuevo['rol'] ?? null,
+                    ]
                 );
             }
             $this->flash('El usuario se actualizó exitosamente', 'success');

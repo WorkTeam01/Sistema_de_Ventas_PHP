@@ -128,16 +128,16 @@ class User extends Model
      * @param string $email Email del usuario.
      * @param int $idRol ID del rol asignado.
      * @param string $plainPassword Contraseña en texto plano; se hashea internamente.
-     * @return bool True si la inserción fue exitosa.
+     * @return int|false ID del usuario creado, o false si falló la inserción.
      */
-    public function createUser(string $nombres, string $email, int $idRol, string $plainPassword): bool
+    public function createUser(string $nombres, string $email, int $idRol, string $plainPassword): int|false
     {
         return $this->create([
-                'nombres' => $nombres,
-                'email' => $email,
-                'id_rol' => $idRol,
-                'password_user' => password_hash($plainPassword, PASSWORD_DEFAULT),
-            ]) !== false;
+            'nombres' => $nombres,
+            'email' => $email,
+            'id_rol' => $idRol,
+            'password_user' => password_hash($plainPassword, PASSWORD_DEFAULT),
+        ]);
     }
 
     /**
