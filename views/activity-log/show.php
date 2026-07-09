@@ -1,14 +1,3 @@
-<?php
-$accion  = $entry['accion']  ?? '';
-$entidad = $entry['entidad'] ?? '';
-
-$badgeClass = match ($accion) {
-    'delete'       => 'badge-danger',
-    'price_change' => 'badge-warning',
-    'role_change'  => 'badge-info',
-    default        => 'badge-primary',
-};
-?>
 <!-- Content Wrapper -->
 <section class="content-wrapper">
     <div class="content-header">

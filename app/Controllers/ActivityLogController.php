@@ -74,6 +74,9 @@ class ActivityLogController extends Controller
             $this->sessionData(),
             [
                 'entry'      => $entry,
+                'accion'     => $entry['accion']  ?? '',
+                'entidad'    => $entry['entidad'] ?? '',
+                'badgeClass' => ActivityLogRenderer::badgeClass($entry['accion'] ?? ''),
                 'rowsBefore' => ActivityLogRenderer::prepare($entry['datos_anteriores'] ?? null),
                 'rowsAfter'  => ActivityLogRenderer::prepare($entry['datos_nuevos']    ?? null),
             ]

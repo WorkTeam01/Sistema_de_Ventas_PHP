@@ -43,6 +43,19 @@ class ActivityLogRenderer
     }
 
     /**
+     * Clase de badge Bootstrap asociada a una acción del log.
+     */
+    public static function badgeClass(string $accion): string
+    {
+        return match ($accion) {
+            'delete'       => 'badge-danger',
+            'price_change' => 'badge-warning',
+            'role_change'  => 'badge-info',
+            default        => 'badge-primary',
+        };
+    }
+
+    /**
      * Decode a JSON string and return view-ready rows.
      *
      * Each row has:
