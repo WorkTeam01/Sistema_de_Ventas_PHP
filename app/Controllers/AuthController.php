@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 use App\Services\EmailService;
 
@@ -44,6 +45,7 @@ class AuthController extends Controller
         $usuario = $userModel->findByEmail($email);
 
         if ($usuario && $userModel->isLocked($usuario)) {
+            ActivityLog::record('login_failed', 'auth', (int)$usuario['id_usuario'], "Intento de inicio de sesión con cuenta bloqueada: {$email}");
             $_SESSION['mensaje'] = 'Demasiados intentos fallidos. Tu cuenta está bloqueada por 15 minutos. Si olvidaste tu contraseña, usa la opción ¿Olvidaste tu contraseña?';
             $_SESSION['icono'] = 'warning';
             $this->redirect(BASE_URL . '/auth');
@@ -54,11 +56,13 @@ class AuthController extends Controller
             $userModel->clearLoginAttempts((int)$usuario['id_usuario']);
             Auth::login($usuario, $remember);
             $_SESSION['welcome_user'] = $usuario['nombres'];
+            ActivityLog::record('login', 'auth', (int)$usuario['id_usuario'], "Inicio de sesión exitoso: {$email}");
             $this->redirect(BASE_URL . '/');
         } else {
             if ($usuario) {
                 $userModel->recordFailedLogin((int)$usuario['id_usuario']);
             }
+            ActivityLog::record('login_failed', 'auth', $usuario ? (int)$usuario['id_usuario'] : null, "Intento fallido de inicio de sesión: {$email}");
             $_SESSION['mensaje'] = 'Datos incorrectos';
             $_SESSION['icono'] = 'error';
             $this->redirect(BASE_URL . '/auth');
@@ -70,6 +74,10 @@ class AuthController extends Controller
      */
     public function logout(): void
     {
+        $user = Auth::user();
+        if ($user) {
+            ActivityLog::record('logout', 'auth', (int)$user['id_usuario'], "Cierre de sesión: {$user['email']}");
+        }
         Auth::logout();
         $this->redirect(BASE_URL . '/auth');
     }
