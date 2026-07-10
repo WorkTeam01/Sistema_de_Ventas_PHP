@@ -33,6 +33,7 @@ class ActivityLogController extends Controller
         $logs     = $logModel->search($from, $to, $filters);
         $entities = $logModel->availableEntities();
         $actions  = $logModel->availableActions();
+        $kpis     = $logModel->kpis($from, $to, $filters);
 
         $this->renderWithLayout('views/activity-log/index.php', array_merge(
             $this->sessionData(),
@@ -40,6 +41,7 @@ class ActivityLogController extends Controller
                 'logs'     => $logs,
                 'entities' => $entities,
                 'actions'  => $actions,
+                'kpis'     => $kpis,
                 'from'     => $from,
                 'to'       => $to,
                 'filters'  => $filters,

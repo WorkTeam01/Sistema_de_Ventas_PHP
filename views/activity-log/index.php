@@ -25,6 +25,8 @@
                 <div class="col-12">
                     <?php include __DIR__ . '/partial/_filters.php'; ?>
 
+                    <?php include __DIR__ . '/partial/_kpis.php'; ?>
+
                     <!-- Tabla -->
                     <div class="card card-outline card-primary">
                         <div class="card-header">

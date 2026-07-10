@@ -58,6 +58,55 @@ class ActivityLog extends Model
      */
     public function search(string $from, string $to, array $filters = []): array
     {
+        [$where, $params] = $this->buildRangeFilter($from, $to, $filters);
+
+        return $this->query(
+            "SELECT l.*,
+                    COALESCE(u.nombres, l.usuario_nombre) AS nombre_display
+             FROM tb_activity_log l
+             LEFT JOIN tb_usuarios u ON l.id_usuario = u.id_usuario
+             $where
+             ORDER BY l.id_log DESC",
+            $params
+        );
+    }
+
+    /**
+     * KPIs agregados sobre el rango/filtros dados (para las small-box del index).
+     * Se calculan con COUNT/GROUP BY en BD, no sobre la página ya paginada de $logs.
+     *
+     * @return array{total: int, usuarios_distintos: int, eliminaciones: int, cambios_sensibles: int}
+     */
+    public function kpis(string $from, string $to, array $filters = []): array
+    {
+        [$where, $params] = $this->buildRangeFilter($from, $to, $filters);
+
+        $row = $this->query(
+            "SELECT
+                COUNT(*) AS total,
+                COUNT(DISTINCT l.id_usuario) AS usuarios_distintos,
+                SUM(CASE WHEN l.accion = 'delete' THEN 1 ELSE 0 END) AS eliminaciones,
+                SUM(CASE WHEN l.accion IN ('role_change', 'price_change') THEN 1 ELSE 0 END) AS cambios_sensibles
+             FROM tb_activity_log l
+             $where",
+            $params
+        )[0] ?? [];
+
+        return [
+            'total'              => (int)($row['total'] ?? 0),
+            'usuarios_distintos' => (int)($row['usuarios_distintos'] ?? 0),
+            'eliminaciones'      => (int)($row['eliminaciones'] ?? 0),
+            'cambios_sensibles'  => (int)($row['cambios_sensibles'] ?? 0),
+        ];
+    }
+
+    /**
+     * Construye la cláusula WHERE + parámetros compartidos por search() y kpis().
+     *
+     * @return array{0: string, 1: array}
+     */
+    private function buildRangeFilter(string $from, string $to, array $filters): array
+    {
         $params = [
             $from . ' 00:00:00',
             $to   . ' 23:59:59',
@@ -78,15 +127,7 @@ class ActivityLog extends Model
             $params[] = (int)$filters['id_usuario'];
         }
 
-        return $this->query(
-            "SELECT l.*,
-                    COALESCE(u.nombres, l.usuario_nombre) AS nombre_display
-             FROM tb_activity_log l
-             LEFT JOIN tb_usuarios u ON l.id_usuario = u.id_usuario
-             $where
-             ORDER BY l.id_log DESC",
-            $params
-        );
+        return [$where, $params];
     }
 
     /** Lista de entidades distintas registradas — para poblar el <select> de filtro. */
