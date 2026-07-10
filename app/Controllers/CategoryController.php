@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\ActivityLog;
 use App\Models\Category;
 
 class CategoryController extends Controller
@@ -47,7 +48,17 @@ class CategoryController extends Controller
             return;
         }
 
-        if ($categoryModel->create(['nombre_categoria' => $nombre_categoria])) {
+        $newId = $categoryModel->create(['nombre_categoria' => $nombre_categoria]);
+
+        if ($newId) {
+            ActivityLog::record(
+                'create',
+                'category',
+                $newId,
+                "Categoría '{$nombre_categoria}' registrada",
+                null,
+                ['nombre_categoria' => $nombre_categoria]
+            );
             $this->json(['success' => true, 'message' => 'Categoría creada exitosamente.']);
             return;
         }
@@ -105,7 +116,9 @@ class CategoryController extends Controller
 
         $categoryModel = new Category();
 
-        if (!$categoryModel->find($id)) {
+        $category = $categoryModel->find($id);
+
+        if (!$category) {
             $this->json(['success' => false, 'message' => 'No se encontró la categoría solicitada.']);
             return;
         }
@@ -116,6 +129,14 @@ class CategoryController extends Controller
         }
 
         if ($categoryModel->update($id, ['nombre_categoria' => $nombre_categoria])) {
+            ActivityLog::record(
+                'update',
+                'category',
+                $id,
+                "Categoría '{$category['nombre_categoria']}' actualizada",
+                ['nombre_categoria' => $category['nombre_categoria']],
+                ['nombre_categoria' => $nombre_categoria]
+            );
             $this->json(['success' => true, 'message' => 'Categoría actualizada exitosamente.']);
             return;
         }

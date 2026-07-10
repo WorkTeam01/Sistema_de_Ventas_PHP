@@ -24,6 +24,7 @@ class ActivityLogRenderer
         'email_cliente'    => 'Correo (cliente)',
         'nombre_proveedor' => 'Proveedor',
         'empresa'          => 'Empresa',
+        'nombre_categoria' => 'Categoría',
         // sales / purchases
         'nro_venta'        => 'Nro. Venta',
         'nro_compra'       => 'Nro. Compra',
