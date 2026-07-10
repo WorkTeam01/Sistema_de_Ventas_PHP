@@ -66,6 +66,19 @@ class ClientController extends Controller
         ]);
 
         if ($newId) {
+            ActivityLog::record(
+                'create',
+                'client',
+                (int)$newId,
+                "Cliente '{$nombre_cliente}' registrado",
+                null,
+                [
+                    'nombre_cliente'  => $nombre_cliente,
+                    'nit_ci_cliente'  => $nit_ci_cliente,
+                    'celular_cliente' => $celular_cliente,
+                    'email_cliente'   => $email_cliente,
+                ]
+            );
             $this->json([
                 'success' => true,
                 'message' => 'El cliente se registró exitosamente.',

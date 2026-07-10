@@ -92,7 +92,7 @@ class Sale extends Model
      * @param array $data Datos de la venta: nro_venta, id_cliente, total_pagado.
      * @return bool true si la transacción se completó, false si hubo error.
      */
-    public function storeWithStock(array $data): bool
+    public function storeWithStock(array $data): int|false
     {
         $db = $this->db;
         try {
@@ -126,6 +126,7 @@ class Sale extends Model
                 $idUsuario,
                 $totalReal,
             ]);
+            $idVenta = (int)$db->lastInsertId();
 
             // Decrementar stock de cada ítem — la cláusula AND stock >= ? previene stock negativo
             $items = $db->prepare(
@@ -144,7 +145,7 @@ class Sale extends Model
             }
 
             $db->commit();
-            return true;
+            return $idVenta;
         } catch (\Throwable $e) {
             $db->rollBack();
             return false;

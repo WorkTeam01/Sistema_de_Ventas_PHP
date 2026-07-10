@@ -51,7 +51,22 @@ class SupplierController extends Controller
             $this->json(['success' => false, 'message' => 'Ya existe un proveedor con esa empresa.']);
         }
 
-        if ($supplierModel->createSupplier($nombre_proveedor, $empresa, $celular, $direccion, $telefono, $email)) {
+        $newId = $supplierModel->createSupplier($nombre_proveedor, $empresa, $celular, $direccion, $telefono, $email);
+
+        if ($newId) {
+            ActivityLog::record(
+                'create',
+                'supplier',
+                (int)$newId,
+                "Proveedor '{$empresa}' registrado",
+                null,
+                [
+                    'nombre_proveedor' => $nombre_proveedor,
+                    'empresa'          => $empresa,
+                    'celular'          => $celular,
+                    'direccion'        => $direccion,
+                ]
+            );
             $this->json(['success' => true, 'message' => 'El proveedor se registró exitosamente.']);
         }
 

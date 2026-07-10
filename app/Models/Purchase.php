@@ -77,9 +77,9 @@ class Purchase extends Model
      * Inserta una compra y actualiza el stock del producto en una transacción.
      *
      * @param array $data Datos de la compra.
-     * @return bool true si la transacción se completó, false si hubo error.
+     * @return int|false ID de la compra insertada, o false si hubo error.
      */
-    public function storeWithStock(array $data): bool
+    public function storeWithStock(array $data): int|false
     {
         $db = $this->db;
         try {
@@ -99,11 +99,12 @@ class Purchase extends Model
                 $data['precio_compra'],
                 $data['cantidad'],
             ]);
+            $idCompra = (int)$db->lastInsertId();
             $db->prepare(
                 "UPDATE tb_almacen SET stock = stock + ? WHERE id_producto = ?"
             )->execute([$data['cantidad'], $data['id_producto']]);
             $db->commit();
-            return true;
+            return $idCompra;
         } catch (\Throwable $e) {
             $db->rollBack();
             return false;

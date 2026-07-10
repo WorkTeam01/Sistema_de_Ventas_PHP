@@ -39,7 +39,7 @@ class Supplier extends Model
      * Crea un nuevo proveedor normalizando los campos opcionales.
      * Telefono y email vacíos se almacenan como NULL.
      *
-     * @return bool True si la inserción fue exitosa.
+     * @return int|false ID del proveedor insertado, o false si hubo error.
      */
     public function createSupplier(
         string $nombre,
@@ -48,7 +48,7 @@ class Supplier extends Model
         string $direccion,
         ?string $telefono,
         ?string $email
-    ): bool {
+    ): int|false {
         return $this->create([
             'nombre_proveedor' => $nombre,
             'empresa'          => $empresa,
@@ -56,7 +56,7 @@ class Supplier extends Model
             'telefono'         => ($telefono !== null && trim($telefono) !== '') ? trim($telefono) : null,
             'email'            => ($email    !== null && trim($email)    !== '') ? trim($email)    : null,
             'direccion'        => $direccion,
-        ]) !== false;
+        ]);
     }
 
     /**

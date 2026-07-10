@@ -135,9 +135,9 @@ class Product extends Model
      * stock_minimo/stock_maximo/descripcion vacíos se guardan como NULL.
      *
      * @param array $data Datos crudos validados (del controlador).
-     * @return bool true si se insertó correctamente.
+     * @return int|false ID del producto insertado, o false si hubo error.
      */
-    public function createProduct(array $data): bool
+    public function createProduct(array $data): int|false
     {
         return $this->create([
             'codigo' => $data['codigo'],

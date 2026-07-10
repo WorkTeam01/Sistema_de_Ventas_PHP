@@ -164,13 +164,26 @@ class SaleController extends Controller
         }
 
         $saleModel = new Sale();
-        $ok = $saleModel->storeWithStock([
+        $idVenta = $saleModel->storeWithStock([
             'nro_venta' => $nro_venta,
             'id_cliente' => $id_cliente,
             'total_pagado' => (float)$total_a_cancelar,
         ]);
 
-        if ($ok) {
+        if ($idVenta) {
+            $cliente = (new Client())->find($id_cliente);
+            ActivityLog::record(
+                'create',
+                'sale',
+                $idVenta,
+                "Venta Nro {$nro_venta} registrada (total Bs. {$total_a_cancelar})",
+                null,
+                [
+                    'nro_venta'      => $nro_venta,
+                    'nombre_cliente' => $cliente['nombre_cliente'] ?? null,
+                    'total_pagado'   => (float)$total_a_cancelar,
+                ]
+            );
             unset($_SESSION['pos_nro_venta']);
             $this->flash('La venta se registró exitosamente.', 'success');
             $this->redirect(BASE_URL . '/sales');

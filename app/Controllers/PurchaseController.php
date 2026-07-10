@@ -79,7 +79,7 @@ class PurchaseController extends Controller
             return;
         }
 
-        $ok = $purchaseModel->storeWithStock([
+        $idCompra = $purchaseModel->storeWithStock([
             'id_producto' => (int)$data['id_producto'],
             'nro_compra' => (int)$data['nro_compra'],
             'fecha_compra' => $data['fecha_compra'],
@@ -90,7 +90,21 @@ class PurchaseController extends Controller
             'cantidad' => (int)$data['cantidad'],
         ]);
 
-        if ($ok) {
+        if ($idCompra) {
+            $producto = (new Product())->find((int)$data['id_producto']);
+            ActivityLog::record(
+                'create',
+                'purchase',
+                $idCompra,
+                "Compra Nro {$data['nro_compra']} registrada" . ($producto ? " ({$producto['nombre']})" : ''),
+                null,
+                [
+                    'nro_compra'     => (int)$data['nro_compra'],
+                    'producto'       => $producto['nombre'] ?? null,
+                    'cantidad'       => (int)$data['cantidad'],
+                    'precio_compra'  => (float)$data['precio_compra'],
+                ]
+            );
             $this->flash('La compra se registró exitosamente.', 'success');
             $this->redirect(BASE_URL . '/purchases');
             return;

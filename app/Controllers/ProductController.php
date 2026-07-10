@@ -105,7 +105,7 @@ class ProductController extends Controller
         $codigo = $productModel->nextCode();
         $id_usuario = Auth::user()['id_usuario'];
 
-        if ($productModel->createProduct([
+        $newId = $productModel->createProduct([
             'codigo' => $codigo,
             'nombre' => $nombre,
             'descripcion' => $descripcion,
@@ -118,7 +118,23 @@ class ProductController extends Controller
             'imagen' => $imagen,
             'id_usuario' => $id_usuario,
             'id_categoria' => $id_categoria,
-        ])) {
+        ]);
+
+        if ($newId) {
+            ActivityLog::record(
+                'create',
+                'product',
+                (int)$newId,
+                "Producto '{$nombre}' registrado",
+                null,
+                [
+                    'codigo' => $codigo,
+                    'nombre' => $nombre,
+                    'stock' => $stock,
+                    'precio_compra' => $precio_compra,
+                    'precio_venta' => $precio_venta,
+                ]
+            );
             $this->flash('El producto se registró exitosamente.', 'success');
             $this->redirect(BASE_URL . '/products');
             return;
