@@ -16,6 +16,8 @@ class ActivityLogController extends Controller
      */
     public function index(): void
     {
+        header('Cache-Control: no-store');
+
         [$from, $to] = $this->resolveRange(
             $_GET['desde'] ?? '',
             $_GET['hasta'] ?? ''
@@ -53,6 +55,8 @@ class ActivityLogController extends Controller
      */
     public function show(?int $id = null): void
     {
+        header('Cache-Control: no-store');
+
         $id = $id ?? (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) {
