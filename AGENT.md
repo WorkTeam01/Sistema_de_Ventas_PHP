@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** v1.14.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.14.1 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, audit log con cobertura completa y KPIs. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -169,8 +169,12 @@ tb_ventas
     tb_activity_log
 (id_log, id_usuario [FK NULL → ON DELETE SET NULL], usuario_nombre, accion, entidad, entidad_id,
     descripcion, datos_anteriores [JSON], datos_nuevos [JSON], ip_address, fyh_creacion)
-    -- acciones registradas: 'delete', 'price_change', 'role_change', 'stock_adjustment'
-    -- entidades: 'sale', 'purchase', 'product', 'user', 'client', 'supplier'
+    -- acciones registradas: 'create', 'update', 'delete', 'price_change', 'role_change', 'permission_change',
+    --   'stock_adjustment', 'export', 'login', 'login_failed', 'logout'
+    -- entidades: 'sale', 'purchase', 'product', 'user', 'client', 'supplier', 'category', 'role', 'permission',
+    --   'report', 'auth'
+    -- KPIs agregados (total, usuarios distintos, eliminaciones, cambios sensibles) vía ActivityLog::kpis(),
+    --   calculados por COUNT/GROUP BY sobre el rango filtrado, no sobre la página ya paginada
     -- usuario_nombre desnormalizado para persistir incluso si el usuario es eliminado
     tb_ajustes_stock
 (id_ajuste, id_producto [FK → tb_almacen], tipo [enum: entrada|salida], cantidad,
@@ -443,4 +447,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-07-08 — v1.14.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-07-09 — 1.14.1. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

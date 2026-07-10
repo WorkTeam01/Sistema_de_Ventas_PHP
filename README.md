@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.14.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.14.1-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -23,32 +23,32 @@ Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el c
 
 ## Características
 
-| Módulo          | Descripción                                                                                           |
-| --------------- | ----------------------------------------------------------------------------------------------------- |
-| **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías                                        |
-| **Ventas**      | POS wizard (Cliente → Carrito → Pago), creación inline de clientes y facturas PDF                    |
-| **Compras**     | Registro de compras a proveedores con actualización automática de stock                               |
-| **Inventario**  | Alertas de stock bajo, barras de progreso y ajustes manuales con historial                            |
-| **Reportes**    | Ventas, compras, top productos y clientes por período; export PDF / CSV / Excel                       |
-| **Auditoría**   | Registro de operaciones sensibles: eliminaciones, cambios de precio y cambios de rol                  |
-| **Clientes**    | Base de datos de clientes con historial de compras                                                    |
-| **Proveedores** | Gestión de proveedores y datos de contacto                                                            |
-| **Usuarios**    | Administración de cuentas con roles y permisos granulares                                             |
-| **Permisos**    | Catálogo de permisos y asignación por rol (RBAC) desde la UI, sin editar el seeder                    |
-| **Perfil**      | Edición de datos y cambio de contraseña para cualquier rol                                            |
+| Módulo          | Descripción                                                                          |
+| --------------- | ------------------------------------------------------------------------------------ |
+| **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías                       |
+| **Ventas**      | POS wizard (Cliente → Carrito → Pago), creación inline de clientes y facturas PDF    |
+| **Compras**     | Registro de compras a proveedores con actualización automática de stock              |
+| **Inventario**  | Alertas de stock bajo, barras de progreso y ajustes manuales con historial           |
+| **Reportes**    | Ventas, compras, top productos y clientes por período; export PDF / CSV / Excel      |
+| **Auditoría**   | Registro de operaciones sensibles (creación, edición, eliminación, login, exportaciones y más) con KPIs y filtros |
+| **Clientes**    | Base de datos de clientes con historial de compras                                   |
+| **Proveedores** | Gestión de proveedores y datos de contacto                                           |
+| **Usuarios**    | Administración de cuentas con roles y permisos granulares                            |
+| **Permisos**    | Catálogo de permisos y asignación por rol (RBAC) desde la UI, sin editar el seeder   |
+| **Perfil**      | Edición de datos y cambio de contraseña para cualquier rol                           |
 
 ---
 
 ## Stack Tecnológico
 
-| Capa            | Tecnología                                                              |
-| --------------- | ----------------------------------------------------------------------- |
-| **Backend**     | PHP 8.x — MVC custom con PSR-4 vía Composer (sin framework)            |
-| **Base de datos** | MySQL 5.7+ / MariaDB 10.4+ con PDO y prepared statements             |
-| **Frontend**    | AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2           |
-| **PDF**         | TCPDF (`tecnickcom/tcpdf`) — facturas y reportes                        |
-| **Email**       | PHPMailer (`phpmailer/phpmailer`) — SMTP Gmail con App Password         |
-| **Testing**     | PHPUnit 11.x — suites Unit e Integration (SQLite in-memory); CI GitHub Actions |
+| Capa              | Tecnología                                                                     |
+| ----------------- | ------------------------------------------------------------------------------ |
+| **Backend**       | PHP 8.x — MVC custom con PSR-4 vía Composer (sin framework)                    |
+| **Base de datos** | MySQL 5.7+ / MariaDB 10.4+ con PDO y prepared statements                       |
+| **Frontend**      | AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2                   |
+| **PDF**           | TCPDF (`tecnickcom/tcpdf`) — facturas y reportes                               |
+| **Email**         | PHPMailer (`phpmailer/phpmailer`) — SMTP Gmail con App Password                |
+| **Testing**       | PHPUnit 11.x — suites Unit e Integration (SQLite in-memory); CI GitHub Actions |
 
 ---
 
@@ -166,11 +166,11 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 
 El sistema usa RBAC granular: cada ruta declara el permiso que requiere y el acceso se evalúa en tiempo de ejecución, sin comparaciones de nombre de rol hardcodeadas. Los permisos se administran desde la UI (`/permissions` para el catálogo, `/roles/permisos/{id}` para asignarlos a un rol) — los cambios se aplican a los usuarios activos de ese rol en su siguiente request, sin necesidad de re-login.
 
-| Rol             | Acceso                                                          |
-| --------------- | --------------------------------------------------------------- |
-| `Administrador` | Acceso completo a todos los módulos                             |
-| `Vendedor`      | Ventas, clientes, productos (lectura) y reportes de ventas      |
-| `Comprador`     | Compras, proveedores, productos (lectura) y categorías          |
+| Rol             | Acceso                                                     |
+| --------------- | ---------------------------------------------------------- |
+| `Administrador` | Acceso completo a todos los módulos                        |
+| `Vendedor`      | Ventas, clientes, productos (lectura) y reportes de ventas |
+| `Comprador`     | Compras, proveedores, productos (lectura) y categorías     |
 
 ---
 
@@ -204,13 +204,13 @@ CI con GitHub Actions en PHP 8.2 y 8.3. Ver [CLAUDE.md](CLAUDE.md#testing) para 
 
 ## Documentación para Desarrolladores
 
-| Archivo                            | Propósito                                                    |
-| ---------------------------------- | ------------------------------------------------------------ |
+| Archivo                            | Propósito                                                      |
+| ---------------------------------- | -------------------------------------------------------------- |
 | [AGENT.md](AGENT.md)               | Arquitectura MVC, stack, convenciones de código, prohibiciones |
-| [CLAUDE.md](CLAUDE.md)             | Instrucciones operacionales locales (XAMPP, BD, rutas)       |
-| [PROMPTS.md](PROMPTS.md)           | Plantillas de prompts para agentes IA                        |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Flujo de contribución: PRs, commits, testing                 |
-| [CHANGELOG.md](CHANGELOG.md)       | Historial de versiones                                       |
+| [CLAUDE.md](CLAUDE.md)             | Instrucciones operacionales locales (XAMPP, BD, rutas)         |
+| [PROMPTS.md](PROMPTS.md)           | Plantillas de prompts para agentes IA                          |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Flujo de contribución: PRs, commits, testing                   |
+| [CHANGELOG.md](CHANGELOG.md)       | Historial de versiones                                         |
 
 > Lee [AGENT.md](AGENT.md) antes de contribuir — es la fuente de verdad del proyecto.
 

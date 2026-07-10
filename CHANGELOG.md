@@ -11,6 +11,22 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.14.1] - 2026-07-09
+
+### Agregado
+
+- Auditoría completa del módulo de audit log: creación/actualización de roles y permisos, login exitoso/fallido y
+  logout, creación de usuarios, exportación de reportes, creación de ventas/compras/clientes/proveedores/productos,
+  y creación/actualización de categorías — cierra el backlog de cobertura de `ActivityLog`.
+- KPIs (info-box) en el listado de auditoría: total de eventos, usuarios distintos activos, eliminaciones y cambios
+  sensibles, calculados por agregación SQL sobre el rango filtrado.
+
+### Corregido
+
+- `Cache-Control: no-store` en el listado y detalle de auditoría para evitar que datos sensibles queden cacheados.
+
+---
+
 ## [1.14.0] - 2026-07-08
 
 ### Agregado
@@ -435,7 +451,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.0...HEAD
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.1...HEAD
+[1.14.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.0...1.14.1
 [1.14.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.13.0...1.14.0
 [1.13.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.12.3...1.13.0
 [1.12.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.12.2...1.12.3
