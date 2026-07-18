@@ -191,11 +191,25 @@ class Auth
             setcookie('remember_token', $user['id_usuario'] . ':' . $plain, [
                 'expires'  => time() + $seconds,
                 'path'     => '/',
-                'secure'   => !empty($_SERVER['HTTPS']),
+                'secure'   => self::isHttps(),
                 'httponly' => true,
                 'samesite' => 'Strict',
             ]);
         }
+    }
+
+    /**
+     * Detecta HTTPS considerando despliegues detrás de un proxy reverso
+     * (Apache/XAMPP directo expone $_SERVER['HTTPS']; un proxy TLS-terminating
+     * reenvía el esquema original en X-Forwarded-Proto).
+     */
+    private static function isHttps(): bool
+    {
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+            return true;
+        }
+
+        return ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
     }
 
     /**
@@ -275,7 +289,7 @@ class Auth
             setcookie('remember_token', '', [
                 'expires'  => time() - 42000,
                 'path'     => '/',
-                'secure'   => !empty($_SERVER['HTTPS']),
+                'secure'   => self::isHttps(),
                 'httponly' => true,
                 'samesite' => 'Strict',
             ]);

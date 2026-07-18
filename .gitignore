@@ -101,3 +101,6 @@ config_local.php
 .phpunit.cache/
 .phpunit.result.cache
 coverage.xml
+
+# Snapshots de depuración de Playwright MCP
+.playwright-mcp/

@@ -17,6 +17,11 @@ define('APP_VERSION', $_ENV['APP_VERSION'] ?? '1.0.0');
 // Zona horaria
 date_default_timezone_set($_ENV['APP_TIMEZONE']);
 
+// Cabeceras de seguridad (defensa en profundidad)
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
 // Variables backward-compat para vistas y controladores
 $pdo = App\Core\Database::getInstance()->getConnection();
 $URL = BASE_URL;
