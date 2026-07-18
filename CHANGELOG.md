@@ -11,6 +11,28 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.14.2] - 2026-07-18
+
+### Seguridad
+
+- `Auth::isHttps()` detecta HTTPS también detrás de un proxy reverso (`X-Forwarded-Proto`), evitando que la cookie
+  `remember_token` pierda el flag `secure` en despliegues con TLS-terminating proxy.
+- Cabeceras de seguridad globales en `public/index.php`: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: strict-origin-when-cross-origin`.
+- `escapeHtml()` en `sweetalert-utils.js` para sanear cualquier texto dinámico interpolado en opciones `html` de
+  SweetAlert2.
+
+### Modificado
+
+- Eliminados todos los `Swal.fire(...)` inline y handlers `onclick` en vistas (productos, ventas, usuarios,
+  clientes, proveedores, login, reset-password, 403): reemplazados por `AlertUtils`/`ToastUtils` centralizados en
+  `sweetalert-utils.js`, con nuevos helpers `confirmDeleteItem` y `blockedDelete`.
+- Vistas de eliminación de productos, ventas y usuarios ahora cargan su lógica de confirmación desde scripts de
+  página dedicados (`products-delete.js`, `sales-delete.js`, `users-delete.js`) vía `pageScripts`, en vez de script
+  inline.
+
+---
+
 ## [1.14.1] - 2026-07-09
 
 ### Agregado
@@ -451,7 +473,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.1...HEAD
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.2...HEAD
+[1.14.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.1...1.14.2
 [1.14.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.0...1.14.1
 [1.14.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.13.0...1.14.0
 [1.13.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.12.3...1.13.0

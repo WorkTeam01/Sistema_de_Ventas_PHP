@@ -134,12 +134,12 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV o Xdebug)
 
 ## Archivos de Referencia
 
-| Archivo                  | Propósito                                                                 |
-| ------------------------ | ------------------------------------------------------------------------- |
-| [AGENT.md](AGENT.md)     | Arquitectura MVC, estructura de directorios, BD, rutas, convenciones de código, stack, prohibiciones explícitas |
-| [PROMPTS.md](PROMPTS.md) | Plantillas de prompts para migración, debugging, code review              |
-| [CHANGELOG.md](CHANGELOG.md) | Historial de versiones                                                |
+| Archivo                      | Propósito                                                                                                       |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| [AGENT.md](AGENT.md)         | Arquitectura MVC, estructura de directorios, BD, rutas, convenciones de código, stack, prohibiciones explícitas |
+| [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts para migración, debugging, code review                                                    |
+| [CHANGELOG.md](CHANGELOG.md) | Historial de versiones                                                                                          |
 
 ---
 
-_Última actualización: 2026-07-09 — 1.14.1_
+_Última actualización: 2026-07-18 — 1.14.2_

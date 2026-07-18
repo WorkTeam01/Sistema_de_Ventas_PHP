@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.14.1-blue)
+![Versión](https://img.shields.io/badge/Versión-1.14.2-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -23,19 +23,19 @@ Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el c
 
 ## Características
 
-| Módulo          | Descripción                                                                          |
-| --------------- | ------------------------------------------------------------------------------------ |
-| **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías                       |
-| **Ventas**      | POS wizard (Cliente → Carrito → Pago), creación inline de clientes y facturas PDF    |
-| **Compras**     | Registro de compras a proveedores con actualización automática de stock              |
-| **Inventario**  | Alertas de stock bajo, barras de progreso y ajustes manuales con historial           |
-| **Reportes**    | Ventas, compras, top productos y clientes por período; export PDF / CSV / Excel      |
+| Módulo          | Descripción                                                                                                       |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías                                                    |
+| **Ventas**      | POS wizard (Cliente → Carrito → Pago), creación inline de clientes y facturas PDF                                 |
+| **Compras**     | Registro de compras a proveedores con actualización automática de stock                                           |
+| **Inventario**  | Alertas de stock bajo, barras de progreso y ajustes manuales con historial                                        |
+| **Reportes**    | Ventas, compras, top productos y clientes por período; export PDF / CSV / Excel                                   |
 | **Auditoría**   | Registro de operaciones sensibles (creación, edición, eliminación, login, exportaciones y más) con KPIs y filtros |
-| **Clientes**    | Base de datos de clientes con historial de compras                                   |
-| **Proveedores** | Gestión de proveedores y datos de contacto                                           |
-| **Usuarios**    | Administración de cuentas con roles y permisos granulares                            |
-| **Permisos**    | Catálogo de permisos y asignación por rol (RBAC) desde la UI, sin editar el seeder   |
-| **Perfil**      | Edición de datos y cambio de contraseña para cualquier rol                           |
+| **Clientes**    | Base de datos de clientes con historial de compras                                                                |
+| **Proveedores** | Gestión de proveedores y datos de contacto                                                                        |
+| **Usuarios**    | Administración de cuentas con roles y permisos granulares                                                         |
+| **Permisos**    | Catálogo de permisos y asignación por rol (RBAC) desde la UI, sin editar el seeder                                |
+| **Perfil**      | Edición de datos y cambio de contraseña para cualquier rol                                                        |
 
 ---
 
