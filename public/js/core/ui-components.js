@@ -192,8 +192,28 @@ const ComponentUtils = {
     },
 
     /**
+     * Inicializar botones de mostrar/ocultar contraseña por delegación.
+     * El botón debe estar dentro del mismo .input-group que el input de contraseña.
+     *
+     * @param {string} selector - Selector CSS de los botones toggle (default: '.toggle-password')
+     */
+    initPasswordToggles: function (selector = '.toggle-password') {
+        $(document).off('click.componentUtils', selector);
+        $(document).on('click.componentUtils', selector, function () {
+            const $btn = $(this);
+            const $input = $btn.closest('.input-group').find('input');
+            const $icon = $btn.find('i');
+            const isHidden = $input.attr('type') === 'password';
+
+            $input.attr('type', isHidden ? 'text' : 'password');
+            $icon.toggleClass('fa-eye fa-eye-slash');
+            $btn.attr('aria-label', isHidden ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
+    },
+
+    /**
      * Destruir todas las instancias de Select2
-     * 
+     *
      * @param {string} selector - Selector CSS (default: '.select2')
      */
     destroySelect2: function (selector = '.select2') {
@@ -416,6 +436,7 @@ const ComponentUtils = {
 $(document).ready(function () {
     // Inicializar automáticamente todos los componentes
     ComponentUtils.initAll();
+    ComponentUtils.initPasswordToggles();
 });
 
 // También reinicializar después de que AdminLTE termine de cargar

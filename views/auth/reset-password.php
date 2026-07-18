@@ -45,9 +45,10 @@
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?>">
 
                     <div class="input-group mb-3">
+                        <label for="password" class="sr-only">Nueva contraseña</label>
                         <input type="password" id="password" name="password" class="form-control" placeholder="Nueva contraseña" autocomplete="new-password">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-default" id="togglePassword">
+                            <button type="button" class="btn btn-default" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -58,13 +59,14 @@
                         <div class="password-strength-bar">
                             <div class="password-strength-fill" id="strengthFill"></div>
                         </div>
-                        <small id="strengthText" class="text-muted"></small>
+                        <small id="strengthText" class="text-muted" aria-live="polite"></small>
                     </div>
 
                     <div class="input-group mb-3">
+                        <label for="password_confirm" class="sr-only">Confirmar contraseña</label>
                         <input type="password" id="password_confirm" name="password_confirm" class="form-control" placeholder="Confirmar contraseña" autocomplete="new-password">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-default" id="toggleConfirm">
+                            <button type="button" class="btn btn-default" id="toggleConfirm" aria-label="Mostrar contraseña" aria-pressed="false">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>

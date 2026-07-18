@@ -1,20 +1,5 @@
 $(document).ready(function () {
-    // Toggle visibilidad de contraseña
-    $('#togglePassword').on('click', function () {
-        const input = document.getElementById('password_user');
-        const icon = this.querySelector('i');
-        input.type = input.type === 'password' ? 'text' : 'password';
-        icon.classList.toggle('fa-eye');
-        icon.classList.toggle('fa-eye-slash');
-    });
-
-    $('#togglePasswordRepeat').on('click', function () {
-        const input = document.getElementById('password_repeat');
-        const icon = this.querySelector('i');
-        input.type = input.type === 'password' ? 'text' : 'password';
-        icon.classList.toggle('fa-eye');
-        icon.classList.toggle('fa-eye-slash');
-    });
+    // Toggle de visibilidad de contraseña: manejado globalmente por ComponentUtils.initPasswordToggles()
 
     // Validación del formulario
     $('#userEditForm').validate({

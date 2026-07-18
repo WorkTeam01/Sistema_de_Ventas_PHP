@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login</title>
+    <title>Iniciar sesión</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -40,6 +40,7 @@
                 <form id="loginForm" action="<?= BASE_URL ?>/auth/login" method="post">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token']; ?>">
                     <div class="input-group">
+                        <label for="email" class="sr-only">Correo electrónico</label>
                         <input type="email" id="email" name="email" class="form-control" placeholder="Correo electrónico" autocomplete="email">
                         <div class="input-group-append">
                             <div class="input-group-text">
@@ -48,9 +49,10 @@
                         </div>
                     </div>
                     <div class="input-group">
+                        <label for="password_user" class="sr-only">Contraseña</label>
                         <input type="password" id="password_user" name="password_user" class="form-control" placeholder="Contraseña" autocomplete="current-password">
                         <div class="input-group-append">
-                            <button type="button" class="btn btn-default" id="togglePassword">
+                            <button type="button" class="btn btn-default" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>

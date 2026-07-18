@@ -64,19 +64,19 @@
                             <ul class="nav nav-tabs" id="profile-tabs" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link <?= $navPerfilClass ?>"
-                                       id="tab-perfil-link"
-                                       data-toggle="tab"
-                                       href="#tab-perfil"
-                                       role="tab">
+                                        id="tab-perfil-link"
+                                        data-toggle="tab"
+                                        href="#tab-perfil"
+                                        role="tab">
                                         <i class="fas fa-user-edit"></i> Editar perfil
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link <?= $navPasswordClass ?>"
-                                       id="tab-password-link"
-                                       data-toggle="tab"
-                                       href="#tab-password"
-                                       role="tab">
+                                        id="tab-password-link"
+                                        data-toggle="tab"
+                                        href="#tab-password"
+                                        role="tab">
                                         <i class="fas fa-lock"></i> Cambiar contraseña
                                     </a>
                                 </li>
@@ -89,14 +89,14 @@
 
                                 <!-- ── Tab 1: Editar perfil ──────────────────── -->
                                 <div class="tab-pane fade <?= $panePerfilClass ?>"
-                                     id="tab-perfil"
-                                     role="tabpanel">
+                                    id="tab-perfil"
+                                    role="tabpanel">
 
                                     <form id="form-info"
-                                          action="<?= BASE_URL ?>/profile/update"
-                                          method="POST"
-                                          data-check-email-url="<?= $checkUrl ?>"
-                                          data-user-id="<?= $id_usuario ?>">
+                                        action="<?= BASE_URL ?>/profile/update"
+                                        method="POST"
+                                        data-check-email-url="<?= $checkUrl ?>"
+                                        data-user-id="<?= $id_usuario ?>">
 
                                         <input type="hidden" name="csrf_token" value="<?= $csrfSafe ?>">
 
@@ -107,11 +107,11 @@
                                                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                                                 </div>
                                                 <input type="text"
-                                                       id="nombres"
-                                                       name="nombres"
-                                                       class="form-control"
-                                                       value="<?= $nombresSafe ?>"
-                                                       autocomplete="off">
+                                                    id="nombres"
+                                                    name="nombres"
+                                                    class="form-control"
+                                                    value="<?= $nombresSafe ?>"
+                                                    autocomplete="off">
                                             </div>
                                         </div>
 
@@ -120,14 +120,14 @@
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i
-                                                                class="fas fa-envelope"></i></span>
+                                                            class="fas fa-envelope"></i></span>
                                                 </div>
                                                 <input type="email"
-                                                       id="email"
-                                                       name="email"
-                                                       class="form-control"
-                                                       value="<?= $emailSafe ?>"
-                                                       autocomplete="off">
+                                                    id="email"
+                                                    name="email"
+                                                    class="form-control"
+                                                    value="<?= $emailSafe ?>"
+                                                    autocomplete="off">
                                             </div>
                                         </div>
 
@@ -136,12 +136,12 @@
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i
-                                                                class="fas fa-user-tag"></i></span>
+                                                            class="fas fa-user-tag"></i></span>
                                                 </div>
                                                 <input type="text"
-                                                       class="form-control"
-                                                       value="<?= $rolSafe ?>"
-                                                       disabled>
+                                                    class="form-control"
+                                                    value="<?= $rolSafe ?>"
+                                                    disabled>
                                             </div>
                                             <small class="form-text text-muted">El rol solo puede ser modificado por un
                                                 administrador.</small>
@@ -159,12 +159,12 @@
 
                                 <!-- ── Tab 2: Cambiar contraseña ─────────────── -->
                                 <div class="tab-pane fade <?= $panePasswordClass ?>"
-                                     id="tab-password"
-                                     role="tabpanel">
+                                    id="tab-password"
+                                    role="tabpanel">
 
                                     <form id="form-password"
-                                          action="<?= BASE_URL ?>/profile/password"
-                                          method="POST">
+                                        action="<?= BASE_URL ?>/profile/password"
+                                        method="POST">
 
                                         <input type="hidden" name="csrf_token" value="<?= $csrfSafe ?>">
 
@@ -180,14 +180,14 @@
                                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
                                                 <input type="password"
-                                                       id="password-user-input"
-                                                       name="password_user"
-                                                       class="form-control"
-                                                       autocomplete="new-password">
+                                                    id="password-user-input"
+                                                    name="password_user"
+                                                    class="form-control"
+                                                    autocomplete="new-password">
                                                 <div class="input-group-append">
                                                     <button type="button"
-                                                            class="btn btn-outline-secondary toggle-password"
-                                                            tabindex="-1">
+                                                        class="btn btn-outline-secondary toggle-password"
+                                                        aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -201,14 +201,14 @@
                                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
                                                 <input type="password"
-                                                       id="password-repeat-input"
-                                                       name="password_repeat"
-                                                       class="form-control"
-                                                       autocomplete="new-password">
+                                                    id="password-repeat-input"
+                                                    name="password_repeat"
+                                                    class="form-control"
+                                                    autocomplete="new-password">
                                                 <div class="input-group-append">
                                                     <button type="button"
-                                                            class="btn btn-outline-secondary toggle-password"
-                                                            tabindex="-1">
+                                                        class="btn btn-outline-secondary toggle-password"
+                                                        aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>

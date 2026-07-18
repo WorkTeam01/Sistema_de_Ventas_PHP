@@ -1,5 +1,20 @@
+:root {
+    --auth-bg-start: #f5f7fa;
+    --auth-bg-end: #c3cfe2;
+    --auth-primary: #007bff;
+    --auth-primary-dark: #0062cc;
+    --auth-primary-darker: #004a99;
+    --auth-border: #eee;
+    --auth-disabled-start: #cccccc;
+    --auth-disabled-end: #999999;
+    --auth-shadow: rgba(0, 0, 0, 0.1);
+    --auth-shadow-strong: rgba(0, 0, 0, 0.15);
+    --auth-primary-shadow: rgba(0, 123, 255, 0.4);
+    --auth-primary-focus-ring: rgba(0, 123, 255, 0.25);
+}
+
 body.login-page {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, var(--auth-bg-start) 0%, var(--auth-bg-end) 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -15,13 +30,7 @@ body.login-page {
 .card {
     border: none;
     border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 20px var(--auth-shadow);
 }
 
 .card-header {
@@ -33,13 +42,13 @@ body.login-page {
 .form-control {
     border-radius: 8px;
     padding: 12px;
-    border: 2px solid #eee;
+    border: 2px solid var(--auth-border);
     transition: all 0.3s ease;
 }
 
 .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: var(--auth-primary);
+    box-shadow: 0 0 0 0.2rem var(--auth-primary-focus-ring);
 }
 
 .input-group {
@@ -50,11 +59,11 @@ body.login-page {
 .input-group-text {
     border-radius: 8px;
     background: #fff;
-    border: 2px solid #eee;
+    border: 2px solid var(--auth-border);
 }
 
 .btn-custom {
-    background: linear-gradient(45deg, #007bff, #0062cc);
+    background: linear-gradient(45deg, var(--auth-primary), var(--auth-primary-dark));
     border: none;
     border-radius: 8px;
     padding: 12px;
@@ -66,14 +75,14 @@ body.login-page {
 }
 
 .btn-custom:hover:not(:disabled) {
-    background: linear-gradient(45deg, #0062cc, #004a99);
+    background: linear-gradient(45deg, var(--auth-primary-dark), var(--auth-primary-darker));
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 5px 15px var(--auth-primary-shadow);
     color: white;
 }
 
 .btn-custom:disabled {
-    background: linear-gradient(45deg, #cccccc, #999999);
+    background: linear-gradient(45deg, var(--auth-disabled-start), var(--auth-disabled-end));
     cursor: not-allowed;
     opacity: 0.8;
     transform: none;
@@ -105,7 +114,7 @@ body.login-page {
 
 .img-circle {
     border: 4px solid white;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px var(--auth-shadow);
     transition: all 0.3s ease;
     border-radius: 50%;
 }

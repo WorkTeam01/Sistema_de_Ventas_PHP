@@ -84,18 +84,5 @@ $(function () {
         }
     });
 
-    // ── Toggle visibilidad contraseña ────────────────────────────────────────
-    $(document).on('click', '.toggle-password', function () {
-        const $btn = $(this);
-        const $input = $btn.closest('.input-group').find('input');
-        const $icon = $btn.find('i');
-
-        if ($input.attr('type') === 'password') {
-            $input.attr('type', 'text');
-            $icon.removeClass('fa-eye').addClass('fa-eye-slash');
-        } else {
-            $input.attr('type', 'password');
-            $icon.removeClass('fa-eye-slash').addClass('fa-eye');
-        }
-    });
+    // Toggle de visibilidad de contraseña: manejado globalmente por ComponentUtils.initPasswordToggles()
 });

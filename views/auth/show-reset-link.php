@@ -21,7 +21,7 @@
 </head>
 
 <body class="hold-transition login-page">
-    <div class="login-box" style="width: 500px;">
+    <div class="login-box" style="max-width: 500px;">
         <div class="login-logo">
             <img src="<?= BASE_URL ?>/img/logo_2.png" class="img-circle" width="150" height="150" alt="Logo Sistema de Ventas">
         </div>
@@ -75,12 +75,24 @@
         <!-- Bootstrap 4 -->
         <script src="<?= BASE_URL ?>/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
         <script>
-            document.getElementById('btnCopy').addEventListener('click', function () {
+            document.getElementById('btnCopy').addEventListener('click', function() {
                 const input = document.getElementById('resetLink');
-                input.select();
-                document.execCommand('copy');
-                this.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => { this.innerHTML = '<i class="fas fa-copy"></i>'; }, 2000);
+                const btn = this;
+
+                function showCopied() {
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-copy"></i>';
+                    }, 2000);
+                }
+
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(input.value).then(showCopied);
+                } else {
+                    input.select();
+                    document.execCommand('copy');
+                    showCopied();
+                }
             });
         </script>
 </body>

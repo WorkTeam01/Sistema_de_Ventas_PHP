@@ -41,6 +41,7 @@
                 <form id="forgotForm" action="<?= BASE_URL ?>/auth/forgot-password" method="post">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <div class="input-group mb-3">
+                        <label for="email" class="sr-only">Correo electrónico</label>
                         <input type="email" id="email" name="email" class="form-control" placeholder="Correo electrónico" autocomplete="email">
                         <div class="input-group-append">
                             <div class="input-group-text">

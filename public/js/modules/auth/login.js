@@ -7,6 +7,8 @@ $(document).ready(function () {
         togglePassword.addEventListener('click', function () {
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
+            this.setAttribute('aria-pressed', type === 'text' ? 'true' : 'false');
+            this.setAttribute('aria-label', type === 'text' ? 'Ocultar contraseña' : 'Mostrar contraseña');
             const icon = this.querySelector('i');
             if (icon) {
                 icon.classList.toggle('fa-eye');

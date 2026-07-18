@@ -1,22 +1,24 @@
 $(document).ready(function () {
     // 1. Visibilidad de contraseñas
     function setupToggle(btnId, inputId) {
-        const $btn   = $('#' + btnId);
+        const $btn = $('#' + btnId);
         const $input = $('#' + inputId);
 
         $btn.on('click', function () {
             const isPassword = $input.attr('type') === 'password';
             $input.attr('type', isPassword ? 'text' : 'password');
+            $btn.attr('aria-pressed', isPassword ? 'true' : 'false');
+            $btn.attr('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
             $btn.find('i').toggleClass('fa-eye fa-eye-slash');
         });
     }
 
     setupToggle('togglePassword', 'password');
-    setupToggle('toggleConfirm',  'password_confirm');
+    setupToggle('toggleConfirm', 'password_confirm');
 
     // 2. Indicador de fortaleza
     $('#password').on('keyup', function () {
-        const val      = $(this).val();
+        const val = $(this).val();
         const strength = calcStrength(val);
         updateStrengthBar(strength);
     });
@@ -25,9 +27,9 @@ $(document).ready(function () {
         if (!val) return 0;
         let score = 0;
         score += Math.min(val.length * 4, 40);
-        if (/[a-z]/.test(val))  score += 10;
-        if (/[A-Z]/.test(val))  score += 10;
-        if (/[0-9]/.test(val))  score += 10;
+        if (/[a-z]/.test(val)) score += 10;
+        if (/[A-Z]/.test(val)) score += 10;
+        if (/[0-9]/.test(val)) score += 10;
         if (/[^a-zA-Z0-9]/.test(val)) score += 15;
         return Math.min(score, 100);
     }

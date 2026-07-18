@@ -28,7 +28,7 @@
                 <div class="col-md-8">
                     <form id="userCreateForm" action="<?= BASE_URL ?>/users" method="post" autocomplete="off">
                         <input type="hidden" name="csrf_token"
-                               value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                            value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
                         <!-- Card 1: Datos del usuario -->
                         <div class="card card-primary card-outline">
@@ -48,7 +48,8 @@
                                             <span class="input-group-text"><i class="fas fa-user"></i></span>
                                         </div>
                                         <input type="text" id="nombres" name="nombres" class="form-control"
-                                               placeholder="Nombre completo del usuario" autocomplete="off">
+                                            placeholder="Nombre completo del usuario" autocomplete="off"
+                                            aria-required="true">
                                     </div>
                                 </div>
 
@@ -56,21 +57,22 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="email">Correo electrónico <span
-                                                        class="text-danger">*</span></label>
+                                                    class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i
-                                                                class="fas fa-envelope"></i></span>
+                                                            class="fas fa-envelope"></i></span>
                                                 </div>
                                                 <input type="email" id="email" name="email" class="form-control"
-                                                       placeholder="correo@ejemplo.com" autocomplete="off">
+                                                    placeholder="correo@ejemplo.com" autocomplete="off"
+                                                    aria-required="true">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="rol">Rol <span class="text-danger">*</span></label>
-                                            <select name="rol" id="rol" class="form-control select2">
+                                            <select name="rol" id="rol" class="form-control select2" aria-required="true">
                                                 <option value="">— Seleccione un rol —</option>
                                                 <?php foreach ($roles_datos as $roles_dato) : ?>
                                                     <option value="<?= (int)$roles_dato['id_rol']; ?>">
@@ -99,17 +101,17 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="password_user">Contraseña <span
-                                                        class="text-danger">*</span></label>
+                                                    class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
                                                 <input type="password" id="password_user" name="password_user"
-                                                       class="form-control"
-                                                       placeholder="Mínimo 6 caracteres">
+                                                    class="form-control"
+                                                    placeholder="Mínimo 6 caracteres" aria-required="true">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary"
-                                                            id="togglePassword">
+                                                    <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                        aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -124,11 +126,11 @@
                                                     <span class="input-group-text"><i class="fas fa-lock"></i></span>
                                                 </div>
                                                 <input type="password" id="password_repeat" name="password_repeat"
-                                                       class="form-control"
-                                                       placeholder="Repita la contraseña">
+                                                    class="form-control"
+                                                    placeholder="Repita la contraseña" aria-required="true">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary"
-                                                            id="togglePasswordRepeat">
+                                                    <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                        aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
@@ -170,7 +172,7 @@
                             <p>Registra las credenciales del usuario para que pueda acceder al sistema.</p>
                             <ul class="list-unstyled mb-2">
                                 <li class="mb-1"><i class="fas fa-asterisk text-danger mr-1"
-                                                    style="font-size:.7rem;"></i> Todos los campos son obligatorios.
+                                        style="font-size:.7rem;"></i> Todos los campos son obligatorios.
                                 </li>
                                 <li class="mb-1"><i class="fas fa-user-tag text-info mr-1"></i> El rol determina los
                                     permisos y accesos del usuario.
