@@ -40,42 +40,44 @@
                         </div>
                         <div class="card-body">
                             <table id="userTable" class="table table-bordered table-hover table-striped table-sm"
-                                   style="visibility: hidden;">
+                                style="visibility: hidden;">
                                 <thead>
-                                <tr>
-                                    <th class="text-center">Nro</th>
-                                    <th class="text-center">Nombres</th>
-                                    <th class="text-center">Email</th>
-                                    <th class="text-center">Rol</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
+                                    <tr>
+                                        <th class="text-center">Nro</th>
+                                        <th class="text-center">Nombres</th>
+                                        <th class="text-center">Email</th>
+                                        <th class="text-center">Rol</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <?php
-                                $contador = 0;
-                                foreach ($usuarios_datos as $usuarios_dato) :
-                                    $id_usuario = $usuarios_dato['id_usuario']; ?>
-                                    <tr>
-                                        <td class="text-center"><?= $contador += 1; ?></td>
-                                        <td><?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($usuarios_dato['email'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($usuarios_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td class="text-center">
-                                            <div class="btn-group">
-                                                <a href="<?= BASE_URL ?>/users/edit/<?= $id_usuario ?>"
-                                                   class="btn btn-success btn-sm" data-toggle="tooltip"
-                                                   title="Editar usuario">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-danger btn-sm"
+                                    <?php
+                                    $contador = 0;
+                                    foreach ($usuarios_datos as $usuarios_dato) :
+                                        $id_usuario = $usuarios_dato['id_usuario']; ?>
+                                        <tr>
+                                            <td class="text-center"><?= $contador += 1; ?></td>
+                                            <td><?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?= htmlspecialchars($usuarios_dato['email'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?= htmlspecialchars($usuarios_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center">
+                                                <div class="btn-group">
+                                                    <a href="<?= BASE_URL ?>/users/edit/<?= $id_usuario ?>"
+                                                        class="btn btn-success btn-sm" data-toggle="tooltip"
+                                                        title="Editar usuario" aria-label="Editar usuario">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-danger btn-sm btn-delete-user"
+                                                        data-id="<?= $id_usuario ?>"
+                                                        data-nombre="<?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?>"
                                                         data-toggle="tooltip" title="Eliminar usuario"
-                                                        onclick="confirmarEliminar(<?= $id_usuario ?>, '<?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?>')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
+                                                        aria-label="Eliminar usuario">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>

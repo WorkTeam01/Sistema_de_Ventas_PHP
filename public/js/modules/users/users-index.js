@@ -123,11 +123,15 @@ $(document).ready(function () {
             $(this.api().table().node()).css('visibility', 'visible');
         }
     }).buttons().container().appendTo('#userTable_wrapper .col-md-6:eq(0)');
+
+    $('#userTable tbody').on('click', '.btn-delete-user', function () {
+        confirmDelete($(this).data('id'), $(this).data('nombre'));
+    });
 });
 
-function confirmarEliminar(id, nombre) {
-    const $btns = $('button[onclick*="confirmarEliminar"]');
-    $btns.prop('disabled', true);
+function confirmDelete(id, name) {
+    const $buttons = $('.btn-delete-user');
+    $buttons.prop('disabled', true);
 
     ToastUtils.loadingWithMinTime('Verificando usuario...', function (toast) {
         fetch(BASE_URL + '/users/check/' + id)
@@ -136,20 +140,14 @@ function confirmarEliminar(id, nombre) {
             })
             .then(function (data) {
                 toast.close();
-                $btns.prop('disabled', false);
+                $buttons.prop('disabled', false);
 
                 if (data.referenced) {
-                    let detalles = '';
-                    if (data.productos > 0) detalles += '<li>' + data.productos + ' producto(s) registrado(s) en almacén</li>';
-                    if (data.compras > 0) detalles += '<li>' + data.compras + ' compra(s) registrada(s)</li>';
+                    let reasons = '';
+                    if (data.productos > 0) reasons += '<li>' + data.productos + ' producto(s) registrado(s) en almacén</li>';
+                    if (data.compras > 0) reasons += '<li>' + data.compras + ' compra(s) registrada(s)</li>';
 
-                    Swal.fire({
-                        title: 'No se puede eliminar',
-                        html: 'El usuario <strong>' + nombre + '</strong> tiene registros asociados:<ul class="text-left mt-2">' + detalles + '</ul>Elimina primero esos registros antes de continuar.',
-                        icon: 'error',
-                        confirmButtonText: 'Entendido',
-                        confirmButtonColor: '#3085d6'
-                    });
+                    AlertUtils.blockedDelete('usuario', name, reasons);
                     return;
                 }
 
@@ -160,7 +158,7 @@ function confirmarEliminar(id, nombre) {
             })
             .catch(function () {
                 if (toast) toast.close();
-                $btns.prop('disabled', false);
+                $buttons.prop('disabled', false);
                 ToastUtils.error('Error de conexión', 'No se pudo verificar el usuario.');
             });
     }, 1500);

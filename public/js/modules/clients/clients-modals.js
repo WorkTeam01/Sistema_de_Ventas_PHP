@@ -335,41 +335,36 @@ $(document).ready(function () {
     // ========================================================================
     $(document).on('click', '.btn-delete', function () {
         const id = $(this).data('id');
-        const nombre = $(this).data('nombre');
+        const name = $(this).data('nombre');
 
-        AlertUtils.confirm(
-            '¿Está seguro?',
-            'Se eliminará al cliente "' + nombre + '". Esta acción no se puede deshacer.',
-            function () {
-                ToastUtils.loadingWithMinTime('Eliminando cliente...', function (loadingToast) {
-                    $.ajax({
-                        url: BASE_URL + '/clients/delete',
-                        type: 'POST',
-                        data: {id_cliente: id, csrf_token: $('input[name="csrf_token"]').first().val()},
-                        dataType: 'json',
-                        success: function (response) {
-                            loadingToast.close();
+        AlertUtils.confirmDeleteItem('cliente', name, function () {
+            ToastUtils.loadingWithMinTime('Eliminando cliente...', function (loadingToast) {
+                $.ajax({
+                    url: BASE_URL + '/clients/delete',
+                    type: 'POST',
+                    data: {id_cliente: id, csrf_token: $('input[name="csrf_token"]').first().val()},
+                    dataType: 'json',
+                    success: function (response) {
+                        loadingToast.close();
 
-                            if (response.success) {
-                                ToastUtils.success(response.message);
+                        if (response.success) {
+                            ToastUtils.success(response.message);
 
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 3000);
-                            } else {
-                                ToastUtils.error(response.message);
-                            }
-                        },
-                        error: function (jqXHR) {
-                            loadingToast.close();
-                            const msg = jqXHR.responseJSON?.message || 'Error en la comunicación con el servidor.';
-                            ToastUtils.error(msg);
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 3000);
+                        } else {
+                            ToastUtils.error(response.message);
                         }
-                    });
-                }, 1500);
-            },
-            {confirmText: 'Sí, eliminar', cancelColor: '#6c757d'}
-        );
+                    },
+                    error: function (jqXHR) {
+                        loadingToast.close();
+                        const msg = jqXHR.responseJSON?.message || 'Error en la comunicación con el servidor.';
+                        ToastUtils.error(msg);
+                    }
+                });
+            }, 1500);
+        });
     });
 
     // ========================================================================

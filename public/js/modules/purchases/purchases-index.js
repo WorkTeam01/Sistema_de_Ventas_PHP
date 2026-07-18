@@ -123,16 +123,21 @@ $(document).ready(function () {
             $(this.api().table().node()).css('visibility', 'visible');
         }
     }).buttons().container().appendTo('#purchaseTable_wrapper .col-md-6:eq(0)');
+
+    $('#purchaseTable tbody').on('click', '.btn-delete-purchase', function () {
+        const $btn = $(this);
+        confirmDelete($btn.data('id'), $btn.data('id-producto'), $btn.data('cantidad'), $btn.data('nombre'));
+    });
 });
 
-function confirmarEliminar(id, idProducto, cantidad, nombre) {
+function confirmDelete(id, productId, quantity, name) {
     AlertUtils.confirm(
         '¿Está seguro?',
-        'Se eliminará la compra del producto "' + nombre + '" y se revertirá el stock. Esta acción no se puede deshacer.',
+        'Se eliminará la compra del producto "' + name + '" y se revertirá el stock. Esta acción no se puede deshacer.',
         function () {
             document.getElementById('eliminarId').value = id;
-            document.getElementById('eliminarProductoId').value = idProducto;
-            document.getElementById('eliminarCantidad').value = cantidad;
+            document.getElementById('eliminarProductoId').value = productId;
+            document.getElementById('eliminarCantidad').value = quantity;
 
             ToastUtils.loadingWithMinTime('Eliminando compra...', function () {
                 document.getElementById('formEliminar').submit();

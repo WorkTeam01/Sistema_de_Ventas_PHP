@@ -3,6 +3,25 @@
  * Funciones helper para notificaciones Toast y Alerts usando SweetAlert2
  */
 
+/**
+ * Escapa caracteres HTML especiales en un string.
+ * Usar siempre que se interpole texto dinámico (datasets, respuestas de API)
+ * dentro de una opción `html` de SweetAlert2 u otro innerHTML.
+ * @param {string} value
+ * @returns {string}
+ */
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, function (char) {
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char];
+    });
+}
+
 // ============================================
 // ToastUtils - Utilidades para Toast (notificaciones pequeñas)
 // ============================================
@@ -213,31 +232,58 @@ const AlertUtils = {
     },
 
     /**
-     * Alert de confirmación para eliminación
-     * @param {string} url - URL a la que redirigir si confirma
-     * @param {string} title - Título del alert
-     * @param {string} text - Texto del alert
-     * @returns {boolean}
+     * Alert de confirmación para eliminar un ítem, con su nombre destacado en negrita.
+     * Reemplaza los `Swal.fire(...)` en línea que se repetían en cada vista de eliminación.
+     * @param {string} itemLabel - Tipo de ítem en minúscula, ej. "usuario", "producto"
+     * @param {string} itemName - Nombre del ítem a mostrar (se escapa automáticamente)
+     * @param {function} onConfirm - Callback si confirma
+     * @param {object} options - title, article ("a"/"al"), warningText, extraHtml, confirmText, cancelText, confirmColor, cancelColor
+     * @returns {Promise}
      */
-    confirmDelete: function (url, title = '¿Está seguro de eliminar este registro?', text = 'Esta acción no se puede deshacer') {
-        Swal.fire({
-            title: title,
-            text: text,
-            icon: 'warning',
+    confirmDeleteItem: function (itemLabel, itemName, onConfirm, options = {}) {
+        const article = options.article || 'a';
+        const warningText = options.warningText || 'Esta acción no se puede deshacer.';
+        const html = options.html
+            || ('Se eliminará permanentemente ' + article + ' <strong>' + escapeHtml(itemName) + '</strong>.<br>' + warningText + (options.extraHtml || ''));
+
+        return Swal.fire({
+            title: options.title || ('¿Eliminar ' + itemLabel + '?'),
+            html: html,
+            icon: options.icon || 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
+            confirmButtonColor: options.confirmColor || '#d33',
+            cancelButtonColor: options.cancelColor || '#6c757d',
+            confirmButtonText: options.confirmText || 'Sí, eliminar',
+            cancelButtonText: options.cancelText || 'Cancelar',
             reverseButtons: true
         }).then((result) => {
-            if (result.isConfirmed) {
-                ToastUtils.loadingWithMinTime('Eliminando...', () => {
-                    window.location.href = url;
-                }, 800);
+            if (result.isConfirmed && typeof onConfirm === 'function') {
+                onConfirm();
             }
+            return result;
         });
-        return false;
+    },
+
+    /**
+     * Alert informativo cuando un ítem no puede eliminarse por tener registros asociados.
+     * @param {string} itemLabel - Tipo de ítem en minúscula, ej. "usuario", "producto"
+     * @param {string} itemName - Nombre del ítem (se escapa automáticamente)
+     * @param {string} reasonsHtml - Lista `<li>` con los motivos (ya construida por el caller)
+     * @param {object} options - title, article, closingText, confirmText, confirmColor
+     * @returns {Promise}
+     */
+    blockedDelete: function (itemLabel, itemName, reasonsHtml, options = {}) {
+        const article = options.article || 'al';
+        const closingText = options.closingText || 'Elimina primero esos registros antes de continuar.';
+
+        return Swal.fire({
+            title: options.title || 'No se puede eliminar',
+            html: 'Se detectaron registros asociados ' + article + ' ' + itemLabel + ' <strong>' + escapeHtml(itemName) + '</strong>:'
+                + '<ul class="text-left mt-2">' + reasonsHtml + '</ul>' + closingText,
+            icon: 'error',
+            confirmButtonText: options.confirmText || 'Entendido',
+            confirmButtonColor: options.confirmColor || '#3085d6'
+        });
     },
 
     /**
@@ -285,57 +331,3 @@ const AlertUtils = {
         }
     }
 };
-
-// ============================================
-// Funciones legacy (para compatibilidad)
-// ============================================
-
-/**
- * @deprecated Usar ToastUtils.success() en su lugar
- */
-function showToast(icon, title) {
-    const Toast = Swal.mixin(ToastUtils.baseConfig);
-    Toast.fire({ icon: icon, title: title });
-}
-
-/**
- * @deprecated Usar AlertUtils.confirmDelete() en su lugar
- */
-function confirmDelete(url, title, text) {
-    return AlertUtils.confirmDelete(url, title, text);
-}
-
-/**
- * @deprecated Usar AlertUtils.success() en su lugar
- */
-function showSuccess(message) {
-    AlertUtils.success('¡Éxito!', message, 3000);
-}
-
-/**
- * @deprecated Usar AlertUtils.error() en su lugar
- */
-function showError(message) {
-    AlertUtils.error('Error', message);
-}
-
-/**
- * @deprecated Usar AlertUtils.warning() en su lugar
- */
-function showWarning(message) {
-    AlertUtils.warning('Advertencia', message);
-}
-
-/**
- * @deprecated Usar AlertUtils.info() en su lugar
- */
-function showInfo(message) {
-    AlertUtils.info('Información', message);
-}
-
-/**
- * @deprecated Usar AlertUtils.welcome() en su lugar
- */
-function showWelcomeMessage(userName) {
-    AlertUtils.welcome(userName);
-}

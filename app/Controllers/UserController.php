@@ -292,6 +292,7 @@ class UserController extends Controller
                 'email' => $usuario['email'],
                 'rol' => $usuario['rol'],
                 'csrf_token' => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/users/users-delete.js'],
             ]
         ));
     }

@@ -28,7 +28,7 @@
                 <div class="col-md-8">
                     <form id="formEliminar" action="<?= BASE_URL; ?>/users/delete" method="post">
                         <input type="hidden" name="csrf_token"
-                               value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                            value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id_usuario" value="<?= $id_usuario; ?>">
 
                         <div class="card card-danger card-outline">
@@ -37,7 +37,7 @@
                                     eliminación</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
-                                                class="fas fa-minus"></i></button>
+                                            class="fas fa-minus"></i></button>
                                 </div>
                             </div>
 
@@ -56,8 +56,8 @@
                                                     <span class="input-group-text"><i class="fas fa-user"></i></span>
                                                 </div>
                                                 <input type="text" id="nombres"
-                                                       value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>"
-                                                       class="form-control" disabled>
+                                                    value="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -67,11 +67,11 @@
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i
-                                                                class="fas fa-envelope"></i></span>
+                                                            class="fas fa-envelope"></i></span>
                                                 </div>
                                                 <input type="email" id="email"
-                                                       value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"
-                                                       class="form-control" disabled>
+                                                    value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -84,11 +84,11 @@
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i
-                                                                class="fas fa-user-tag"></i></span>
+                                                            class="fas fa-user-tag"></i></span>
                                                 </div>
                                                 <input type="text" id="rol"
-                                                       value="<?= htmlspecialchars($rol, ENT_QUOTES, 'UTF-8'); ?>"
-                                                       class="form-control" disabled>
+                                                    value="<?= htmlspecialchars($rol, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -100,7 +100,7 @@
                                                     <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
                                                 </div>
                                                 <input type="text" id="id_usuario" value="<?= $id_usuario; ?>"
-                                                       class="form-control" disabled>
+                                                    class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -111,12 +111,12 @@
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
                                         <a href="<?= BASE_URL; ?>/users" class="btn btn-default w-100"><i
-                                                    class="fas fa-times"></i> Cancelar</a>
+                                                class="fas fa-times"></i> Cancelar</a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="button" class="btn btn-danger w-100"
-                                                onclick="confirmarEliminar()"><i class="fas fa-trash"></i> Eliminar
-                                            usuario
+                                        <button type="button" class="btn btn-danger w-100 btn-confirm-delete-user"
+                                            data-nombre="<?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <i class="fas fa-trash"></i> Eliminar usuario
                                         </button>
                                     </div>
                                 </div>
@@ -131,7 +131,7 @@
                             <h3 class="card-title"><i class="fas fa-shield-alt"></i> Verificación</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
-                                            class="fas fa-minus"></i></button>
+                                        class="fas fa-minus"></i></button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -147,23 +147,3 @@
     </div>
 </section>
 <!-- /.content-wrapper -->
-
-<script>
-    function confirmarEliminar() {
-        Swal.fire({
-            title: '¿Eliminar usuario?',
-            html: 'Se eliminará permanentemente a <strong><?= htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8'); ?></strong>.<br>Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('formEliminar').submit();
-            }
-        });
-    }
-</script>

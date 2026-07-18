@@ -282,6 +282,7 @@ class SaleController extends Controller
                 'nit_ci_cliente' => $sale['nit_ci_cliente'],
                 'items' => $sale['items'],
                 'csrf_token' => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/sales/sales-delete.js'],
             ]
         ));
     }

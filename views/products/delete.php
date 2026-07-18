@@ -28,7 +28,7 @@
                 <div class="col-md-8">
                     <form id="formEliminar" action="<?= BASE_URL; ?>/products/delete" method="post">
                         <input type="hidden" name="csrf_token"
-                               value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                            value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id_producto" value="<?= $id_producto; ?>">
 
                         <div class="card card-danger card-outline">
@@ -37,7 +37,7 @@
                                     eliminación</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
-                                                class="fas fa-minus"></i></button>
+                                            class="fas fa-minus"></i></button>
                                 </div>
                             </div>
 
@@ -59,8 +59,8 @@
                                                     <span class="input-group-text"><i class="fas fa-barcode"></i></span>
                                                 </div>
                                                 <input type="text"
-                                                       value="<?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>"
-                                                       class="form-control" disabled>
+                                                    value="<?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -72,8 +72,8 @@
                                                     <span class="input-group-text"><i class="fas fa-tag"></i></span>
                                                 </div>
                                                 <input type="text"
-                                                       value="<?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?>"
-                                                       class="form-control" disabled>
+                                                    value="<?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -88,8 +88,8 @@
                                                     <span class="input-group-text"><i class="fas fa-box"></i></span>
                                                 </div>
                                                 <input type="text"
-                                                       value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>"
-                                                       class="form-control" disabled>
+                                                    value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>"
+                                                    class="form-control" disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -101,7 +101,7 @@
                                                     <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
                                                 </div>
                                                 <input type="text" value="<?= $id_producto; ?>" class="form-control"
-                                                       disabled>
+                                                    disabled>
                                             </div>
                                         </div>
                                     </div>
@@ -112,12 +112,12 @@
                                 <div class="row">
                                     <div class="col-12 col-sm-auto mb-2 mb-sm-0">
                                         <a href="<?= BASE_URL; ?>/products" class="btn btn-default w-100"><i
-                                                    class="fas fa-times"></i> Cancelar</a>
+                                                class="fas fa-times"></i> Cancelar</a>
                                     </div>
                                     <div class="col-12 col-sm-auto">
-                                        <button type="button" class="btn btn-danger w-100"
-                                                onclick="confirmarEliminar()"><i class="fas fa-trash"></i> Eliminar
-                                            producto
+                                        <button type="button" class="btn btn-danger w-100 btn-confirm-delete-product"
+                                            data-nombre="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
+                                            <i class="fas fa-trash"></i> Eliminar producto
                                         </button>
                                     </div>
                                 </div>
@@ -132,14 +132,14 @@
                             <h3 class="card-title"><i class="fas fa-shield-alt"></i> Verificación</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
-                                            class="fas fa-minus"></i></button>
+                                        class="fas fa-minus"></i></button>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="text-center mb-3">
                                 <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($imagen, ENT_QUOTES, 'UTF-8'); ?>"
-                                     class="img-thumbnail img-fluid" width="80%"
-                                     alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
+                                    class="img-thumbnail img-fluid" width="80%"
+                                    alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <p class="text-sm text-muted mb-2">Confirma que estás eliminando el producto correcto.</p>
                             <p class="text-sm text-muted mb-2">Si el producto tiene movimientos históricos, no podrá
@@ -153,23 +153,3 @@
     </div>
 </section>
 <!-- /.content-wrapper -->
-
-<script>
-    function confirmarEliminar() {
-        Swal.fire({
-            title: '¿Eliminar producto?',
-            html: 'Se eliminará permanentemente <strong>' + <?= json_encode(htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8')); ?> + '</strong>.<br>Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('formEliminar').submit();
-            }
-        });
-    }
-</script>

@@ -123,11 +123,15 @@ $(document).ready(function () {
             $(this.api().table().node()).css('visibility', 'visible');
         }
     }).buttons().container().appendTo('#productTable_wrapper .col-md-6:eq(0)');
+
+    $('#productTable tbody').on('click', '.btn-delete-product', function () {
+        confirmDelete($(this).data('id'), $(this).data('nombre'));
+    });
 });
 
-function confirmarEliminar(id, nombre) {
-    const $btns = $('button[onclick*="confirmarEliminar"]');
-    $btns.prop('disabled', true);
+function confirmDelete(id, name) {
+    const $buttons = $('.btn-delete-product');
+    $buttons.prop('disabled', true);
 
     ToastUtils.loadingWithMinTime('Verificando producto...', function (toast) {
         fetch(BASE_URL + '/products/check/' + id)
@@ -136,20 +140,14 @@ function confirmarEliminar(id, nombre) {
             })
             .then(function (data) {
                 toast.close();
-                $btns.prop('disabled', false);
+                $buttons.prop('disabled', false);
 
                 if (data.referenced) {
-                    let detalles = '';
-                    if (data.carrito > 0) detalles += '<li>' + data.carrito + ' ítem(s) en carrito de ventas</li>';
-                    if (data.compras > 0) detalles += '<li>' + data.compras + ' compra(s) registrada(s)</li>';
+                    let reasons = '';
+                    if (data.carrito > 0) reasons += '<li>' + data.carrito + ' ítem(s) en carrito de ventas</li>';
+                    if (data.compras > 0) reasons += '<li>' + data.compras + ' compra(s) registrada(s)</li>';
 
-                    Swal.fire({
-                        title: 'No se puede eliminar',
-                        html: 'El producto <strong>' + nombre + '</strong> tiene registros asociados:<ul class="text-left mt-2">' + detalles + '</ul>Elimina primero esos registros antes de continuar.',
-                        icon: 'error',
-                        confirmButtonText: 'Entendido',
-                        confirmButtonColor: '#3085d6'
-                    });
+                    AlertUtils.blockedDelete('producto', name, reasons);
                     return;
                 }
 
@@ -159,7 +157,7 @@ function confirmarEliminar(id, nombre) {
             })
             .catch(function () {
                 if (toast) toast.close();
-                $btns.prop('disabled', false);
+                $buttons.prop('disabled', false);
                 ToastUtils.error('Error de conexión', 'No se pudo verificar el producto.');
             });
     }, 1500);

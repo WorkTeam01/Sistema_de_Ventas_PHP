@@ -379,6 +379,7 @@ class ProductController extends Controller
                 'imagen' => $product['imagen'],
                 'nombre_categoria' => $product['nombre_categoria'] ?? '—',
                 'csrf_token' => Auth::generateCsrfToken(),
+                'pageScripts' => ['/js/modules/products/products-delete.js'],
             ]
         ));
     }

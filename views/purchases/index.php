@@ -40,67 +40,70 @@
                         </div>
                         <div class="card-body">
                             <table id="purchaseTable" class="table table-bordered table-hover table-striped table-sm"
-                                   style="visibility: hidden;">
+                                style="visibility: hidden;">
                                 <thead>
-                                <tr>
-                                    <th class="text-center">Nro</th>
-                                    <th class="text-center">N° Compra</th>
-                                    <th class="text-center">Producto</th>
-                                    <th class="text-center">Proveedor</th>
-                                    <th class="text-center">Precio</th>
-                                    <th class="text-center">Cantidad</th>
-                                    <th class="text-center">Fecha</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
+                                    <tr>
+                                        <th class="text-center">Nro</th>
+                                        <th class="text-center">N° Compra</th>
+                                        <th class="text-center">Producto</th>
+                                        <th class="text-center">Proveedor</th>
+                                        <th class="text-center">Precio</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-center">Fecha</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <?php
-                                $contador = 0;
-                                foreach ($purchases_datos as $purchase) :
-                                    $id_compra = $purchase['id_compra'];
-                                    $id_producto = $purchase['id_producto'];
-                                    $cantidad = (int)$purchase['cantidad'];
+                                    <?php
+                                    $contador = 0;
+                                    foreach ($purchases_datos as $purchase) :
+                                        $id_compra = $purchase['id_compra'];
+                                        $id_producto = $purchase['id_producto'];
+                                        $cantidad = (int)$purchase['cantidad'];
                                     ?>
-                                    <tr>
-                                        <td class="text-center"><?= $contador += 1; ?></td>
-                                        <td class="text-center"><?= htmlspecialchars($purchase['nro_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td>
-                                            <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($purchase['imagen'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                 width="30" class="rounded mr-1"
-                                                 alt="<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>">
-                                            <?= htmlspecialchars($purchase['codigo'], ENT_QUOTES, 'UTF-8'); ?> —
-                                            <?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>
-                                        </td>
-                                        <td><?= htmlspecialchars($purchase['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td class="text-right"><?= htmlspecialchars($purchase['precio_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td class="text-center"><?= $cantidad; ?></td>
-                                        <td class="text-center"><?= htmlspecialchars($purchase['fecha_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td class="text-center">
-                                            <div class="btn-group">
-                                                <a href="<?= BASE_URL ?>/purchases/show/<?= $id_compra ?>"
-                                                   class="btn btn-info btn-sm" data-toggle="tooltip"
-                                                   title="Ver detalles">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="<?= BASE_URL ?>/purchases/report/<?= $id_compra ?>"
-                                                   class="btn btn-primary btn-sm" data-toggle="tooltip"
-                                                   title="Reporte PDF" target="_blank">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                </a>
-                                                <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
-                                                   class="btn btn-success btn-sm" data-toggle="tooltip"
-                                                   title="Editar compra">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-danger btn-sm"
-                                                        data-toggle="tooltip" title="Eliminar compra"
-                                                        onclick="confirmarEliminar(<?= $id_compra ?>, <?= $id_producto ?>, <?= $cantidad ?>, '<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
+                                        <tr>
+                                            <td class="text-center"><?= $contador += 1; ?></td>
+                                            <td class="text-center"><?= htmlspecialchars($purchase['nro_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td>
+                                                <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($purchase['imagen'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                    width="30" class="rounded mr-1"
+                                                    alt="<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                <?= htmlspecialchars($purchase['codigo'], ENT_QUOTES, 'UTF-8'); ?> —
+                                                <?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>
+                                            </td>
+                                            <td><?= htmlspecialchars($purchase['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-right"><?= htmlspecialchars($purchase['precio_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center"><?= $cantidad; ?></td>
+                                            <td class="text-center"><?= htmlspecialchars($purchase['fecha_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center">
+                                                <div class="btn-group">
+                                                    <a href="<?= BASE_URL ?>/purchases/show/<?= $id_compra ?>"
+                                                        class="btn btn-info btn-sm" data-toggle="tooltip"
+                                                        title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="<?= BASE_URL ?>/purchases/report/<?= $id_compra ?>"
+                                                        class="btn btn-primary btn-sm" data-toggle="tooltip"
+                                                        title="Reporte PDF" target="_blank">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </a>
+                                                    <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
+                                                        class="btn btn-success btn-sm" data-toggle="tooltip"
+                                                        title="Editar compra">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-danger btn-sm btn-delete-purchase"
+                                                        data-id="<?= $id_compra ?>"
+                                                        data-id-producto="<?= $id_producto ?>"
+                                                        data-cantidad="<?= $cantidad ?>"
+                                                        data-nombre="<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                        data-toggle="tooltip" title="Eliminar compra">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>

@@ -28,6 +28,7 @@ if (isset($_SESSION['mensaje'])) {
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/plugins/sweetalert2/sweetalert2.min.css">
     <script src="<?= BASE_URL ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js"></script>
     <!-- Icono del sitio -->
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>/img/logo.png">
     <style>
@@ -80,20 +81,12 @@ if (isset($_SESSION['mensaje'])) {
 
     <?php if ($mensaje): ?>
     <script>
-        const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.onmouseenter = Swal.stopTimer;
-                toast.onmouseleave = Swal.resumeTimer;
+        document.addEventListener('DOMContentLoaded', function () {
+            const type = <?= json_encode($icono) ?>;
+            const msg = <?= json_encode($mensaje) ?>;
+            if (typeof ToastUtils !== 'undefined' && typeof ToastUtils[type] === 'function') {
+                ToastUtils[type](msg);
             }
-        });
-        Toast.fire({
-            icon: "<?= htmlspecialchars($icono, ENT_QUOTES, 'UTF-8') ?>",
-            title: "<?= htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8') ?>"
         });
     </script>
     <?php endif; ?>

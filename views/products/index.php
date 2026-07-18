@@ -40,68 +40,69 @@
                         </div>
                         <div class="card-body">
                             <table id="productTable" class="table table-bordered table-hover table-striped table-sm"
-                                   style="visibility: hidden;">
+                                style="visibility: hidden;">
                                 <thead>
-                                <tr>
-                                    <th class="text-center">Nro</th>
-                                    <th class="text-center">Imagen</th>
-                                    <th class="text-center">Código</th>
-                                    <th class="text-center">Nombre</th>
-                                    <th class="text-center">Categoría</th>
-                                    <th class="text-center">Stock</th>
-                                    <th class="text-center">Precio venta</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
+                                    <tr>
+                                        <th class="text-center">Nro</th>
+                                        <th class="text-center">Imagen</th>
+                                        <th class="text-center">Código</th>
+                                        <th class="text-center">Nombre</th>
+                                        <th class="text-center">Categoría</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center">Precio venta</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <?php
-                                $contador = 0;
-                                foreach ($products_datos as $product) :
-                                    $id_producto = $product['id_producto'];
-                                    $stock_actual = (int)$product['stock'];
-                                    $stock_minimo = (int)$product['stock_minimo'];
-                                    $stock_maximo = (int)$product['stock_maximo'];
+                                    <?php
+                                    $contador = 0;
+                                    foreach ($products_datos as $product) :
+                                        $id_producto = $product['id_producto'];
+                                        $stock_actual = (int)$product['stock'];
+                                        $stock_minimo = (int)$product['stock_minimo'];
+                                        $stock_maximo = (int)$product['stock_maximo'];
                                     ?>
-                                    <tr>
-                                        <td class="text-center"><?= $contador += 1; ?></td>
-                                        <td class="text-center">
-                                            <img class="rounded mx-auto d-block"
-                                                 src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($product['imagen'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                 width="30"
-                                                 alt="<?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>">
-                                        </td>
-                                        <td><?= htmlspecialchars($product['codigo'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td><?= htmlspecialchars($product['nombre_categoria'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <?php if ($stock_actual < $stock_minimo) : ?>
-                                            <td class="bg-danger text-center"><?= $stock_actual; ?></td>
-                                        <?php elseif ($stock_maximo > 0 && $stock_actual > $stock_maximo) : ?>
-                                            <td class="bg-success text-center"><?= $stock_actual; ?></td>
-                                        <?php else : ?>
-                                            <td class="text-center"><?= $stock_actual; ?></td>
-                                        <?php endif; ?>
-                                        <td class="text-right"><?= htmlspecialchars($product['precio_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                        <td class="text-center">
-                                            <div class="btn-group">
-                                                <a href="<?= BASE_URL ?>/products/show/<?= $id_producto ?>"
-                                                   class="btn btn-info btn-sm" data-toggle="tooltip"
-                                                   title="Ver detalles">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
-                                                   class="btn btn-success btn-sm" data-toggle="tooltip"
-                                                   title="Editar producto">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-danger btn-sm"
-                                                        data-toggle="tooltip" title="Eliminar producto"
-                                                        onclick="confirmarEliminar(<?= $id_producto ?>, '<?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
+                                        <tr>
+                                            <td class="text-center"><?= $contador += 1; ?></td>
+                                            <td class="text-center">
+                                                <img class="rounded mx-auto d-block"
+                                                    src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($product['imagen'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                    width="30"
+                                                    alt="<?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>">
+                                            </td>
+                                            <td><?= htmlspecialchars($product['codigo'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td><?= htmlspecialchars($product['nombre_categoria'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <?php if ($stock_actual < $stock_minimo) : ?>
+                                                <td class="bg-danger text-center"><?= $stock_actual; ?></td>
+                                            <?php elseif ($stock_maximo > 0 && $stock_actual > $stock_maximo) : ?>
+                                                <td class="bg-success text-center"><?= $stock_actual; ?></td>
+                                            <?php else : ?>
+                                                <td class="text-center"><?= $stock_actual; ?></td>
+                                            <?php endif; ?>
+                                            <td class="text-right"><?= htmlspecialchars($product['precio_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-center">
+                                                <div class="btn-group">
+                                                    <a href="<?= BASE_URL ?>/products/show/<?= $id_producto ?>"
+                                                        class="btn btn-info btn-sm" data-toggle="tooltip"
+                                                        title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
+                                                        class="btn btn-success btn-sm" data-toggle="tooltip"
+                                                        title="Editar producto">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-danger btn-sm btn-delete-product"
+                                                        data-id="<?= $id_producto ?>"
+                                                        data-nombre="<?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                        data-toggle="tooltip" title="Eliminar producto">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
