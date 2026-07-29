@@ -1,22 +1,5 @@
 $(document).ready(function () {
-    // 1. Visibilidad de contraseñas
-    function setupToggle(btnId, inputId) {
-        const $btn = $('#' + btnId);
-        const $input = $('#' + inputId);
-
-        $btn.on('click', function () {
-            const isPassword = $input.attr('type') === 'password';
-            $input.attr('type', isPassword ? 'text' : 'password');
-            $btn.attr('aria-pressed', isPassword ? 'true' : 'false');
-            $btn.attr('aria-label', isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
-            $btn.find('i').toggleClass('fa-eye fa-eye-slash');
-        });
-    }
-
-    setupToggle('togglePassword', 'password');
-    setupToggle('toggleConfirm', 'password_confirm');
-
-    // 2. Indicador de fortaleza
+    // Indicador de fortaleza
     $('#password').on('keyup', function () {
         const val = $(this).val();
         const strength = calcStrength(val);
@@ -40,26 +23,27 @@ $(document).ready(function () {
         $fill.css('width', score + '%');
 
         $fill.removeClass('strength-weak strength-fair strength-good strength-strong');
+        $text.removeClass('strength-weak strength-fair strength-good strength-strong');
 
         if (score === 0) {
             $fill.css('width', '0');
             $text.text('');
         } else if (score <= 30) {
             $fill.addClass('strength-weak');
-            $text.text('Contraseña muy débil').css('color', '#dc3545');
+            $text.addClass('strength-weak').text('Contraseña muy débil');
         } else if (score <= 60) {
             $fill.addClass('strength-fair');
-            $text.text('Contraseña débil').css('color', '#ffc107');
+            $text.addClass('strength-fair').text('Contraseña débil');
         } else if (score <= 80) {
             $fill.addClass('strength-good');
-            $text.text('Contraseña buena').css('color', '#17a2b8');
+            $text.addClass('strength-good').text('Contraseña buena');
         } else {
             $fill.addClass('strength-strong');
-            $text.text('Contraseña fuerte').css('color', '#28a745');
+            $text.addClass('strength-strong').text('Contraseña fuerte');
         }
     }
 
-    // 3. Validación jQuery Validate
+    // Validación jQuery Validate
     $('#resetForm').validate({
         rules: {
             password: {
@@ -81,36 +65,15 @@ $(document).ready(function () {
                 equalTo: 'Las contraseñas no coinciden'
             }
         },
-        errorElement: 'span',
-        errorClass: 'invalid-feedback',
-        errorPlacement: function (error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.input-group').append(error);
-        },
-        highlight: function (element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
-        },
-        unhighlight: function (element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
-        },
+        ...AuthFormUtils.commonValidateCallbacks,
         submitHandler: function (form) {
-            const $btn = $('#btnReset');
-            const originalText = $btn.html();
-
-            $btn.prop('disabled', true)
-                .html('<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...');
-
-            if (typeof ToastUtils !== 'undefined') {
-                ToastUtils.loadingWithMinTime('Actualizando contraseña...', () => {
-                    form.submit();
-                }, 1500);
-            } else {
-                setTimeout(() => { form.submit(); }, 1500);
-            }
-
-            setTimeout(() => {
-                $btn.prop('disabled', false).html(originalText);
-            }, 5000);
+            AuthFormUtils.handleSubmit(form, {
+                btnId: 'btnReset',
+                statusId: 'formStatus',
+                loadingLabel: 'Guardando...',
+                loadingToast: 'Actualizando contraseña...',
+                statusMessage: 'Actualizando contraseña, por favor espera...'
+            });
         }
     });
 });
