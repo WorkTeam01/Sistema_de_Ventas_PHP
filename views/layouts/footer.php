@@ -60,6 +60,8 @@
         <script src="<?= BASE_URL; ?><?= $script ?>"></script>
     <?php endforeach; ?>
 <?php endif; ?>
+<!-- Mostrar/ocultar contraseña (global) -->
+<script src="<?= BASE_URL; ?>/js/core/password-toggle.js"></script>
 <!-- UI Components Utils (General UI Helpers) -->
 <script src="<?= BASE_URL; ?>/js/core/ui-components.js"></script>
 

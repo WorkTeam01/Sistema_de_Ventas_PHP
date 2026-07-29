@@ -1,6 +1,4 @@
 :root {
-    --auth-bg-start: #f5f7fa;
-    --auth-bg-end: #c3cfe2;
     --auth-primary: #007bff;
     --auth-primary-dark: #0062cc;
     --auth-primary-darker: #004a99;
@@ -11,15 +9,114 @@
     --auth-shadow-strong: rgba(0, 0, 0, 0.15);
     --auth-primary-shadow: rgba(0, 123, 255, 0.4);
     --auth-primary-focus-ring: rgba(0, 123, 255, 0.25);
+    --auth-card-bg: #ffffff;
+    --auth-text: #212529;
+    --auth-text-muted: #6c757d;
+    --auth-input-bg: #ffffff;
+    --auth-page-bg-start: #eef1f6;
+    --auth-page-bg-end: #dbe3f0;
+}
+
+:root[data-theme="dark"] {
+    --auth-primary: #3b93ff;
+    --auth-primary-dark: #2678d9;
+    --auth-primary-darker: #1c5fae;
+    --auth-border: #3a3f47;
+    --auth-disabled-start: #4b4f56;
+    --auth-disabled-end: #33363b;
+    --auth-shadow: rgba(0, 0, 0, 0.4);
+    --auth-shadow-strong: rgba(0, 0, 0, 0.55);
+    --auth-primary-shadow: rgba(59, 147, 255, 0.35);
+    --auth-primary-focus-ring: rgba(59, 147, 255, 0.3);
+    --auth-card-bg: #23262c;
+    --auth-text: #e9ecef;
+    --auth-text-muted: #adb5bd;
+    --auth-input-bg: #2c313a;
+    --auth-page-bg-start: #14171c;
+    --auth-page-bg-end: #1c222c;
+}
+
+/* Fallback para navegadores sin JS: el script inline en layout.php siempre
+   fija data-theme antes del primer paint, así que esto solo cubre ese caso. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --auth-primary: #3b93ff;
+        --auth-primary-dark: #2678d9;
+        --auth-primary-darker: #1c5fae;
+        --auth-border: #3a3f47;
+        --auth-disabled-start: #4b4f56;
+        --auth-disabled-end: #33363b;
+        --auth-shadow: rgba(0, 0, 0, 0.4);
+        --auth-shadow-strong: rgba(0, 0, 0, 0.55);
+        --auth-primary-shadow: rgba(59, 147, 255, 0.35);
+        --auth-primary-focus-ring: rgba(59, 147, 255, 0.3);
+        --auth-card-bg: #23262c;
+        --auth-text: #e9ecef;
+        --auth-text-muted: #adb5bd;
+        --auth-input-bg: #2c313a;
+        --auth-page-bg-start: #14171c;
+        --auth-page-bg-end: #1c222c;
+    }
+}
+
+.theme-toggle-btn {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 10;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--auth-border);
+    background: var(--auth-card-bg);
+    color: var(--auth-text);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+@media (max-width: 360px) {
+    .theme-toggle-btn {
+        position: static;
+        margin: 0 auto 1rem;
+    }
+
+    body.login-page {
+        padding-top: 1rem;
+    }
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.08);
+}
+
+.theme-toggle-btn:focus-visible {
+    outline: 2px solid var(--auth-primary);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle-btn {
+        transition: none;
+    }
 }
 
 body.login-page {
-    background: linear-gradient(135deg, var(--auth-bg-start) 0%, var(--auth-bg-end) 100%);
+    background: linear-gradient(160deg, var(--auth-page-bg-start) 0%, var(--auth-page-bg-end) 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem 0;
+    transition: background-color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.login-page {
+        transition: none;
+    }
 }
 
 .login-box {
@@ -31,24 +128,43 @@ body.login-page {
     border: none;
     border-radius: 15px;
     box-shadow: 0 0 20px var(--auth-shadow);
+    background: var(--auth-card-bg);
+    color: var(--auth-text);
 }
 
 .card-header {
     border-radius: 15px 15px 0 0 !important;
-    background: white !important;
+    background: var(--auth-card-bg) !important;
+    color: var(--auth-text);
     padding: 20px;
+}
+
+.card-header .h1 {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+}
+
+.login-box-msg {
+    color: var(--auth-text);
+    font-size: clamp(1rem, 0.9rem + 0.4vw, 1.15rem);
 }
 
 .form-control {
     border-radius: 8px;
     padding: 12px;
     border: 2px solid var(--auth-border);
+    background: var(--auth-input-bg);
+    color: var(--auth-text);
     transition: all 0.3s ease;
 }
 
 .form-control:focus {
     border-color: var(--auth-primary);
     box-shadow: 0 0 0 0.2rem var(--auth-primary-focus-ring);
+}
+
+.form-control::placeholder {
+    color: var(--auth-text-muted);
+    opacity: 1;
 }
 
 .input-group {
@@ -58,8 +174,13 @@ body.login-page {
 
 .input-group-text {
     border-radius: 8px;
-    background: #fff;
+    background: var(--auth-input-bg);
+    color: var(--auth-text);
     border: 2px solid var(--auth-border);
+}
+
+.text-muted {
+    color: var(--auth-text-muted) !important;
 }
 
 .btn-custom {
@@ -113,7 +234,7 @@ body.login-page {
 }
 
 .img-circle {
-    border: 4px solid white;
+    border: 4px solid var(--auth-card-bg);
     box-shadow: 0 0 15px var(--auth-shadow);
     transition: all 0.3s ease;
     border-radius: 50%;
@@ -137,4 +258,14 @@ body.login-page {
 .login-logo img {
     width: 150px;
     height: 150px;
+}
+
+.input-group-append .btn-default {
+    background: var(--auth-input-bg);
+    color: var(--auth-text);
+    border: 2px solid var(--auth-border);
+}
+
+.icheck-primary>input:first-child+label::before {
+    border-color: var(--auth-border);
 }

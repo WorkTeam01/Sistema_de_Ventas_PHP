@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    // Toggle de visibilidad de contraseña: manejado globalmente por ComponentUtils.initPasswordToggles()
+    // Toggle de visibilidad de contraseña: manejado globalmente por core/password-toggle.js
 
     // Validación del formulario
     $('#userEditForm').validate({

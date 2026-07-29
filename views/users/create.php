@@ -110,7 +110,7 @@
                                                     class="form-control"
                                                     placeholder="Mínimo 6 caracteres" aria-required="true">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                    <button type="button" class="btn btn-default toggle-password"
                                                         aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -129,7 +129,7 @@
                                                     class="form-control"
                                                     placeholder="Repita la contraseña" aria-required="true">
                                                 <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary toggle-password"
+                                                    <button type="button" class="btn btn-default toggle-password"
                                                         aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>

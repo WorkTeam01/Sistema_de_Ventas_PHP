@@ -186,7 +186,7 @@
                                                     autocomplete="new-password">
                                                 <div class="input-group-append">
                                                     <button type="button"
-                                                        class="btn btn-outline-secondary toggle-password"
+                                                        class="btn btn-default toggle-password"
                                                         aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -207,7 +207,7 @@
                                                     autocomplete="new-password">
                                                 <div class="input-group-append">
                                                     <button type="button"
-                                                        class="btn btn-outline-secondary toggle-password"
+                                                        class="btn btn-default toggle-password"
                                                         aria-label="Mostrar contraseña">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
