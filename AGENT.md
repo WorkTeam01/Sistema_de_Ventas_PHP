@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.14.2 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2) y eliminación de `Swal.fire`/`onclick` inline en vistas. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.14.3 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2), eliminación de `Swal.fire`/`onclick` inline en vistas, y hardening de accesibilidad/UX en el flujo de autenticación (login, forgot-password, reset-password). Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -447,4 +447,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-07-18 — 1.14.2. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-07-29 — 1.14.3. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

@@ -11,6 +11,35 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.14.3] - 2026-07-29
+
+### Accesibilidad
+
+- `aria-hidden="true"` en todos los iconos decorativos (Font Awesome) de las vistas de login, forgot-password y
+  reset-password, para que los lectores de pantalla dejen de anunciarlos como contenido.
+- Atributos nativos `required`/`aria-required="true"` en los inputs de los formularios de auth, como red de
+  seguridad si la validación de jQuery Validate no llega a cargar.
+- Colores del indicador de fortaleza de contraseña (`reset-password.js`) movidos de estilos inline a tokens CSS
+  (`--strength-weak/fair/good/strong`) con variante dark; el tono "fair" en modo claro se ajustó para cumplir
+  contraste 4.5:1 como texto.
+
+### Corregido
+
+- El aviso "la solicitud está tardando más de lo esperado" en los formularios de auth ya no aparece cuando el
+  envío en realidad tuvo éxito y la página está navegando: `AuthFormUtils.handleSubmit` cancela el aviso al
+  detectar `pagehide`/`beforeunload`.
+- Copy del mismo aviso actualizado con una acción concreta ("presiona el botón para reintentar") en vez de un
+  texto solo informativo.
+- El botón de cambio de tema (`theme-toggle-btn`) ya no se superpone al contenido en viewports ≤360px.
+
+### Modificado
+
+- Configuración de jQuery Validate (placement de errores, highlight/unhighlight, foco en error) centralizada en
+  `public/js/core/auth-form-utils.js` (`AuthFormUtils`), eliminando la duplicación entre `login.js`,
+  `forgot-password.js` y `reset-password.js`.
+
+---
+
 ## [1.14.2] - 2026-07-18
 
 ### Seguridad
@@ -473,7 +502,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.2...HEAD
+[1.14.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.2...1.14.3
 [1.14.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.1...1.14.2
 [1.14.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.0...1.14.1
 [1.14.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.13.0...1.14.0
