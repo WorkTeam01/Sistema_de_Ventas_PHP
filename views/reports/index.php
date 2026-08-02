@@ -126,7 +126,7 @@
                                             </span>
                                             <span class="info-box-number"><?= (int)$salesSummary['num_ventas'] ?></span>
                                             <span class="progress-description text-muted">
-                                                Bs. <?= number_format((float)$salesSummary['total_ingresos'], 2) ?>
+                                                <?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$salesSummary['total_ingresos'], 2) ?>
                                             </span>
                                         </div>
                                     </div>
@@ -143,7 +143,7 @@
                                                 <span class="info-box-text">Compras</span>
                                                 <span class="info-box-number"><?= (int)$purchaseSummary['num_compras'] ?></span>
                                                 <span class="progress-description text-muted">
-                                                    Bs. <?= number_format((float)$purchaseSummary['total_egresos'], 2) ?>
+                                                    <?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$purchaseSummary['total_egresos'], 2) ?>
                                                 </span>
                                             </div>
                                         </div>
@@ -176,7 +176,7 @@
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Margen bruto</span>
                                                 <span class="info-box-number">
-                                                    <?= ($margen >= 0 ? '' : '-') ?>Bs. <?= number_format(abs($margen), 2) ?>
+                                                    <?= ($margen >= 0 ? '' : '-') ?><?= APP_CURRENCY_SYMBOL ?> <?= number_format(abs($margen), 2) ?>
                                                 </span>
                                                 <span class="progress-description text-muted">ingresos − egresos</span>
                                             </div>
@@ -199,7 +199,7 @@
                                                 <th>Producto</th>
                                                 <th class="d-none d-md-table-cell">Categoría</th>
                                                 <th class="text-right">Unidades</th>
-                                                <th class="text-right">Ingresos (Bs.)</th>
+                                                <th class="text-right">Ingresos (<?= APP_CURRENCY_SYMBOL ?>)</th>
                                             </tr>
                                         </thead>
                                         <tbody>

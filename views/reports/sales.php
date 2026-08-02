@@ -42,7 +42,7 @@
                         <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-dollar-sign"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total Ingresos</span>
-                            <span class="info-box-number">Bs. <?= number_format((float)$totals['total_ingresos'], 2) ?></span>
+                            <span class="info-box-number"><?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$totals['total_ingresos'], 2) ?></span>
                         </div>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                         <span class="info-box-icon bg-info elevation-1"><i class="fas fa-chart-bar"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Ticket Promedio</span>
-                            <span class="info-box-number">Bs. <?= number_format((float)$totals['ticket_promedio'], 2) ?></span>
+                            <span class="info-box-number"><?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$totals['ticket_promedio'], 2) ?></span>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                                         <th>N° Venta</th>
                                         <th>Fecha</th>
                                         <th>Cliente</th>
-                                        <th class="text-right">Total (Bs.)</th>
+                                        <th class="text-right">Total (<?= APP_CURRENCY_SYMBOL ?>)</th>
                                     </tr>
                                 </thead>
                                 <tbody>

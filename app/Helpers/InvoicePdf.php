@@ -69,7 +69,7 @@ class InvoicePdf
             . "\nCliente: " . $nombreCliente
             . "\nNIT/CI: " . $nitCiCliente
             . "\nFecha: "  . $fecha
-            . "\nMonto: Bs. " . number_format($precioTotal, 2);
+            . "\nMonto: " . APP_CURRENCY_SYMBOL . " " . number_format($precioTotal, 2);
 
         $pdf->write2DBarcode($qrData, 'QRCODE,L', 160, 230, 40, 40, [
             'border' => 0,
@@ -112,8 +112,7 @@ class InvoicePdf
         float  $totalUnitarios,
         string $montoLiteral,
         string $vendedor
-    ): string
-    {
+    ): string {
         $html = '
 <table border="0" style="font-size: 10px">
     <tr>
@@ -174,8 +173,8 @@ class InvoicePdf
         <td>' . htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') . '</td>
         <td>' . htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') . '</td>
         <td style="text-align: center">' . $cantidad . '</td>
-        <td style="text-align: center">Bs. ' . number_format($precioUnitario, 2) . '</td>
-        <td style="text-align: center">Bs. ' . number_format($subTotal, 2) . '</td>
+        <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($precioUnitario, 2) . '</td>
+        <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($subTotal, 2) . '</td>
     </tr>';
         }
 
@@ -183,12 +182,12 @@ class InvoicePdf
     <tr style="background-color: #d6d6d6">
         <td colspan="3" style="text-align: right"><b>Total</b></td>
         <td style="text-align: center">' . $cantidadTotal . '</td>
-        <td style="text-align: center">Bs. ' . number_format($totalUnitarios, 2) . '</td>
-        <td style="text-align: center">Bs. ' . number_format($precioTotal, 2) . '</td>
+        <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($totalUnitarios, 2) . '</td>
+        <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($precioTotal, 2) . '</td>
     </tr>
 </table>
 
-<p style="text-align: right"><b>Monto Total: </b>Bs. ' . number_format($precioTotal, 2) . '</p>
+<p style="text-align: right"><b>Monto Total: </b>' . APP_CURRENCY_SYMBOL . ' ' . number_format($precioTotal, 2) . '</p>
 <p><b>Son: </b>' . $montoLiteral . '</p>
 <br>
 ======================================<br>

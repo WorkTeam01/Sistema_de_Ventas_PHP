@@ -13,6 +13,7 @@ $dotenv->load();
 // Constantes globales
 define('BASE_URL', rtrim($_ENV['APP_URL'], '/'));
 define('APP_VERSION', $_ENV['APP_VERSION'] ?? '1.0.0');
+define('APP_CURRENCY_SYMBOL', $_ENV['APP_CURRENCY_SYMBOL'] ?? 'Bs.');
 
 // Zona horaria
 date_default_timezone_set($_ENV['APP_TIMEZONE']);

@@ -22,7 +22,7 @@
                             <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Ventas del mes</span>
-                                <span class="info-box-number">Bs <?= number_format($kpis['ventas_mes'], 2, ',', '.') ?></span>
+                                <span class="info-box-number"><?= APP_CURRENCY_SYMBOL ?> <?= number_format($kpis['ventas_mes'], 2, ',', '.') ?></span>
                                 <div class="progress">
                                     <div class="progress-bar bg-success" style="width: <?= $kpis['ventas_var_bar'] ?>%"></div>
                                 </div>
@@ -48,7 +48,7 @@
                                     <div class="progress-bar bg-info" style="width: 100%"></div>
                                 </div>
                                 <span class="progress-description text-muted">
-                                    Bs <?= number_format($kpis['ventas_hoy']['monto'], 2, ',', '.') ?> recaudado
+                                    <?= APP_CURRENCY_SYMBOL ?> <?= number_format($kpis['ventas_hoy']['monto'], 2, ',', '.') ?> recaudado
                                 </span>
                             </div>
                         </div>
@@ -63,7 +63,7 @@
                             <span class="info-box-icon bg-danger"><i class="fas fa-cart-arrow-down"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Compras del mes</span>
-                                <span class="info-box-number">Bs <?= number_format($kpis['compras_mes'], 2, ',', '.') ?></span>
+                                <span class="info-box-number"><?= APP_CURRENCY_SYMBOL ?> <?= number_format($kpis['compras_mes'], 2, ',', '.') ?></span>
                                 <div class="progress">
                                     <div class="progress-bar bg-danger" style="width: <?= $kpis['compras_var_bar'] ?>%"></div>
                                 </div>
@@ -116,7 +116,7 @@
                             <div class="info-box-content">
                                 <span class="info-box-text">Ventas &minus; Compras del mes</span>
                                 <span class="info-box-number <?= $kpis['utilidad_positiva'] ? 'text-primary' : 'text-danger' ?>">
-                                    Bs <?= number_format($kpis['utilidad_bruta'], 2, ',', '.') ?>
+                                    <?= APP_CURRENCY_SYMBOL ?> <?= number_format($kpis['utilidad_bruta'], 2, ',', '.') ?>
                                 </span>
                                 <div class="progress">
                                     <div class="progress-bar <?= $kpis['utilidad_positiva'] ? 'bg-primary' : 'bg-danger' ?>" style="width: 100%"></div>
@@ -217,7 +217,7 @@
                                                 </td>
                                                 <td><?= htmlspecialchars($venta['nombre_cliente']) ?></td>
                                                 <td class="text-right text-success font-weight-bold">
-                                                    Bs <?= number_format($venta['total_pagado'], 2, ',', '.') ?>
+                                                    <?= APP_CURRENCY_SYMBOL ?> <?= number_format($venta['total_pagado'], 2, ',', '.') ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

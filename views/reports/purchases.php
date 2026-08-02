@@ -42,7 +42,7 @@
                         <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-dollar-sign"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total Egresos</span>
-                            <span class="info-box-number">Bs. <?= number_format((float)$totals['total_egresos'], 2) ?></span>
+                            <span class="info-box-number"><?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$totals['total_egresos'], 2) ?></span>
                         </div>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                                         <th>Fecha</th>
                                         <th>Proveedor</th>
                                         <th>Registrado por</th>
-                                        <th class="text-right">Total (Bs.)</th>
+                                        <th class="text-right">Total (<?= APP_CURRENCY_SYMBOL ?>)</th>
                                     </tr>
                                 </thead>
                                 <tbody>

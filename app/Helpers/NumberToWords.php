@@ -3,8 +3,8 @@
 namespace App\Helpers;
 
 /**
- * Convierte un número decimal a su representación en palabras en español (formato boliviano).
- * Ejemplo: 1234.50 → "UN MIL DOSCIENTOS TREINTA Y CUATRO CON 50/100 Bs."
+ * Convierte un número decimal a su representación en palabras en español.
+ * Ejemplo: 1234.50 → "UN MIL DOSCIENTOS TREINTA Y CUATRO CON 50/100 Bs." (moneda configurable vía APP_CURRENCY_SYMBOL).
  */
 class NumberToWords
 {
@@ -52,10 +52,12 @@ class NumberToWords
      * Convierte un número a su literal en español.
      *
      * @param float $number Número a convertir.
+     * @param string|null $currencyLabel Etiqueta de moneda (por defecto, APP_CURRENCY_SYMBOL o "Bs.").
      * @return string Representación en palabras.
      */
-    public static function convert(float $number): string
+    public static function convert(float $number, ?string $currencyLabel = null): string
     {
+        $currencyLabel ??= defined('APP_CURRENCY_SYMBOL') ? APP_CURRENCY_SYMBOL : 'Bs.';
         $xarray = self::$words;
 
         $xcifra     = number_format((float) $number, 2, '.', '');
@@ -163,11 +165,11 @@ class NumberToWords
                         break;
                     case 2:
                         if ($xcifra < 1) {
-                            $xcadena = " CERO CON $xdecimales/100 Bs.";
+                            $xcadena = " CERO CON $xdecimales/100 $currencyLabel";
                         } elseif ($xcifra >= 1 && $xcifra < 2) {
-                            $xcadena .= " UN CON $xdecimales/100 Bs.";
+                            $xcadena .= " UN CON $xdecimales/100 $currencyLabel";
                         } else {
-                            $xcadena .= " CON $xdecimales/100 Bs.";
+                            $xcadena .= " CON $xdecimales/100 $currencyLabel";
                         }
                         break;
                 }

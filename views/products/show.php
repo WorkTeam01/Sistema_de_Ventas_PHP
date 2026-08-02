@@ -11,8 +11,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
                         </li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/products"><i class="fas fa-warehouse"></i>
-                                Almacén</a></li>
+                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/products"><i class="fas fa-warehouse"></i> Almacén</a></li>
                         <li class="breadcrumb-item active">Detalle</li>
                     </ol>
                 </div>
@@ -31,16 +30,16 @@
                     <div class="card card-outline card-info">
                         <div class="card-body text-center pb-2">
                             <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($imagen, ENT_QUOTES, 'UTF-8'); ?>"
-                                 class="img-fluid rounded mb-3"
-                                 style="max-height:220px; object-fit:contain;"
-                                 alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
+                                class="img-fluid rounded mb-3"
+                                style="max-height:220px; object-fit:contain;"
+                                alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
                             <h5 class="font-weight-bold mb-1"><?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?></h5>
                             <p class="text-muted small mb-2"><?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?></p>
                             <span class="badge badge-info badge-pill px-3 py-1"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                         <div class="card-footer d-flex flex-column gap-2">
                             <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
-                               class="btn btn-success btn-block">
+                                class="btn btn-success btn-block">
                                 <i class="fas fa-pencil-alt mr-1"></i> Editar producto
                             </a>
                             <a href="<?= BASE_URL ?>/products" class="btn btn-default btn-block mt-2">
@@ -60,7 +59,7 @@
                                 <span class="info-box-icon bg-success"><i class="fas fa-tag"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Precio de venta</span>
-                                    <span class="info-box-number">Bs <?= htmlspecialchars($precio_venta, ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="info-box-number"><?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars($precio_venta, ENT_QUOTES, 'UTF-8'); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -69,7 +68,7 @@
                                 <span class="info-box-icon bg-warning"><i class="fas fa-dollar-sign"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Precio de compra</span>
-                                    <span class="info-box-number">Bs <?= htmlspecialchars($precio_compra, ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <span class="info-box-number"><?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars($precio_compra, ENT_QUOTES, 'UTF-8'); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -105,13 +104,13 @@
                             <ul class="nav nav-tabs" id="productTabs" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="tab-detalles" data-toggle="pill"
-                                       href="#pill-detalles" role="tab">
+                                        href="#pill-detalles" role="tab">
                                         <i class="fas fa-info-circle mr-1"></i> Detalles
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="tab-stock" data-toggle="pill"
-                                       href="#pill-stock" role="tab">
+                                        href="#pill-stock" role="tab">
                                         <i class="fas fa-chart-bar mr-1"></i> Nivel de stock
                                     </a>
                                 </li>
@@ -151,18 +150,18 @@
                                 <!-- Tab: Nivel de stock -->
                                 <div class="tab-pane fade" id="pill-stock" role="tabpanel">
                                     <?php
-                                        $pct = ($sx > 0) ? min(round(($s / $sx) * 100, 1), 100) : 0;
-                                        if ($s < $sn) {
-                                            $barColor   = 'bg-danger';
-                                            $barLabel   = 'bajo mínimo';
-                                        } elseif ($sx > 0 && $s > $sx) {
-                                            $barColor   = 'bg-primary';
-                                            $barLabel   = 'sobre máximo';
-                                            $pct        = 100;
-                                        } else {
-                                            $barColor   = 'bg-success';
-                                            $barLabel   = 'normal';
-                                        }
+                                    $pct = ($sx > 0) ? min(round(($s / $sx) * 100, 1), 100) : 0;
+                                    if ($s < $sn) {
+                                        $barColor   = 'bg-danger';
+                                        $barLabel   = 'bajo mínimo';
+                                    } elseif ($sx > 0 && $s > $sx) {
+                                        $barColor   = 'bg-primary';
+                                        $barLabel   = 'sobre máximo';
+                                        $pct        = 100;
+                                    } else {
+                                        $barColor   = 'bg-success';
+                                        $barLabel   = 'normal';
+                                    }
                                     ?>
                                     <dl class="row mb-3">
                                         <dt class="col-sm-4 text-muted">Stock mínimo</dt>
@@ -184,22 +183,22 @@
                                     </dl>
 
                                     <?php if ($sx > 0): ?>
-                                    <div class="d-flex justify-content-between text-muted small mb-1">
-                                        <span><?= $s ?> / <?= $sx ?> unidades</span>
-                                        <span><?= $pct ?>%</span>
-                                    </div>
-                                    <div class="progress" style="height:14px;">
-                                        <div class="progress-bar <?= $barColor ?>"
-                                             role="progressbar"
-                                             style="width: <?= $pct ?>%"
-                                             aria-valuenow="<?= $s ?>"
-                                             aria-valuemin="0"
-                                             aria-valuemax="<?= $sx ?>">
+                                        <div class="d-flex justify-content-between text-muted small mb-1">
+                                            <span><?= $s ?> / <?= $sx ?> unidades</span>
+                                            <span><?= $pct ?>%</span>
                                         </div>
-                                    </div>
-                                    <p class="text-muted small mt-1 mb-0">Estado: <?= $barLabel ?></p>
+                                        <div class="progress" style="height:14px;">
+                                            <div class="progress-bar <?= $barColor ?>"
+                                                role="progressbar"
+                                                style="width: <?= $pct ?>%"
+                                                aria-valuenow="<?= $s ?>"
+                                                aria-valuemin="0"
+                                                aria-valuemax="<?= $sx ?>">
+                                            </div>
+                                        </div>
+                                        <p class="text-muted small mt-1 mb-0">Estado: <?= $barLabel ?></p>
                                     <?php else: ?>
-                                    <p class="text-muted small mb-0">No se ha definido un stock máximo para calcular el nivel.</p>
+                                        <p class="text-muted small mb-0">No se ha definido un stock máximo para calcular el nivel.</p>
                                     <?php endif; ?>
                                 </div>
 

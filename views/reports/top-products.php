@@ -104,7 +104,7 @@
                                         <th>Producto</th>
                                         <th>Categoría</th>
                                         <th class="text-right">Unidades Vendidas</th>
-                                        <th class="text-right">Ingresos (Bs.)</th>
+                                        <th class="text-right">Ingresos (<?= APP_CURRENCY_SYMBOL ?>)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
