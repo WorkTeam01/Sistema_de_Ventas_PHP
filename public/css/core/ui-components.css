@@ -412,3 +412,26 @@ html {
 .navbar-light .navbar-nav .nav-link .inter-brand-text {
     color: #495057;
 }
+
+/* ============================================
+   TABLAS - Área táctil de botones de acción (a11y)
+   ============================================ */
+
+/* Botones icon-only en btn-group (ver/editar/eliminar, etc.) en tablas de
+   todos los módulos. Tamaño fijo (no solo min-*) evita que flex-shrink
+   achique el ancho sin achicar el alto, dejando el botón alargado.
+   Solo en touch (pointer: coarse): con mouse, 44px descuadra los botones
+   compactos de las tablas. */
+@media (pointer: coarse) {
+    .btn-group > .btn-sm {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

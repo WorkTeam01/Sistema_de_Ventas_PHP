@@ -49,13 +49,16 @@ class SaleController extends Controller
             $cartItemModel->purgeOrphans($nro_venta);
         }
 
-        $cart_items = $cartItemModel->getByNroVenta($nro_venta);
+        $cart_items = $saleModel->withSubtotals($cartItemModel->getByNroVenta($nro_venta));
+        $totals = $saleModel->computeInvoiceTotals($cart_items);
 
         $this->renderWithLayout('views/sales/create.php', array_merge(
             $this->sessionData(),
             [
                 'nro_venta' => $nro_venta,
                 'cart_items' => $cart_items,
+                'cantidad_total' => $totals['cantidad_total'],
+                'precio_total' => $totals['precio_total'],
                 'products' => $productModel->allWithCategories(),
                 'clients' => $clientModel->all(),
                 'csrf_token' => Auth::generateCsrfToken(),
@@ -176,7 +179,7 @@ class SaleController extends Controller
                 'create',
                 'sale',
                 $idVenta,
-                "Venta Nro {$nro_venta} registrada (total Bs. {$total_a_cancelar})",
+                "Venta Nro {$nro_venta} registrada (total " . APP_CURRENCY_SYMBOL . " {$total_a_cancelar})",
                 null,
                 [
                     'nro_venta'      => $nro_venta,
@@ -224,6 +227,9 @@ class SaleController extends Controller
             return;
         }
 
+        $items = $saleModel->withSubtotals($sale['items']);
+        $totals = $saleModel->computeInvoiceTotals($items);
+
         $this->renderWithLayout('views/sales/show.php', array_merge(
             $this->sessionData(),
             [
@@ -236,7 +242,10 @@ class SaleController extends Controller
                 'nit_ci_cliente' => $sale['nit_ci_cliente'],
                 'celular_cliente' => $sale['celular_cliente'],
                 'email_cliente' => $sale['email_cliente'],
-                'items' => $sale['items'],
+                'items' => $items,
+                'total_productos' => count($items),
+                'cantidad_acum' => $totals['cantidad_total'],
+                'subtotal_acum' => $totals['precio_total'],
             ]
         ));
     }
@@ -271,6 +280,9 @@ class SaleController extends Controller
             return;
         }
 
+        $items = $saleModel->withSubtotals($sale['items']);
+        $totals = $saleModel->computeInvoiceTotals($items);
+
         $this->renderWithLayout('views/sales/delete.php', array_merge(
             $this->sessionData(),
             [
@@ -280,7 +292,10 @@ class SaleController extends Controller
                 'fyh_creacion' => $sale['fyh_creacion'],
                 'nombre_cliente' => $sale['nombre_cliente'],
                 'nit_ci_cliente' => $sale['nit_ci_cliente'],
-                'items' => $sale['items'],
+                'items' => $items,
+                'total_productos' => count($items),
+                'cantidad_acum' => $totals['cantidad_total'],
+                'subtotal_acum' => $totals['precio_total'],
                 'csrf_token' => Auth::generateCsrfToken(),
                 'pageScripts' => ['/js/modules/sales/sales-delete.js'],
             ]
@@ -349,7 +364,7 @@ class SaleController extends Controller
                     'delete',
                     'sale',
                     $id_venta,
-                    "Venta Nro {$snapshot['nro_venta']} eliminada (total Bs. {$snapshot['total_pagado']}); stock restaurado.",
+                    "Venta Nro {$snapshot['nro_venta']} eliminada (total " . APP_CURRENCY_SYMBOL . " {$snapshot['total_pagado']}); stock restaurado.",
                     [
                         'nro_venta'      => $snapshot['nro_venta'],
                         'nombre_cliente' => $snapshot['nombre_cliente'],
