@@ -11,6 +11,48 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.15.0] - 2026-08-02
+
+### Añadido
+
+- Moneda configurable vía `APP_CURRENCY_SYMBOL` en `.env` (default `"Bs."`), disponible globalmente como constante
+  desde `public/index.php`. Reemplaza ~25 ocurrencias de `"Bs."` hardcodeadas en controllers, `InvoicePdf`,
+  `PurchaseReportPdf`, `NumberToWords::convert()` y 9 vistas.
+- `Sale::withSubtotals()` — agrega el subtotal (`cantidad * precio_venta`) a cada ítem del carrito/venta, para
+  consumo directo en vistas sin recalcular ahí.
+
+### Accesibilidad
+
+- Fix global de aria-hidden en modales Bootstrap 4 (`public/js/core/ui-components.js`): listener `hide.bs.modal`
+  que hace `blur()` del elemento enfocado antes de que Bootstrap aplique `aria-hidden`, eliminando el warning
+  "Blocked aria-hidden on an element because its descendant retained focus" en todos los módulos.
+- Header/sidebar globales (`views/layouts/header.php`, `views/layouts/partials/_sidebar.php`):
+  - `aria-label` en los 3 botones icon-only de la navbar (`pushmenu`, `fullscreen`, `control-sidebar`), que no
+    tenían texto accesible para lectores de pantalla.
+  - Eliminado `role="menu"` del `<ul>` del sidebar — provocaba `aria-required-children` (los `<li>` no son hijos
+    válidos de `role="menu"`) y como consecuencia invalidaba también los `<li>` como `listitem`.
+  - Contraste del texto de marca en móvil (`.inter-brand-text`) subido de 3.94:1 a >4.5:1 (WCAG AA).
+- Auditoría completa del módulo de ventas/POS (labels/for-id, `readonly` en vez de `disabled`, ARIA dialog en
+  modales, `aria-label` en botones icon-only, breadcrumb `nav`, patrón ARIA tabs, `aria-live` en progress bar,
+  `loading="lazy"` en imágenes de producto).
+- Área táctil mínima de 44×44px para botones icon-only en tablas (`btn-group > .btn-sm`), aplicada globalmente vía
+  `public/css/core/ui-components.css` bajo `@media (pointer: coarse)` — beneficia a todos los módulos con tablas
+  de acciones (ventas, productos, compras, proveedores, clientes, usuarios, permisos, inventario), no solo ventas.
+
+### Corregido
+
+- Lógica de negocio movida fuera de las vistas: `views/sales/create.php`, `show.php`, `delete.php` y
+  `views/reports/clients.php` calculaban totales/subtotales con `foreach`+`+=` directamente en la vista. Ahora se
+  resuelven en `Sale::computeInvoiceTotals()` / `Sale::withSubtotals()` y en el controller; las vistas solo
+  formatean valores ya calculados.
+
+### Modificado
+
+- `public/css/modules/sales/sales-actions.css` eliminado — su única regla (touch target 44px) se consolidó en
+  `public/css/core/ui-components.css` para aplicar a toda la app en vez de solo al módulo de ventas.
+
+---
+
 ## [1.14.3] - 2026-07-29
 
 ### Accesibilidad
