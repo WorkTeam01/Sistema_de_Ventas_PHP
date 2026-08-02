@@ -402,3 +402,13 @@ html {
 .card-danger.card-outline-tabs .nav-link:hover {
     color: #bd2130;
 }
+
+/* ============================================
+   HEADER - Contraste de marca (a11y)
+   ============================================ */
+
+/* AdminLTE hereda color de nav-link (~#808080, contraste 3.94:1) para el
+   texto de marca visible en móvil; se oscurece para cumplir WCAG AA (4.5:1) */
+.navbar-light .navbar-nav .nav-link .inter-brand-text {
+    color: #495057;
+}

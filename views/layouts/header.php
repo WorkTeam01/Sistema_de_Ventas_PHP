@@ -77,7 +77,7 @@
         <!-- Left navbar links -->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button" aria-label="Abrir o cerrar menú lateral"><i class="fas fa-bars"></i></a>
             </li>
             <!-- Logo visible solo en móvil -->
             <li class="nav-item d-sm-none">
@@ -91,12 +91,12 @@
         <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                <a class="nav-link" data-widget="fullscreen" href="#" role="button" aria-label="Alternar pantalla completa">
                     <i class="fas fa-expand-arrows-alt"></i>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button" aria-label="Abrir panel de configuración">
                     <i class="fas fa-th-large"></i>
                 </a>
             </li>

@@ -75,7 +75,7 @@ $link = fn(bool $on) => $on ? ' active' : '';
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar nav-compact flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <ul class="nav nav-pills nav-sidebar nav-compact flex-column" data-widget="treeview" data-accordion="false">
 
                 <!-- Dashboard -->
                 <li class="nav-item">
