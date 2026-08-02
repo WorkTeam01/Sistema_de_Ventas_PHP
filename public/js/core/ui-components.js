@@ -411,6 +411,21 @@ const ComponentUtils = {
 };
 
 // ============================================
+// Fix de accesibilidad: aria-hidden en modales con foco retenido
+// ============================================
+// Bootstrap 4 marca el modal con aria-hidden="true" antes de que el foco
+// haya salido de él (p. ej. el botón que se acaba de pulsar sigue enfocado),
+// lo cual viola la spec ARIA: el foco no debe quedar oculto para tecnología
+// asistiva. Se libera el foco del elemento activo antes de que el modal
+// se oculte, para que el navegador pueda moverlo de forma segura.
+$(document).on('hide.bs.modal', '.modal', function () {
+    const activeElement = document.activeElement;
+    if (activeElement && this.contains(activeElement)) {
+        activeElement.blur();
+    }
+});
+
+// ============================================
 // Inicialización automática al cargar el DOM
 // ============================================
 $(document).ready(function () {
