@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.14.3 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2), eliminación de `Swal.fire`/`onclick` inline en vistas, y hardening de accesibilidad/UX en el flujo de autenticación (login, forgot-password, reset-password). Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.14.3 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación (login, forgot-password, reset-password), moneda configurable vía `.env`, y auditoría de accesibilidad del módulo de ventas/POS y del layout global (header/sidebar). Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -352,6 +352,13 @@ Auth::logout()          // limpia sesión, BD y cookie
 
 - Todas usan `renderWithLayout()` del Controller base (compone header + contenido + footer)
 - Constante `BASE_URL` disponible globalmente — usar para construir URLs en PHP y JS
+- Constante `APP_CURRENCY_SYMBOL` disponible globalmente (definida en `public/index.php` desde `.env`, default `"Bs."`) —
+  usar siempre esta constante para mostrar montos en vistas, PDFs (`InvoicePdf`, `PurchaseReportPdf`), controllers y
+  `NumberToWords::convert()` (recibe `$currencyLabel` opcional, cae a la constante). **No hardcodear `"Bs."`** en
+  código nuevo. **No usar el nombre `CURRENCY_SYMBOL`** — colisiona con una constante nativa de PHP (extensión intl).
+- **Sin lógica de negocio en las vistas**: cálculos (totales, subtotales, sumas, agregaciones) se resuelven en el
+  Controller o el Model y se pasan ya calculados a la vista (ej. `Sale::computeInvoiceTotals()`, `Sale::withSubtotals()`).
+  Las vistas solo formatean/muestran valores recibidos — no hacen `foreach` acumulando `+=` sobre `$items`/`$rows`.
 - Layout de páginas de listado: full width, DataTables con export (PDF/Excel/CSV/Imprimir)
 - Layout de formularios CRUD: col-md-8 (form) + col-md-4 (tarjeta informativa)
 - Layout de formularios POS (ventas/create): patrón wizard — col-md-9 con 3 tabs numerados (steps) + barra de
