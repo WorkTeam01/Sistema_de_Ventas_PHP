@@ -8,12 +8,14 @@
                     <h1 class="m-0">Eliminar Venta</h1>
                 </div>
                 <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/sales"><i class="fas fa-shopping-cart"></i>
-                                Ventas</a></li>
-                        <li class="breadcrumb-item active">Eliminar</li>
-                    </ol>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                            <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/sales"><i class="fas fa-shopping-cart"></i>
+                                    Ventas</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -55,7 +57,7 @@
                                         <dt class="col-sm-5 text-muted">Total pagado</dt>
                                         <dd class="col-sm-7">
                                             <span class="badge badge-warning px-2 py-1" style="font-size:.85rem;">
-                                                Bs. <?= htmlspecialchars(number_format((float)$total_pagado, 2), ENT_QUOTES, 'UTF-8') ?>
+                                                <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$total_pagado, 2), ENT_QUOTES, 'UTF-8') ?>
                                             </span>
                                         </dd>
 
@@ -88,20 +90,12 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php
-                                        $subtotal_acum = 0.0;
-                                        $cantidad_acum = 0;
-                                        $total_productos = count($items);
-                                        foreach ($items as $item):
-                                            $subtotal       = (float)$item['cantidad'] * (float)$item['precio_venta'];
-                                            $subtotal_acum += $subtotal;
-                                            $cantidad_acum += (int)$item['cantidad'];
-                                        ?>
+                                        <?php foreach ($items as $item): ?>
                                             <tr>
                                                 <td class="text-center align-middle">
                                                     <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($item['imagen'], ENT_QUOTES, 'UTF-8') ?>"
                                                         alt="<?= htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') ?>"
-                                                        style="width:38px; height:38px; object-fit:contain;">
+                                                        style="width:38px; height:38px; object-fit:contain;" loading="lazy">
                                                 </td>
                                                 <td class="align-middle">
                                                     <span class="font-weight-bold"><?= htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') ?></span><br>
@@ -109,8 +103,8 @@
                                                 </td>
                                                 <td class="align-middle text-muted small d-none d-md-table-cell"><?= htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
                                                 <td class="text-center align-middle"><?= (int)$item['cantidad'] ?></td>
-                                                <td class="text-center align-middle d-none d-md-table-cell">Bs. <?= htmlspecialchars(number_format((float)$item['precio_venta'], 2), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="text-center align-middle">Bs. <?= number_format($subtotal, 2) ?></td>
+                                                <td class="text-center align-middle d-none d-md-table-cell"><?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$item['precio_venta'], 2), ENT_QUOTES, 'UTF-8') ?></td>
+                                                <td class="text-center align-middle"><?= APP_CURRENCY_SYMBOL ?> <?= number_format($item['subtotal'], 2) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -125,7 +119,7 @@
                                                 <td class="text-right font-weight-bold text-muted d-none d-md-table-cell">Total:</td>
                                                 <td class="text-center">
                                                     <span class="badge badge-warning px-2 py-1" style="font-size:.9rem;">
-                                                        Bs. <?= number_format($subtotal_acum, 2) ?>
+                                                        <?= APP_CURRENCY_SYMBOL ?> <?= number_format($subtotal_acum, 2) ?>
                                                     </span>
                                                 </td>
                                             </tr>

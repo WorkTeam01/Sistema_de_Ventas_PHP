@@ -8,13 +8,15 @@
                     <h1 class="m-0">Detalle de Venta</h1>
                 </div>
                 <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
-                        </li>
-                        <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/sales"><i class="fas fa-shopping-cart"></i>
-                                Ventas</a></li>
-                        <li class="breadcrumb-item active">Detalle</li>
-                    </ol>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="<?= BASE_URL ?>"><i class="fas fa-home"></i> Inicio</a>
+                            </li>
+                            <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/sales"><i class="fas fa-shopping-cart"></i>
+                                    Ventas</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -23,16 +25,6 @@
 
     <div class="content">
         <div class="container-fluid">
-
-            <?php
-            $total_cantidad = 0;
-            $precio_total = 0.0;
-            $total_productos = count($items);
-            foreach ($items as $item) {
-                $total_cantidad += (int)$item['cantidad'];
-                $precio_total += (float)$item['cantidad'] * (float)$item['precio_venta'];
-            }
-            ?>
 
             <!-- Acciones + título -->
             <div class="row">
@@ -46,15 +38,15 @@
                             </h3>
                             <div class="card-tools">
                                 <a href="<?= BASE_URL ?>/sales/invoice/<?= (int)$id_venta ?>" target="_blank"
-                                   class="btn btn-success btn-sm">
-                                    <i class="fas fa-print"></i><span class="d-none d-sm-inline ml-1"> Imprimir factura</span>
+                                    class="btn btn-success btn-sm" aria-label="Imprimir factura">
+                                    <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Imprimir factura</span>
                                 </a>
                                 <a href="<?= BASE_URL ?>/sales/delete/<?= (int)$id_venta ?>"
-                                   class="btn btn-danger btn-sm ml-1">
-                                    <i class="fas fa-trash-alt"></i><span class="d-none d-sm-inline ml-1"> Eliminar</span>
+                                    class="btn btn-danger btn-sm ml-1" aria-label="Eliminar venta">
+                                    <i class="fas fa-trash-alt" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Eliminar</span>
                                 </a>
-                                <a href="<?= BASE_URL ?>/sales" class="btn btn-default btn-sm ml-1">
-                                    <i class="fas fa-arrow-left"></i><span class="d-none d-sm-inline ml-1"> Volver</span>
+                                <a href="<?= BASE_URL ?>/sales" class="btn btn-default btn-sm ml-1" aria-label="Volver al listado de ventas">
+                                    <i class="fas fa-arrow-left" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Volver</span>
                                 </a>
                             </div>
                         </div>
@@ -79,7 +71,7 @@
                                 <dt class="col-sm-5 text-muted">Total pagado</dt>
                                 <dd class="col-sm-7">
                                     <span class="badge badge-warning px-2 py-1" style="font-size:.85rem;">
-                                        Bs. <?= htmlspecialchars(number_format((float)$total_pagado, 2), ENT_QUOTES, 'UTF-8') ?>
+                                        <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$total_pagado, 2), ENT_QUOTES, 'UTF-8') ?>
                                     </span>
                                 </dd>
 
@@ -132,68 +124,61 @@
                             <div class="table-responsive">
                                 <table class="table table-sm table-hover mb-0">
                                     <thead class="bg-secondary text-white">
-                                    <tr class="text-center">
-                                        <th style="width:50px"></th>
-                                        <th class="text-left">Producto</th>
-                                        <th class="text-left d-none d-md-table-cell">Descripción</th>
-                                        <th>Cantidad</th>
-                                        <th class="d-none d-md-table-cell">Precio unitario</th>
-                                        <th>Subtotal</th>
-                                    </tr>
+                                        <tr class="text-center">
+                                            <th style="width:50px"></th>
+                                            <th class="text-left">Producto</th>
+                                            <th class="text-left d-none d-md-table-cell">Descripción</th>
+                                            <th>Cantidad</th>
+                                            <th class="d-none d-md-table-cell">Precio unitario</th>
+                                            <th>Subtotal</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                    <?php if (empty($items)): ?>
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted py-3">No hay productos
-                                                registrados en esta venta.
-                                            </td>
-                                        </tr>
-                                    <?php else: ?>
-                                        <?php
-                                        $subtotal_acum = 0.0;
-                                        $cantidad_acum = 0;
-                                        foreach ($items as $item):
-                                            $subtotal = (float)$item['cantidad'] * (float)$item['precio_venta'];
-                                            $subtotal_acum += $subtotal;
-                                            $cantidad_acum += (int)$item['cantidad'];
-                                            ?>
+                                        <?php if (empty($items)): ?>
                                             <tr>
-                                                <td class="text-center align-middle">
-                                                    <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($item['imagen'], ENT_QUOTES, 'UTF-8') ?>"
-                                                         alt="<?= htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') ?>"
-                                                         style="width:38px; height:38px; object-fit:contain;">
+                                                <td colspan="6" class="text-center text-muted py-3">No hay productos
+                                                    registrados en esta venta.
                                                 </td>
-                                                <td class="align-middle">
-                                                    <span class="font-weight-bold"><?= htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') ?></span><br>
-                                                    <small class="text-muted"><?= htmlspecialchars($item['codigo'], ENT_QUOTES, 'UTF-8') ?></small>
-                                                </td>
-                                                <td class="align-middle text-muted small d-none d-md-table-cell"><?= htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="text-center align-middle"><?= (int)$item['cantidad'] ?></td>
-                                                <td class="text-center align-middle d-none d-md-table-cell">
-                                                    Bs. <?= htmlspecialchars(number_format((float)$item['precio_venta'], 2), ENT_QUOTES, 'UTF-8') ?></td>
-                                                <td class="text-center align-middle">
-                                                    Bs. <?= number_format($subtotal, 2) ?></td>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
+                                        <?php else: ?>
+                                            <?php foreach ($items as $item): ?>
+                                                <tr>
+                                                    <td class="text-center align-middle">
+                                                        <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($item['imagen'], ENT_QUOTES, 'UTF-8') ?>"
+                                                            alt="<?= htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') ?>"
+                                                            style="width:38px; height:38px; object-fit:contain;" loading="lazy">
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <span class="font-weight-bold"><?= htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') ?></span><br>
+                                                        <small class="text-muted"><?= htmlspecialchars($item['codigo'], ENT_QUOTES, 'UTF-8') ?></small>
+                                                    </td>
+                                                    <td class="align-middle text-muted small d-none d-md-table-cell"><?= htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
+                                                    <td class="text-center align-middle"><?= (int)$item['cantidad'] ?></td>
+                                                    <td class="text-center align-middle d-none d-md-table-cell">
+                                                        <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$item['precio_venta'], 2), ENT_QUOTES, 'UTF-8') ?></td>
+                                                    <td class="text-center align-middle">
+                                                        <?= APP_CURRENCY_SYMBOL ?> <?= number_format($item['subtotal'], 2) ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                     <?php if (!empty($items)): ?>
                                         <tfoot>
-                                        <tr class="bg-light">
-                                            <td colspan="2" class="text-right font-weight-bold pr-3 text-muted">
-                                                <?= $total_productos ?> producto<?= $total_productos !== 1 ? 's' : '' ?>
-                                            </td>
-                                            <td class="d-none d-md-table-cell"></td>
-                                            <td class="text-center font-weight-bold"><?= $cantidad_acum ?> uds.</td>
-                                            <td class="text-right font-weight-bold text-muted d-none d-md-table-cell">
-                                                Total:
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge badge-warning px-2 py-1" style="font-size:.9rem;">
-                                                    Bs. <?= number_format($subtotal_acum, 2) ?>
-                                                </span>
-                                            </td>
-                                        </tr>
+                                            <tr class="bg-light">
+                                                <td colspan="2" class="text-right font-weight-bold pr-3 text-muted">
+                                                    <?= $total_productos ?> producto<?= $total_productos !== 1 ? 's' : '' ?>
+                                                </td>
+                                                <td class="d-none d-md-table-cell"></td>
+                                                <td class="text-center font-weight-bold"><?= $cantidad_acum ?> uds.</td>
+                                                <td class="text-right font-weight-bold text-muted d-none d-md-table-cell">
+                                                    Total:
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-warning px-2 py-1" style="font-size:.9rem;">
+                                                        <?= APP_CURRENCY_SYMBOL ?> <?= number_format($subtotal_acum, 2) ?>
+                                                    </span>
+                                                </td>
+                                            </tr>
                                         </tfoot>
                                     <?php endif; ?>
                                 </table>

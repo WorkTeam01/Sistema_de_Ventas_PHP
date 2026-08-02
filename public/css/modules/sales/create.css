@@ -2,6 +2,22 @@
    Ventas Create — Wizard 3 pasos + sidebar
    ============================================= */
 
+:root {
+    --sales-tab-text: #6c757d;
+    --sales-tab-active-text: #007bff;
+    --sales-tab-active-bg: #fff;
+    --sales-tab-active-border: #007bff;
+    --sales-client-card-border: #dee2e6;
+}
+
+body.dark-mode {
+    --sales-tab-text: #adb5bd;
+    --sales-tab-active-text: #3b93ff;
+    --sales-tab-active-bg: #1e2124;
+    --sales-tab-active-border: #3b93ff;
+    --sales-client-card-border: #3a3f44;
+}
+
 /* ---- Barra de progreso ---- */
 .pos-progress {
     height: 26px;
@@ -22,19 +38,19 @@
 .card-header .nav-tabs .nav-link {
     border-radius: 0;
     padding: 0.65rem 1.1rem;
-    color: #6c757d;
+    color: var(--sales-tab-text);
 }
 
 .card-header .nav-tabs .nav-link.active {
-    color: #007bff;
-    background-color: #fff;
-    border-top: 2px solid #007bff;
-    border-bottom-color: #fff;
+    color: var(--sales-tab-active-text);
+    background-color: var(--sales-tab-active-bg);
+    border-top: 2px solid var(--sales-tab-active-border);
+    border-bottom-color: var(--sales-tab-active-bg);
 }
 
 /* ---- Tarjeta de datos del cliente ---- */
 #pane-cliente .card-body {
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--sales-client-card-border);
     border-radius: 4px;
 }
 
@@ -43,4 +59,10 @@
     .sticky-top {
         position: static !important;
     }
+}
+
+/* ---- Área táctil mínima para botones de acción compactos ---- */
+.form-cart-remove .btn-sm {
+    min-height: 44px;
+    min-width: 44px;
 }
