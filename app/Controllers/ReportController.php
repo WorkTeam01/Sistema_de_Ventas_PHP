@@ -154,10 +154,11 @@ class ReportController extends Controller
         $this->renderWithLayout(
             'views/reports/clients.php',
             array_merge($this->sessionData(), [
-                'filters'     => $filters,
-                'rows'        => $rows,
-                'pageStyles'  => ['/css/modules/reports/reports.css'],
-                'pageScripts' => ['/js/modules/reports/reports.js'],
+                'filters'       => $filters,
+                'rows'          => $rows,
+                'montoTotal'    => array_sum(array_column($rows, 'monto_acumulado')),
+                'pageStyles'    => ['/css/modules/reports/reports.css'],
+                'pageScripts'   => ['/js/modules/reports/reports.js'],
             ]),
             true,
             ['datatable']
@@ -168,7 +169,7 @@ class ReportController extends Controller
 
     private function exportSales(string $format, array $filters, array $rows, array $totals): void
     {
-        $headers = ['N° Venta', 'Fecha', 'Cliente', 'Total (Bs.)'];
+        $headers = ['N° Venta', 'Fecha', 'Cliente', 'Total (' . APP_CURRENCY_SYMBOL . ')'];
         $data = array_map(fn($r) => [
             $r['nro_venta'],
             date('d/m/Y H:i', strtotime($r['fyh_creacion'])),
@@ -179,8 +180,8 @@ class ReportController extends Controller
         $subtitulo = 'Período: ' . date('d/m/Y', strtotime($filters['desde_display'])) . ' — ' . date('d/m/Y', strtotime($filters['hasta_display']));
         $totalRows = [
             'N° Ventas'     => $totals['num_ventas'],
-            'Total Bs.'     => 'Bs. ' . number_format((float)$totals['total_ingresos'], 2),
-            'Ticket Prom.'  => 'Bs. ' . number_format((float)$totals['ticket_promedio'], 2),
+            'Total ' . APP_CURRENCY_SYMBOL     => APP_CURRENCY_SYMBOL . ' ' . number_format((float)$totals['total_ingresos'], 2),
+            'Ticket Prom.'  => APP_CURRENCY_SYMBOL . ' ' . number_format((float)$totals['ticket_promedio'], 2),
         ];
 
         $this->dispatchExport($format, 'Reporte de Ventas', $subtitulo, $headers, $data, $totalRows, 'reporte_ventas');
@@ -188,7 +189,7 @@ class ReportController extends Controller
 
     private function exportPurchases(string $format, array $filters, array $rows, array $totals): void
     {
-        $headers = ['N° Compra', 'Fecha', 'Proveedor', 'Registrado por', 'Total (Bs.)'];
+        $headers = ['N° Compra', 'Fecha', 'Proveedor', 'Registrado por', 'Total (' . APP_CURRENCY_SYMBOL . ')'];
         $data = array_map(fn($r) => [
             $r['nro_compra'],
             date('d/m/Y', strtotime($r['fecha_compra'])),
@@ -200,7 +201,7 @@ class ReportController extends Controller
         $subtitulo = 'Período: ' . date('d/m/Y', strtotime($filters['desde_display'])) . ' — ' . date('d/m/Y', strtotime($filters['hasta_display']));
         $totalRows = [
             'N° Compras'  => $totals['num_compras'],
-            'Total Bs.'   => 'Bs. ' . number_format((float)$totals['total_egresos'], 2),
+            'Total ' . APP_CURRENCY_SYMBOL   => APP_CURRENCY_SYMBOL . ' ' . number_format((float)$totals['total_egresos'], 2),
         ];
 
         $this->dispatchExport($format, 'Reporte de Compras', $subtitulo, $headers, $data, $totalRows, 'reporte_compras');
@@ -208,7 +209,7 @@ class ReportController extends Controller
 
     private function exportTopProducts(string $format, array $filters, array $rows): void
     {
-        $headers = ['Producto', 'Categoría', 'Unidades Vendidas', 'Ingresos (Bs.)'];
+        $headers = ['Producto', 'Categoría', 'Unidades Vendidas', 'Ingresos (' . APP_CURRENCY_SYMBOL . ')'];
         $data = array_map(fn($r) => [
             $r['nombre'],
             $r['categoria'] ?? '—',
@@ -223,7 +224,7 @@ class ReportController extends Controller
 
     private function exportClients(string $format, array $filters, array $rows): void
     {
-        $headers = ['Cliente', 'NIT/CI', 'Email', 'N° Compras', 'Monto Acumulado (Bs.)', 'Última Compra'];
+        $headers = ['Cliente', 'NIT/CI', 'Email', 'N° Compras', 'Monto Acumulado (' . APP_CURRENCY_SYMBOL . ')', 'Última Compra'];
         $data = array_map(fn($r) => [
             $r['cliente'],
             $r['nit_ci'],

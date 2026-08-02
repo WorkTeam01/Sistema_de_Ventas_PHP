@@ -43,7 +43,7 @@
                         <div class="info-box-content">
                             <span class="info-box-text">Total Acumulado</span>
                             <span class="info-box-number">
-                                Bs. <?= number_format(array_sum(array_column($rows, 'monto_acumulado')), 2) ?>
+                                <?= APP_CURRENCY_SYMBOL ?> <?= number_format($montoTotal, 2) ?>
                             </span>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                                         <th>NIT/CI</th>
                                         <th>Email</th>
                                         <th class="text-right">N° Compras</th>
-                                        <th class="text-right">Monto Acumulado (Bs.)</th>
+                                        <th class="text-right">Monto Acumulado (<?= APP_CURRENCY_SYMBOL ?>)</th>
                                         <th>Última Compra</th>
                                     </tr>
                                 </thead>

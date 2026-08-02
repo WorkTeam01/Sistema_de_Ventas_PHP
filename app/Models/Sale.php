@@ -261,6 +261,20 @@ class Sale extends Model
         ];
     }
 
+    /**
+     * Agrega el subtotal (cantidad * precio_venta) a cada ítem, para uso directo en vistas.
+     *
+     * @param array $items Ítems del carrito/venta (deben incluir 'cantidad' y 'precio_venta').
+     * @return array Ítems con la clave 'subtotal' añadida.
+     */
+    public function withSubtotals(array $items): array
+    {
+        return array_map(static function (array $item): array {
+            $item['subtotal'] = (float)$item['cantidad'] * (float)$item['precio_venta'];
+            return $item;
+        }, $items);
+    }
+
     public function destroyWithStock(int $id): bool
     {
         $db = $this->db;
