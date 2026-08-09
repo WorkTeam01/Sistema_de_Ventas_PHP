@@ -19,7 +19,8 @@ class SaleController extends Controller
     public function index(): void
     {
         $saleModel = new Sale();
-        $sales_data = $saleModel->allWithDetails();
+        $userId = Auth::can('view_sales_all') ? null : (int)Auth::user()['id_usuario'];
+        $sales_data = $saleModel->allWithDetails($userId);
 
         $this->renderWithLayout('views/sales/index.php', array_merge(
             $this->sessionData(),

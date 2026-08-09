@@ -17,20 +17,25 @@ class Purchase extends Model
 
     /**
      * Retorna todas las compras con datos de producto, proveedor y usuario.
+     * Filtra por usuario si se indica $userId.
      *
      * @return array Lista de compras con datos relacionados.
      */
-    public function allWithDetails(): array
+    public function allWithDetails(?int $userId = null): array
     {
-        return $this->query(
-            "SELECT co.*, al.codigo, al.nombre AS nombre_producto, al.imagen,
-                    pro.nombre_proveedor, us.email AS email_usuario
-             FROM tb_compras co
-             INNER JOIN tb_almacen al ON co.id_producto = al.id_producto
-             INNER JOIN tb_proveedores pro ON co.id_proveedor = pro.id_proveedor
-             INNER JOIN tb_usuarios us ON co.id_usuario = us.id_usuario
-             ORDER BY co.id_compra DESC"
-        );
+        $sql = "SELECT co.*, al.codigo, al.nombre AS nombre_producto, al.imagen,
+                       pro.nombre_proveedor, us.email AS email_usuario
+                FROM tb_compras co
+                INNER JOIN tb_almacen al ON co.id_producto = al.id_producto
+                INNER JOIN tb_proveedores pro ON co.id_proveedor = pro.id_proveedor
+                INNER JOIN tb_usuarios us ON co.id_usuario = us.id_usuario";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " WHERE co.id_usuario = ?";
+            $params[] = $userId;
+        }
+        $sql .= " ORDER BY co.id_compra DESC";
+        return $this->query($sql, $params);
     }
 
     /**
@@ -172,46 +177,57 @@ class Purchase extends Model
      * @param int $cantidad Cantidad a revertir del stock.
      * @return bool true si la transacción se completó, false si hubo error.
      */
-    /** Suma de compras del mes actual (precio_compra * cantidad por fila). */
-    public function totalCurrentMonth(): float
+    /** Suma de compras del mes actual (precio_compra * cantidad por fila). Filtra por usuario si se indica $userId. */
+    public function totalCurrentMonth(?int $userId = null): float
     {
-        $rows = $this->query(
-            "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
-             FROM tb_compras
-             WHERE YEAR(fecha_compra) = YEAR(CURDATE())
-               AND MONTH(fecha_compra) = MONTH(CURDATE())"
-        );
+        $sql = "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
+                FROM tb_compras
+                WHERE YEAR(fecha_compra) = YEAR(CURDATE())
+                  AND MONTH(fecha_compra) = MONTH(CURDATE())";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " AND id_usuario = ?";
+            $params[] = $userId;
+        }
+        $rows = $this->query($sql, $params);
         return (float)$rows[0]['total'];
     }
 
-    /** Suma de compras del mes anterior. */
-    public function totalPreviousMonth(): float
+    /** Suma de compras del mes anterior. Filtra por usuario si se indica $userId. */
+    public function totalPreviousMonth(?int $userId = null): float
     {
-        $rows = $this->query(
-            "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
-             FROM tb_compras
-             WHERE YEAR(fecha_compra) = YEAR(CURDATE() - INTERVAL 1 MONTH)
-               AND MONTH(fecha_compra) = MONTH(CURDATE() - INTERVAL 1 MONTH)"
-        );
+        $sql = "SELECT COALESCE(SUM(precio_compra * cantidad), 0) AS total
+                FROM tb_compras
+                WHERE YEAR(fecha_compra) = YEAR(CURDATE() - INTERVAL 1 MONTH)
+                  AND MONTH(fecha_compra) = MONTH(CURDATE() - INTERVAL 1 MONTH)";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " AND id_usuario = ?";
+            $params[] = $userId;
+        }
+        $rows = $this->query($sql, $params);
         return (float)$rows[0]['total'];
     }
 
     /**
-     * Compras agrupadas por mes — últimos N meses.
+     * Compras agrupadas por mes — últimos N meses. Filtra por usuario si se indica $userId.
      *
      * @return array Lista de ['mes' => 'YYYY-MM', 'total' => float]
      */
-    public function totalsByMonth(int $months = 6): array
+    public function totalsByMonth(int $months = 6, ?int $userId = null): array
     {
         $interval = (int)($months - 1);
-        return $this->query(
-            "SELECT DATE_FORMAT(fecha_compra, '%Y-%m') AS mes,
-                    COALESCE(SUM(precio_compra * cantidad), 0) AS total
-             FROM tb_compras
-             WHERE fecha_compra >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')
-             GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m')
-             ORDER BY mes ASC"
-        );
+        $sql = "SELECT DATE_FORMAT(fecha_compra, '%Y-%m') AS mes,
+                       COALESCE(SUM(precio_compra * cantidad), 0) AS total
+                FROM tb_compras
+                WHERE fecha_compra >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " AND id_usuario = ?";
+            $params[] = $userId;
+        }
+        $sql .= " GROUP BY DATE_FORMAT(fecha_compra, '%Y-%m') ORDER BY mes ASC";
+        return $this->query($sql, $params);
     }
 
     public function destroyWithStock(int $id, int $idProducto, int $cantidad): bool

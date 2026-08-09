@@ -19,17 +19,22 @@ class Sale extends Model
 
     /**
      * Retorna todas las ventas con datos del cliente, ordenadas por id_venta DESC.
+     * Filtra por usuario si se indica $userId.
      *
      * @return array Lista de ventas con nombre y NIT/CI del cliente.
      */
-    public function allWithDetails(): array
+    public function allWithDetails(?int $userId = null): array
     {
-        return $this->query(
-            "SELECT v.*, c.nombre_cliente, c.nit_ci_cliente
-             FROM tb_ventas v
-             INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente
-             ORDER BY v.id_venta DESC"
-        );
+        $sql = "SELECT v.*, c.nombre_cliente, c.nit_ci_cliente
+                FROM tb_ventas v
+                INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " WHERE v.id_usuario = ?";
+            $params[] = $userId;
+        }
+        $sql .= " ORDER BY v.id_venta DESC";
+        return $this->query($sql, $params);
     }
 
     /**
@@ -161,42 +166,54 @@ class Sale extends Model
      * @param int $id ID de la venta a eliminar.
      * @return bool true si la transacción se completó, false si hubo error.
      */
-    /** Suma de ventas del mes actual. */
-    public function totalCurrentMonth(): float
+    /** Suma de ventas del mes actual. Filtra por usuario si se indica $userId. */
+    public function totalCurrentMonth(?int $userId = null): float
     {
-        $rows = $this->query(
-            "SELECT COALESCE(SUM(total_pagado), 0) AS total
-             FROM tb_ventas
-             WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
-               AND MONTH(fyh_creacion) = MONTH(CURDATE())"
-        );
+        $sql = "SELECT COALESCE(SUM(total_pagado), 0) AS total
+                FROM tb_ventas
+                WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
+                  AND MONTH(fyh_creacion) = MONTH(CURDATE())";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " AND id_usuario = ?";
+            $params[] = $userId;
+        }
+        $rows = $this->query($sql, $params);
         return (float)$rows[0]['total'];
     }
 
-    /** Suma de ventas del mes anterior. */
-    public function totalPreviousMonth(): float
+    /** Suma de ventas del mes anterior. Filtra por usuario si se indica $userId. */
+    public function totalPreviousMonth(?int $userId = null): float
     {
-        $rows = $this->query(
-            "SELECT COALESCE(SUM(total_pagado), 0) AS total
-             FROM tb_ventas
-             WHERE YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
-               AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)"
-        );
+        $sql = "SELECT COALESCE(SUM(total_pagado), 0) AS total
+                FROM tb_ventas
+                WHERE YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
+                  AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " AND id_usuario = ?";
+            $params[] = $userId;
+        }
+        $rows = $this->query($sql, $params);
         return (float)$rows[0]['total'];
     }
 
     /**
-     * Cantidad y monto de ventas de hoy.
+     * Cantidad y monto de ventas de hoy. Filtra por usuario si se indica $userId.
      *
      * @return array{cantidad: int, monto: float}
      */
-    public function todaySummary(): array
+    public function todaySummary(?int $userId = null): array
     {
-        $rows = $this->query(
-            "SELECT COUNT(*) AS cantidad, COALESCE(SUM(total_pagado), 0) AS monto
-             FROM tb_ventas
-             WHERE DATE(fyh_creacion) = CURDATE()"
-        );
+        $sql = "SELECT COUNT(*) AS cantidad, COALESCE(SUM(total_pagado), 0) AS monto
+                FROM tb_ventas
+                WHERE DATE(fyh_creacion) = CURDATE()";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " AND id_usuario = ?";
+            $params[] = $userId;
+        }
+        $rows = $this->query($sql, $params);
         return [
             'cantidad' => (int)$rows[0]['cantidad'],
             'monto' => (float)$rows[0]['monto'],
@@ -204,34 +221,40 @@ class Sale extends Model
     }
 
     /**
-     * Ventas agrupadas por mes — últimos N meses.
+     * Ventas agrupadas por mes — últimos N meses. Filtra por usuario si se indica $userId.
      *
      * @return array Lista de ['mes' => 'YYYY-MM', 'total' => float]
      */
-    public function totalsByMonth(int $months = 6): array
+    public function totalsByMonth(int $months = 6, ?int $userId = null): array
     {
         $interval = (int)($months - 1);
-        return $this->query(
-            "SELECT DATE_FORMAT(fyh_creacion, '%Y-%m') AS mes,
-                    COALESCE(SUM(total_pagado), 0) AS total
-             FROM tb_ventas
-             WHERE fyh_creacion >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')
-             GROUP BY DATE_FORMAT(fyh_creacion, '%Y-%m')
-             ORDER BY mes ASC"
-        );
+        $sql = "SELECT DATE_FORMAT(fyh_creacion, '%Y-%m') AS mes,
+                       COALESCE(SUM(total_pagado), 0) AS total
+                FROM tb_ventas
+                WHERE fyh_creacion >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " AND id_usuario = ?";
+            $params[] = $userId;
+        }
+        $sql .= " GROUP BY DATE_FORMAT(fyh_creacion, '%Y-%m') ORDER BY mes ASC";
+        return $this->query($sql, $params);
     }
 
-    /** Últimas N ventas con nombre del cliente. */
-    public function latest(int $limit = 5): array
+    /** Últimas N ventas con nombre del cliente. Filtra por usuario si se indica $userId. */
+    public function latest(int $limit = 5, ?int $userId = null): array
     {
         $limit = (int)$limit;
-        return $this->query(
-            "SELECT v.id_venta, v.nro_venta, c.nombre_cliente, v.total_pagado, v.fyh_creacion
-             FROM tb_ventas v
-             INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente
-             ORDER BY v.id_venta DESC
-             LIMIT $limit"
-        );
+        $sql = "SELECT v.id_venta, v.nro_venta, c.nombre_cliente, v.total_pagado, v.fyh_creacion
+                FROM tb_ventas v
+                INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " WHERE v.id_usuario = ?";
+            $params[] = $userId;
+        }
+        $sql .= " ORDER BY v.id_venta DESC LIMIT $limit";
+        return $this->query($sql, $params);
     }
 
     /**

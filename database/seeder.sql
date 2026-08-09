@@ -40,6 +40,7 @@ INSERT INTO `tb_permisos` (`clave`, `descripcion`, `modulo`) VALUES
 ('view_sales',               'Ver ventas',                               'ventas'),
 ('manage_sales',             'Gestionar ventas',                         'ventas'),
 ('view_sales_all',           'Ver todas las ventas (sin filtro de usuario)', 'ventas'),
+('view_purchases_all',       'Ver todas las compras (sin filtro de usuario)', 'compras'),
 ('view_reports',             'Ver sección de reportes',                  'reportes'),
 ('view_sales_report',        'Ver reporte de ventas',                    'reportes'),
 ('view_purchases_report',    'Ver reporte de compras',                   'reportes'),
@@ -68,8 +69,7 @@ FROM `tb_roles` r JOIN `tb_permisos` p ON p.clave IN (
     'view_categories',
     'view_clients', 'manage_clients',
     'view_products',
-    'view_sales', 'manage_sales',
-    'view_reports', 'view_sales_report', 'view_top_products_report'
+    'view_sales', 'manage_sales'
 )
 WHERE r.rol = 'Vendedor';
 

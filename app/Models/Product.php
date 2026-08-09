@@ -79,20 +79,25 @@ class Product extends Model
         );
     }
 
-    public function getTopSelling(int $limit = 5): array
+    /** Top productos más vendidos. Filtra por usuario si se indica $userId. */
+    public function getTopSelling(int $limit = 5, ?int $userId = null): array
     {
         $limit = max(1, (int)$limit);
-        return $this->query(
-            "SELECT al.id_producto, al.codigo, al.nombre,
-                    SUM(car.cantidad) AS cantidad_vendida,
-                    SUM(car.cantidad * al.precio_venta) AS ingresos
-             FROM tb_carrito car
-             INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
-             INNER JOIN tb_ventas v ON car.nro_venta = v.nro_venta
-             GROUP BY al.id_producto, al.codigo, al.nombre
-             ORDER BY cantidad_vendida DESC
-             LIMIT $limit"
-        );
+        $sql = "SELECT al.id_producto, al.codigo, al.nombre,
+                       SUM(car.cantidad) AS cantidad_vendida,
+                       SUM(car.cantidad * al.precio_venta) AS ingresos
+                FROM tb_carrito car
+                INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
+                INNER JOIN tb_ventas v ON car.nro_venta = v.nro_venta";
+        $params = [];
+        if ($userId !== null) {
+            $sql .= " WHERE v.id_usuario = ?";
+            $params[] = $userId;
+        }
+        $sql .= " GROUP BY al.id_producto, al.codigo, al.nombre
+                  ORDER BY cantidad_vendida DESC
+                  LIMIT $limit";
+        return $this->query($sql, $params);
     }
 
     public function getReferenceCount(int $id): array

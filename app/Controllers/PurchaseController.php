@@ -18,7 +18,8 @@ class PurchaseController extends Controller
     public function index(): void
     {
         $purchaseModel = new Purchase();
-        $purchases_datos = $purchaseModel->allWithDetails();
+        $userId = Auth::can('view_purchases_all') ? null : (int)Auth::user()['id_usuario'];
+        $purchases_datos = $purchaseModel->allWithDetails($userId);
 
         $this->renderWithLayout('views/purchases/index.php', array_merge(
             $this->sessionData(),
