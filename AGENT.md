@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.15.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación (login, forgot-password, reset-password), moneda configurable vía `.env`, y auditoría de accesibilidad del módulo de ventas/POS y del layout global (header/sidebar). Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.16.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación (login, forgot-password, reset-password), moneda configurable vía `.env`, y auditoría de accesibilidad del módulo de ventas/POS y del layout global (header/sidebar). Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -276,7 +276,27 @@ Auth::logout()          // limpia sesión, BD y cookie
 - `PermissionMiddleware` resuelve el prefijo `can:` en rutas — redirige a `/errors/403` si el permiso falta.
 - En controladores, usar `Auth::can('permiso')` para scoping de datos o restricciones inline.
 - En vistas, el controlador pasa `$can` (array) con los permisos necesarios via `renderWithLayout()` — nunca llamar `Auth::` directamente en vistas.
-- Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `manage_purchases`, `view_sales`, `manage_sales`, `view_activity_log`, `manage_inventory`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
+- Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `view_purchases`, `manage_purchases`, `view_sales`, `manage_sales`, `view_sales_all`, `view_purchases_all`, `view_activity_log`, `manage_inventory`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
+- **Scoping de datos por usuario (`*_all`):** `view_sales_all` y `view_purchases_all` distinguen "ver todos los
+  registros" de "ver solo los propios". Sin el permiso `_all`, los métodos de listado/agregado filtran por
+  `id_usuario` (ver `Sale`/`Purchase`/`Product::getTopSelling()`, que aceptan `?int $userId` opcional). Patrón usado
+  en `DashboardController` (KPIs y gráficos), `SaleController::index/show/edit/destroy` y
+  `PurchaseController::index/show/edit/update/report/destroy` (todos con el chequeo
+  `!Auth::can('view_*_all') && (int)$registro['id_usuario'] !== (int)Auth::user()['id_usuario']` antes de
+  mostrar/modificar). Solo Administrador tiene ambos `_all` por defecto — un rol nuevo sin ellos automáticamente ve
+  y gestiona solo sus propios registros, sin tocar código. **Al agregar un módulo con este patrón, aplicar el
+  filtro tanto al listado (`index`) como al detalle/edición/borrado (`show`/`edit`/`update`/`destroy`) — filtrar
+  solo el listado deja abierto el acceso a registros ajenos por URL directa.**
+- **`Controller::forbidden(string $mensaje)`:** helper para el chequeo de dueño de arriba — hace flash + redirect a
+  `/errors/403` (mismo mecanismo de toast que `PermissionMiddleware` usa para rutas sin permiso). Usarlo en vez de
+  `flash()` + `redirect()` al listado, así "este registro no es tuyo" se ve igual que "no tienes acceso a esta
+  ruta" en toda la app.
+- **El sidebar (`views/layouts/partials/_sidebar.php`) debe gatear cada enlace con su permiso real vía `$can[...]`,
+  nunca con los proxies de rol `$isAdmin`/`$isSeller`/`$isBuyer`.** Esos proxies solo aproximan "tiene view_sales" /
+  "tiene view_purchases" — usarlos para secciones con permisos más granulares (ej. Reportes, gateado antes por
+  `$isSeller` en vez de `$can['view_reports']`) hace que el menú muestre enlaces a los que el usuario en realidad no
+  tiene acceso (la ruta responde 403, pero la UI confunde). Está bien usarlos para las secciones cuyo único gate es
+  precisamente `view_sales`/`view_purchases` (Ventas, Compras, Inventario).
 - **Gestión vía UI:** catálogo de permisos en `/permissions` (CRUD de clave/descripción/módulo, `PermissionController`,
   `views/permissions/`) y asignación por rol en `/roles/permisos/{id}` (checkboxes agrupados por `modulo`,
   `RoleController::permisos()`/`syncPermisos()`, `views/roles/permisos.php`). Ambas rutas reutilizan el permiso
@@ -454,4 +474,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-08-02 — 1.15.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-08-09 — 1.16.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

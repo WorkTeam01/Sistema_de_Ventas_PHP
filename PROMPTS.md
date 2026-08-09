@@ -176,6 +176,10 @@ Revisa el siguiente código antes del merge a dev.
 [Restricciones]
 Evalúa específicamente:
 - Seguridad: SQL injection (placeholders ?), XSS (htmlspecialchars), CSRF, autenticación débil, datos sensibles expuestos
+- IDOR: si el módulo tiene datos "propios de cada usuario" (ventas, compras), confirmar que show/edit/update/destroy
+  bloqueen el acceso a registros ajenos (no solo el listado) — patrón `Auth::can('view_*_all')` + chequeo de dueño
+- UI vs permisos reales: cualquier elemento de menú/sidebar debe gatearse con el permiso real (`$can[...]`), nunca
+  con un proxy de rol — un enlace visible a un módulo sin acceso es confuso aunque la ruta esté protegida
 - Convenciones: naming, estructura MVC, métodos de controlador válidos (index, create, store, edit, update, destroy)
 - Lógica: borrado físico con isReferenced(), validación en ambos lados (frontend + backend)
 - Notificaciones: AlertUtils/ToastUtils usados correctamente (no Swal.fire() directo)
@@ -209,6 +213,9 @@ BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_ca
                  tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
                  tb_activity_log, tb_ajustes_stock, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
                  con UI de gestión — catálogo + asignación por rol — desde v1.14.0).
+                 Scoping por usuario (`view_sales_all`/`view_purchases_all`): sin ese permiso, ventas/compras
+                 (dashboard, listado y detalle) se filtran por id_usuario — patrón obligatorio para cualquier
+                 módulo nuevo con datos "propios de cada usuario".
 
 [Tarea]
 Necesito decidir: [describe la decisión técnica]
@@ -350,5 +357,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.15.0 (2026-08-02)_
+_Última actualización: 1.16.0 (2026-08-09)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._

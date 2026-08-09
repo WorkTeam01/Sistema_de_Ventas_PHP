@@ -7,7 +7,48 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
-## [Unreleased]
+## [1.16.0] - 2026-08-09
+
+### Cambiado
+
+- `DashboardController` ahora arma los KPIs y widgets según los permisos reales del usuario (`Auth::can('view_sales')`,
+  `view_purchases`, `view_clients`) en vez de comparar el nombre del rol (`'Administrador'`/`'Vendedor'`/`'Comprador'`)
+  hardcodeado. Un rol nuevo creado desde `/roles` con cualquier combinación de esos permisos ve automáticamente los
+  widgets correspondientes, sin tocar código.
+- Nuevo permiso `view_purchases_all` (análogo a `view_sales_all`), sembrado solo para Administrador
+  (`database/migrations/004_view_purchases_all.sql`, `database/seeder.sql`). Sin él, `Sale`, `Purchase` y
+  `Product::getTopSelling()` filtran sus consultas por `id_usuario` — cada usuario ve solo sus propias ventas/compras
+  en el dashboard; con `view_sales_all`/`view_purchases_all` (solo Administrador) ve las de todos.
+- `SaleController::index()` y `PurchaseController::index()` filtran por `id_usuario` salvo que el usuario tenga
+  `view_sales_all`/`view_purchases_all` — antes listaban todos los registros del sistema sin importar el permiso.
+- Permiso de reportes retirado del rol Vendedor: `view_reports`, `view_sales_report` y `view_top_products_report`
+  quedan exclusivos de Administrador (`database/migrations/005_reports_admin_only.sql`, `database/seeder.sql`).
+  Comprador nunca los tuvo.
+
+### Seguridad
+
+- **IDOR en compras:** `PurchaseController::show/edit/update/report/destroy` no chequeaban dueño — cualquier usuario
+  con `manage_purchases` podía ver, editar o eliminar compras de otro usuario por URL directa
+  (`/purchases/show/{id}` ajeno), aunque el listado estuviera filtrado. Ahora bloquean con "No tienes permiso
+  para..." si la compra no es del usuario y no tiene `view_purchases_all`, replicando el chequeo que
+  `SaleController` ya aplicaba a ventas.
+- Nuevo helper `Controller::forbidden(string $mensaje)` — redirige a `/errors/403` con el mismo mecanismo de toast
+  que usa `PermissionMiddleware` para rutas sin permiso. Los chequeos de dueño en `SaleController` (3) y
+  `PurchaseController` (5) ahora usan este helper en vez de `flash()` + redirect al listado, para que "no tienes
+  permiso para ver este registro" se vea igual que "no tienes permiso para acceder a esta ruta".
+
+### Corregido
+
+- El título/caption/aria-label del gráfico de ventas y compras del dashboard (`views/dashboard/index.php`) estaba
+  hardcodeado a "Ventas" y solo agregaba "vs Compras" si había dos datasets — un usuario que solo ve compras (sin
+  permiso `view_sales`) veía el gráfico rotulado "Ventas" mostrando en realidad datos de compras. Ahora el título se
+  arma dinámicamente a partir de las etiquetas reales de `$chartData['datasets']`.
+- La sección "REPORTES" del sidebar (`views/layouts/partials/_sidebar.php`) se mostraba a cualquier usuario con
+  `view_sales` (variable `$isSeller`), sin importar si realmente tenía `view_reports`/`view_sales_report`/etc. — un
+  Vendedor sin esos permisos veía los enlaces en el menú y solo al hacer clic caía en un 403 (la ruta sí estaba bien
+  protegida; era puramente un problema de UI). Ahora cada enlace de Reportes se gatea con su propio permiso
+  (`$can['view_reports']`, `$can['view_sales_report']`, `$can['view_purchases_report']`, `$can['view_top_products_report']`,
+  `$can['view_clients_report']`) en vez del proxy de rol.
 
 ---
 
@@ -544,6 +585,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
+[1.16.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.15.0...1.16.0
+[1.15.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.3...1.15.0
 [1.14.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.2...1.14.3
 [1.14.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.1...1.14.2
 [1.14.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.0...1.14.1

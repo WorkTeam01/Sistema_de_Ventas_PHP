@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.15.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.16.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -166,11 +166,17 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 
 El sistema usa RBAC granular: cada ruta declara el permiso que requiere y el acceso se evalúa en tiempo de ejecución, sin comparaciones de nombre de rol hardcodeadas. Los permisos se administran desde la UI (`/permissions` para el catálogo, `/roles/permisos/{id}` para asignarlos a un rol) — los cambios se aplican a los usuarios activos de ese rol en su siguiente request, sin necesidad de re-login.
 
-| Rol             | Acceso                                                     |
-| --------------- | ---------------------------------------------------------- |
-| `Administrador` | Acceso completo a todos los módulos                        |
-| `Vendedor`      | Ventas, clientes, productos (lectura) y reportes de ventas |
-| `Comprador`     | Compras, proveedores, productos (lectura) y categorías     |
+| Rol             | Acceso                                                                                |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `Administrador` | Acceso completo a todos los módulos, incluidos reportes y auditoría                   |
+| `Vendedor`      | Ventas, clientes y productos (lectura) — **solo sus propias ventas**                  |
+| `Comprador`     | Compras, proveedores, productos (lectura) y categorías — **solo sus propias compras** |
+
+**Scoping por usuario (`*_all`):** además de los permisos por módulo, `view_sales_all` y `view_purchases_all`
+distinguen "ver todos los registros" de "ver solo los propios". Sin ellos, dashboard, listados y detalle
+(`show`/`edit`/`destroy`) de ventas/compras se filtran automáticamente por `id_usuario` — un usuario no puede ver ni
+modificar registros ajenos ni siquiera por URL directa. Solo Administrador los tiene por defecto; un rol nuevo sin
+esos permisos queda scopeado a sus propios registros sin tocar código.
 
 ---
 
@@ -180,6 +186,8 @@ El sistema usa RBAC granular: cada ruta declara el permiso que requiere y el acc
 - **CSRF** — token obligatorio en todos los formularios POST y endpoints AJAX
 - **XSS** — `htmlspecialchars()` en todos los outputs HTML
 - **Contraseñas** — `password_hash()` / `password_verify()` (BCRYPT); mínimo 6 caracteres en todos los flujos
+- **Acceso a registros ajenos** — ventas y compras se filtran por `id_usuario` salvo permiso `*_all`; bloqueado
+  también en `show`/`edit`/`update`/`destroy` para prevenir acceso por URL directa (IDOR), no solo en el listado
 - **Stock negativo** — decremento con `AND stock >= ?` dentro de transacción; rollback si `rowCount() === 0`
 - **Totales** — calculados server-side desde la BD dentro de la transacción; el valor del POST se ignora
 - **Rate limiting** — 5 intentos fallidos bloquean la cuenta 15 minutos

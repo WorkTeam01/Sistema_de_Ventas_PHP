@@ -86,6 +86,13 @@ Para nuevo módulo [nombre]:
 - **Operaciones críticas:** Usar datos del snapshot de BD (no del POST) para revertir stock u otras operaciones irreversibles
 - **Guards en destroy:** `isReferenced()` y auto-eliminación del propio usuario siempre server-side — el check cliente (AJAX) es solo UX
 - **Stock:** Decrementos con `AND stock >= ?` + verificación de `rowCount()` para prevenir valores negativos
+- **Datos propios de cada usuario:** si el módulo tiene un permiso `view_*_all` (ver `view_sales_all`/`view_purchases_all`),
+  filtrar por `id_usuario` en el listado **y** bloquear `show`/`edit`/`update`/`destroy` con el mismo chequeo
+  (`!Auth::can('view_*_all') && $registro['id_usuario'] !== Auth::user()['id_usuario']`) — filtrar solo el listado
+  deja el detalle accesible por URL directa (IDOR). Usar `$this->forbidden('mensaje')` (no `flash()` + `redirect()`
+  al listado) para que el bloqueo se vea igual que un 403 de ruta
+- **Sidebar:** cada enlace debe gatearse con su permiso real vía `$can['clave']`, nunca con un proxy de rol
+  (`$isAdmin`/`$isSeller`/`$isBuyer`) salvo que el permiso gateado sea exactamente ese (`view_sales`/`view_purchases`)
 
 Ver más detalles en **Convenciones de Seguridad** de [AGENT.md](AGENT.md).
 
@@ -119,6 +126,8 @@ Si agregas lógica de negocio nueva en un modelo (validación, normalización, c
 - ✅ CSRF: token presente en todos los formularios POST
 - ✅ Seguridad: sin SQL injection, XSS, campos sensibles protegidos
 - ✅ Acceso por permiso: `can:permiso` en ruta restringe correctamente; `/errors/403` si no tiene permiso
+- ✅ Datos propios: si el módulo tiene `view_*_all`, probar que un usuario sin ese permiso no vea/edite/elimine
+  registros ajenos ni por listado ni por URL directa (`/modulo/show/{id}` de otro usuario)
 - ✅ Autenticación: login normal, "Recordarme", logout limpia cookie y BD
 - ✅ Edge cases: campos null, strings largos, caracteres especiales
 
@@ -264,5 +273,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-08-02 — 1.15.0_
+_Última actualización: 2026-08-09 — 1.16.0_
 _Sigue las prácticas de AGENT.md y CLAUDE.md — son la fuente de verdad._
