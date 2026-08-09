@@ -238,6 +238,20 @@ class Controller
     }
 
     /**
+     * Redirige a la página de error 403 con un mensaje flash — mismo mecanismo que
+     * PermissionMiddleware para rutas sin permiso. Usar cuando el usuario tiene el
+     * permiso del módulo pero no es dueño del registro puntual (ventas/compras ajenas).
+     *
+     * @param string $mensaje Texto a mostrar en el toast de la página 403.
+     */
+    protected function forbidden(string $mensaje = 'No tienes permisos para acceder a este recurso.'): never
+    {
+        $this->flash($mensaje, 'error');
+        http_response_code(403);
+        $this->redirect(BASE_URL . '/errors/403');
+    }
+
+    /**
      * Valida el token CSRF recibido en $_POST['csrf_token'].
      * Termina la ejecución con un mensaje de error si el token es inválido.
      */

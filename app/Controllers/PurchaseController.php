@@ -139,6 +139,10 @@ class PurchaseController extends Controller
             return;
         }
 
+        if (!Auth::can('view_purchases_all') && (int)$purchase['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->forbidden('No tienes permiso para ver esta compra.');
+        }
+
         $this->renderWithLayout('views/purchases/show.php', array_merge(
             $this->sessionData(),
             [
@@ -193,6 +197,10 @@ class PurchaseController extends Controller
             return;
         }
 
+        if (!Auth::can('view_purchases_all') && (int)$purchase['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->forbidden('No tienes permiso para editar esta compra.');
+        }
+
         $productModel = new Product();
         $supplierModel = new Supplier();
 
@@ -236,6 +244,19 @@ class PurchaseController extends Controller
             return;
         }
 
+        $purchaseModel = new Purchase();
+        $existing = $purchaseModel->findWithDetails($id_compra);
+
+        if (!$existing) {
+            $this->flash('No se encontró la compra solicitada.', 'error');
+            $this->redirect(BASE_URL . '/purchases');
+            return;
+        }
+
+        if (!Auth::can('view_purchases_all') && (int)$existing['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->forbidden('No tienes permiso para editar esta compra.');
+        }
+
         $data = [
             'id_producto' => $_POST['id_producto'] ?? '',
             'nro_compra' => $_POST['nro_compra'] ?? '',
@@ -246,7 +267,6 @@ class PurchaseController extends Controller
             'cantidad' => $_POST['cantidad'] ?? '',
         ];
 
-        $purchaseModel = new Purchase();
         $validation = $purchaseModel->validateData($data);
 
         if ($validation !== true) {
@@ -305,6 +325,10 @@ class PurchaseController extends Controller
             return;
         }
 
+        if (!Auth::can('view_purchases_all') && (int)$purchase['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->forbidden('No tienes permiso para ver esta compra.');
+        }
+
         $comprador = $purchase['nombre_usuario'] ?? '';
         PurchaseReportPdf::generate($purchase, $comprador, $id);
     }
@@ -331,6 +355,10 @@ class PurchaseController extends Controller
             $this->flash('No se encontró la compra solicitada.', 'error');
             $this->redirect(BASE_URL . '/purchases');
             return;
+        }
+
+        if (!Auth::can('view_purchases_all') && (int)$snapshot['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->forbidden('No tienes permiso para eliminar esta compra.');
         }
 
         $ok = $purchaseModel->destroyWithStock($id_compra, (int)$snapshot['id_producto'], (int)$snapshot['cantidad']);

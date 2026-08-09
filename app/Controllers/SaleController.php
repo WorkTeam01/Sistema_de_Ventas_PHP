@@ -223,9 +223,7 @@ class SaleController extends Controller
         }
 
         if (!Auth::can('view_sales_all') && (int)$sale['id_usuario'] !== (int)Auth::user()['id_usuario']) {
-            $this->flash('No tienes permiso para ver esta venta.', 'error');
-            $this->redirect(BASE_URL . '/sales');
-            return;
+            $this->forbidden('No tienes permiso para ver esta venta.');
         }
 
         $items = $saleModel->withSubtotals($sale['items']);
@@ -276,9 +274,7 @@ class SaleController extends Controller
         }
 
         if (!Auth::can('view_sales_all') && (int)$sale['id_usuario'] !== (int)Auth::user()['id_usuario']) {
-            $this->flash('No tienes permiso para eliminar esta venta.', 'error');
-            $this->redirect(BASE_URL . '/sales');
-            return;
+            $this->forbidden('No tienes permiso para eliminar esta venta.');
         }
 
         $items = $saleModel->withSubtotals($sale['items']);
@@ -329,9 +325,7 @@ class SaleController extends Controller
         }
 
         if (!Auth::can('view_sales_all') && (int)$sale['id_usuario'] !== (int)Auth::user()['id_usuario']) {
-            $this->flash('No tienes permiso para ver esta factura.', 'error');
-            $this->redirect(BASE_URL . '/sales');
-            return;
+            $this->forbidden('No tienes permiso para ver esta factura.');
         }
 
         $totals = $saleModel->computeInvoiceTotals($sale['items']);
