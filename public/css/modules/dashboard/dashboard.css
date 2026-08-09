@@ -39,3 +39,42 @@
     position: relative;
     height: 300px;
 }
+
+/* ============================================
+   Contraste (a11y) — colores default de Bootstrap
+   (#007bff, #28a745, #17a2b8, #6c757d) usados como
+   texto plano no cumplen 4.5:1 sobre fondos claros.
+   ============================================ */
+:root {
+    --dashboard-link-color: #0056b3;
+    --dashboard-success-color: #1e7e34;
+    --dashboard-info-color: #0c5460;
+    --dashboard-secondary-color: #495057;
+}
+
+body.dark-mode {
+    --dashboard-link-color: #6ea8fe;
+    --dashboard-success-color: #75b798;
+    --dashboard-info-color: #6edff6;
+    --dashboard-secondary-color: #ced4da;
+}
+
+#admin-kpis-toggle {
+    color: var(--dashboard-secondary-color) !important;
+}
+
+.info-box-number.text-primary {
+    color: var(--dashboard-link-color) !important;
+}
+
+.card-outline.card-info .table a {
+    color: var(--dashboard-link-color);
+}
+
+.card-outline.card-info .text-success.font-weight-bold {
+    color: var(--dashboard-success-color) !important;
+}
+
+.card-outline.card-info .card-footer .text-info {
+    color: var(--dashboard-info-color) !important;
+}

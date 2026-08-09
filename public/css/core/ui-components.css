@@ -339,6 +339,29 @@ html {
 }
 
 /* ============================================
+   FOOTER - Contraste de texto secundario (a11y)
+   ============================================ */
+
+/* text-muted (#6c757d) sobre el fondo claro del footer da 3.24-3.97:1,
+   por debajo de 4.5:1 (WCAG AA). */
+body:not(.dark-mode) .main-footer,
+body:not(.dark-mode) .main-footer strong,
+body:not(.dark-mode) .main-footer .text-decoration-none {
+    color: #495057;
+}
+
+/* El default de AdminLTE en modo oscuro (#869099 sobre #343a40, 3.54:1;
+   #007bff sobre #343a40, 2.89:1) tampoco cumple 4.5:1. */
+body.dark-mode .main-footer,
+body.dark-mode .main-footer strong {
+    color: #ced4da;
+}
+
+body.dark-mode .main-footer .text-decoration-none {
+    color: #6ea8fe;
+}
+
+/* ============================================
    CARD OUTLINE TABS - Estilos globales
    ============================================ */
 
@@ -434,4 +457,18 @@ html {
         align-items: center;
         justify-content: center;
     }
+}
+
+/* ============================================
+   SIDEBAR - Contraste del ítem activo (a11y)
+   ============================================ */
+
+/* AdminLTE aplica texto blanco sobre #007bff (3.97:1) al link activo del
+   menú lateral vía `.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active`
+   / `.sidebar-light-primary ...` (especificidad 0,4,0) — un selector con la misma
+   especificidad pero sin el skin (0,3,0) no la supera. Se replica el prefijo de
+   clase del skin para igualar especificidad y ganar por orden de carga. */
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #0056b3;
 }
