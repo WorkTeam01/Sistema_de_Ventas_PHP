@@ -146,32 +146,38 @@ $link = fn(bool $on) => $on ? ' active' : '';
                     <?php endif; ?>
                 <?php endif; ?>
 
-                <?php if ($isAdmin || $isSeller): ?>
+                <?php if ($can['view_reports'] ?? false): ?>
                     <!-- SECCIÓN: Reportes -->
                     <li class="nav-header">REPORTES</li>
 
-                    <li class="nav-item">
-                        <a href="<?= BASE_URL ?>/reports/sales" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/sales')) ?>">
-                            <i class="nav-icon fas fa-chart-line"></i>
-                            <p>Ventas</p>
-                        </a>
-                    </li>
+                    <?php if ($can['view_sales_report'] ?? false): ?>
+                        <li class="nav-item">
+                            <a href="<?= BASE_URL ?>/reports/sales" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/sales')) ?>">
+                                <i class="nav-icon fas fa-chart-line"></i>
+                                <p>Ventas</p>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
-                    <li class="nav-item">
-                        <a href="<?= BASE_URL ?>/reports/top-products" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/top-products')) ?>">
-                            <i class="nav-icon fas fa-trophy"></i>
-                            <p>Top Productos</p>
-                        </a>
-                    </li>
+                    <?php if ($can['view_top_products_report'] ?? false): ?>
+                        <li class="nav-item">
+                            <a href="<?= BASE_URL ?>/reports/top-products" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/top-products')) ?>">
+                                <i class="nav-icon fas fa-trophy"></i>
+                                <p>Top Productos</p>
+                            </a>
+                        </li>
+                    <?php endif; ?>
 
-                    <?php if ($isAdmin): ?>
+                    <?php if ($can['view_purchases_report'] ?? false): ?>
                         <li class="nav-item">
                             <a href="<?= BASE_URL ?>/reports/purchases" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/purchases')) ?>">
                                 <i class="nav-icon fas fa-shopping-cart"></i>
                                 <p>Compras</p>
                             </a>
                         </li>
+                    <?php endif; ?>
 
+                    <?php if ($can['view_clients_report'] ?? false): ?>
                         <li class="nav-item">
                             <a href="<?= BASE_URL ?>/reports/clients" class="nav-link<?= $link(str_starts_with($_currentPath, '/reports/clients')) ?>">
                                 <i class="nav-icon fas fa-users"></i>
