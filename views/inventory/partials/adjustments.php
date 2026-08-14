@@ -19,9 +19,13 @@
                             <div class="form-group">
                                 <label>Desde:</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend" style="cursor: pointer;"
-                                        onclick="document.getElementById('ajuste_desde').showPicker()">
-                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <div class="input-group-prepend">
+                                        <button type="button" class="input-group-text"
+                                                data-toggle="date-picker"
+                                                aria-label="Abrir selector de fecha"
+                                                data-target="ajuste_desde">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </button>
                                     </div>
                                     <input type="date" id="ajuste_desde" name="desde" class="form-control"
                                         value="<?= htmlspecialchars($filtros['desde'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
@@ -33,9 +37,13 @@
                             <div class="form-group">
                                 <label>Hasta:</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend" style="cursor: pointer;"
-                                        onclick="document.getElementById('ajuste_hasta').showPicker()">
-                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <div class="input-group-prepend">
+                                        <button type="button" class="input-group-text"
+                                                data-toggle="date-picker"
+                                                aria-label="Abrir selector de fecha"
+                                                data-target="ajuste_hasta">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </button>
                                     </div>
                                     <input type="date" id="ajuste_hasta" name="hasta" class="form-control"
                                         value="<?= htmlspecialchars($filtros['hasta'] ?? '', ENT_QUOTES, 'UTF-8') ?>"

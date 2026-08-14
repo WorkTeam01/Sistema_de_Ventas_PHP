@@ -59,10 +59,13 @@
                                         <div class="form-group">
                                             <label>Fecha de compra <span class="text-danger">*</span></label>
                                             <div class="input-group">
-                                                <div class="input-group-prepend" style="cursor: pointer;"
-                                                     onclick="document.getElementById('fecha_compra').showPicker()">
-                                                    <span class="input-group-text"><i
-                                                                class="fas fa-calendar-alt"></i></span>
+                                                <div class="input-group-prepend">
+                                                    <button type="button" class="input-group-text"
+                                                            data-toggle="date-picker"
+                                                            aria-label="Abrir selector de fecha"
+                                                            data-target="fecha_compra">
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                    </button>
                                                 </div>
                                                 <input type="date" id="fecha_compra" name="fecha_compra"
                                                        class="form-control" required

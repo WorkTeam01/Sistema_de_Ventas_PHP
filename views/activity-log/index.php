@@ -81,10 +81,12 @@
                                             </td>
                                             <td><?= htmlspecialchars($log['descripcion'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                             <td class="text-center">
-                                                <a href="<?= BASE_URL ?>/activity-log/show/<?= (int)$log['id_log'] ?>"
-                                                    class="btn btn-info btn-sm" data-toggle="tooltip" title="Ver detalle">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
+                                                <div class="btn-group">
+                                                    <a href="<?= BASE_URL ?>/activity-log/show/<?= (int)$log['id_log'] ?>"
+                                                        class="btn btn-info btn-sm" data-toggle="tooltip" title="Ver detalle">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

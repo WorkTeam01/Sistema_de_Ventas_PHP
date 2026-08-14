@@ -26,9 +26,13 @@ $dateColClass  = $dateColClass  ?? 'col-lg-3';
                     <div class="form-group mb-0">
                         <label for="fecha_desde">Desde</label>
                         <div class="input-group">
-                            <div class="input-group-prepend" style="cursor:pointer"
-                                 onclick="document.getElementById('fecha_desde').showPicker()">
-                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <div class="input-group-prepend">
+                                <button type="button" class="input-group-text"
+                                        data-toggle="date-picker"
+                                        aria-label="Abrir selector de fecha"
+                                        data-target="fecha_desde">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
                             </div>
                             <input type="date" name="fecha_desde" id="fecha_desde" class="form-control"
                                    value="<?= htmlspecialchars($filters['desde_display'], ENT_QUOTES, 'UTF-8') ?>">
@@ -39,9 +43,13 @@ $dateColClass  = $dateColClass  ?? 'col-lg-3';
                     <div class="form-group mb-0">
                         <label for="fecha_hasta">Hasta</label>
                         <div class="input-group">
-                            <div class="input-group-prepend" style="cursor:pointer"
-                                 onclick="document.getElementById('fecha_hasta').showPicker()">
-                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <div class="input-group-prepend">
+                                <button type="button" class="input-group-text"
+                                        data-toggle="date-picker"
+                                        aria-label="Abrir selector de fecha"
+                                        data-target="fecha_hasta">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
                             </div>
                             <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control"
                                    value="<?= htmlspecialchars($filters['hasta_display'], ENT_QUOTES, 'UTF-8') ?>">

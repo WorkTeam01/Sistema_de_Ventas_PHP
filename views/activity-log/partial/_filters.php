@@ -16,9 +16,13 @@
                     <div class="form-group">
                         <label>Desde <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <div class="input-group-prepend" style="cursor: pointer;"
-                                onclick="document.getElementById('desde').showPicker()">
-                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <div class="input-group-prepend">
+                                <button type="button" class="input-group-text"
+                                        data-toggle="date-picker"
+                                        aria-label="Abrir selector de fecha"
+                                        data-target="desde">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
                             </div>
                             <input type="date" id="desde" name="desde"
                                 class="form-control"
@@ -32,9 +36,13 @@
                     <div class="form-group">
                         <label>Hasta <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <div class="input-group-prepend" style="cursor: pointer;"
-                                onclick="document.getElementById('hasta').showPicker()">
-                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            <div class="input-group-prepend">
+                                <button type="button" class="input-group-text"
+                                        data-toggle="date-picker"
+                                        aria-label="Abrir selector de fecha"
+                                        data-target="hasta">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
                             </div>
                             <input type="date" id="hasta" name="hasta"
                                 class="form-control"
