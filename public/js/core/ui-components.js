@@ -426,6 +426,22 @@ $(document).on('hide.bs.modal', '.modal', function () {
 });
 
 // ============================================
+// Selector de fecha accesible: botón para abrir showPicker()
+// ============================================
+// Cualquier input[type="date"] puede llevar un botón hermano con
+// data-toggle="date-picker" y data-target="<id-del-input>" para abrirlo
+// con el ícono del input-group. Usar un <button> real (en vez de un div
+// con onclick) permite operarlo con teclado y lectores de pantalla.
+// Delegado a document para funcionar en toda la app sin registro por página.
+$(document).on('click', '[data-toggle="date-picker"]', function () {
+    const targetId = $(this).data('target');
+    const input = document.getElementById(targetId);
+    if (input && typeof input.showPicker === 'function') {
+        input.showPicker();
+    }
+});
+
+// ============================================
 // Inicialización automática al cargar el DOM
 // ============================================
 $(document).ready(function () {

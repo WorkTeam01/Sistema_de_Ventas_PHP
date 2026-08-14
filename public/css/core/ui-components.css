@@ -472,3 +472,18 @@ body.dark-mode .main-footer .text-decoration-none {
 .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
     background-color: #0056b3;
 }
+
+/* ============================================
+   SELECTOR DE FECHA - Botón accesible (a11y)
+   ============================================ */
+
+/* Botón real (en vez de div con onclick) para abrir showPicker() en
+   inputs type="date". La clase .input-group-text ya le da la apariencia
+   correcta (fondo, borde, padding); solo se ajusta el cursor y el foco. */
+[data-toggle="date-picker"] {
+    cursor: pointer;
+}
+[data-toggle="date-picker"]:focus {
+    outline: 2px solid #007bff;
+    outline-offset: -2px;
+}
