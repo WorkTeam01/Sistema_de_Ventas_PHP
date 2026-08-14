@@ -7,6 +7,30 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.16.1] - 2026-08-14
+
+### Corregido
+
+- Auditoría de accesibilidad/UX del módulo Productos (listado, crear, editar, eliminar, detalle): `<label for>`
+  enlazados a sus inputs, `aria-label` en botones icon-only (`data-card-widget="collapse"`), imagen de fallback SVG
+  inline en `products/delete.php` cuando la imagen del producto no carga.
+- Selector de fecha accesible y reutilizable: el `<div class="input-group-prepend" onclick="...showPicker()">` de
+  todos los filtros de fecha (`activity-log`, `inventory` ajustes, `reports`, `purchases/create`, `purchases/edit`)
+  se reemplazó por un `<button data-toggle="date-picker" data-target="{id}">` real, operable con teclado/lector de
+  pantalla. El listener vive una sola vez, delegado en `document`, en `public/js/core/ui-components.js`.
+- Lógica de validación y cálculo de margen de precios de `products/create` y `products/edit` extraída al módulo
+  compartido `public/js/modules/products/products-form-shared.js` (`ProductFormShared`) — elimina ~100 líneas
+  duplicadas entre `products-create.js` y `products-edit.js`.
+- `products-index.js` retira el placeholder de carga (`#productTableLoading`) una vez que DataTables termina de
+  inicializar la tabla, en vez de dejarlo montado bajo la tabla ya visible.
+
+### Eliminado
+
+- `public/css/modules/products/index.css` — su única regla (`min-width/min-height: 44px` bajo
+  `@media (max-width: 767.98px)`) duplicaba, con un criterio peor (ancho de pantalla en vez de tipo de puntero), la
+  regla global ya existente en `ui-components.css` (`.btn-group > .btn-sm` bajo `@media (pointer: coarse)`). Se
+  retiró junto con su referencia en `pageStyles` de `ProductController::index()`.
+
 ## [1.16.0] - 2026-08-09
 
 ### Cambiado
@@ -585,6 +609,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
+[1.16.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.0...1.16.1
 [1.16.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.3...1.15.0
 [1.14.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.2...1.14.3
