@@ -37,7 +37,7 @@
                             <p class="text-muted small mb-2"><?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?></p>
                             <span class="badge badge-info badge-pill px-3 py-1"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
-                        <div class="card-footer d-flex flex-column gap-2">
+                        <div class="card-footer d-flex flex-column">
                             <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
                                 class="btn btn-success btn-block">
                                 <i class="fas fa-pencil-alt mr-1"></i> Editar producto

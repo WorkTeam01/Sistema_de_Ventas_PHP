@@ -36,7 +36,7 @@
                                 <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Confirmación de
                                     eliminación</h3>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección"><i
                                             class="fas fa-minus"></i></button>
                                 </div>
                             </div>
@@ -53,12 +53,12 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Código</label>
+                                            <label for="delete_codigo">Código</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-barcode"></i></span>
                                                 </div>
-                                                <input type="text"
+                                                <input type="text" id="delete_codigo"
                                                     value="<?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?>"
                                                     class="form-control" disabled>
                                             </div>
@@ -66,12 +66,12 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Categoría</label>
+                                            <label for="delete_categoria">Categoría</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-tag"></i></span>
                                                 </div>
-                                                <input type="text"
+                                                <input type="text" id="delete_categoria"
                                                     value="<?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?>"
                                                     class="form-control" disabled>
                                             </div>
@@ -82,12 +82,12 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
-                                            <label>Nombre del producto</label>
+                                            <label for="delete_nombre">Nombre del producto</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-box"></i></span>
                                                 </div>
-                                                <input type="text"
+                                                <input type="text" id="delete_nombre"
                                                     value="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>"
                                                     class="form-control" disabled>
                                             </div>
@@ -95,12 +95,12 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
-                                            <label>ID</label>
+                                            <label for="delete_id">ID</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
                                                 </div>
-                                                <input type="text" value="<?= $id_producto; ?>" class="form-control"
+                                                <input type="text" id="delete_id" value="<?= $id_producto; ?>" class="form-control"
                                                     disabled>
                                             </div>
                                         </div>
@@ -131,7 +131,7 @@
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-shield-alt"></i> Verificación</h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección"><i
                                         class="fas fa-minus"></i></button>
                             </div>
                         </div>
@@ -139,7 +139,8 @@
                             <div class="text-center mb-3">
                                 <img src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($imagen, ENT_QUOTES, 'UTF-8'); ?>"
                                     class="img-thumbnail img-fluid" width="80%"
-                                    alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>">
+                                    alt="<?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?>"
+                                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22><rect width=%22120%22 height=%22120%22 fill=%22%23e9ecef%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2212%22 fill=%22%236c757d%22>Sin imagen</text></svg>'; this.alt='Imagen no disponible';">
                             </div>
                             <p class="text-sm text-muted mb-2">Confirma que estás eliminando el producto correcto.</p>
                             <p class="text-sm text-muted mb-2">Si el producto tiene movimientos históricos, no podrá

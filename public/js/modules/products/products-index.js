@@ -120,6 +120,7 @@ $(document).ready(function () {
             }
         },
         initComplete: function () {
+            $('#productTableLoading').remove();
             $(this.api().table().node()).css('visibility', 'visible');
         }
     }).buttons().container().appendTo('#productTable_wrapper .col-md-6:eq(0)');

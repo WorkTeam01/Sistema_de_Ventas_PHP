@@ -43,7 +43,7 @@ class ProductController extends Controller
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'csrf_token' => Auth::generateCsrfToken(),
                 'pageStyles' => ['/css/modules/products/create.css'],
-                'pageScripts' => ['/js/modules/products/products-create.js'],
+                'pageScripts' => ['/js/modules/products/products-form-shared.js', '/js/modules/products/products-create.js'],
             ]
         ), true, ['select2', 'validation']);
     }
@@ -234,7 +234,7 @@ class ProductController extends Controller
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'csrf_token' => Auth::generateCsrfToken(),
                 'pageStyles' => ['/css/modules/products/create.css'],
-                'pageScripts' => ['/js/modules/products/products-edit.js'],
+                'pageScripts' => ['/js/modules/products/products-form-shared.js', '/js/modules/products/products-edit.js'],
             ]
         ), true, ['select2', 'validation']);
     }

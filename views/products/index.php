@@ -32,13 +32,17 @@
                                     <a href="<?= BASE_URL ?>/products/create" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Nuevo producto
                                     </a>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body position-relative">
+                            <div id="productTableLoading" class="text-center py-5">
+                                <i class="fas fa-spinner fa-spin fa-2x text-primary" aria-hidden="true"></i>
+                                <p class="text-muted mt-2 mb-0">Cargando productos...</p>
+                            </div>
                             <table id="productTable" class="table table-bordered table-hover table-striped table-sm"
                                 style="visibility: hidden;">
                                 <thead>
@@ -68,6 +72,7 @@
                                                 <img class="rounded mx-auto d-block"
                                                     src="<?= BASE_URL . '/uploads/products/' . htmlspecialchars($product['imagen'], ENT_QUOTES, 'UTF-8'); ?>"
                                                     width="30"
+                                                    loading="lazy"
                                                     alt="<?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>">
                                             </td>
                                             <td><?= htmlspecialchars($product['codigo'], ENT_QUOTES, 'UTF-8'); ?></td>
@@ -80,24 +85,28 @@
                                             <?php else : ?>
                                                 <td class="text-center"><?= $stock_actual; ?></td>
                                             <?php endif; ?>
-                                            <td class="text-right"><?= htmlspecialchars($product['precio_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-right"><?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars($product['precio_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="text-center">
-                                                <div class="btn-group">
+                                                <div class="btn-group btn-group-actions">
                                                     <a href="<?= BASE_URL ?>/products/show/<?= $id_producto ?>"
                                                         class="btn btn-info btn-sm" data-toggle="tooltip"
-                                                        title="Ver detalles">
+                                                        title="Ver detalles" aria-label="Ver detalles de <?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>">
                                                         <i class="fas fa-eye"></i>
+                                                        <span class="sr-only">Ver detalles</span>
                                                     </a>
                                                     <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
                                                         class="btn btn-success btn-sm" data-toggle="tooltip"
-                                                        title="Editar producto">
+                                                        title="Editar producto" aria-label="Editar producto <?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>">
                                                         <i class="fas fa-pencil-alt"></i>
+                                                        <span class="sr-only">Editar</span>
                                                     </a>
                                                     <button type="button" class="btn btn-danger btn-sm btn-delete-product"
                                                         data-id="<?= $id_producto ?>"
                                                         data-nombre="<?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                        data-toggle="tooltip" title="Eliminar producto">
+                                                        data-toggle="tooltip" title="Eliminar producto"
+                                                        aria-label="Eliminar producto <?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>">
                                                         <i class="fas fa-trash"></i>
+                                                        <span class="sr-only">Eliminar</span>
                                                     </button>
                                                 </div>
                                             </td>
