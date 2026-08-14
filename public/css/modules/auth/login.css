@@ -109,7 +109,7 @@ body.login-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 0;
+    padding: 2rem 1rem;
     transition: background-color 0.3s ease;
 }
 
