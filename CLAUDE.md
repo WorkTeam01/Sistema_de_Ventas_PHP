@@ -143,4 +143,4 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV o Xdebug)
 
 ---
 
-_Última actualización: 2026-08-14 — 1.16.1_
+_Última actualización: 2026-08-15 — 1.16.2_

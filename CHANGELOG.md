@@ -7,6 +7,22 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.16.2] - 2026-08-15
+
+### Corregido
+
+- Auditoría de accesibilidad/UX del módulo Compras (listado, crear, editar, detalle):
+  - Moneda hardcodeada (`$`) reemplazada por `APP_CURRENCY_SYMBOL` en `purchases/{create,edit,index,show}.php` y en
+    el resumen en tiempo real de `purchases-{create,edit}.js` (`formatMoney()`), consistente con el resto de la app
+    (ver `products/index.php`, `SaleController`, etc.). El valor se expone del PHP al JS vía `data-currency` en el
+    `<form>`.
+  - `purchases-create.js` ahora popula el panel de resumen (`#resumenPrecio`, `#badgeTotal`) al cargar la página,
+    igual que `purchases-edit.js`, en vez de mostrar `$ 0.00` hardcodeado hasta la primera interacción.
+  - Botones icon-only "Nuevo producto"/"Nuevo proveedor" en `purchases/create.php` con `aria-label`.
+  - Clase `gap-2` (Bootstrap 5, sin efecto en este proyecto Bootstrap 4/AdminLTE) eliminada de `purchases/show.php`.
+- Foco de teclado visible y contraste AA (4.44:1 → cumple 4.5:1) en los botones "Ver perfil"/"Cerrar sesión" del
+  menú de usuario del navbar, reseteados por AdminLTE (`ui-components.css`).
+
 ## [1.16.1] - 2026-08-14
 
 ### Corregido
@@ -609,6 +625,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
+[1.16.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.1...1.16.2
 [1.16.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.0...1.16.1
 [1.16.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.14.3...1.15.0
