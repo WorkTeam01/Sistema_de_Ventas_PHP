@@ -74,6 +74,8 @@ class AuthController extends Controller
      */
     public function logout(): void
     {
+        $this->validateCsrfOrFail();
+
         $user = Auth::user();
         if ($user) {
             ActivityLog::record('logout', 'auth', (int)$user['id_usuario'], "Cierre de sesión: {$user['email']}");

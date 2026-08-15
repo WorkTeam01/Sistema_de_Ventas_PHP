@@ -487,3 +487,22 @@ body.dark-mode .main-footer .text-decoration-none {
     outline: 2px solid #007bff;
     outline-offset: -2px;
 }
+
+/* ============================================
+   MENÚ DE USUARIO (navbar) - Foco accesible (a11y)
+   ============================================ */
+
+/* AdminLTE resetea `.btn:focus { outline: 0; box-shadow: none }` de forma
+   global, dejando "Ver perfil" y "Cerrar sesión" sin indicador de foco
+   visible al navegar con teclado. Se restaura el foco solo en este menú. */
+.user-menu .dropdown-menu .btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* AdminLTE colorea "Ver perfil"/"Cerrar sesión" con #6c757d sobre #f8f9fa
+   (contraste 4.44:1), por debajo del umbral AA de 4.5:1. Se oscurece el
+   texto sin cambiar el fondo para cumplir contraste sin alterar el estilo. */
+.user-menu .dropdown-menu .user-footer .btn-default {
+    color: #56606a;
+}

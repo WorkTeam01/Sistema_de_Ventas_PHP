@@ -1,7 +1,4 @@
 <?php
-$nombres_sesion = $nombres_sesion ?? '';
-$rol_sesion     = $rol_sesion ?? '';
-
 // Extraer el path relativo a la base: "/users/create", "/products", etc.
 $_basePath    = rtrim(parse_url(BASE_URL, PHP_URL_PATH) ?? '', '/');
 $_currentPath = substr(strtok($_SERVER['REQUEST_URI'], '?'), strlen($_basePath));
@@ -62,17 +59,6 @@ $link = fn(bool $on) => $on ? ' active' : '';
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <!-- Sidebar user panel -->
-        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
-                <img src="<?= BASE_URL ?>/img/user2-160x160.jpg"
-                    class="img-circle elevation-2" alt="User Image">
-            </div>
-            <div class="info">
-                <a href="<?= BASE_URL ?>/profile" class="d-block"><?= htmlspecialchars($nombres_sesion) ?></a>
-            </div>
-        </div>
-
         <!-- Sidebar Menu -->
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar nav-compact flex-column" data-widget="treeview" data-accordion="false">
@@ -224,14 +210,6 @@ $link = fn(bool $on) => $on ? ' active' : '';
                         </a>
                     </li>
                 <?php endif; ?>
-
-                <!-- Cerrar sesión (todos los roles) -->
-                <li class="nav-item mt-2">
-                    <a href="<?= BASE_URL ?>/auth/logout" class="nav-link bg-danger">
-                        <i class="nav-icon fas fa-door-open"></i>
-                        <p>Cerrar sesión</p>
-                    </a>
-                </li>
 
             </ul>
         </nav>
