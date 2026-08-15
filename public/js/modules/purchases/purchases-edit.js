@@ -10,8 +10,10 @@ $(document).ready(function () {
     // Resumen en tiempo real
     // -------------------------------------------------------------------------
 
+    const currencySymbol = $('#purchaseEditForm').data('currency') || '$';
+
     function formatMoney(value) {
-        return '$ ' + parseFloat(value || 0).toFixed(2);
+        return currencySymbol + ' ' + parseFloat(value || 0).toFixed(2);
     }
 
     function updateResumen() {

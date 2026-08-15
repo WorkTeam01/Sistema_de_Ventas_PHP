@@ -10,8 +10,10 @@ $(document).ready(function () {
     // Resumen en tiempo real
     // -------------------------------------------------------------------------
 
+    const currencySymbol = $('#purchaseCreateForm').data('currency') || '$';
+
     function formatMoney(value) {
-        return '$ ' + parseFloat(value || 0).toFixed(2);
+        return currencySymbol + ' ' + parseFloat(value || 0).toFixed(2);
     }
 
     function updateResumen() {
@@ -38,6 +40,9 @@ $(document).ready(function () {
 
     $('#id_producto, #id_proveedor').on('change', updateResumen);
     $('#precio_compra, #cantidad').on('input change', updateResumen);
+
+    // Poblar resumen con los valores actuales al cargar
+    updateResumen();
 
     // -------------------------------------------------------------------------
     // Validación del formulario

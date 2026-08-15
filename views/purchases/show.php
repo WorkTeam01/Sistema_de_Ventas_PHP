@@ -38,7 +38,7 @@
                             <p class="text-muted small mb-2"><?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?></p>
                             <span class="badge badge-info badge-pill px-3 py-1"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
-                        <div class="card-footer d-flex flex-column gap-2">
+                        <div class="card-footer d-flex flex-column">
                             <a href="<?= BASE_URL ?>/purchases/report/<?= $id_compra ?>"
                                 class="btn btn-info btn-block" target="_blank">
                                 <i class="fas fa-file-pdf mr-1"></i> Reporte PDF

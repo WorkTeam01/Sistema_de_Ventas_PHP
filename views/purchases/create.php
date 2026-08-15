@@ -24,7 +24,8 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <form id="purchaseCreateForm" action="<?= BASE_URL ?>/purchases" method="post">
+            <form id="purchaseCreateForm" action="<?= BASE_URL ?>/purchases" method="post"
+                  data-currency="<?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
@@ -121,7 +122,7 @@
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <a href="<?= BASE_URL ?>/products/create" class="btn btn-primary"
-                                                   title="Nuevo producto">
+                                                   title="Nuevo producto" aria-label="Nuevo producto">
                                                     <i class="fas fa-plus"></i>
                                                 </a>
                                             </div>
@@ -142,7 +143,7 @@
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <a href="<?= BASE_URL ?>/suppliers/create" class="btn btn-primary"
-                                                   title="Nuevo proveedor">
+                                                   title="Nuevo proveedor" aria-label="Nuevo proveedor">
                                                     <i class="fas fa-plus"></i>
                                                 </a>
                                             </div>
@@ -171,7 +172,7 @@
                                                         class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text">$</span>
+                                                    <span class="input-group-text"><?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8'); ?></span>
                                                 </div>
                                                 <input type="number" id="precio_compra" name="precio_compra"
                                                        class="form-control" step="0.01" min="0" required>

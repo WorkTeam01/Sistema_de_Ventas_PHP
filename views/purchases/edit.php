@@ -24,7 +24,8 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <form id="purchaseEditForm" action="<?= BASE_URL ?>/purchases/update" method="post">
+            <form id="purchaseEditForm" action="<?= BASE_URL ?>/purchases/update" method="post"
+                  data-currency="<?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id_compra" value="<?= $id_compra; ?>">
@@ -157,7 +158,7 @@
                                                         class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text">$</span>
+                                                    <span class="input-group-text"><?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8'); ?></span>
                                                 </div>
                                                 <input type="number" id="precio_compra" name="precio_compra"
                                                        class="form-control" step="0.01" min="0" required

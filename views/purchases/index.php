@@ -72,7 +72,7 @@
                                                 <?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>
                                             </td>
                                             <td><?= htmlspecialchars($purchase['nombre_proveedor'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td class="text-right"><?= htmlspecialchars($purchase['precio_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td class="text-right"><?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars($purchase['precio_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="text-center"><?= $cantidad; ?></td>
                                             <td class="text-center"><?= htmlspecialchars($purchase['fecha_compra'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="text-center">
