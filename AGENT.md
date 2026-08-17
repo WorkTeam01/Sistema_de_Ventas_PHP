@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.16.2 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación (login, forgot-password, reset-password), moneda configurable vía `.env`, auditoría de accesibilidad de los módulos de ventas/POS, Productos y Compras (moneda unificada en toda la app) y del layout global (header/sidebar). Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.16.3 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -474,4 +474,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-08-15 — 1.16.2. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-08-17 — 1.16.3. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
