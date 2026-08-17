@@ -9,7 +9,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-1"></i> Alertas de Stock Bajo</h3>
                 <div class="card-tools m-0">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                         <i class="fas fa-minus"></i>
                     </button>
                 </div>
@@ -83,7 +83,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-warehouse mr-1"></i> Estado del Inventario</h3>
                 <div class="card-tools m-0">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                         <i class="fas fa-minus"></i>
                     </button>
                 </div>
@@ -160,7 +160,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                 <div class="d-flex justify-content-between align-items-center">
                     <h3 class="card-title mb-0"><i class="fas fa-history mr-1"></i> Últimos Ajustes</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                             <i class="fas fa-minus"></i>
                         </button>
                     </div>

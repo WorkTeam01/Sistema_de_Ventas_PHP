@@ -3,7 +3,7 @@
     <div class="card-header">
         <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filtros</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Expandir sección">
                 <i class="fas fa-plus"></i>
             </button>
         </div>
@@ -90,8 +90,10 @@
                             </button>
                             <a href="<?= BASE_URL ?>/activity-log"
                                 class="btn btn-secondary"
-                                title="Limpiar filtros">
+                                title="Limpiar filtros"
+                                aria-label="Limpiar filtros">
                                 <i class="fas fa-times"></i>
+                                <span class="sr-only">Limpiar filtros</span>
                             </a>
                         </div>
                     </div>

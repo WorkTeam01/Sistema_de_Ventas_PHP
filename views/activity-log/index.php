@@ -36,7 +36,7 @@
                                 <span class="badge badge-secondary ml-2"><?= count($logs) ?></span>
                             </h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </div>
@@ -83,8 +83,10 @@
                                             <td class="text-center">
                                                 <div class="btn-group">
                                                     <a href="<?= BASE_URL ?>/activity-log/show/<?= (int)$log['id_log'] ?>"
-                                                        class="btn btn-info btn-sm" data-toggle="tooltip" title="Ver detalle">
+                                                        class="btn btn-info btn-sm" data-toggle="tooltip" title="Ver detalle"
+                                                        aria-label="Ver detalle del registro #<?= (int)$log['id_log'] ?>">
                                                         <i class="fas fa-eye"></i>
+                                                        <span class="sr-only">Ver detalle</span>
                                                     </a>
                                                 </div>
                                             </td>

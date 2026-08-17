@@ -33,7 +33,7 @@
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nueva categoría
                                     </button>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -59,8 +59,10 @@
                                             <button type="button" class="btn btn-success btn-sm btn-edit"
                                                     data-id="<?= $category['id_categoria'] ?>"
                                                     data-toggle="tooltip"
-                                                    title="Editar">
+                                                    title="Editar"
+                                                    aria-label="Editar categoría <?= htmlspecialchars($category['nombre_categoria'], ENT_QUOTES, 'UTF-8') ?>">
                                                 <i class="fas fa-pencil-alt"></i>
+                                                <span class="sr-only">Editar</span>
                                             </button>
                                         </td>
                                     </tr>
@@ -76,7 +78,7 @@
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-info-circle"></i> Información</h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </div>

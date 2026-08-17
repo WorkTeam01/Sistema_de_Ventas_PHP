@@ -33,7 +33,7 @@
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo rol
                                     </button>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -60,14 +60,18 @@
                                                 <button type="button" class="btn btn-success btn-sm btn-edit"
                                                         data-id="<?= $roles_dato['id_rol'] ?>"
                                                         data-toggle="tooltip"
-                                                        title="Editar">
+                                                        title="Editar"
+                                                        aria-label="Editar rol <?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="fas fa-pencil-alt"></i>
+                                                    <span class="sr-only">Editar</span>
                                                 </button>
                                                 <a href="<?= BASE_URL ?>/roles/permisos/<?= $roles_dato['id_rol'] ?>"
                                                    class="btn btn-primary btn-sm"
                                                    data-toggle="tooltip"
-                                                   title="Permisos">
+                                                   title="Permisos"
+                                                   aria-label="Permisos del rol <?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="fas fa-key"></i>
+                                                    <span class="sr-only">Permisos</span>
                                                 </a>
                                             </div>
                                         </td>
@@ -84,7 +88,7 @@
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-info-circle"></i> Información</h3>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </div>

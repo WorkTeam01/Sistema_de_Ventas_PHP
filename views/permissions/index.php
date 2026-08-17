@@ -33,7 +33,7 @@
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo permiso
                                     </button>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -64,8 +64,10 @@
                                                 <button type="button" class="btn btn-success btn-sm btn-edit"
                                                         data-id="<?= $permiso['id_permiso'] ?>"
                                                         data-toggle="tooltip"
-                                                        title="Editar">
+                                                        title="Editar"
+                                                        aria-label="Editar permiso <?= htmlspecialchars($permiso['clave'], ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="fas fa-pencil-alt"></i>
+                                                    <span class="sr-only">Editar</span>
                                                 </button>
                                             </div>
                                         </td>

@@ -33,7 +33,7 @@
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo cliente
                                     </button>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -66,15 +66,19 @@
                                                 <button type="button" class="btn btn-success btn-sm btn-edit"
                                                         data-id="<?= $client['id_cliente'] ?>"
                                                         data-toggle="tooltip"
-                                                        title="Editar">
+                                                        title="Editar"
+                                                        aria-label="Editar cliente <?= htmlspecialchars($client['nombre_cliente'], ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="fas fa-pencil-alt"></i>
+                                                    <span class="sr-only">Editar</span>
                                                 </button>
                                                 <button type="button" class="btn btn-danger btn-sm btn-delete"
                                                         data-id="<?= $client['id_cliente'] ?>"
                                                         data-nombre="<?= htmlspecialchars($client['nombre_cliente'], ENT_QUOTES, 'UTF-8') ?>"
                                                         data-toggle="tooltip"
-                                                        title="Eliminar">
+                                                        title="Eliminar"
+                                                        aria-label="Eliminar cliente <?= htmlspecialchars($client['nombre_cliente'], ENT_QUOTES, 'UTF-8') ?>">
                                                     <i class="fas fa-trash"></i>
+                                                    <span class="sr-only">Eliminar</span>
                                                 </button>
                                             </div>
                                         </td>

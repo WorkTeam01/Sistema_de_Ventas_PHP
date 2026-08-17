@@ -59,8 +59,8 @@
                 <h5 class="modal-title" id="modalAjusteStockLabel">
                     <i class="fas fa-balance-scale mr-2"></i> Realizar Ajuste de Stock
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <form id="formAjusteStock" method="POST" action="<?= BASE_URL ?>/inventory/adjustments">

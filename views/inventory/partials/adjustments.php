@@ -5,7 +5,7 @@
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filtros de Búsqueda</h3>
                 <div class="card-tools m-0">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -109,7 +109,7 @@
                             data-toggle="modal" data-target="#modalAjusteStock">
                             <i class="fas fa-plus mr-1"></i> Ajustar Stock
                         </button>
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                             <i class="fas fa-minus"></i>
                         </button>
                     </div>
