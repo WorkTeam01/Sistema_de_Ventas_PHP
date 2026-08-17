@@ -17,7 +17,35 @@ Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el c
 
 ---
 
+### Dashboard
+
+Panel principal con KPIs del mes, flujo de ventas vs. compras, top productos y últimas ventas.
+
 ![Dashboard](docs/screenshot-dashboard.png)
+
+---
+
+### Ventas
+
+Listado de ventas registradas, con acceso rápido al detalle, impresión de factura PDF y eliminación.
+
+![Ventas](docs/screenshot-pos.png)
+
+---
+
+### Almacén
+
+Catálogo de productos con stock, categoría y precio de venta; alertas visuales cuando el stock está bajo el mínimo.
+
+![Almacén](docs/screenshot-productos.png)
+
+---
+
+### Compras
+
+Historial de compras a proveedores, con actualización automática de stock al registrar cada una.
+
+![Compras](docs/screenshot-compras.png)
 
 ---
 
