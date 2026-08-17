@@ -116,14 +116,14 @@
                             <div class="form-group">
                                 <label for="create_nombre_cliente">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_nombre_cliente" name="nombre_cliente"
-                                       maxlength="255" placeholder="Nombre completo del cliente">
+                                       maxlength="255" placeholder="Nombre completo del cliente" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_nit_ci_cliente">NIT/CI <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_nit_ci_cliente" name="nit_ci_cliente"
-                                       maxlength="50" placeholder="Número de NIT o CI">
+                                       maxlength="50" placeholder="Número de NIT o CI" required>
                             </div>
                         </div>
                     </div>
@@ -133,14 +133,14 @@
                                 <label for="create_celular_cliente">Celular <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_celular_cliente"
                                        name="celular_cliente"
-                                       maxlength="50" placeholder="Número de celular">
+                                       maxlength="50" placeholder="Número de celular" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_email_cliente">Correo electrónico <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control" id="create_email_cliente" name="email_cliente"
-                                       maxlength="254" placeholder="correo@ejemplo.com">
+                                       maxlength="254" placeholder="correo@ejemplo.com" required>
                             </div>
                         </div>
                     </div>
@@ -178,14 +178,14 @@
                             <div class="form-group">
                                 <label for="edit_nombre_cliente">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_nombre_cliente" name="nombre_cliente"
-                                       maxlength="255">
+                                       maxlength="255" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_nit_ci_cliente">NIT/CI <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_nit_ci_cliente" name="nit_ci_cliente"
-                                       maxlength="50">
+                                       maxlength="50" required>
                             </div>
                         </div>
                     </div>
@@ -194,7 +194,7 @@
                             <div class="form-group">
                                 <label for="edit_celular_cliente">Celular <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_celular_cliente" name="celular_cliente"
-                                       maxlength="50">
+                                       maxlength="50" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -202,7 +202,7 @@
                                 <label for="edit_email_cliente">Correo electrónico <span
                                             class="text-danger">*</span></label>
                                 <input type="email" class="form-control" id="edit_email_cliente" name="email_cliente"
-                                       maxlength="254">
+                                       maxlength="254" required>
                             </div>
                         </div>
                     </div>

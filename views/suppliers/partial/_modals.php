@@ -19,14 +19,14 @@
                                 <label for="create_nombre_proveedor">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_nombre_proveedor"
                                        name="nombre_proveedor"
-                                       maxlength="255" placeholder="Nombre del contacto">
+                                       maxlength="255" placeholder="Nombre del contacto" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_empresa">Empresa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_empresa" name="empresa"
-                                       maxlength="255" placeholder="Nombre de la empresa">
+                                       maxlength="255" placeholder="Nombre de la empresa" required>
                             </div>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                             <div class="form-group">
                                 <label for="create_celular">Celular <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_celular" name="celular"
-                                       maxlength="50" placeholder="Número de celular">
+                                       maxlength="50" placeholder="Número de celular" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -58,7 +58,7 @@
                             <div class="form-group">
                                 <label for="create_direccion">Dirección <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="create_direccion" name="direccion"
-                                          maxlength="255" rows="2" placeholder="Dirección de la empresa"></textarea>
+                                          maxlength="255" rows="2" placeholder="Dirección de la empresa" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -160,14 +160,14 @@
                                 <label for="edit_nombre_proveedor">Nombre <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_nombre_proveedor"
                                        name="nombre_proveedor"
-                                       maxlength="255">
+                                       maxlength="255" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_empresa">Empresa <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_empresa" name="empresa"
-                                       maxlength="255">
+                                       maxlength="255" required>
                             </div>
                         </div>
                     </div>
@@ -176,7 +176,7 @@
                             <div class="form-group">
                                 <label for="edit_celular">Celular <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_celular" name="celular"
-                                       maxlength="50">
+                                       maxlength="50" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -199,7 +199,7 @@
                             <div class="form-group">
                                 <label for="edit_direccion">Dirección <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="edit_direccion" name="direccion"
-                                          maxlength="255" rows="2"></textarea>
+                                          maxlength="255" rows="2" required></textarea>
                             </div>
                         </div>
                     </div>

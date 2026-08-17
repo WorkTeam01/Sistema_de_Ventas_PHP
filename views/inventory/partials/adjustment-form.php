@@ -2,7 +2,7 @@
 <div class="form-group">
     <label for="selectProductoAjuste">Producto <span class="text-danger">*</span></label>
     <select name="id_producto" id="selectProductoAjuste"
-        class="form-control select2">
+        class="form-control select2" required>
         <option value="">Seleccione un producto...</option>
         <?php foreach ($todosProductos as $p): ?>
             <option value="<?= (int)$p['id_producto'] ?>"
@@ -19,7 +19,7 @@
     <div class="col-md-6">
         <div class="form-group">
             <label for="selectTipoAjuste">Tipo de Ajuste <span class="text-danger">*</span></label>
-            <select name="tipo" id="selectTipoAjuste" class="form-control select2">
+            <select name="tipo" id="selectTipoAjuste" class="form-control select2" required>
                 <option value="">Seleccione un tipo...</option>
                 <option value="entrada">Entrada (+) — Incrementar stock</option>
                 <option value="salida">Salida (-) — Reducir stock</option>
@@ -34,7 +34,7 @@
                     <span class="input-group-text"><i class="fas fa-boxes"></i></span>
                 </div>
                 <input type="number" name="cantidad" id="inputCantidad"
-                    class="form-control" min="1" step="1" placeholder="0">
+                    class="form-control" min="1" step="1" placeholder="0" required>
                 <div class="input-group-append">
                     <span class="input-group-text">unidades</span>
                 </div>
@@ -51,7 +51,7 @@
             <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
         </div>
         <textarea name="motivo" id="textareaMotivo" class="form-control"
-            rows="3" maxlength="255"
+            rows="3" maxlength="255" required
             placeholder="Ej: Inventario físico anual, producto dañado, error en registro previo..."></textarea>
     </div>
     <small class="text-muted">Máximo 255 caracteres</small>

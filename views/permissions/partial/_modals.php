@@ -18,14 +18,14 @@
                             <div class="form-group">
                                 <label for="create_clave">Clave <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_clave" name="clave"
-                                       maxlength="60" placeholder="ej: manage_products">
+                                       maxlength="60" placeholder="ej: manage_products" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="create_modulo">Módulo <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_modulo" name="modulo"
-                                       maxlength="40" placeholder="ej: products">
+                                       maxlength="40" placeholder="ej: products" required>
                             </div>
                         </div>
                     </div>
@@ -34,7 +34,7 @@
                             <div class="form-group">
                                 <label for="create_descripcion">Descripción <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="create_descripcion" name="descripcion"
-                                          maxlength="150" rows="2" placeholder="Descripción del permiso"></textarea>
+                                          maxlength="150" rows="2" placeholder="Descripción del permiso" required></textarea>
                             </div>
                         </div>
                     </div>
@@ -72,14 +72,14 @@
                             <div class="form-group">
                                 <label for="edit_clave">Clave <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_clave" name="clave"
-                                       maxlength="60">
+                                       maxlength="60" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="edit_modulo">Módulo <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_modulo" name="modulo"
-                                       maxlength="40">
+                                       maxlength="40" required>
                             </div>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
                             <div class="form-group">
                                 <label for="edit_descripcion">Descripción <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="edit_descripcion" name="descripcion"
-                                          maxlength="150" rows="2"></textarea>
+                                          maxlength="150" rows="2" required></textarea>
                             </div>
                         </div>
                     </div>
