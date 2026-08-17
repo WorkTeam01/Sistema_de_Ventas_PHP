@@ -7,88 +7,71 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.16.3] - 2026-08-17
+
+### Corregido
+
+- Auditoría de accesibilidad/UX de los módulos Registro de actividad, Categorías, Clientes, Inventario, Permisos,
+  Roles y Proveedores: `aria-label`/`<span class="sr-only">` en botones icon-only (acciones de tabla y colapso de
+  tarjetas), botón de cierre del modal de ajuste de inventario, y atributo `required` en los campos obligatorios de
+  los formularios de creación/edición que solo validaban por JS/backend.
+
 ## [1.16.2] - 2026-08-15
 
 ### Corregido
 
-- Auditoría de accesibilidad/UX del módulo Compras (listado, crear, editar, detalle):
-  - Moneda hardcodeada (`$`) reemplazada por `APP_CURRENCY_SYMBOL` en `purchases/{create,edit,index,show}.php` y en
-    el resumen en tiempo real de `purchases-{create,edit}.js` (`formatMoney()`), consistente con el resto de la app
-    (ver `products/index.php`, `SaleController`, etc.). El valor se expone del PHP al JS vía `data-currency` en el
-    `<form>`.
-  - `purchases-create.js` ahora popula el panel de resumen (`#resumenPrecio`, `#badgeTotal`) al cargar la página,
-    igual que `purchases-edit.js`, en vez de mostrar `$ 0.00` hardcodeado hasta la primera interacción.
-  - Botones icon-only "Nuevo producto"/"Nuevo proveedor" en `purchases/create.php` con `aria-label`.
-  - Clase `gap-2` (Bootstrap 5, sin efecto en este proyecto Bootstrap 4/AdminLTE) eliminada de `purchases/show.php`.
-- Foco de teclado visible y contraste AA (4.44:1 → cumple 4.5:1) en los botones "Ver perfil"/"Cerrar sesión" del
-  menú de usuario del navbar, reseteados por AdminLTE (`ui-components.css`).
+- Auditoría de accesibilidad/UX del módulo Compras (listado, crear, editar, detalle): moneda hardcodeada
+  reemplazada por `APP_CURRENCY_SYMBOL`, resumen en tiempo real poblado al cargar la página, `aria-label` en
+  botones icon-only y limpieza de una clase CSS sin efecto.
+- Foco de teclado visible y contraste AA en los botones "Ver perfil"/"Cerrar sesión" del menú de usuario del
+  navbar, reseteados por AdminLTE.
 
 ## [1.16.1] - 2026-08-14
 
 ### Corregido
 
 - Auditoría de accesibilidad/UX del módulo Productos (listado, crear, editar, eliminar, detalle): `<label for>`
-  enlazados a sus inputs, `aria-label` en botones icon-only (`data-card-widget="collapse"`), imagen de fallback SVG
-  inline en `products/delete.php` cuando la imagen del producto no carga.
-- Selector de fecha accesible y reutilizable: el `<div class="input-group-prepend" onclick="...showPicker()">` de
-  todos los filtros de fecha (`activity-log`, `inventory` ajustes, `reports`, `purchases/create`, `purchases/edit`)
-  se reemplazó por un `<button data-toggle="date-picker" data-target="{id}">` real, operable con teclado/lector de
-  pantalla. El listener vive una sola vez, delegado en `document`, en `public/js/core/ui-components.js`.
-- Lógica de validación y cálculo de margen de precios de `products/create` y `products/edit` extraída al módulo
-  compartido `public/js/modules/products/products-form-shared.js` (`ProductFormShared`) — elimina ~100 líneas
-  duplicadas entre `products-create.js` y `products-edit.js`.
-- `products-index.js` retira el placeholder de carga (`#productTableLoading`) una vez que DataTables termina de
-  inicializar la tabla, en vez de dejarlo montado bajo la tabla ya visible.
+  enlazados a sus inputs, `aria-label` en botones icon-only, imagen de fallback SVG cuando la imagen del producto
+  no carga.
+- Selector de fecha accesible y reutilizable: el `onclick` inline de todos los filtros de fecha (activity-log,
+  inventario, reportes, compras) se reemplazó por un botón real, operable con teclado/lector de pantalla, con su
+  listener delegado en `ui-components.js`.
+- Lógica de validación y cálculo de margen de precios de `products/create` y `products/edit` extraída a un módulo
+  compartido (`ProductFormShared`), eliminando ~100 líneas duplicadas.
+- `products-index.js` retira el placeholder de carga una vez que DataTables termina de inicializar la tabla.
 
 ### Eliminado
 
-- `public/css/modules/products/index.css` — su única regla (`min-width/min-height: 44px` bajo
-  `@media (max-width: 767.98px)`) duplicaba, con un criterio peor (ancho de pantalla en vez de tipo de puntero), la
-  regla global ya existente en `ui-components.css` (`.btn-group > .btn-sm` bajo `@media (pointer: coarse)`). Se
-  retiró junto con su referencia en `pageStyles` de `ProductController::index()`.
+- CSS duplicado del módulo Productos: su única regla (touch target en móvil) ya existía, con mejor criterio, en la
+  regla global de `ui-components.css`.
 
 ## [1.16.0] - 2026-08-09
 
 ### Cambiado
 
-- `DashboardController` ahora arma los KPIs y widgets según los permisos reales del usuario (`Auth::can('view_sales')`,
-  `view_purchases`, `view_clients`) en vez de comparar el nombre del rol (`'Administrador'`/`'Vendedor'`/`'Comprador'`)
-  hardcodeado. Un rol nuevo creado desde `/roles` con cualquier combinación de esos permisos ve automáticamente los
-  widgets correspondientes, sin tocar código.
-- Nuevo permiso `view_purchases_all` (análogo a `view_sales_all`), sembrado solo para Administrador
-  (`database/migrations/004_view_purchases_all.sql`, `database/seeder.sql`). Sin él, `Sale`, `Purchase` y
-  `Product::getTopSelling()` filtran sus consultas por `id_usuario` — cada usuario ve solo sus propias ventas/compras
-  en el dashboard; con `view_sales_all`/`view_purchases_all` (solo Administrador) ve las de todos.
-- `SaleController::index()` y `PurchaseController::index()` filtran por `id_usuario` salvo que el usuario tenga
+- `DashboardController` arma los KPIs y widgets según los permisos reales del usuario en vez de comparar el nombre
+  del rol hardcodeado. Un rol nuevo con cualquier combinación de permisos ve automáticamente los widgets
+  correspondientes, sin tocar código.
+- Nuevo permiso `view_purchases_all` (análogo a `view_sales_all`), sembrado solo para Administrador. Sin él, cada
+  usuario ve solo sus propias ventas/compras en el dashboard y en los listados.
+- `SaleController::index()` y `PurchaseController::index()` filtran por usuario salvo que tenga
   `view_sales_all`/`view_purchases_all` — antes listaban todos los registros del sistema sin importar el permiso.
-- Permiso de reportes retirado del rol Vendedor: `view_reports`, `view_sales_report` y `view_top_products_report`
-  quedan exclusivos de Administrador (`database/migrations/005_reports_admin_only.sql`, `database/seeder.sql`).
-  Comprador nunca los tuvo.
+- Permiso de reportes retirado del rol Vendedor: queda exclusivo de Administrador.
 
 ### Seguridad
 
-- **IDOR en compras:** `PurchaseController::show/edit/update/report/destroy` no chequeaban dueño — cualquier usuario
-  con `manage_purchases` podía ver, editar o eliminar compras de otro usuario por URL directa
-  (`/purchases/show/{id}` ajeno), aunque el listado estuviera filtrado. Ahora bloquean con "No tienes permiso
-  para..." si la compra no es del usuario y no tiene `view_purchases_all`, replicando el chequeo que
-  `SaleController` ya aplicaba a ventas.
-- Nuevo helper `Controller::forbidden(string $mensaje)` — redirige a `/errors/403` con el mismo mecanismo de toast
-  que usa `PermissionMiddleware` para rutas sin permiso. Los chequeos de dueño en `SaleController` (3) y
-  `PurchaseController` (5) ahora usan este helper en vez de `flash()` + redirect al listado, para que "no tienes
-  permiso para ver este registro" se vea igual que "no tienes permiso para acceder a esta ruta".
+- **IDOR en compras:** `PurchaseController` no chequeaba dueño — cualquier usuario con `manage_purchases` podía
+  ver, editar o eliminar compras de otro usuario por URL directa. Ahora bloquea si la compra no es del usuario y
+  no tiene `view_purchases_all`, replicando el chequeo que ya existía en `SaleController`.
+- Nuevo helper `Controller::forbidden()` para unificar la respuesta 403 de los chequeos de dueño con la de rutas
+  sin permiso.
 
 ### Corregido
 
-- El título/caption/aria-label del gráfico de ventas y compras del dashboard (`views/dashboard/index.php`) estaba
-  hardcodeado a "Ventas" y solo agregaba "vs Compras" si había dos datasets — un usuario que solo ve compras (sin
-  permiso `view_sales`) veía el gráfico rotulado "Ventas" mostrando en realidad datos de compras. Ahora el título se
-  arma dinámicamente a partir de las etiquetas reales de `$chartData['datasets']`.
-- La sección "REPORTES" del sidebar (`views/layouts/partials/_sidebar.php`) se mostraba a cualquier usuario con
-  `view_sales` (variable `$isSeller`), sin importar si realmente tenía `view_reports`/`view_sales_report`/etc. — un
-  Vendedor sin esos permisos veía los enlaces en el menú y solo al hacer clic caía en un 403 (la ruta sí estaba bien
-  protegida; era puramente un problema de UI). Ahora cada enlace de Reportes se gatea con su propio permiso
-  (`$can['view_reports']`, `$can['view_sales_report']`, `$can['view_purchases_report']`, `$can['view_top_products_report']`,
-  `$can['view_clients_report']`) en vez del proxy de rol.
+- El título del gráfico de ventas/compras del dashboard estaba hardcodeado a "Ventas": un usuario que solo ve
+  compras veía el gráfico mal rotulado. Ahora se arma dinámicamente según los datasets reales.
+- La sección "Reportes" del sidebar se mostraba a cualquier Vendedor sin importar sus permisos reales, aunque la
+  ruta sí estaba protegida (caía en 403 al hacer clic). Ahora cada enlace se gatea con su propio permiso.
 
 ---
 
@@ -96,41 +79,30 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Añadido
 
-- Moneda configurable vía `APP_CURRENCY_SYMBOL` en `.env` (default `"Bs."`), disponible globalmente como constante
-  desde `public/index.php`. Reemplaza ~25 ocurrencias de `"Bs."` hardcodeadas en controllers, `InvoicePdf`,
-  `PurchaseReportPdf`, `NumberToWords::convert()` y 9 vistas.
-- `Sale::withSubtotals()` — agrega el subtotal (`cantidad * precio_venta`) a cada ítem del carrito/venta, para
-  consumo directo en vistas sin recalcular ahí.
+- Moneda configurable vía `APP_CURRENCY_SYMBOL` en `.env`, disponible globalmente. Reemplaza ~25 ocurrencias
+  hardcodeadas en controllers, PDFs y vistas.
+- `Sale::withSubtotals()` — agrega el subtotal a cada ítem del carrito/venta para consumo directo en vistas.
 
 ### Accesibilidad
 
-- Fix global de aria-hidden en modales Bootstrap 4 (`public/js/core/ui-components.js`): listener `hide.bs.modal`
-  que hace `blur()` del elemento enfocado antes de que Bootstrap aplique `aria-hidden`, eliminando el warning
-  "Blocked aria-hidden on an element because its descendant retained focus" en todos los módulos.
-- Header/sidebar globales (`views/layouts/header.php`, `views/layouts/partials/_sidebar.php`):
-  - `aria-label` en los 3 botones icon-only de la navbar (`pushmenu`, `fullscreen`, `control-sidebar`), que no
-    tenían texto accesible para lectores de pantalla.
-  - Eliminado `role="menu"` del `<ul>` del sidebar — provocaba `aria-required-children` (los `<li>` no son hijos
-    válidos de `role="menu"`) y como consecuencia invalidaba también los `<li>` como `listitem`.
-  - Contraste del texto de marca en móvil (`.inter-brand-text`) subido de 3.94:1 a >4.5:1 (WCAG AA).
-- Auditoría completa del módulo de ventas/POS (labels/for-id, `readonly` en vez de `disabled`, ARIA dialog en
-  modales, `aria-label` en botones icon-only, breadcrumb `nav`, patrón ARIA tabs, `aria-live` en progress bar,
-  `loading="lazy"` en imágenes de producto).
-- Área táctil mínima de 44×44px para botones icon-only en tablas (`btn-group > .btn-sm`), aplicada globalmente vía
-  `public/css/core/ui-components.css` bajo `@media (pointer: coarse)` — beneficia a todos los módulos con tablas
-  de acciones (ventas, productos, compras, proveedores, clientes, usuarios, permisos, inventario), no solo ventas.
+- Fix global de aria-hidden en modales Bootstrap 4: se quita el foco antes de que Bootstrap oculte el modal,
+  eliminando el warning de accesibilidad en todos los módulos.
+- Header/sidebar globales: `aria-label` en los botones icon-only de la navbar, `role="menu"` inválido eliminado
+  del sidebar, contraste del texto de marca en móvil subido a WCAG AA.
+- Auditoría completa del módulo de ventas/POS (labels, ARIA en modales y tabs, `aria-label` en botones icon-only,
+  breadcrumb, `aria-live` en progress bar, `loading="lazy"` en imágenes).
+- Área táctil mínima de 44×44px para botones icon-only en tablas, aplicada globalmente — beneficia a todos los
+  módulos con tablas de acciones, no solo ventas.
 
 ### Corregido
 
-- Lógica de negocio movida fuera de las vistas: `views/sales/create.php`, `show.php`, `delete.php` y
-  `views/reports/clients.php` calculaban totales/subtotales con `foreach`+`+=` directamente en la vista. Ahora se
-  resuelven en `Sale::computeInvoiceTotals()` / `Sale::withSubtotals()` y en el controller; las vistas solo
-  formatean valores ya calculados.
+- Lógica de negocio movida fuera de las vistas de ventas y reportes de clientes: calculaban totales/subtotales
+  directamente en la vista; ahora se resuelven en el modelo/controller y la vista solo formatea.
 
 ### Modificado
 
-- `public/css/modules/sales/sales-actions.css` eliminado — su única regla (touch target 44px) se consolidó en
-  `public/css/core/ui-components.css` para aplicar a toda la app en vez de solo al módulo de ventas.
+- CSS del módulo de ventas eliminado — su única regla (touch target) se consolidó en el CSS global para aplicar a
+  toda la app.
 
 ---
 
@@ -625,6 +597,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
+[1.16.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.2...1.16.3
 [1.16.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.1...1.16.2
 [1.16.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.0...1.16.1
 [1.16.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.15.0...1.16.0
