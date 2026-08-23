@@ -160,6 +160,5 @@ final class ClientRepositoryTest extends TestCase
             VALUES ('Otro Cliente', '99999999', '79999999', 'dup@example.com')");
     }
 
-    // countNewThisMonth usa CURDATE() — no es testeable con SQLite in-memory
-    // (misma restricción que findByResetToken / findByRememberToken con NOW())
+    // countNewThisMonth usa CURDATE() — ver ClientRepositoryMariaDbTest.
 }

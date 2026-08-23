@@ -6,13 +6,85 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  phpunit:
+  scope:
+    runs-on: ubuntu-latest
+    name: Determine test scope
+    outputs:
+      integration_dirs: ${{ steps.scope.outputs.integration_dirs }}
+      run_integration: ${{ steps.scope.outputs.run_integration }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine changed files and test scope
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            git fetch origin "$BASE_REF" --depth=1
+            CHANGED=$(git diff --name-only "origin/$BASE_REF...HEAD")
+          else
+            if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              CHANGED="__FULL__"
+            else
+              CHANGED=$(git diff --name-only "$BEFORE_SHA" "$CURRENT_SHA")
+            fi
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          FULL_SUITE_TRIGGERS='^(composer\.json|composer\.lock|phpunit\.xml\.dist|tests/bootstrap\.php|app/Core/|\.github/workflows/tests\.yml)'
+          CORE_CHANGED=false
+          if [ "$CHANGED" = "__FULL__" ] || echo "$CHANGED" | grep -qE "$FULL_SUITE_TRIGGERS"; then
+            CORE_CHANGED=true
+          fi
+
+          # Unit suite is cheap: always runs in full on every push/PR (see phpunit job).
+          # Integration suite (SQLite-backed, slower) only needs to run:
+          #   - on every PR (pre-merge gate), or
+          #   - on a direct push that touches core/config files (safety net for
+          #     pushes that bypass a PR, e.g. hotfixes straight to master).
+          # A push to master that already went through a reviewed PR doesn't need
+          # to re-run Integration again unless it touches those core paths.
+          RUN_INTEGRATION=false
+          if [ "$EVENT_NAME" = "pull_request" ] || [ "$CORE_CHANGED" = "true" ]; then
+            RUN_INTEGRATION=true
+          fi
+
+          # paratest only accepts a single "path" argument, so scoping only
+          # applies when the whole diff maps to exactly one test directory.
+          # app/Core changes are already covered by CORE_CHANGED above (full suite).
+          if [ "$CORE_CHANGED" = "false" ] && [ -z "$(echo "$CHANGED" | grep -vE '^app/Models/')" ] && echo "$CHANGED" | grep -qE '^app/Models/'; then
+            INTEGRATION_DIRS="tests/Integration/Models"
+          else
+            INTEGRATION_DIRS="tests/Integration"
+          fi
+
+          echo "run_integration=$RUN_INTEGRATION" >> "$GITHUB_OUTPUT"
+          echo "integration_dirs=$INTEGRATION_DIRS" >> "$GITHUB_OUTPUT"
+          echo "Run integration: $RUN_INTEGRATION"
+          echo "Integration dirs: $INTEGRATION_DIRS"
+
+  unit:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php-version: ["8.2", "8.3"]
-    name: PHP ${{ matrix.php-version }}
+    name: Unit (PHP ${{ matrix.php-version }})
 
     steps:
       - uses: actions/checkout@v4
@@ -52,3 +124,64 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
+
+  integration:
+    needs: scope
+    if: needs.scope.outputs.run_integration == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["8.2", "8.3"]
+    name: Integration (PHP ${{ matrix.php-version }})
+
+    # MariaDB real: solo la usan los tests *MariaDbTest.php (funciones de fecha
+    # como CURDATE()/NOW()/DATE_FORMAT() que SQLite in-memory no soporta). El
+    # resto de Integration sigue corriendo contra SQLite, sin depender de este
+    # servicio (ver tests/Concerns/RefreshMariaDatabase, que se salta sola si
+    # las env vars DB_TEST_* no están presentes).
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DB_TEST_HOST: 127.0.0.1
+      DB_TEST_PORT: 3306
+      DB_TEST_NAME: sistemadeventas_test
+      DB_TEST_USER: root
+      DB_TEST_PASS: root
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: pdo, pdo_sqlite, pdo_mysql, mbstring, gd, json
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php${{ matrix.php-version }}-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run Integration suite (parallel)
+        run: vendor/bin/paratest ${{ needs.scope.outputs.integration_dirs }} --processes 4

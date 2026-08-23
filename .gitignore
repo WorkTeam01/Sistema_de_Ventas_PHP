@@ -26,6 +26,7 @@ config/database.php
 .env
 .env.local
 .env.production
+.env.testing
 
 # IA & Agentes locales
 # Ignorar archivos de configuración local
