@@ -30,11 +30,11 @@
                     <!-- Tabla -->
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title">
+                            <h2 class="card-title">
                                 <i class="fas fa-history mr-1"></i>
                                 Registros de auditoría
                                 <span class="badge badge-secondary ml-2"><?= count($logs) ?></span>
-                            </h3>
+                            </h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>

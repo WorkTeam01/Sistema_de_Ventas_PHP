@@ -106,10 +106,10 @@
                 <div class="col-12">
                     <div class="card card-outline card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title">
+                            <h2 class="card-title">
                                 <i class="fas fa-calendar-alt mr-1"></i>
                                 Resumen de <?= htmlspecialchars($mesLabel, ENT_QUOTES, 'UTF-8') ?>
-                            </h3>
+                            </h2>
                         </div>
                         <div class="card-body">
                             <div class="row">

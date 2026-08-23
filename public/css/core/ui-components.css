@@ -436,6 +436,50 @@ body.dark-mode .main-footer .text-decoration-none {
     color: #495057;
 }
 
+/* Mismo problema en el nombre de usuario del dropdown de la navbar
+   (`.d-none.d-md-inline` en header.php) — hereda el mismo #808080. */
+.navbar-light .navbar-nav .nav-link .d-md-inline {
+    color: #495057;
+}
+
+/* ============================================
+   BREADCRUMB - Contraste del encabezado de página (a11y)
+   ============================================ */
+
+/* AdminLTE usa los colores default de Bootstrap (#007bff / #6c757d) sobre el
+   fondo #f4f6f9 del content-header, insuficientes para WCAG AA (4.5:1).
+   Mismo criterio que el resto de esta sección: oscurecer sin cambiar el tono. */
+.breadcrumb-item > a {
+    color: #0056b3;
+}
+
+.breadcrumb-item.active {
+    color: #565e64;
+}
+
+/* ============================================
+   BOTONES/PAGINACIÓN - Contraste sobre azul primario (a11y)
+   ============================================ */
+
+/* `.btn-primary` (texto blanco sobre #007bff, 3.97:1) y `.page-link` de
+   DataTables (#007bff sobre blanco, 3.97:1) no cumplen WCAG AA. Mismo azul
+   oscurecido (#0056b3) ya usado en el sidebar activo, para mantener un solo
+   tono de contraste consistente en toda la app. */
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #004a99;
+    border-color: #004a99;
+}
+
+.page-link {
+    color: #0056b3;
+}
+
 /* ============================================
    TABLAS - Área táctil de botones de acción (a11y)
    ============================================ */

@@ -38,8 +38,8 @@
                         <!-- Card 1: Encabezado -->
                         <div class="card">
                             <div class="card-header card-outline card-primary">
-                                <h3 class="card-title"><i class="fas fa-file-invoice mr-1"></i> Encabezado de la
-                                    compra</h3>
+                                <h2 class="card-title"><i class="fas fa-file-invoice mr-1"></i> Encabezado de la
+                                    compra</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -95,7 +95,7 @@
                         <!-- Card 2: Proveedor y Producto -->
                         <div class="card">
                             <div class="card-header card-outline card-primary">
-                                <h3 class="card-title"><i class="fas fa-boxes mr-1"></i> Proveedor y Producto</h3>
+                                <h2 class="card-title"><i class="fas fa-boxes mr-1"></i> Proveedor y Producto</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -157,7 +157,7 @@
                         <!-- Card 3: Precio y Cantidad -->
                         <div class="card">
                             <div class="card-header card-outline card-primary">
-                                <h3 class="card-title"><i class="fas fa-calculator mr-1"></i> Precio y Cantidad</h3>
+                                <h2 class="card-title"><i class="fas fa-calculator mr-1"></i> Precio y Cantidad</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -231,7 +231,7 @@
                             <!-- Panel: Resumen de compra -->
                             <div class="card" id="resumenCard">
                                 <div class="card-header card-outline card-info">
-                                    <h3 class="card-title"><i class="fas fa-receipt mr-1"></i> Resumen de compra</h3>
+                                    <h2 class="card-title"><i class="fas fa-receipt mr-1"></i> Resumen de compra</h2>
                                 </div>
                                 <div class="card-body p-0">
                                     <table class="table table-sm table-borderless mb-0">

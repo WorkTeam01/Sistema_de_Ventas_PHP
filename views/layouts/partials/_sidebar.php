@@ -60,7 +60,7 @@ $link = fn(bool $on) => $on ? ' active' : '';
     <!-- Sidebar -->
     <div class="sidebar">
         <!-- Sidebar Menu -->
-        <nav class="mt-2">
+        <nav class="mt-2" aria-label="Menú principal">
             <ul class="nav nav-pills nav-sidebar nav-compact flex-column" data-widget="treeview" data-accordion="false">
 
                 <!-- Dashboard -->

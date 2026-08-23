@@ -155,10 +155,10 @@
                     <div class="col-lg-8 col-12">
                         <div class="card card-outline card-success h-100">
                             <div class="card-header">
-                                <h3 class="card-title">
+                                <h2 class="card-title">
                                     <i class="fas fa-chart-bar mr-1"></i>
                                     <?= htmlspecialchars($chartTitle) ?> — últimos 6 meses
-                                </h3>
+                                </h2>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -195,10 +195,10 @@
                         <div class="col-lg-4 col-12">
                             <div class="card card-outline card-success h-100">
                                 <div class="card-header">
-                                    <h3 class="card-title">
+                                    <h2 class="card-title">
                                         <i class="fas fa-trophy mr-1"></i>
                                         Top 5 productos &mdash; histórico
-                                    </h3>
+                                    </h2>
                                 </div>
                                 <div class="card-body">
                                     <div class="chart-container-sm">
@@ -245,10 +245,10 @@
                     <div class="col-12">
                         <div class="card card-outline card-info">
                             <div class="card-header">
-                                <h3 class="card-title">
+                                <h2 class="card-title">
                                     <i class="fas fa-history mr-1"></i>
                                     Últimas ventas
-                                </h3>
+                                </h2>
                             </div>
                             <div class="card-body p-0">
                                 <table class="table table-sm table-striped mb-0">

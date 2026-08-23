@@ -7,7 +7,7 @@
 ?>
 <div class="card" id="resumenCard" data-currency="<?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8') ?>">
     <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-calculator mr-1"></i> Resumen</h3>
+        <h2 class="card-title"><i class="fas fa-calculator mr-1"></i> Resumen</h2>
     </div>
     <div class="card-body p-0" aria-live="polite">
         <table class="table table-sm table-borderless mb-0">

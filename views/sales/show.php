@@ -31,11 +31,11 @@
                 <div class="col-md-12">
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title">
+                            <h2 class="card-title">
                                 <i class="fas fa-receipt text-info mr-2"></i>
                                 Venta <span class="text-info">N° <?= htmlspecialchars($nro_venta, ENT_QUOTES, 'UTF-8') ?></span>
                                 <small class="text-muted d-none d-sm-inline ml-2"><?= htmlspecialchars($fyh_creacion ?? '—', ENT_QUOTES, 'UTF-8') ?></small>
-                            </h3>
+                            </h2>
                             <div class="card-tools">
                                 <a href="<?= BASE_URL ?>/sales/invoice/<?= (int)$id_venta ?>" target="_blank"
                                     class="btn btn-success btn-sm" aria-label="Imprimir factura">
@@ -60,8 +60,8 @@
                 <div class="col-md-6">
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-file-invoice mr-1 text-info"></i> Datos de la venta
-                            </h3>
+                            <h2 class="card-title"><i class="fas fa-file-invoice mr-1 text-info"></i> Datos de la venta
+                            </h2>
                         </div>
                         <div class="card-body pb-2">
                             <dl class="row mb-0">
@@ -115,7 +115,7 @@
                 <div class="col-md-12">
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-shopping-bag mr-1"></i> Productos de la venta</h3>
+                            <h2 class="card-title"><i class="fas fa-shopping-bag mr-1"></i> Productos de la venta</h2>
                             <div class="card-tools">
                                 <span class="badge badge-primary"><?= $total_productos ?> producto<?= $total_productos !== 1 ? 's' : '' ?></span>
                             </div>

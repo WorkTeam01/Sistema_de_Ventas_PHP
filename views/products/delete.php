@@ -33,8 +33,8 @@
 
                         <div class="card card-danger card-outline">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Confirmación de
-                                    eliminación</h3>
+                                <h2 class="card-title"><i class="fas fa-exclamation-triangle"></i> Confirmación de
+                                    eliminación</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección"><i
                                             class="fas fa-minus"></i></button>
@@ -129,7 +129,7 @@
                 <div class="col-md-4">
                     <div class="card card-outline card-warning">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-shield-alt"></i> Verificación</h3>
+                            <h2 class="card-title"><i class="fas fa-shield-alt"></i> Verificación</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección"><i
                                         class="fas fa-minus"></i></button>

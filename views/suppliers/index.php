@@ -27,7 +27,7 @@
                     <div class="card card-outline card-primary">
                         <div class="card-header">
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
-                                <h3 class="card-title">Proveedores registrados</h3>
+                                <h2 class="card-title">Proveedores registrados</h2>
                                 <div class="card-tools d-flex">
                                     <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
                                             data-target="#modalCreate">

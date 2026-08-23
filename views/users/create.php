@@ -33,7 +33,7 @@
                         <!-- Card 1: Datos del usuario -->
                         <div class="card card-primary card-outline">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-user mr-1"></i> Datos del usuario</h3>
+                                <h2 class="card-title"><i class="fas fa-user mr-1"></i> Datos del usuario</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -89,7 +89,7 @@
                         <!-- Card 2: Credenciales de acceso -->
                         <div class="card card-primary card-outline">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-key mr-1"></i> Credenciales de acceso</h3>
+                                <h2 class="card-title"><i class="fas fa-key mr-1"></i> Credenciales de acceso</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -161,7 +161,7 @@
                     <!-- Información adicional -->
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-info-circle"></i> Información adicional</h3>
+                            <h2 class="card-title"><i class="fas fa-info-circle"></i> Información adicional</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -189,7 +189,7 @@
                     <!-- Vista previa -->
                     <div class="card card-outline card-success">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-eye"></i> Vista previa</h3>
+                            <h2 class="card-title"><i class="fas fa-eye"></i> Vista previa</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>

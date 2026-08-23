@@ -42,7 +42,7 @@
                     <div class="col-md-8">
                         <div class="card">
                             <div class="card-header card-outline card-success">
-                                <h3 class="card-title"><i class="fas fa-info-circle"></i> Información general</h3>
+                                <h2 class="card-title"><i class="fas fa-info-circle"></i> Información general</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
@@ -129,7 +129,7 @@
 
                         <div class="card">
                             <div class="card-header card-outline card-success">
-                                <h3 class="card-title"><i class="fas fa-boxes"></i> Inventario</h3>
+                                <h2 class="card-title"><i class="fas fa-boxes"></i> Inventario</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
@@ -207,7 +207,7 @@
 
                         <div class="card">
                             <div class="card-header card-outline card-success">
-                                <h3 class="card-title"><i class="fas fa-dollar-sign"></i> Precios</h3>
+                                <h2 class="card-title"><i class="fas fa-dollar-sign"></i> Precios</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
@@ -275,7 +275,7 @@
                             <!-- Panel: Imagen -->
                             <div class="card">
                                 <div class="card-header card-outline card-info">
-                                    <h3 class="card-title"><i class="fas fa-image mr-1"></i> Imagen del producto</h3>
+                                    <h2 class="card-title"><i class="fas fa-image mr-1"></i> Imagen del producto</h2>
                                 </div>
                                 <div class="card-body">
                                     <img

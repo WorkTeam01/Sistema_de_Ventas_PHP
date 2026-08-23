@@ -33,10 +33,10 @@
                         <!-- Card 1: Información de la cuenta -->
                         <div class="card card-success card-outline">
                             <div class="card-header">
-                                <h3 class="card-title">
+                                <h2 class="card-title">
                                     <i class="fas fa-user mr-1"></i> Información de la cuenta
                                     <span class="badge badge-secondary ml-1">ID #<?= $id_usuario ?></span>
-                                </h3>
+                                </h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -92,7 +92,7 @@
                         <!-- Card 2: Seguridad -->
                         <div class="card card-success card-outline">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-lock mr-1"></i> Seguridad</h3>
+                                <h2 class="card-title"><i class="fas fa-lock mr-1"></i> Seguridad</h2>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -168,7 +168,7 @@
                 <div class="col-md-4">
                     <div class="card card-outline card-success">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-id-badge"></i> Resumen</h3>
+                            <h2 class="card-title"><i class="fas fa-id-badge"></i> Resumen</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -196,7 +196,7 @@
 
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-lightbulb"></i> Recomendaciones</h3>
+                            <h2 class="card-title"><i class="fas fa-lightbulb"></i> Recomendaciones</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>

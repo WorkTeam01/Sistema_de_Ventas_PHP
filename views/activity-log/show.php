@@ -25,7 +25,7 @@
                 <div class="col-md-5">
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Información del evento</h3>
+                            <h2 class="card-title"><i class="fas fa-info-circle mr-1"></i> Información del evento</h2>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-sm table-bordered">
@@ -88,7 +88,7 @@
                     <!-- Estado anterior -->
                     <div class="card card-outline card-warning">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-undo mr-1"></i> Estado anterior</h3>
+                            <h2 class="card-title"><i class="fas fa-undo mr-1"></i> Estado anterior</h2>
                         </div>
                         <div class="card-body p-0">
                             <?php
@@ -102,7 +102,7 @@
                     <!-- Estado nuevo -->
                     <div class="card card-outline card-success">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-check-circle mr-1"></i> Estado nuevo</h3>
+                            <h2 class="card-title"><i class="fas fa-check-circle mr-1"></i> Estado nuevo</h2>
                         </div>
                         <div class="card-body p-0">
                             <?php

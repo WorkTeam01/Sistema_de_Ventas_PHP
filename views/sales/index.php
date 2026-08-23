@@ -29,7 +29,7 @@
                     <div class="card card-outline card-primary">
                         <div class="card-header">
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
-                                <h3 class="card-title">Lista de ventas</h3>
+                                <h2 class="card-title">Lista de ventas</h2>
                                 <div class="card-tools">
                                     <a href="<?= BASE_URL ?>/sales/create" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Nueva venta

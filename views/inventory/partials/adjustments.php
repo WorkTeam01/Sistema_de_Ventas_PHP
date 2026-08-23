@@ -3,7 +3,7 @@
     <div class="col-12">
         <div class="card card-outline card-secondary collapsed-card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-filter mr-1"></i> Filtros de Búsqueda</h3>
+                <h2 class="card-title"><i class="fas fa-filter mr-1"></i> Filtros de Búsqueda</h2>
                 <div class="card-tools m-0">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                         <i class="fas fa-plus"></i>

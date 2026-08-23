@@ -347,9 +347,9 @@
                     <div class="col-md-3 mb-3">
                         <div class="card card-outline card-primary sticky-top" style="top: 10px;">
                             <div class="card-header">
-                                <h3 class="card-title">
+                                <h2 class="card-title">
                                     <i class="fas fa-receipt mr-1"></i> Resumen de venta
-                                </h3>
+                                </h2>
                             </div>
                             <div class="card-body p-0">
                                 <ul class="list-group list-group-flush">

@@ -27,7 +27,7 @@
                     <div class="card card-outline card-primary">
                         <div class="card-header">
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
-                                <h3 class="card-title">Categorías registradas</h3>
+                                <h2 class="card-title">Categorías registradas</h2>
                                 <div class="card-tools d-flex">
                                     <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
                                             data-target="#modalCreate">
@@ -76,7 +76,7 @@
                 <div class="col-md-4">
                     <div class="card card-outline card-info">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-info-circle"></i> Información</h3>
+                            <h2 class="card-title"><i class="fas fa-info-circle"></i> Información</h2>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
