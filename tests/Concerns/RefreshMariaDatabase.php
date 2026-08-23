@@ -19,6 +19,8 @@ trait RefreshMariaDatabase
 {
     protected PDO $pdo;
 
+    private string $mariaDbTestDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,9 +51,15 @@ trait RefreshMariaDatabase
         if (!$host || !$name || !$user) {
             $this->markTestSkipped(
                 'BD de test MariaDB no configurada. Copia .env.testing.example a .env.testing '
-                . 'para correr este test.'
+                    . 'para correr este test.'
             );
         }
+
+        // Nombre único por proceso: paratest corre varios procesos PHP en paralelo, y si
+        // todos comparten el mismo nombre de BD, el DROP/CREATE de un proceso invalida la
+        // sesión de otro a mitad de test ("Unknown database"). Sufijar con el PID aísla
+        // cada proceso en su propia BD física, sin tocar la config del usuario.
+        $this->mariaDbTestDatabase = $name . '_' . getmypid();
 
         try {
             $pdo = new PDO(
@@ -64,9 +72,9 @@ trait RefreshMariaDatabase
                 ]
             );
 
-            $pdo->exec("DROP DATABASE IF EXISTS `{$name}`");
-            $pdo->exec("CREATE DATABASE `{$name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
-            $pdo->exec("USE `{$name}`");
+            $pdo->exec("DROP DATABASE IF EXISTS `{$this->mariaDbTestDatabase}`");
+            $pdo->exec("CREATE DATABASE `{$this->mariaDbTestDatabase}` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+            $pdo->exec("USE `{$this->mariaDbTestDatabase}`");
         } catch (PDOException $e) {
             $this->markTestSkipped('No se pudo conectar a la BD de test MariaDB: ' . $e->getMessage());
         }
@@ -78,12 +86,10 @@ trait RefreshMariaDatabase
 
     private function dropAllTables(PDO $pdo): void
     {
-        $name = $_ENV['DB_TEST_NAME'] ?? getenv('DB_TEST_NAME');
-
-        if (!$name) {
+        if (!isset($this->mariaDbTestDatabase)) {
             return;
         }
 
-        $pdo->exec("DROP DATABASE IF EXISTS `{$name}`");
+        $pdo->exec("DROP DATABASE IF EXISTS `{$this->mariaDbTestDatabase}`");
     }
 }
