@@ -7,6 +7,28 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.16.4] - 2026-08-23
+
+### Agregado
+
+- Suite de tests de integración contra MariaDB real (`tests/Concerns/RefreshMariaDatabase`) para casos que dependen
+  de funciones de fecha del motor (`CURDATE()`, `NOW()`, `YEAR()`, `DATE_FORMAT()`) no soportadas por SQLite
+  in-memory: `ClientRepositoryMariaDbTest`, `PurchaseRepositoryMariaDbTest`, `SaleRepositoryMariaDbTest`,
+  `UserRepositoryMariaDbTest`. Se salta automáticamente en local si `.env.testing` no está configurado.
+- CI (`tests.yml`) rediseñado: job `unit` (siempre) separado de `integration` (`paratest --processes 4`, scopeado
+  por diff, con servicio `mariadb:10.11` para la suite anterior); `permissions`/`concurrency` agregados al workflow.
+
+### Corregido
+
+- Auditoría de accesibilidad/UX del módulo Clientes (listado, crear, editar): 5 elementos de contraste insuficiente
+  (WCAG AA) corregidos de forma global — nombre de usuario del navbar, enlaces del breadcrumb, `.btn-primary` y
+  paginación de DataTables — reemplazando el azul `#007bff` de Bootstrap por `#0056b3` en toda la app,
+  consistente con el criterio ya usado en el ítem activo del sidebar.
+- Orden de encabezados corregido en las 29 vistas que usan tarjetas de AdminLTE: `<h3 class="card-title">` pasa a
+  `<h2>` para no saltar de `h1` a `h3` (59 ocurrencias).
+- `aria-label` único en los dos landmarks `<nav>` compartidos (barra superior y menú lateral), antes
+  indistinguibles para lectores de pantalla.
+
 ## [1.16.3] - 2026-08-17
 
 ### Corregido
@@ -597,6 +619,7 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
+[1.16.4]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.3...1.16.4
 [1.16.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.2...1.16.3
 [1.16.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.1...1.16.2
 [1.16.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.0...1.16.1

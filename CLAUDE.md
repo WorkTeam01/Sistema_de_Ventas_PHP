@@ -128,8 +128,9 @@ composer test:integration # solo Integration (SQLite in-memory)
 composer test:coverage    # con reporte de cobertura (requiere PCOV o Xdebug)
 ```
 
-> Convenciones de testing (suites, `RefreshDatabase`, sincronización del schema SQLite, qué no se testea) están en
-> [AGENT.md](AGENT.md#testing) — no se repiten aquí para evitar que se desincronicen.
+> Convenciones de testing (suites, `RefreshDatabase`, sincronización del schema SQLite, qué no se testea, tests
+> contra MariaDB real vía `.env.testing`) están en [AGENT.md](AGENT.md#testing) — no se repiten aquí para evitar
+> que se desincronicen.
 
 ---
 
@@ -143,4 +144,4 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV o Xdebug)
 
 ---
 
-_Última actualización: 2026-08-17 — 1.16.3_
+_Última actualización: 2026-08-23 — 1.16.4_

@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.16.3 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.16.4 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditoría de Clientes cerrada con fixes globales de contraste WCAG AA y orden de encabezados en toda la app), moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -411,6 +411,7 @@ Migración MVC completada. No quedan módulos legacy pendientes.
 | ------------- | -------------------- | ---------------------------------------------------- |
 | `Unit`        | `tests/Unit/`        | Lógica pura sin BD — Helpers, validaciones, cálculos |
 | `Integration` | `tests/Integration/` | SQLite in-memory con schema completo                 |
+| `Integration` (MariaDB) | `tests/Integration/Models/*MariaDbTest.php` | MariaDB real vía trait `RefreshMariaDatabase` — solo para funciones de fecha del motor (`CURDATE()`, `NOW()`, `YEAR()`, `DATE_FORMAT()`) que SQLite no soporta |
 
 ```bash
 composer test             # todas las suites
@@ -436,9 +437,33 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
   | `ON UPDATE CURRENT_TIMESTAMP` | (omitir)           |
   | `ENGINE=InnoDB CHARSET=`      | (omitir)           |
 
+### Tests contra MariaDB real (`RefreshMariaDatabase`)
+
+- Solo para casos que dependen de funciones de fecha del motor MySQL/MariaDB (`CURDATE()`, `NOW()`, `YEAR()`,
+  `DATE_FORMAT()`, etc.) que SQLite no soporta o soporta con semántica distinta.
+- Local: copiar `.env.testing.example` a `.env.testing` y ajustar credenciales; `tests/bootstrap.php` la carga
+  automáticamente si existe. Sin ese archivo (o si el servidor no responde), el test se salta con
+  `markTestSkipped()` en vez de fallar — la suite completa sigue corriendo sin exigir MariaDB instalada.
+- El trait recrea la BD de test (`DROP`/`CREATE DATABASE` + `database/schema.sql`) en cada `setUp()`/`tearDown()` —
+  usar un nombre de BD dedicado (`DB_TEST_NAME`), nunca la BD de desarrollo.
+- **Nunca calcular la fecha límite con `date()`/`strtotime()` de PHP y comparar contra `NOW()`/`CURDATE()` de la
+  BD** — el reloj/timezone del proceso PHP y el del servidor MariaDB pueden diferir. Calcular la fecha límite con
+  una expresión SQL evaluada por el propio motor (`NOW() - INTERVAL 1 HOUR`, etc.).
+- En CI (`tests.yml`), el job `integration` levanta un servicio `mariadb:10.11` con las env vars `DB_TEST_*` ya
+  configuradas — no requiere `.env.testing` en ese entorno.
+
 ### Inyección del singleton para tests
 
 `Database::set(PDO $pdo)` sobrescribe el singleton para inyectar SQLite en tests. `Database::reset()` lo limpia. `getInstance()` queda intacto para producción.
+
+### CI (`.github/workflows/tests.yml`)
+
+Dos jobs independientes, matrix PHP 8.2/8.3:
+
+- **`unit`**: corre siempre (cada push a `master` y cada PR). Es barato, no se filtra.
+- **`integration`**: corre con `paratest --processes 4`, y solo se dispara si es un PR, o si el push a `master` toca archivos core (`composer.json`, `composer.lock`, `phpunit.xml.dist`, `tests/bootstrap.php`, `app/Core/`, el propio workflow). Un push a `master` que ya pasó por PR revisado no repite `Integration`.
+- Un job previo (`scope`) calcula el diff (`git diff` contra base del PR, o `before...sha` del push) y decide si el diff completo mapea a un único directorio de tests (hoy solo `app/Models/` → `tests/Integration/Models`); cualquier otro caso (mezcla de áreas, archivo core, diff no determinable) corre `tests/Integration` completo — `paratest` solo acepta un path, así que no se combinan subdirectorios.
+- Al agregar un nuevo directorio bajo `app/` con tests dedicados en `tests/Integration/`, sumar su mapeo en el job `scope` de `tests.yml` si se quiere que el diff scoping lo reconozca; si no, seguirá cayendo al fallback de suite completa (seguro, pero no optimizado).
 
 ---
 
@@ -474,4 +499,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-08-17 — 1.16.3. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-08-23 — 1.16.4. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

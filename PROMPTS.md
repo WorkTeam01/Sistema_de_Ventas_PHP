@@ -357,5 +357,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.16.3 (2026-08-17)_
+_Última actualización: 1.16.4 (2026-08-23)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._
