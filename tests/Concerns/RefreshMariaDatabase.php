@@ -55,10 +55,8 @@ trait RefreshMariaDatabase
             );
         }
 
-        // Nombre único por proceso: paratest corre varios procesos PHP en paralelo, y si
-        // todos comparten el mismo nombre de BD, el DROP/CREATE de un proceso invalida la
-        // sesión de otro a mitad de test ("Unknown database"). Sufijar con el PID aísla
-        // cada proceso en su propia BD física, sin tocar la config del usuario.
+        // Nombre único por proceso (sufijo PID): evita que dos ejecuciones concurrentes de
+        // la suite compartan la misma BD física y se pisen el DROP/CREATE entre sí.
         $this->mariaDbTestDatabase = $name . '_' . getmypid();
 
         try {
