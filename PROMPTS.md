@@ -319,7 +319,8 @@ y SQLite in-memory para proyectos MVC custom.
 
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom, PHP 8.x, Composer/PSR-4.
-Testing: PHPUnit 11.x con dos suites: Unit (lógica pura) e Integration (SQLite in-memory).
+Testing: PHPUnit 11.x con dos suites: Unit (lógica pura) e Integration (SQLite in-memory;
+tests `*MariaDbTest` corren contra MariaDB real para funciones de fecha del motor).
 Singleton PDO resuelto con Database::set(PDO) en tests/bootstrap.php y trait RefreshDatabase.
 Trait aliasing para setUp: `use RefreshDatabase { setUp as setUpDatabase; }`.
 DataProvider con atributos PHP 8: #[\PHPUnit\Framework\Attributes\DataProvider('method')].
@@ -357,5 +358,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.16.4 (2026-08-23)_
+_Última actualización: 1.16.5 (2026-08-28)_
 _Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._

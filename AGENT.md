@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.16.4 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditoría de Clientes cerrada con fixes globales de contraste WCAG AA y orden de encabezados en toda la app), moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.16.5 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -367,6 +367,9 @@ Auth::logout()          // limpia sesión, BD y cookie
 - **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays pasados a `renderWithLayout()` que el layout inyecta en
   `<head>` y antes de `</body>` respectivamente; las rutas son relativas a `BASE_URL` (e.g.
   `/js/modules/products/products-index.js`)
+- **Cache-busting**: los layouts anexan `?v=<?= APP_VERSION ?>` a todos los assets propios (CSS/JS de `core/` y
+  cada entrada de `$pageStyles` / `$pageScripts`). Tras un fix de CSS/JS, subir `APP_VERSION` en `.env` para forzar
+  la recarga en navegadores de usuarios. Los vendors (`lib/`, `plugins/`) no llevan query string.
 
 ### Vistas MVC
 
@@ -449,7 +452,7 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 - **Nunca calcular la fecha límite con `date()`/`strtotime()` de PHP y comparar contra `NOW()`/`CURDATE()` de la
   BD** — el reloj/timezone del proceso PHP y el del servidor MariaDB pueden diferir. Calcular la fecha límite con
   una expresión SQL evaluada por el propio motor (`NOW() - INTERVAL 1 HOUR`, etc.).
-- En CI (`tests.yml`), el job `integration` levanta un servicio `mariadb:10.11` con las env vars `DB_TEST_*` ya
+- En CI (`tests.yml`), el job `test` levanta un servicio `mariadb:10.11` con las env vars `DB_TEST_*` ya
   configuradas — no requiere `.env.testing` en ese entorno.
 
 ### Inyección del singleton para tests
@@ -458,12 +461,13 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 
 ### CI (`.github/workflows/tests.yml`)
 
-Dos jobs independientes, matrix PHP 8.2/8.3:
+Un único job `test`, matrix PHP 8.2/8.3, que corre en cada push a `master` y cada PR:
 
-- **`unit`**: corre siempre (cada push a `master` y cada PR). Es barato, no se filtra.
-- **`integration`**: corre con `paratest --processes 4`, y solo se dispara si es un PR, o si el push a `master` toca archivos core (`composer.json`, `composer.lock`, `phpunit.xml.dist`, `tests/bootstrap.php`, `app/Core/`, el propio workflow). Un push a `master` que ya pasó por PR revisado no repite `Integration`.
-- Un job previo (`scope`) calcula el diff (`git diff` contra base del PR, o `before...sha` del push) y decide si el diff completo mapea a un único directorio de tests (hoy solo `app/Models/` → `tests/Integration/Models`); cualquier otro caso (mezcla de áreas, archivo core, diff no determinable) corre `tests/Integration` completo — `paratest` solo acepta un path, así que no se combinan subdirectorios.
-- Al agregar un nuevo directorio bajo `app/` con tests dedicados en `tests/Integration/`, sumar su mapeo en el job `scope` de `tests.yml` si se quiere que el diff scoping lo reconozca; si no, seguirá cayendo al fallback de suite completa (seguro, pero no optimizado).
+- Ejecuta `vendor/bin/phpunit` (suites `Unit` + `Integration` en un solo proceso). La suite completa
+  tarda ~2 s; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
+  runner, no los tests, así que filtrar salía más caro que correr todo.
+- `concurrency` con `cancel-in-progress` descarta runs obsoletos cuando llegan pushes seguidos.
+- Levanta el servicio `mariadb:10.11` para los tests `*MariaDbTest.php`; el resto corre contra SQLite.
 
 ---
 
@@ -499,4 +503,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-08-23 — 1.16.4. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-08-28 — 1.16.5. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

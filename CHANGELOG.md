@@ -7,6 +7,42 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [Sin publicar]
+
+## [1.16.5] - 2026-08-28
+
+### Agregado
+
+- Cache-busting de assets propios: `layouts/header.php` y `layouts/footer.php` anexan `?v=<APP_VERSION>` a
+  `ui-components.css`, `sweetalert-utils.js`, `password-toggle.js`, `control_sidebar.js`, `ui-components.js` y a
+  cada entrada de `$pageStyles` / `$pageScripts`. Al subir `APP_VERSION` en `.env` el navegador vuelve a pedir el
+  CSS/JS en vez de servir la copia vieja de caché (resuelve el gotcha de auditorías a11y previas donde un fix de
+  CSS no se reflejaba).
+
+### Cambiado
+
+- CI (`tests.yml`) simplificado: los jobs `scope`/`unit`/`integration` se fusionan en un único job `test`
+  (matrix PHP 8.2/8.3) que corre `phpunit` completo en cada push y PR. La suite entera tarda ~2 s, así que el
+  job previo `scope` (checkout de historia completa + `git diff` para filtrar) y `paratest --processes 4`
+  (medido más lento que la ejecución en serie) costaban más de lo que ahorraban. De 5 slots de runner por PR a 2.
+
+### Corregido
+
+- Auditoría de accesibilidad/UX del módulo Ventas (crear, detalle, anulación): contraste WCAG AA en las tabs del
+  wizard, la barra de progreso `bg-primary`, el badge "Paso N de 3", las cabeceras y botones de los modales de
+  búsqueda de cliente/producto, y el texto muted del estado vacío del carrito y de las filas zebra en detalle;
+  orden de encabezados (`<h5>` decorativos → `<h2 class="h5">`); `<th>` de imagen con `<span class="sr-only">`;
+  `aria-live="polite"` en el panel de cliente; `inputmode="decimal"` en el campo de pago; área táctil de 44 px
+  (WCAG 2.5.5) en los botones sueltos del wizard y del header de la card de detalle.
+- Contraste WCAG AA en modo oscuro (global, `ui-components.css`): `.btn-success`, `.btn-danger`, `.alert-danger`,
+  `.text-primary` y `.text-info` que AdminLTE dark repinta con paleta contextual de bajo contraste — se fija un
+  tono aclarado validado ≥4.5:1 sobre los fondos oscuros reales, cada override con su contraparte `body.dark-mode`.
+
+### Eliminado
+
+- Dependencia `brianium/paratest` y sus 8 paquetes transitivos.
+- Generación de cobertura y subida de artifact en CI (nadie los consumía; `composer test:coverage` sigue local).
+
 ## [1.16.4] - 2026-08-23
 
 ### Agregado
