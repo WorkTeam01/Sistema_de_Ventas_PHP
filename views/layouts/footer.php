@@ -20,7 +20,7 @@
 </div>
 <!-- ./wrapper -->
 
-<script src="<?= BASE_URL ?>/js/core/control_sidebar.js"></script>
+<script src="<?= BASE_URL ?>/js/core/control_sidebar.js?v=<?= APP_VERSION ?>"></script>
 
 <!-- Bootstrap 4 -->
 <script src="<?= BASE_URL ?>/js/lib/bootstrap/bootstrap.bundle.min.js"></script>
@@ -57,13 +57,13 @@
 <!-- Page specific scripts -->
 <?php if (isset($pageScripts)): ?>
     <?php foreach ($pageScripts as $script): ?>
-        <script src="<?= BASE_URL; ?><?= $script ?>"></script>
+        <script src="<?= BASE_URL; ?><?= $script ?>?v=<?= APP_VERSION ?>"></script>
     <?php endforeach; ?>
 <?php endif; ?>
 <!-- Mostrar/ocultar contraseña (global) -->
-<script src="<?= BASE_URL; ?>/js/core/password-toggle.js"></script>
+<script src="<?= BASE_URL; ?>/js/core/password-toggle.js?v=<?= APP_VERSION ?>"></script>
 <!-- UI Components Utils (General UI Helpers) -->
-<script src="<?= BASE_URL; ?>/js/core/ui-components.js"></script>
+<script src="<?= BASE_URL; ?>/js/core/ui-components.js?v=<?= APP_VERSION ?>"></script>
 
 </body>
 

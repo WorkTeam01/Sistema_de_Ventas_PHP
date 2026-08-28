@@ -13,11 +13,11 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/lib/fontawesome/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/lib/adminlte/adminlte.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/core/ui-components.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/core/ui-components.css?v=<?= APP_VERSION ?>">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/plugins/sweetalert2/sweetalert2.min.css">
     <script src="<?= BASE_URL ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
-    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js?v=<?= APP_VERSION ?>"></script>
     <?php if (in_array('datatable', $assets ?? [])) : ?>
         <!-- DataTables -->
         <link rel="stylesheet"
@@ -45,7 +45,7 @@
     <!-- Page specific styles -->
     <?php if (isset($pageStyles)): ?>
         <?php foreach ($pageStyles as $style): ?>
-            <link rel="stylesheet" href="<?= BASE_URL; ?><?= $style ?>">
+            <link rel="stylesheet" href="<?= BASE_URL; ?><?= $style ?>?v=<?= APP_VERSION ?>">
         <?php endforeach; ?>
     <?php endif; ?>
 
