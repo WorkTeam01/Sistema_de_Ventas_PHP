@@ -383,11 +383,11 @@ body.dark-mode .main-footer .text-decoration-none {
 
 /* --- Info (para vistas show) --- */
 .card-info.card-outline-tabs .nav-link {
-    color: #17a2b8;
+    color: #117a8b;
 }
 
 .card-info.card-outline-tabs .nav-link:hover {
-    color: #117a8b;
+    color: #0f6674;
 }
 
 /* --- Success (para vistas edit) --- */
@@ -400,12 +400,14 @@ body.dark-mode .main-footer .text-decoration-none {
 }
 
 /* --- Primary (para vistas create) --- */
+/* #007bff sobre blanco es 3.97:1 (WCAG AA falla); se oscurece al mismo azul
+   (#0056b3) usado en botones/sidebar/breadcrumb para un solo tono consistente. */
 .card-primary.card-outline-tabs .nav-link {
-    color: #007bff;
+    color: #0056b3;
 }
 
 .card-primary.card-outline-tabs .nav-link:hover {
-    color: #0056b3;
+    color: #004a99;
 }
 
 /* --- Warning --- */
@@ -480,6 +482,114 @@ body.dark-mode .main-footer .text-decoration-none {
     color: #0056b3;
 }
 
+/* `.btn-success` (texto blanco sobre #28a745, 3.13:1) no cumple WCAG AA.
+   Se oscurece el fondo al verde que Bootstrap ya usa en :hover, sin cambiar
+   el tono. Aplica a "Nuevo cliente", "Crear cliente", "Imprimir factura", etc. */
+.btn-success {
+    background-color: #1e7e34;
+    border-color: #1c7430;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background-color: #19692c;
+    border-color: #171f28;
+}
+
+/* ============================================
+   UTILIDADES DE TEXTO DE COLOR - Contraste (a11y)
+   ============================================ */
+
+/* `.text-primary` (#007bff, 3.97:1) y `.text-info` (#17a2b8, 3.04:1) sobre
+   blanco no cumplen WCAG AA como texto. Se oscurecen al mismo criterio del
+   resto del archivo (mismo tono, más oscuro). No afecta fondos ni badges,
+   que usan `.bg-*` / `.badge-*`. */
+.text-primary {
+    color: #0056b3 !important;
+}
+
+.text-info {
+    color: #117a8b !important;
+}
+
+/* `.badge-primary` (texto blanco sobre #007bff, 3.97:1) no cumple WCAG AA.
+   Mismo azul oscurecido del resto del archivo. */
+.badge-primary {
+    background-color: #0056b3;
+}
+
+/* ============================================
+   DARK MODE - Contraste de texto de color (a11y)
+   ============================================ */
+
+/* Los overrides de arriba oscurecen azul/cyan asumiendo fondo claro. En
+   `body.dark-mode` (fondo ~#343a40) ese #0056b3 baja a ~1.2:1 — peor que el
+   default de AdminLTE. Sobre fondo oscuro hay que ACLARAR, no oscurecer:
+   se usan azules/cyan claros (#9ec5fe / #6edff6) validados ≥4.5:1 tanto sobre
+   el fondo de card (#343a40) como sobre el header/breadcrumb más claro
+   (#454d55) de AdminLTE dark. El `!important` replica el de
+   `.text-primary`/`.text-info` para ganarle a esas reglas y a AdminLTE. */
+body.dark-mode .text-primary,
+body.dark-mode .breadcrumb-item > a,
+body.dark-mode .page-link,
+body.dark-mode .card-primary.card-outline-tabs .nav-link {
+    color: #9ec5fe !important;
+}
+
+body.dark-mode .text-info,
+body.dark-mode .card-info.card-outline-tabs .nav-link {
+    color: #6edff6 !important;
+}
+
+body.dark-mode .breadcrumb-item.active {
+    color: #ced4da;
+}
+
+/* AdminLTE dark repinta `.btn-success` a #00bc8c (teal), texto blanco 2.44:1.
+   Se vuelve al verde oscuro de la versión clara (#1e7e34 → 4.9:1 con blanco),
+   que además encaja mejor sobre fondo oscuro. */
+body.dark-mode .btn-success {
+    background-color: #1e7e34;
+    border-color: #1c7430;
+}
+
+body.dark-mode .btn-success:hover,
+body.dark-mode .btn-success:focus {
+    background-color: #19692c;
+    border-color: #171f28;
+}
+
+/* AdminLTE dark repinta `.btn-danger` a #e74c3c, texto blanco 3.82:1. Se vuelve
+   al rojo de Bootstrap (#c82333 → 4.5:1 con blanco). Acción destructiva
+   ("Eliminar venta", quitar ítem del carrito), por eso se cierra aquí y no
+   en el backlog. */
+body.dark-mode .btn-danger {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+body.dark-mode .btn-danger:hover,
+body.dark-mode .btn-danger:focus {
+    background-color: #a71d2a;
+    border-color: #a01b27;
+}
+
+/* AdminLTE dark repinta `.alert-danger` con fondo sólido #e74c3c y texto
+   blanco (3.82:1) — falla WCAG AA. Se oscurece al mismo rojo que `.btn-danger`
+   (#c82333 → 4.5:1 con blanco). Afecta el aviso de "Atención" en la anulación
+   de venta y cualquier alerta de error de la app en modo oscuro. */
+body.dark-mode .alert-danger {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: #fff;
+}
+
+body.dark-mode .alert-danger a:not(.btn),
+body.dark-mode .alert-danger .alert-link {
+    color: #fff;
+    text-decoration: underline;
+}
+
 /* ============================================
    TABLAS - Área táctil de botones de acción (a11y)
    ============================================ */
@@ -500,6 +610,15 @@ body.dark-mode .main-footer .text-decoration-none {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+    }
+
+    /* Botones de acción sueltos en el header de una card (ej. detalle de venta:
+       Imprimir / Eliminar / Volver). No van en btn-group, así que no los cubre
+       la regla de arriba; solo se garantiza el alto táctil mínimo. */
+    .card-tools .btn-sm {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
     }
 }
 
@@ -549,4 +668,24 @@ body.dark-mode .main-footer .text-decoration-none {
    texto sin cambiar el fondo para cumplir contraste sin alterar el estilo. */
 .user-menu .dropdown-menu .user-footer .btn-default {
     color: #56606a;
+}
+
+/* ============================================
+   TEXTO MUTED EN FILAS ZEBRA (a11y)
+   ============================================ */
+
+/* `.text-muted` (#6c757d) da 4.69:1 sobre blanco, pero baja a 3.96:1 sobre
+   las filas impares de `.table-striped` (rgba(0,0,0,.05) ≈ #f2f2f2) — falla
+   WCAG AA. Se oscurece a #5a6268 (~4.8:1) solo dentro de tablas zebra.
+   Afecta detalle/anulación de venta (código y descripción del ítem). */
+.table-striped tbody .text-muted,
+.table-striped tbody .small.text-muted,
+.table-striped tbody small.text-muted {
+    color: #5a6268;
+}
+
+body.dark-mode .table-striped tbody .text-muted,
+body.dark-mode .table-striped tbody .small.text-muted,
+body.dark-mode .table-striped tbody small.text-muted {
+    color: #adb5bd;
 }

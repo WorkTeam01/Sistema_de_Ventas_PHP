@@ -4,7 +4,7 @@
 
 :root {
     --sales-tab-text: #6c757d;
-    --sales-tab-active-text: #007bff;
+    --sales-tab-active-text: #0056b3; /* #007bff daba 3.97:1 sobre blanco (WCAG AA) */
     --sales-tab-active-bg: #fff;
     --sales-tab-active-border: #007bff;
     --sales-client-card-border: #dee2e6;
@@ -28,6 +28,41 @@ body.dark-mode {
     font-size: 0.8rem;
     font-weight: 600;
     line-height: 26px;
+    /* bg-primary (#007bff) daba ~3.9:1 con el texto blanco "Paso N de 3";
+       se oscurece al mismo azul del resto de la app (WCAG AA). */
+    background-color: #0056b3;
+}
+
+/* ---- Estado vacío del carrito ---- */
+/* `.text-muted` (#6c757d) sobre la fila zebra de `table-striped` (#f2f2f2)
+   daba 4.18:1 (WCAG AA falla). Se oscurece a #5a6268 → 4.83:1 sobre #f2f2f2. */
+.cart-empty-cell {
+    color: #5a6268;
+}
+
+body.dark-mode .cart-empty-cell {
+    color: #adb5bd;
+}
+
+/* ---- Área táctil de botones de acción (a11y, WCAG 2.5.5) ---- */
+/* Los botones sueltos del wizard ("Nuevo/Buscar cliente/producto", el
+   colapsar de la card de datos) no van en btn-group ni en .card-tools, así
+   que la regla global de ui-components.css no los cubre. Solo en touch. */
+@media (pointer: coarse) {
+
+    #formVenta .tab-pane .btn-sm {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    #formVenta .card-tools .btn-tool {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 /* ---- Tabs dentro del card ---- */
@@ -65,4 +100,46 @@ body.dark-mode {
 .form-cart-remove .btn-sm {
     min-height: 44px;
     min-width: 44px;
+}
+
+/* ---- Contraste WCAG AA en los modales del wizard ---- */
+/* AdminLTE pinta las cabeceras y los botones de resultado con los colores
+   base de Bootstrap: texto blanco sobre #007bff/#28a745/#17a2b8 da 3.0–3.7:1.
+   Se oscurecen SOLO dentro de estos modales (no se toca el selector global). */
+#modal-nuevo_cliente .modal-header.bg-success,
+#modal-buscar_cliente .modal-header.bg-primary,
+#modal-buscar_producto .modal-header.bg-primary {
+    color: #fff;
+}
+
+#modal-nuevo_cliente .modal-header.bg-success {
+    background-color: #1e7e34 !important; /* #fff → 4.91:1 */
+}
+
+#modal-buscar_cliente .modal-header.bg-primary,
+#modal-buscar_producto .modal-header.bg-primary {
+    background-color: #0056b3 !important; /* #fff → 6.38:1 */
+}
+
+#modal-buscar_cliente .btn-info,
+#modal-buscar_producto .btn-info {
+    background-color: #117a8b; /* #fff → 4.52:1 */
+    border-color: #117a8b;
+}
+
+#modal-buscar_cliente .btn-info:hover,
+#modal-buscar_cliente .btn-info:focus,
+#modal-buscar_producto .btn-info:hover,
+#modal-buscar_producto .btn-info:focus {
+    background-color: #0f6674;
+    border-color: #0f6674;
+}
+
+body.dark-mode #modal-nuevo_cliente .modal-header.bg-success {
+    background-color: #1b6e2d !important;
+}
+
+body.dark-mode #modal-buscar_cliente .modal-header.bg-primary,
+body.dark-mode #modal-buscar_producto .modal-header.bg-primary {
+    background-color: #0b4c99 !important;
 }

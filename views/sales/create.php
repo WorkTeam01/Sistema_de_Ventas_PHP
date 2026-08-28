@@ -73,7 +73,7 @@
                             <div class="card-header bg-light pt-2 pb-2 mb-0 border-top-0">
                                 <div class="progress pos-progress" aria-live="polite">
                                     <div id="tab-progress"
-                                        class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                        class="progress-bar progress-bar-striped progress-bar-animated"
                                         role="progressbar" aria-label="Progreso de la venta"
                                         style="width: 33%"
                                         aria-valuenow="33" aria-valuemin="0" aria-valuemax="100">
@@ -91,7 +91,7 @@
                                         aria-labelledby="tab-cliente-link">
 
                                         <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <h5 class="mb-0">Selección de cliente</h5>
+                                            <h2 class="h5 mb-0">Selección de cliente</h2>
                                             <div>
                                                 <button type="button" class="btn btn-success btn-sm mr-1"
                                                     data-toggle="modal" data-target="#modal-nuevo_cliente">
@@ -114,7 +114,7 @@
                                                     </button>
                                                 </div>
                                             </div>
-                                            <div class="card-body">
+                                            <div class="card-body" aria-live="polite">
                                                 <div id="alert-sin-cliente" class="alert alert-warning py-2 mb-0">
                                                     <i class="fas fa-exclamation-triangle mr-1"></i>
                                                     No se ha seleccionado ningún cliente. Por favor, busque y seleccione
@@ -182,7 +182,7 @@
                                         aria-labelledby="tab-carrito-link">
 
                                         <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <h5 class="mb-0">Productos en el carrito</h5>
+                                            <h2 class="h5 mb-0">Productos en el carrito</h2>
                                             <button type="button" class="btn btn-primary btn-sm"
                                                 data-toggle="modal" data-target="#modal-buscar_producto">
                                                 <i class="fas fa-search mr-1"></i> Buscar producto
@@ -237,8 +237,8 @@
                                                     <?php endforeach; ?>
                                                     <?php if (empty($cart_items)) : ?>
                                                         <tr>
-                                                            <td colspan="7" class="text-center text-muted py-4">
-                                                                <i class="fas fa-cart-arrow-down fa-2x mb-2 d-block"></i>
+                                                            <td colspan="7" class="text-center cart-empty-cell py-4">
+                                                                <i class="fas fa-cart-arrow-down fa-2x mb-2 d-block" aria-hidden="true"></i>
                                                                 Sin productos. Usa "Buscar producto" para agregar ítems.
                                                             </td>
                                                         </tr>
@@ -277,7 +277,7 @@
                                     <div class="tab-pane fade" id="pane-pago" role="tabpanel"
                                         aria-labelledby="tab-pago-link">
 
-                                        <h5 class="mb-3">Detalles del pago</h5>
+                                        <h2 class="h5 mb-3">Detalles del pago</h2>
 
                                         <div class="row justify-content-center">
                                             <div class="col-md-8">
@@ -301,6 +301,7 @@
                                                                 <input type="text" name="total_pagado"
                                                                     id="total_pagado"
                                                                     class="form-control text-center"
+                                                                    inputmode="decimal"
                                                                     placeholder="0.00" autocomplete="off">
                                                             </div>
                                                         </div>

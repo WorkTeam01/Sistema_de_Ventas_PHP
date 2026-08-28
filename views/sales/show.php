@@ -125,7 +125,7 @@
                                 <table class="table table-sm table-hover mb-0">
                                     <thead class="bg-secondary text-white">
                                         <tr class="text-center">
-                                            <th style="width:50px"></th>
+                                            <th style="width:50px" scope="col"><span class="sr-only">Imagen</span></th>
                                             <th class="text-left">Producto</th>
                                             <th class="text-left d-none d-md-table-cell">Descripción</th>
                                             <th>Cantidad</th>
@@ -165,12 +165,12 @@
                                     <?php if (!empty($items)): ?>
                                         <tfoot>
                                             <tr class="bg-light">
-                                                <td colspan="2" class="text-right font-weight-bold pr-3 text-muted">
+                                                <td colspan="2" class="text-right font-weight-bold pr-3">
                                                     <?= $total_productos ?> producto<?= $total_productos !== 1 ? 's' : '' ?>
                                                 </td>
                                                 <td class="d-none d-md-table-cell"></td>
                                                 <td class="text-center font-weight-bold"><?= $cantidad_acum ?> uds.</td>
-                                                <td class="text-right font-weight-bold text-muted d-none d-md-table-cell">
+                                                <td class="text-right font-weight-bold d-none d-md-table-cell">
                                                     Total:
                                                 </td>
                                                 <td class="text-center">
