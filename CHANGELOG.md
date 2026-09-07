@@ -7,7 +7,14 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
-## [Sin publicar]
+## [1.16.6] - 2026-09-07
+
+### Cambiado
+
+- CI (`tests.yml`): `actions/checkout@v4 → @v7` y `actions/cache@v4 → @v6`. Ambas versiones nuevas corren sobre
+  el runtime Node 24 (GitHub ya marcaba Node 20 como deprecado); sin cambios de sintaxis para el uso actual
+  (checkout básico, caché de Composer). `shivammathur/setup-php@v2` se mantiene (v2 sigue siendo el major
+  vigente).
 
 ### Corregido
 
@@ -673,6 +680,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
+[1.16.6]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.5...1.16.6
+[1.16.5]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.4...1.16.5
 [1.16.4]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.3...1.16.4
 [1.16.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.2...1.16.3
 [1.16.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.1...1.16.2

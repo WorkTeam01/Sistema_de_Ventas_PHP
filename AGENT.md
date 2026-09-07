@@ -10,7 +10,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.16.5 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.16.6 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -410,10 +410,10 @@ Migración MVC completada. No quedan módulos legacy pendientes.
 
 ### Suites y estrategia
 
-| Suite         | Directorio           | Estrategia                                           |
-| ------------- | -------------------- | ---------------------------------------------------- |
-| `Unit`        | `tests/Unit/`        | Lógica pura sin BD — Helpers, validaciones, cálculos |
-| `Integration` | `tests/Integration/` | SQLite in-memory con schema completo                 |
+| Suite                   | Directorio                                  | Estrategia                                                                                                                                                     |
+| ----------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Unit`                  | `tests/Unit/`                               | Lógica pura sin BD — Helpers, validaciones, cálculos                                                                                                           |
+| `Integration`           | `tests/Integration/`                        | SQLite in-memory con schema completo                                                                                                                           |
 | `Integration` (MariaDB) | `tests/Integration/Models/*MariaDbTest.php` | MariaDB real vía trait `RefreshMariaDatabase` — solo para funciones de fecha del motor (`CURDATE()`, `NOW()`, `YEAR()`, `DATE_FORMAT()`) que SQLite no soporta |
 
 ```bash
@@ -503,4 +503,4 @@ refactor(modulo): descripción del cambio
 
 ---
 
-_Última actualización: 2026-08-28 — 1.16.5. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-09-07 — 1.16.6. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
