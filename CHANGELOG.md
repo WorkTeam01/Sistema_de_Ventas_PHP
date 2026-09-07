@@ -9,6 +9,20 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Corregido
+
+- Contraste WCAG AA en badges, alerts y botones contextuales (`ui-components.css`), verificado con axe-core en
+  ambos temas sobre 6 vistas reales:
+  - `.badge-success` (3.13:1) y `.badge-info` (3.04:1) fallaban en **ambos** temas — se oscurecen sin condicionar
+    el tema (mismo patrón que `.badge-primary`) a los tonos que AdminLTE ya usa para `a.badge-*:hover` (≥5:1).
+  - `.alert-success`, `.alert-info` y `.btn-info` también fallaban en ambos temas (AdminLTE los repinta con fondo
+    sólido y texto blanco: light 3.0-3.1:1, dark 2.4-3.2:1) — se fija un verde/azul con blanco ≥5:1, con selector
+    de doble clase para ganarle en especificidad al tema `select2-bootstrap4` que carga después.
+  - Select2 en modo oscuro: el valor seleccionado (`#495057` sobre `#343a40`, 1.4:1) y el placeholder quedaban
+    ilegibles porque el tema bootstrap4 carga después de `ui-components.css` — se sube la especificidad del
+    override dark (`.select2-selection--single/--multiple`) para forzar texto blanco / gris AA.
+  - `.alert-warning` y `.btn-warning` (texto oscuro sobre naranja, 6.38:1) ya cumplían — no se tocan.
+
 ## [1.16.5] - 2026-08-28
 
 ### Agregado

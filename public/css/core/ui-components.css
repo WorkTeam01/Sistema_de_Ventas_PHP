@@ -132,8 +132,20 @@ html {
     color: #fff;
 }
 
-.dark-mode .select2-container--bootstrap4 .select2-selection__rendered {
+/* El tema `select2-bootstrap4.min.css` carga DESPUÉS de este archivo y pinta el
+   valor seleccionado con #495057 vía `.select2-container--bootstrap4
+   .select2-selection--single .select2-selection__rendered` (0,3,0) — sobre el
+   fondo oscuro #343a40 da 1.4:1. Hay que igualar `--single`/`--multiple` y
+   anteponer `.dark-mode` (0,4,0) para ganarle por especificidad. */
+.dark-mode .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered,
+.dark-mode .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__rendered {
     color: #fff;
+}
+
+/* Mismo problema con el placeholder del select vacío (#6c757d → ~3.9:1). Se
+   aclara a #adb5bd (~5.6:1) sin igualar el blanco del valor seleccionado. */
+.dark-mode .select2-container--bootstrap4 .select2-selection--single .select2-selection__placeholder {
+    color: #adb5bd;
 }
 
 .dark-mode .select2-container--bootstrap4 .select2-dropdown {
@@ -518,6 +530,19 @@ body.dark-mode .main-footer .text-decoration-none {
     background-color: #0056b3;
 }
 
+/* `.badge-success` (#fff sobre #28a745, 3.13:1) y `.badge-info` (#fff sobre
+   #17a2b8, 3.04:1) tampoco cumplen AA, y AdminLTE no los repinta en dark, así
+   que fallan en ambos temas. Se usan los verdes/cyan más oscuros que el propio
+   AdminLTE ya define para `a.badge-*:hover` — sin `!important`, override no
+   condicionado como `.badge-primary`. */
+.badge-success {
+    background-color: #1e7e34;
+}
+
+.badge-info {
+    background-color: #117a8b;
+}
+
 /* ============================================
    DARK MODE - Contraste de texto de color (a11y)
    ============================================ */
@@ -588,6 +613,40 @@ body.dark-mode .alert-danger a:not(.btn),
 body.dark-mode .alert-danger .alert-link {
     color: #fff;
     text-decoration: underline;
+}
+
+/* AdminLTE repinta `.alert-success` y `.alert-info` con fondo sólido y texto
+   blanco en AMBOS temas, y ninguno cumple WCAG AA:
+   - light: #28a745 (3.13:1) / #17a2b8 (3.04:1)
+   - dark:  #00bc8c (2.45:1) / #3498db (3.15:1)
+   Se oscurecen sin condicionar el tema (mismo patrón que `.badge-primary`) a un
+   verde/azul con blanco ≥5:1. `.alert-warning` (#1f2d3d sobre #f39c12, 6.38:1)
+   sí cumple en ambos temas, no se toca. Selector de doble clase (0,2,0) para
+   empatar la regla `.dark-mode .alert-success` de AdminLTE y ganar por orden de
+   carga (este archivo va después). */
+.alert.alert-success {
+    background-color: #0f7a5f;
+    border-color: #0c6b52;
+    color: #fff;
+}
+
+.alert.alert-info {
+    background-color: #1c6ea4;
+    border-color: #195f8f;
+    color: #fff;
+}
+
+/* `.btn-info` también falla en ambos temas (#17a2b8 light 3.04:1, #3498db dark
+   3.15:1). Mismo azul que `.alert-info`. `.btn-warning` (6.38:1) sí cumple. */
+.btn.btn-info {
+    background-color: #1c6ea4;
+    border-color: #195f8f;
+}
+
+.btn.btn-info:hover,
+.btn.btn-info:focus {
+    background-color: #17588a;
+    border-color: #144d78;
 }
 
 /* ============================================
