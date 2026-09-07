@@ -544,6 +544,37 @@ body.dark-mode .main-footer .text-decoration-none {
 }
 
 /* ============================================
+   CABECERAS DE MODAL DE COLOR - Contraste (a11y)
+   ============================================ */
+
+/* AdminLTE pinta `.modal-header.bg-*` con los colores base de Bootstrap y texto
+   blanco: #007bff (3.97:1), #28a745 (3.13:1), #17a2b8 (3.04:1) — ninguno cumple
+   WCAG AA, y falla igual en claro y oscuro. Se oscurecen al mismo tono que ya
+   usan `.badge-*` / `.text-*` en este archivo. El selector `.modal-header.bg-*`
+   (0,2,0) empata a `.dark-mode .bg-*` de AdminLTE y gana por orden de carga.
+   Las utilidades `.bg-*` de AdminLTE llevan `!important`, así que el override
+   también lo necesita. El módulo Ventas ya resuelve esto con selectores
+   `#modal-*` propios en `sales/create.css`; esto cubre el resto (categorías,
+   clientes, inventario, proveedores, permisos, roles). */
+.modal-header.bg-primary,
+.modal-header.bg-success,
+.modal-header.bg-info {
+    color: #fff;
+}
+
+.modal-header.bg-primary {
+    background-color: #0056b3 !important; /* #fff → 6.38:1 */
+}
+
+.modal-header.bg-success {
+    background-color: #1e7e34 !important; /* #fff → 5.14:1 */
+}
+
+.modal-header.bg-info {
+    background-color: #117a8b !important; /* #fff → 5.02:1 */
+}
+
+/* ============================================
    DARK MODE - Contraste de texto de color (a11y)
    ============================================ */
 

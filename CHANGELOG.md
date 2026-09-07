@@ -22,6 +22,10 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
     ilegibles porque el tema bootstrap4 carga después de `ui-components.css` — se sube la especificidad del
     override dark (`.select2-selection--single/--multiple`) para forzar texto blanco / gris AA.
   - `.alert-warning` y `.btn-warning` (texto oscuro sobre naranja, 6.38:1) ya cumplían — no se tocan.
+  - Cabeceras de modal `.modal-header.bg-primary` (3.97:1), `.bg-success` (3.13:1) y `.bg-info` (3.04:1) con
+    título/`×` blancos fallaban en ambos temas en categorías, clientes, inventario, proveedores, permisos y
+    roles — override global (`!important`, porque las utilidades `.bg-*` de AdminLTE lo llevan) a los mismos
+    tonos del resto del archivo, blanco ≥5:1. El módulo Ventas ya lo tenía resuelto con selectores `#modal-*`.
 
 ## [1.16.5] - 2026-08-28
 
