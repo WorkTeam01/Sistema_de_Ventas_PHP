@@ -21,7 +21,7 @@ Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el c
 
 Panel principal con KPIs del mes, flujo de ventas vs. compras, top productos y últimas ventas.
 
-![Dashboard](docs/screenshot-dashboard.png)
+![Dashboard](docs/screenshots/screenshot-dashboard.png)
 
 ---
 
@@ -29,7 +29,7 @@ Panel principal con KPIs del mes, flujo de ventas vs. compras, top productos y �
 
 Listado de ventas registradas, con acceso rápido al detalle, impresión de factura PDF y eliminación.
 
-![Ventas](docs/screenshot-pos.png)
+![Ventas](docs/screenshots/screenshot-pos.png)
 
 ---
 
@@ -37,7 +37,7 @@ Listado de ventas registradas, con acceso rápido al detalle, impresión de fact
 
 Catálogo de productos con stock, categoría y precio de venta; alertas visuales cuando el stock está bajo el mínimo.
 
-![Almacén](docs/screenshot-productos.png)
+![Almacén](docs/screenshots/screenshot-productos.png)
 
 ---
 
@@ -45,9 +45,7 @@ Catálogo de productos con stock, categoría y precio de venta; alertas visuales
 
 Historial de compras a proveedores, con actualización automática de stock al registrar cada una.
 
-![Compras](docs/screenshot-compras.png)
-
----
+![Compras](docs/screenshots/screenshot-compras.png)
 
 ## Características
 
@@ -234,27 +232,29 @@ composer test:integration # Integration — SQLite in-memory
 composer test:coverage    # con reporte de cobertura (requiere PCOV)
 ```
 
-CI con GitHub Actions en PHP 8.2 y 8.3. Ver [CLAUDE.md](CLAUDE.md#testing) para convenciones de testing.
+CI con GitHub Actions en PHP 8.2 y 8.3. Ver [AGENTS.md](AGENTS.md#testing) para convenciones de testing.
 
 ---
 
 ## Documentación para Desarrolladores
 
-| Archivo                            | Propósito                                                      |
-| ---------------------------------- | -------------------------------------------------------------- |
-| [AGENT.md](AGENT.md)               | Arquitectura MVC, stack, convenciones de código, prohibiciones |
-| [CLAUDE.md](CLAUDE.md)             | Instrucciones operacionales locales (XAMPP, BD, rutas)         |
-| [PROMPTS.md](PROMPTS.md)           | Plantillas de prompts para agentes IA                          |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Flujo de contribución: PRs, commits, testing                   |
-| [CHANGELOG.md](CHANGELOG.md)       | Historial de versiones                                         |
+| Archivo                                      | Propósito                                                      |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| [AGENTS.md](AGENTS.md)                       | Arquitectura MVC, stack, convenciones de código, prohibiciones |
+| [docs/constitution.md](docs/constitution.md) | Principios no negociables del proyecto (SDD)                   |
+| [docs/roadmap.md](docs/roadmap.md)           | Hecho / en curso / backlog de features (SDD)                   |
+| [CLAUDE.md](CLAUDE.md)                       | Instrucciones operacionales locales (XAMPP, BD, rutas)         |
+| [PROMPTS.md](PROMPTS.md)                     | Plantillas de prompts para agentes IA                          |
+| [CONTRIBUTING.md](CONTRIBUTING.md)           | Flujo de contribución: PRs, commits, testing                   |
+| [CHANGELOG.md](CHANGELOG.md)                 | Historial de versiones                                         |
 
-> Lee [AGENT.md](AGENT.md) antes de contribuir — es la fuente de verdad del proyecto.
+> Lee [AGENTS.md](AGENTS.md) antes de contribuir — es la fuente de verdad del proyecto.
 
 ---
 
 ## Contribuciones
 
-Lee [CONTRIBUTING.md](CONTRIBUTING.md) para el flujo completo. En resumen: abre un issue → fork → rama → código siguiendo [AGENT.md](AGENT.md) → PR con descripción clara.
+Lee [CONTRIBUTING.md](CONTRIBUTING.md) para el flujo completo. En resumen: abre un issue → fork → rama → código siguiendo [AGENTS.md](AGENTS.md) → PR con descripción clara.
 
 ---
 

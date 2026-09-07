@@ -1,0 +1,10 @@
+# Artefactos de desarrollo — versionados pero fuera de cualquier archivo de deploy.
+docs/            export-ignore
+specs/           export-ignore
+tests/           export-ignore
+.github/         export-ignore
+CONTRIBUTING.md  export-ignore
+PROMPTS.md       export-ignore
+AGENTS.md        export-ignore
+CLAUDE.md        export-ignore
+CHANGELOG.md     export-ignore

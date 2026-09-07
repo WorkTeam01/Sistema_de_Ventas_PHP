@@ -1,7 +1,8 @@
-# AGENT.md — Sistema de Ventas PHP
+# AGENTS.md — Sistema de Ventas PHP
 
 > System prompt persistente para agentes de IA y sesiones de desarrollo asistido.
 > Compatible con: Claude Code · Cursor (.cursorrules) · Claude.ai (pegar al inicio) · Copilot (workspace instructions)
+> Fuente única de convenciones/arquitectura/setup. `CLAUDE.md` solo la importa.
 
 ---
 
@@ -488,6 +489,64 @@ refactor(modulo): descripción del cambio
 ```
 
 ---
+
+## Planificación de features (Spec-Driven Development)
+
+Este proyecto usa SDD para features nuevas: primero spec, luego plan, luego
+tareas, y solo entonces código. **La spec es el contrato: si no está ahí, no se
+implementa.** El detalle del flujo y sus principios viven en
+[docs/constitution.md](docs/constitution.md) (principios no negociables) y
+[docs/roadmap.md](docs/roadmap.md) (hecho / en curso / backlog).
+
+### Artefactos
+
+```
+docs/constitution.md      ← principios del proyecto (nivel proyecto)
+docs/roadmap.md           ← qué está hecho / en curso / backlog (nivel proyecto)
+specs/NNN-<slug>/
+├── spec.md               ← QUÉ y POR QUÉ (FRs en notación EARS) + § Clarificaciones
+├── plan.md               ← CÓMO (módulos, datos, decisiones, riesgos)
+├── tasks.md              ← tareas <30 min + bloque de cierre
+└── validation.md         ← recorrido FR por FR + veredicto (lo deja la fase 7)
+```
+
+Una feature no se cierra hasta que existen los cuatro archivos.
+
+### Fases
+
+| #   | Fase           | Comando              |
+| --- | -------------- | -------------------- |
+| 1   | Constitución   | `/sdd:constitution`  |
+| 2   | Especificación | `/sdd:spec`          |
+| 3   | Clarificación  | `/sdd:clarify`       |
+| 4   | Planificación  | `/sdd:plan`          |
+| 5   | Tareas         | `/sdd:tasks`         |
+| 6   | Implementación | `/sdd:implement <n>` |
+| 7   | Validación     | `/sdd:validate`      |
+| 8   | Cambio         | `/sdd:change <req>`  |
+
+### Reglas
+
+- **Cuándo lleva spec**: si el cambio toca el esquema de BD, introduce un slug de
+  permiso nuevo, o introduce una regla de negocio nueva (dinero, stock,
+  integridad) → flujo SDD completo en `specs/NNN-<slug>/`. Módulo nuevo completo
+  (controller + model + vistas + rutas + permiso) → siempre SDD.
+- **Cuándo NO**: fixes de contraste/CSS/dark-mode, auditorías a11y por módulo
+  (usan la skill `impeccable` + axe-core, tienen su propio ciclo), bumps de
+  CI/dependencias, actualizaciones de docs/CHANGELOG, bugs de una línea,
+  renombres de identificadores. Van por flujo directo + skill `git-commit`.
+- **Numeración `specs/NNN`**: contador propio de `specs/`, tres dígitos,
+  monótono, sin reutilizar números borrados. **Empieza en `001`** (no había
+  serie previa). No es el ordinal del roadmap ni un FR histórico.
+- **Verificación como puerta**: ninguna tarea se marca `[x]` sin `composer test`
+  verde; si toca UI, además axe-core sin violaciones en modo claro y oscuro.
+- **Precedencia**: `docs/constitution.md` manda sobre specs y planes. Ante
+  conflicto entre `docs/`/`specs/` y este archivo, este archivo es la fuente
+  operativa para **código** y `docs/`/`specs/` es la capa de **planificación**.
+- **`docs/` y `specs/` se versionan pero no se despliegan**: excluidos del
+  artefacto de deploy y del docroot (ver `.gitattributes`; el docroot de
+  producción debe ser `public/`).
+- No modificar `specs/` fuera de su fase sin pedido explícito.
 
 ## Prohibiciones Explícitas
 

@@ -1,8 +1,10 @@
+@AGENTS.md
+
 # CLAUDE.md — Guía Local para Claude Code
 
-> Instrucciones operacionales para trabajar con Sistema de Ventas en Claude Code.
->
-> Para **arquitectura, convenciones de código, stack tecnológico y prohibiciones explícitas**, ver [AGENT.md](AGENT.md).
+> `AGENTS.md` (importado arriba) es la fuente única de arquitectura, convenciones,
+> stack, BD, rutas, testing y prohibiciones. Aquí va **solo** lo operativo de
+> Claude Code y el arranque local que no aplica a otros agentes.
 
 ---
 
@@ -14,11 +16,10 @@ Proyecto basado en XAMPP — Apache sirve los archivos directamente.
 
 ```bash
 composer install
-cp .env.example .env
-# Editar .env con las credenciales reales
+cp .env.example .env   # editar con credenciales reales
 ```
 
-**Linux** — directorio del proyecto: `/opt/lampp/htdocs/Sistema_de_Ventas_PHP/`
+**Linux** — `/opt/lampp/htdocs/Sistema_de_Ventas_PHP/`
 
 ```bash
 sudo /opt/lampp/lampp start
@@ -27,25 +28,19 @@ sudo /opt/lampp/bin/apachectl start
 sudo /opt/lampp/bin/mysql start
 ```
 
-**Windows** — directorio del proyecto: `C:\xampp\htdocs\Sistema_de_Ventas_PHP\`
+**Windows** — `C:\xampp\htdocs\Sistema_de_Ventas_PHP\` — usar `xampp-control.exe`
+o `C:\xampp\xampp_start.exe` (CMD como administrador).
 
-```bat
-# Usar el panel de control XAMPP (xampp-control.exe) o desde CMD como administrador:
-C:\xampp\xampp_start.exe
-```
-
-**macOS** — directorio del proyecto: `/Applications/XAMPP/htdocs/Sistema_de_Ventas_PHP/`
+**macOS** — `/Applications/XAMPP/htdocs/Sistema_de_Ventas_PHP/`
 
 ```bash
 sudo /Applications/XAMPP/xamppfiles/xampp start
-# o servicios individuales:
-sudo /Applications/XAMPP/xamppfiles/bin/apachectl start
-sudo /Applications/XAMPP/xamppfiles/bin/mysql.server start
 ```
 
 **Acceder a la app:** `http://localhost/Sistema_de_Ventas_PHP/public/`
 
-> Ajustar `APP_URL` en `.env` si el nombre del directorio difiere. El valor debe incluir `/public`.
+> Ajustar `APP_URL` en `.env` si el nombre del directorio difiere. Debe incluir `/public`.
+> El docroot de producción debe apuntar a `public/` — `docs/` y `specs/` no se despliegan.
 
 ---
 
@@ -59,15 +54,10 @@ mysql -u root -p sistemadeventas < database/schema.sql
 mysql -u root -p sistemadeventas < database/seeder.sql
 ```
 
-**Windows** (desde `C:\xampp\mysql\bin\`):
+**Windows** (desde `C:\xampp\mysql\bin\`): mismos comandos con rutas absolutas a
+`database\schema.sql` y `database\seeder.sql`.
 
-```bat
-mysql -u root -p -e "CREATE DATABASE sistemadeventas;"
-mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\schema.sql
-mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\seeder.sql
-```
-
-El seeder crea usuarios de prueba:
+Usuarios de prueba que crea el seeder:
 
 - `admin@sistema.com` / `admin123`
 - `vendedor@sistema.com` / `vendedor123`
@@ -77,71 +67,58 @@ El seeder crea usuarios de prueba:
 
 ## Configuración (.env)
 
-```env
-DB_HOST=localhost
-DB_NAME=sistemadeventas
-DB_USER=root
-DB_PASS=root
-APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
-APP_TIMEZONE=America/La_Paz
-APP_DEBUG=false
-SESSION_LIFETIME=60
-REMEMBER_LIFETIME=14
-APP_CURRENCY_SYMBOL=Bs.
+Ver `.env.example` para el listado completo. Claves relevantes:
 
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=tu_email@gmail.com
-MAIL_PASSWORD=xxxx_xxxx_xxxx_xxxx
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=tu_email@gmail.com
-MAIL_FROM_NAME="Sistema de Ventas"
-```
+- `APP_DEBUG=true` activa modo desarrollo: muestra el link de restablecimiento en
+  pantalla además de enviarlo por email. Usar `false` en producción.
+- `MAIL_PASSWORD` debe ser una **Contraseña de Aplicación** de Google.
+- `APP_CURRENCY_SYMBOL` — símbolo de moneda (default `Bs.`).
+- `SESSION_LIFETIME` / `REMEMBER_LIFETIME` — minutos de inactividad / días de "recordarme".
 
-> `APP_DEBUG=true` activa el modo desarrollo: muestra el link de restablecimiento en pantalla
-> en lugar de (solo) enviarlo por email. Usar `false` en producción.
->
-> `MAIL_PASSWORD` debe ser una **Contraseña de Aplicación** de Google — no la contraseña de tu cuenta.
-
-`public/index.php` carga `.env` vía phpdotenv y expone:
-
-- `BASE_PATH` — ruta absoluta al directorio raíz
-- `BASE_URL` — URL base sin trailing slash (disponible globalmente)
-- `$pdo`, `$Año`, `$fechaHora` — compatibilidad
+`public/index.php` carga `.env` vía phpdotenv y expone `BASE_PATH`, `BASE_URL`,
+`$pdo`, `$Año`, `$fechaHora`.
 
 ---
 
 ## Permisos de Archivos
 
 ```bash
-chmod 755 public/uploads/products/  # Directorio de carga de imágenes
+chmod 755 public/uploads/products/   # directorio de carga de imágenes
 ```
 
 ---
 
-## Testing
+## Testing (comandos)
 
 ```bash
 composer test             # todas las suites
-composer test:unit        # solo Unit (rápido, sin BD — ideal antes de un commit)
+composer test:unit        # solo Unit (rápido, ideal pre-commit)
 composer test:integration # solo Integration (SQLite in-memory)
 composer test:coverage    # con reporte de cobertura (requiere PCOV o Xdebug)
 ```
 
-> Convenciones de testing (suites, `RefreshDatabase`, sincronización del schema SQLite, qué no se testea, tests
-> contra MariaDB real vía `.env.testing`) están en [AGENT.md](AGENT.md#testing) — no se repiten aquí para evitar
-> que se desincronicen.
+> Convenciones de testing (suites, `RefreshDatabase`, sincronización del schema
+> SQLite, qué no se testea, tests contra MariaDB real) están en
+> [AGENTS.md](AGENTS.md#testing).
 
 ---
 
-## Archivos de Referencia
+## Skills del proyecto
 
-| Archivo                      | Propósito                                                                                                       |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| [AGENT.md](AGENT.md)         | Arquitectura MVC, estructura de directorios, BD, rutas, convenciones de código, stack, prohibiciones explícitas |
-| [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts para migración, debugging, code review                                                    |
-| [CHANGELOG.md](CHANGELOG.md) | Historial de versiones                                                                                          |
+- `git-commit` (`.claude/skills/`) — usar **siempre** para commitear; nunca `git commit` directo.
+  Commits atómicos por categoría lógica.
+- `code-review` (`.claude/skills/`) — revisión antes de merge. ⚠️ Su checklist
+  todavía arrastra referencias de otro repo (`SistemaReservasHospital`, ramas
+  `feature/rfXX`, `develop`); adaptarlo a este proyecto es tarea pendiente.
+
+## Flujo SDD
+
+Features nuevas siguen Spec-Driven Development (`/sdd:constitution`, `/sdd:spec`,
+`/sdd:clarify`, `/sdd:plan`, `/sdd:tasks`, `/sdd:implement <n>`, `/sdd:validate`,
+`/sdd:change`). Artefactos en `docs/constitution.md`, `docs/roadmap.md` y
+`specs/NNN-<slug>/`. Cuándo aplica y cuándo no: ver
+[AGENTS.md § Planificación de features](AGENTS.md).
 
 ---
 
-_Última actualización: 2026-09-07 — 1.16.6_
+_Última actualización: 2026-09-07_

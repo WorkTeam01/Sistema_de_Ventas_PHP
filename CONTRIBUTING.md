@@ -9,12 +9,12 @@ Lee estos archivos de referencia según tu rol:
 
 | Archivo                      | Propósito                                            | Para quién                  |
 | ---------------------------- | ---------------------------------------------------- | --------------------------- |
-| [AGENT.md](AGENT.md)         | Arquitectura global, stack tecnológico, convenciones | **Todos los colaboradores** |
+| [AGENTS.md](AGENTS.md)       | Arquitectura global, stack tecnológico, convenciones | **Todos los colaboradores** |
 | [CLAUDE.md](CLAUDE.md)       | Instrucciones operacionales locales (XAMPP, BD)      | Desarrolladores locales     |
 | [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts efectivos con agentes IA       | Equipo de desarrollo        |
 | [CHANGELOG.md](CHANGELOG.md) | Historial de cambios y versiones                     | Todos                       |
 
-> **Requisito crítico:** No se aceptarán PRs sin haber leído AGENT.md. Es la fuente de verdad del proyecto.
+> **Requisito crítico:** No se aceptarán PRs sin haber leído AGENTS.md. Es la fuente de verdad del proyecto.
 
 ---
 
@@ -54,7 +54,7 @@ git rebase upstream/develop
 
 **Estructura de archivos:**
 
-Sigue la arquitectura MVC descrita en [AGENT.md](AGENT.md):
+Sigue la arquitectura MVC descrita en [AGENTS.md](AGENTS.md):
 
 ```
 Para nuevo módulo [nombre]:
@@ -94,7 +94,7 @@ Para nuevo módulo [nombre]:
 - **Sidebar:** cada enlace debe gatearse con su permiso real vía `$can['clave']`, nunca con un proxy de rol
   (`$isAdmin`/`$isSeller`/`$isBuyer`) salvo que el permiso gateado sea exactamente ese (`view_sales`/`view_purchases`)
 
-Ver más detalles en **Convenciones de Seguridad** de [AGENT.md](AGENT.md).
+Ver más detalles en **Convenciones de Seguridad** de [AGENTS.md](AGENTS.md).
 
 **Validación en ambos lados:**
 
@@ -189,7 +189,7 @@ Resuelve #123: [descripción del issue]
 
 ## ✅ Checklist
 
-- [ ] Leí AGENT.md y CLAUDE.md
+- [ ] Leí AGENTS.md y docs/constitution.md
 - [ ] Código sigue convenciones del proyecto
 - [ ] Validación frontend + backend
 - [ ] Testing manual completado
@@ -274,4 +274,4 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 ---
 
 _Última actualización: 2026-09-07 — 1.16.6_
-_Sigue las prácticas de AGENT.md y CLAUDE.md — son la fuente de verdad._
+_Sigue las prácticas de AGENTS.md y CLAUDE.md — son la fuente de verdad._

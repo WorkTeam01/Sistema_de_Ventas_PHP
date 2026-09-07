@@ -23,7 +23,7 @@ determine appropriate type, scope, and message.
 ## Commit Types
 
 | Type       | Purpose                        |
-|------------|--------------------------------|
+| ---------- | ------------------------------ |
 | `feat`     | New feature                    |
 | `fix`      | Bug fix                        |
 | `docs`     | Documentation only             |
@@ -51,7 +51,7 @@ BREAKING CHANGE: `extends` key behavior changed
 ## Project Scopes (SistemaReservasHospital)
 
 | Scope          | Area                    |
-|----------------|-------------------------|
+| -------------- | ----------------------- |
 | `auth`         | Login, logout, sessions |
 | `patients`     | Patients module         |
 | `doctors`      | Doctors module          |
@@ -154,7 +154,7 @@ chore(db): agregar tabla doctor_schedules con columna slot_interval
 refactor(patients): extraer lógica de búsqueda en Patient::search()
 
 # Documentation
-docs(config): actualizar AGENT.md con tareas activas del Sprint 4
+docs(config): actualizar AGENTS.md con tareas activas del Sprint 4
 
 # Profile module
 feat(profile): agregar formulario de cambio de contraseña con indicador de fortaleza (RF09)

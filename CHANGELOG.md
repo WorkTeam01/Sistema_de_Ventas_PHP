@@ -7,6 +7,23 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [Unreleased]
+
+### Cambiado
+
+- Adopción de Spec-Driven Development (plugin `sdd-toolkit`). Solo documentación,
+  sin cambios de código:
+  - `AGENT.md` → `AGENTS.md` (fuente única de convenciones/arquitectura/setup);
+    nueva sección "Planificación de features (SDD)" con la regla de cuándo una
+    feature lleva spec y cuándo no.
+  - `CLAUDE.md` reducido a `@AGENTS.md` + arranque local de Claude Code (se
+    eliminó la duplicación de testing y la tabla de referencia).
+  - Nuevos `docs/constitution.md` (10 principios derivados de las reglas ya
+    vigentes) y `docs/roadmap.md` (histórico enlazado a este changelog +
+    siguiente feature: devoluciones de ventas).
+  - `.gitattributes` con `export-ignore` para `docs/`, `specs/`, `tests/`, etc.
+  - Barrido de referencias `AGENT.md` → `AGENTS.md` en README, CONTRIBUTING y PROMPTS.
+
 ## [1.16.6] - 2026-09-07
 
 ### Cambiado

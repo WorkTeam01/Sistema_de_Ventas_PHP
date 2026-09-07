@@ -2,7 +2,7 @@
 
 > Plantillas de prompts para el equipo. Úsalas como base — adapta los bloques
 > `[Tarea]` y `[Contexto]` a lo que necesites en cada sesión.
-> **Requisito:** Carga [AGENT.md](AGENT.md) (arquitectura, convenciones, stack) al inicio de cada sesión. [CLAUDE.md](CLAUDE.md) es opcional para contexto local.
+> **Requisito:** Carga [AGENTS.md](AGENTS.md) (arquitectura, convenciones, stack) al inicio de cada sesión. [CLAUDE.md](CLAUDE.md) es opcional para contexto local.
 
 ---
 
@@ -23,7 +23,7 @@ Cada plantilla sigue la estructura de 5 ejes del prompt profesional:
 
 **Reglas de uso del equipo:**
 
-- **Carga el AGENT.md primero** (contexto persistente para cualquier agente) — contiene arquitectura, stack, convenciones globales, prohibiciones
+- **Carga el AGENTS.md primero** (contexto persistente para cualquier agente) — contiene arquitectura, stack, convenciones globales, prohibiciones
 - **CLAUDE.md es opcional** (desarrollo local) — contiene instrucciones operacionales de XAMPP/BD, no convenciones de código
 - **Un prompt por subtarea.** Pedir "el módulo completo" en un solo prompt produce resultados genéricos.
 - **Si el output no encaja**, no corrijas manualmente primero — ajusta `[Restricciones]` y repite.
@@ -34,7 +34,7 @@ Cada plantilla sigue la estructura de 5 ejes del prompt profesional:
 
 ## Plantilla base (copia esto y rellena)
 
-> **Antes de usar:** Asegúrate de consultar [AGENT.md](AGENT.md) (arquitectura global y convenciones). [CLAUDE.md](CLAUDE.md) opcional para desarrollo local.
+> **Antes de usar:** Asegúrate de consultar [AGENTS.md](AGENTS.md) (arquitectura global y convenciones). [CLAUDE.md](CLAUDE.md) opcional para desarrollo local.
 
 ```
 [Rol]
@@ -242,6 +242,12 @@ Opciones que estoy considerando:
 
 ## Ejemplo real — Spec First aplicado a módulo Reportes
 
+> **Nota:** desde la adopción de SDD, las features nuevas se planifican con el
+> flujo `/sdd:spec` → `/sdd:clarify` → `/sdd:plan` → `/sdd:tasks` →
+> `/sdd:implement` → `/sdd:validate` (ver [AGENTS.md § Planificación de features](AGENTS.md)).
+> Este prompt monolítico queda como referencia histórica del estilo "spec first"
+> previo; para una feature real, preferir el flujo SDD.
+>
 > Ejemplo completo de cómo se ve un prompt de feature bien estructurado.
 > El módulo de Productos ya está implementado — úsalo como
 > referencia de calidad al redactar specs para nuevos requerimientos.
@@ -359,4 +365,4 @@ Casos edge a incluir:
 ---
 
 _Última actualización: 1.16.6 (2026-09-07)_
-_Mantener sincronizado con AGENT.md y CLAUDE.md al iniciar cada sesión._
+_Mantener sincronizado con AGENTS.md y CLAUDE.md al iniciar cada sesión._
