@@ -116,7 +116,7 @@ class Report
             SELECT a.id_producto, a.nombre,
                    cat.nombre_categoria AS categoria,
                    SUM(ca.cantidad)                          AS unidades_vendidas,
-                   SUM(ca.cantidad * a.precio_venta)         AS ingresos
+                   SUM(ca.cantidad * COALESCE(ca.precio_unitario, a.precio_venta)) AS ingresos
             FROM tb_carrito ca
             JOIN tb_ventas    v   ON v.nro_venta   = ca.nro_venta
             JOIN tb_almacen   a   ON a.id_producto = ca.id_producto

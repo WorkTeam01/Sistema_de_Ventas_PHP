@@ -85,7 +85,7 @@ class Product extends Model
         $limit = max(1, (int)$limit);
         $sql = "SELECT al.id_producto, al.codigo, al.nombre,
                        SUM(car.cantidad) AS cantidad_vendida,
-                       SUM(car.cantidad * al.precio_venta) AS ingresos
+                       SUM(car.cantidad * COALESCE(car.precio_unitario, al.precio_venta)) AS ingresos
                 FROM tb_carrito car
                 INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
                 INNER JOIN tb_ventas v ON car.nro_venta = v.nro_venta";

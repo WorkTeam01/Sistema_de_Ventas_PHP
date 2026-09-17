@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS tb_carrito (
     nro_venta           INTEGER NOT NULL,
     id_producto         INTEGER NOT NULL,
     cantidad            INTEGER NOT NULL,
+    precio_unitario     NUMERIC,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_actualizacion   TEXT    DEFAULT NULL
 );

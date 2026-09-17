@@ -23,7 +23,8 @@ class CartItem extends Model
     public function getByNroVenta(int $nroVenta): array
     {
         return $this->query(
-            "SELECT car.*, al.nombre, al.descripcion, al.precio_venta, al.stock, al.imagen, al.codigo
+            "SELECT car.*, al.nombre, al.descripcion, al.stock, al.imagen, al.codigo,
+                    COALESCE(car.precio_unitario, al.precio_venta) AS precio_venta
              FROM tb_carrito car
              INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
              WHERE car.nro_venta = ?

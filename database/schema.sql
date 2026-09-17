@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `tb_carrito` (
   `nro_venta` int(11) NOT NULL,
   `id_producto` int(11) NOT NULL,
   `cantidad` int(11) NOT NULL,
+  `precio_unitario` DECIMAL(10,2) DEFAULT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_carrito`),

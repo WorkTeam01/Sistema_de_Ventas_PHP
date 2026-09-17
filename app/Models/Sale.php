@@ -60,7 +60,8 @@ class Sale extends Model
 
         $sale = $rows[0];
         $items = $this->query(
-            "SELECT car.*, al.nombre, al.descripcion, al.precio_venta, al.stock, al.imagen, al.codigo
+            "SELECT car.*, al.nombre, al.descripcion, al.stock, al.imagen, al.codigo,
+                    COALESCE(car.precio_unitario, al.precio_venta) AS precio_venta
              FROM tb_carrito car
              INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
              WHERE car.nro_venta = ?
@@ -111,12 +112,16 @@ class Sale extends Model
                 return false;
             }
 
-            // Calcular total real desde los precios actuales del catálogo
+            // Persistir precio de venta actual en cada ítem del carrito
+            $persistPrice = $db->prepare(
+                "UPDATE tb_carrito SET precio_unitario = (SELECT precio_venta FROM tb_almacen WHERE id_producto = tb_carrito.id_producto) WHERE nro_venta = ?"
+            );
+            $persistPrice->execute([$data['nro_venta']]);
+
+            // Calcular total desde precios congelados
             $totalsStmt = $db->prepare(
-                "SELECT SUM(car.cantidad * al.precio_venta) AS total
-                 FROM tb_carrito car
-                 JOIN tb_almacen al ON al.id_producto = car.id_producto
-                 WHERE car.nro_venta = ?"
+                "SELECT SUM(cantidad * precio_unitario) AS total
+                 FROM tb_carrito WHERE nro_venta = ?"
             );
             $totalsStmt->execute([$data['nro_venta']]);
             $totalReal = (float)($totalsStmt->fetchColumn() ?? 0.0);
