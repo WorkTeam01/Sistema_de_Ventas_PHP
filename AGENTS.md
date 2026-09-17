@@ -162,9 +162,10 @@ tb_almacen
 tb_ventas
     (id_venta, nro_venta, id_cliente, id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
     -- id_usuario registra al vendedor; NULL en registros anteriores a v1.12.1
-    -- total_pagado calculado server-side (precio_venta × cantidad desde tb_almacen), nunca del POST
+    -- total_pagado calculado server-side como SUM(cantidad * precio_unitario) desde tb_carrito, nunca del POST
     tb_carrito
-    (id_carrito, nro_venta, id_producto, cantidad)
+    (id_carrito, nro_venta, id_producto, cantidad, precio_unitario [DECIMAL(10,2) NULL → fijado por
+        Sale::storeWithStock desde tb_almacen.precio_venta al finalizar la venta; NULL = carrito en curso])
     tb_compras
 (id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion)
     tb_activity_log
@@ -246,7 +247,7 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 - CSRF: token en todos los formularios POST (`Auth::generateCsrfToken()` / `validateCsrfOrFail()`)
 - SQL: siempre placeholders `?` con `execute([$var])` — nunca interpolar en el string SQL; `$interval` y `$limit` siempre con cast `(int)` explícito antes de interpolación
 - Stock: el decremento en `Sale::storeWithStock()` usa `AND stock >= ?` y verifica `rowCount() === 0` para rollback — nunca produce stock negativo
-- Totales: `Sale::storeWithStock()` calcula `total_pagado` desde `precio_venta × cantidad` de la BD dentro de la transacción — ignorar siempre el valor del POST
+- Totales: `Sale::storeWithStock()` congela `precio_unitario` por línea (desde `tb_almacen.precio_venta`) y calcula `total_pagado` como `SUM(cantidad * precio_unitario)` de `tb_carrito`, todo dentro de la transacción — ignorar siempre el valor del POST
 - Guards en destroy: `isReferenced()` y verificación de auto-eliminación siempre server-side en `UserController::destroy()` — la verificación cliente-side (AJAX) es solo UX
 - Datos para operaciones críticas: usar siempre el snapshot de BD (ej: `$snapshot['id_producto']`, no `$_POST['id_producto']`) para revertir stock u otras operaciones irreversibles
 

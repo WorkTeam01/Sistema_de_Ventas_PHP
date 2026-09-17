@@ -26,17 +26,13 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 12. **Accesibilidad WCAG AA** — auditorías por módulo (auth, POS, Productos, Compras, Clientes, Ventas, Categorías, Inventario, Permisos, Roles, Proveedores, Registro de actividad); contraste claro/oscuro y orden de encabezados app-wide, verificado con axe-core. → CHANGELOG 1.15.x–1.16.6
 13. **Cache-busting de assets propios** vía `APP_VERSION`. → CHANGELOG 1.16.1
 14. **Moneda configurable** vía `.env` (`APP_CURRENCY_SYMBOL`). → CHANGELOG 1.16.x
+15. **Precio histórico por línea de venta** — `tb_carrito.precio_unitario`, congelamiento al finalizar, backfill idempotente, COALESCE en lecturas. → `specs/002-precio-historico-por-linea/`
 
 ## Siguiente 🔜
 
-1. **Precio histórico por línea de venta** — persistir el precio unitario de cada
-   línea al registrar la venta (hoy `tb_carrito` solo guarda cantidad y todo
-   recalcula desde `tb_almacen.precio_venta` actual, lo que desalinea la factura
-   del `total_pagado` cuando el precio cambia). Incluye backfill y refactor de
-   `InvoicePdf`. Prerrequisito de devoluciones. → `specs/002-precio-historico-por-linea/`
-2. **Devoluciones de ventas** — tabla `tb_devoluciones` con FK a `tb_ventas`,
+1. **Devoluciones de ventas** — tabla `tb_devoluciones` con FK a `tb_ventas`,
    reversión de stock, devolución parcial acumulativa, slug `manage_returns`,
-   entrada en el activity log, venta neta en reportes/KPIs. Depende de la 1.
+   entrada en el activity log, venta neta en reportes/KPIs.
    → `specs/001-devoluciones-ventas/`
 
 _Fix suelto previo (fuera de SDD, no cambia esquema/permiso): cerrar el hueco de

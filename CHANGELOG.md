@@ -11,6 +11,18 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Cambiado
 
+- **Precio histórico por línea de venta** (spec 002):
+  - Nueva columna `tb_carrito.precio_unitario DECIMAL(10,2) DEFAULT NULL` — almacena el precio de venta
+    vigente al momento de finalizar la venta (`Sale::storeWithStock`). `NULL` = carrito aún no finalizado.
+  - `Sale::storeWithStock` ahora calcula `total_pagado` como `SUM(cantidad * precio_unitario)` en vez de
+    multiplicar por el precio actual del catálogo.
+  - `Sale::findWithDetails`, `CartItem::getByNroVenta`, `Product::getTopSelling` y `Report::topProducts`
+    usan `COALESCE(car.precio_unitario, al.precio_venta)` — carrito en curso ve catálogo actual, venta
+    registrada ve el precio congelado.
+  - **Paso de migración requerido**: ejecutar `database/migrations/006_carrito_precio_unitario.sql` sobre
+    BDs existentes. La migración es idempotente y backfillea líneas de ventas ya finalizadas con el precio
+    de catálogo actual del producto.
+
 - Adopción de Spec-Driven Development (plugin `sdd-toolkit`). Solo documentación,
   sin cambios de código:
   - `AGENT.md` → `AGENTS.md` (fuente única de convenciones/arquitectura/setup);

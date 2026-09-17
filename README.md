@@ -188,6 +188,40 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 
 ---
 
+## Actualización
+
+Si ya tienes una versión anterior del sistema instalada, aplica las migraciones
+pendientes sobre tu base de datos existente, en orden y **una sola vez** (solo los
+archivos 003, 005 y 006 son repetibles sin efectos; los demás insertan datos o
+añaden constraints y darían error de duplicado si se relanzan).
+
+**Linux / macOS:**
+
+```bash
+mysql -u root -p sistemadeventas < database/migrations/001_permisos.sql
+mysql -u root -p sistemadeventas < database/migrations/002_ventas_id_usuario.sql
+mysql -u root -p sistemadeventas < database/migrations/003_permisos_version.sql
+mysql -u root -p sistemadeventas < database/migrations/004_view_purchases_all.sql
+mysql -u root -p sistemadeventas < database/migrations/005_reports_admin_only.sql
+mysql -u root -p sistemadeventas < database/migrations/006_carrito_precio_unitario.sql
+```
+
+**Windows** (desde `C:\xampp\mysql\bin\`):
+
+```bat
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\001_permisos.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\002_ventas_id_usuario.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\003_permisos_version.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\004_view_purchases_all.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\005_reports_admin_only.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\006_carrito_precio_unitario.sql
+```
+
+> Si instalaste desde cero con la versión actual, la BD ya incluye todos los
+> cambios y no necesitas ejecutar estas migraciones.
+
+---
+
 ## Control de Acceso
 
 El sistema usa RBAC granular: cada ruta declara el permiso que requiere y el acceso se evalúa en tiempo de ejecución, sin comparaciones de nombre de rol hardcodeadas. Los permisos se administran desde la UI (`/permissions` para el catálogo, `/roles/permisos/{id}` para asignarlos a un rol) — los cambios se aplican a los usuarios activos de ese rol en su siguiente request, sin necesidad de re-login.
