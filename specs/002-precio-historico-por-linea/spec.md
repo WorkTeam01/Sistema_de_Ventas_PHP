@@ -50,10 +50,12 @@ para calcular el monto devuelto.
   Σ (cantidad × precio unitario persistido de cada línea), de modo que el total
   de la venta y la suma de sus líneas coincidan por construcción.
 - FR-3: WHEN el sistema muestra una venta ya registrada (detalle, página de
-  eliminación, factura PDF) o calcula sus subtotales
+  eliminación, factura PDF), calcula sus subtotales
   (`Sale::findWithDetails`, `Sale::withSubtotals`, `Sale::computeInvoiceTotals`,
-  `InvoicePdf`), THE SYSTEM shall usar el precio unitario persistido de cada
-  línea, no `tb_almacen.precio_venta` actual.
+  `InvoicePdf`) o agrega cantidades/ingresos de ventas
+  (`Product::getTopSelling`, `Report::topProducts`), THE SYSTEM shall usar el
+  precio unitario persistido de cada línea, no `tb_almacen.precio_venta`
+  actual.
 - FR-4: THE SYSTEM shall mantener sin cambios el flujo de armado del carrito del
   POS (`addToCart` / `removeFromCart` / vista `sales/create`), que sigue
   mostrando el precio actual del catálogo mientras la venta no está finalizada.
@@ -114,10 +116,11 @@ para calcular el monto devuelto.
 - `Sale::storeWithStock` persiste el precio por línea y deriva `total_pagado` de
   esas líneas; test que verifica que Σ(líneas) == `total_pagado` en una venta
   multi-ítem.
-- `Sale::findWithDetails`, `withSubtotals`, `computeInvoiceTotals` e `InvoicePdf`
-  leen el precio persistido; test que registra una venta, cambia el
-  `precio_venta` del producto, y verifica que el detalle/subtotales de esa venta
-  no cambian.
+- `Sale::findWithDetails`, `withSubtotals`, `computeInvoiceTotals`, `InvoicePdf`,
+  `Product::getTopSelling` y `Report::topProducts` leen el precio persistido;
+  test que registra una venta, cambia el `precio_venta` del producto, y verifica
+  que el detalle, los subtotales y las agregaciones de ese top (cantidad e
+  ingresos) de esa venta no cambian.
 - Script/paso de backfill idempotente ejecutado sobre la BD; documentado en el
   CHANGELOG y en las guías de instalación/actualización.
 - `composer test` verde (incluye la sincronización del schema SQLite).
@@ -137,3 +140,11 @@ agregar al carrito, descartado). `NULL` = línea no finalizada; las lecturas usa
 `COALESCE(precio_unitario, tb_almacen.precio_venta)` → carrito en curso ve el
 precio actual (FR-4), venta registrada ve el congelado (FR-3). Toca FR-1;
 Edge cases y Out of scope ya lo contemplaban.
+
+Revisión cruzada con spec 001 (2026-09-17): FR-3 se amplía a
+`Product::getTopSelling` y `Report::topProducts`. Sin el cambio, esas
+agregaciones seguían sumando con `tb_almacen.precio_venta` (precio actual) y el
+neto de devoluciones de la spec 001 (venta neta) mezclaría precio histórico en
+un lado y precio actual en el otro. Como no era un out-of-scope explícito, se
+corrige antes de implementar (la 002 aún no está implementada). El neto del top
+tendrá así la misma base de precio por línea en ambos lados.

@@ -21,8 +21,8 @@ línea "Done when:" verificable.
       (`ROW_COUNT() = 0`) y no toca `tb_ventas.total_pagado`.
 
 - [ ] T4. En `Sale::storeWithStock`, antes del INSERT de cabecera: `UPDATE
-    tb_carrito SET precio_unitario = (SELECT precio_venta FROM tb_almacen WHERE
-    id_producto = tb_carrito.id_producto) WHERE nro_venta = ?`. (FR-1)
+  tb_carrito SET precio_unitario = (SELECT precio_venta FROM tb_almacen WHERE
+  id_producto = tb_carrito.id_producto) WHERE nro_venta = ?`. (FR-1)
       Done when: test de integración crea carrito de 1 ítem, llama
       `storeWithStock`, y `SELECT precio_unitario FROM tb_carrito WHERE nro_venta`
       devuelve el `precio_venta` del producto (no NULL).
@@ -37,7 +37,7 @@ línea "Done when:" verificable.
 - [ ] T6. En `Sale::findWithDetails`, cambiar `al.precio_venta` por
       `car.precio_unitario AS precio_venta` en el SELECT de ítems. (FR-3)
       Done when: test registra una venta, hace `UPDATE tb_almacen SET
-    precio_venta` a otro valor para un producto, y `findWithDetails` devuelve
+  precio_venta` a otro valor para un producto, y `findWithDetails` devuelve
       `items[*].precio_venta` = el valor original congelado.
 
 - [ ] T7. En `CartItem::getByNroVenta`, cambiar `al.precio_venta` por
@@ -62,6 +62,14 @@ línea "Done when:" verificable.
 - [ ] T10. `composer test` completo verde (Unit + Integration). (FR-7 y regresión
       global)
       Done when: `composer test` termina sin fallos ni errores.
+
+- [ ] T11. En `Product::getTopSelling` y `Report::topProducts`, reemplazar
+      `al.precio_venta` por `COALESCE(car.precio_unitario, al.precio_venta)` en
+      el factor de precio de los `SUM`. (FR-3 ampliado — revisión cruzada con
+      spec 001)
+      Done when: test registra una venta, cambia `precio_venta` del producto, y
+      `getTopSelling`/`topProducts` devuelven los `ingresos`/`cantidad_vendida`
+      originales (extiende V3 del plan).
 
 ## Feature closeout
 

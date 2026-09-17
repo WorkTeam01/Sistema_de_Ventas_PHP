@@ -35,11 +35,16 @@ Sin módulo nuevo. Cambios acotados a la capa de venta:
 | `database/migrations/006_carrito_precio_unitario.sql` | Migración para BD existentes           | `ALTER TABLE` + backfill idempotente                                                |
 | `app/Models/Sale.php`                                 | Lógica de venta                        | `storeWithStock` congela precios y deriva total; `findWithDetails` lee el congelado |
 | `app/Models/CartItem.php`                             | Ítems de carrito                       | `getByNroVenta` lee `COALESCE(congelado, actual)`                                   |
+| `app/Models/Product.php`                              | Top productos del dashboard            | `getTopSelling` agrega con `COALESCE(precio_unitario, precio_venta)` (FR-3)         |
+| `app/Models/Report.php`                               | Reporte top productos                  | `topProducts` agrega con `COALESCE(precio_unitario, precio_venta)` (FR-3)           |
 | `CHANGELOG.md`, guías de instalación/actualización    | Documentar el paso de migración manual | nota                                                                                |
 
 No cambian: `SaleController`, `InvoicePdf`, `computeInvoiceTotals`, `withSubtotals`
 — siguen leyendo la clave `precio_venta` de cada ítem, que ahora viene aliaseada
-desde el valor correcto (ver decisión D2).
+desde el valor correcto (ver decisión D2). `getTopSelling`/`topProducts`
+conservan su firma y devuelven las mismas claves (`cantidad_vendida`,
+`ingresos`); solo cambia la fuente del precio. Esta alineación deja listo el
+neto del top para la spec 001 (devoluciones).
 
 ## Modelo de datos
 
@@ -90,6 +95,12 @@ una venta en curso; el paso 2 siempre resuelve un precio.
   actual (FR-4). En una venta registrada → usa el congelado.
 - `computeInvoiceTotals`, `withSubtotals`, `InvoicePdf` no se tocan: siguen
   leyendo `$item['precio_venta']`, que ahora es el valor correcto.
+- `Product::getTopSelling` y `Report::topProducts` (agregaciones que hoy suman
+  `car.cantidad * al.precio_venta`): reemplazan `al.precio_venta` por
+  `COALESCE(car.precio_unitario, al.precio_venta)` en el factor de precio.
+  Ambas consultas JOINean `tb_ventas`, así que sus líneas son de ventas
+  finalizadas y, tras el backfill, `precio_unitario` nunca es `NULL` en la
+  práctica; el `COALESCE` protege solo el caso teórico (línea sin backfill).
 
 ### A3 — Backfill (`006_carrito_precio_unitario.sql`)
 
@@ -163,7 +174,8 @@ Sin endpoints nuevos, sin rutas nuevas, sin permisos nuevos.
 | BD de producción sin correr la migración → `precio_unitario` inexistente, errores SQL                     | Documentar el paso en CHANGELOG y en la guía de actualización; la migración va en el mismo release. Es el mismo flujo que `001..005`.                                                          |
 | Una venta registrada entre el `ALTER` y el backfill queda con `precio_unitario` NULL en sus líneas nuevas | `storeWithStock` ya pobla el precio en el INSERT de la venta (paso A1.2); solo las filas _previas_ al deploy dependen del backfill. Correr `ALTER` + backfill en la misma transacción/ventana. |
 | `withSubtotals` divide/multiplica en float sin `round()`                                                  | Preexistente y fuera de alcance; los totales de dinero reales se calculan en SQL (A1.3). Sin cambio de comportamiento.                                                                         |
-| Consumidor no detectado de `al.precio_venta` vía `findWithDetails`/`getByNroVenta`                        | El grep de callers está en el plan (5 llamadas en `SaleController`, todas pasan por `withSubtotals`/`computeInvoiceTotals`). Cubierto por el test de regresión V3.                             |
+| Consumidor no detectado de `al.precio_venta` vía `findWithDetails`/`getByNroVenta` | El grep de callers está en el plan (5 llamadas en `SaleController`, todas pasan por `withSubtotals`/`computeInvoiceTotals`). Cubierto por el test de regresión V3. |
+| `getTopSelling`/`topProducts` quedaban con precio de catálogo (precio actual) | Incluidas en FR-3 (ampliado, revisión cruzada 001) como lecturas a alinear; el `COALESCE` sobre `car.precio_unitario` las alinea. Cubierto por V3. |
 
 ## Estrategia de verificación
 
@@ -177,7 +189,9 @@ Suite automatizada (`composer test`, suites Unit + Integration SQLite):
   producto tenía al momento del `store`.
 - **V3 — Lectura histórica (FR-3).** Tras V1: `UPDATE tb_almacen SET precio_venta`
   a otro valor para uno de los productos; `findWithDetails` de la venta →
-  afirmar que `items[*].precio_venta` y los subtotales NO cambiaron.
+  afirmar que `items[*].precio_venta` y los subtotales NO cambiaron; y
+  `getTopSelling` / `topProducts` → afirmar que `ingresos`/`cantidad_vendida`
+  tampoco cambiaron (vs. el precio de catálogo actual).
 - **V4 — Carrito en curso (FR-4).** `addToCart` sin `store`; `getByNroVenta` →
   afirmar `precio_venta` == precio de catálogo actual (columna `precio_unitario`
   NULL, COALESCE al catálogo).
@@ -198,7 +212,7 @@ son los originales y la suma cuadra con el total.
 | ---- | --------------------------------------------------------- |
 | FR-1 | A1 (paso 2), modelo de datos, V2 — con la enmienda `NULL` |
 | FR-2 | A1 (paso 3), V1                                           |
-| FR-3 | A2, D2, V3                                                |
+| FR-3 | A2, D2, V3 |
 | FR-4 | A2 (`COALESCE` en `getByNroVenta`), V4                    |
 | FR-5 | A3, V5                                                    |
 | FR-6 | A3 (segundo UPDATE), nota de FK                           |
