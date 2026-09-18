@@ -456,3 +456,30 @@ $(window).on('load', function () {
         ComponentUtils.initAll();
     }, 100);
 });
+
+// ============================================
+// Reinicializar tooltips después de cada draw de DataTables
+// ============================================
+// Cuando DataTables pagina, ordena o filtra, reemplaza filas del DOM.
+// Los nuevos elementos no conservan las instancias de Bootstrap Tooltip.
+// Se escucha draw.dt en document (delegado) para cubrir todas las tablas.
+// Se inicializa directamente sin llamar destroyTooltips porque los elementos
+// son frescos y tooltip('dispose') en ellos corrompe el estado interno de Bootstrap.
+$(document).on('draw.dt', function () {
+    try {
+        const hasTooltip = typeof $ !== 'undefined' && typeof $.fn.tooltip !== 'undefined';
+        if (!hasTooltip) return;
+
+        const $tooltips = $('[data-toggle="tooltip"]');
+        if ($tooltips.length === 0) return;
+
+        // Solo inicializar elementos que NO tengan ya una instancia de tooltip
+        $tooltips.each(function () {
+            if (!$(this).data('bs.tooltip') && !$(this).data('tooltip')) {
+                $(this).tooltip(ComponentUtils.tooltipBaseConfig);
+            }
+        });
+    } catch (e) {
+        console.error('Error al reinicializar tooltips en draw.dt:', e);
+    }
+});
