@@ -137,6 +137,40 @@ CREATE TABLE IF NOT EXISTS tb_ajustes_stock (
   FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto)
 );
 
+CREATE TABLE IF NOT EXISTS tb_devoluciones (
+  id_devolucion  INTEGER PRIMARY KEY AUTOINCREMENT,
+  nro_devolucion INTEGER NOT NULL UNIQUE,
+  id_venta       INTEGER NOT NULL,
+  id_usuario     INTEGER DEFAULT NULL,
+  motivo         TEXT    NOT NULL,
+  monto          NUMERIC NOT NULL DEFAULT 0.00,
+  fyh_creacion   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_venta) REFERENCES tb_ventas (id_venta) ON DELETE NO ACTION,
+  FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_devolucion_venta
+  ON tb_devoluciones (id_venta);
+
+CREATE INDEX IF NOT EXISTS idx_devolucion_usuario
+  ON tb_devoluciones (id_usuario);
+
+CREATE TABLE IF NOT EXISTS tb_devolucion_items (
+  id_detalle      INTEGER PRIMARY KEY AUTOINCREMENT,
+  id_devolucion   INTEGER NOT NULL,
+  id_producto     INTEGER NOT NULL,
+  cantidad        INTEGER NOT NULL,
+  precio_unitario NUMERIC NOT NULL,
+  FOREIGN KEY (id_devolucion) REFERENCES tb_devoluciones (id_devolucion) ON DELETE CASCADE,
+  FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto) ON DELETE NO ACTION
+);
+
+CREATE INDEX IF NOT EXISTS idx_dev_item_devolucion
+  ON tb_devolucion_items (id_devolucion);
+
+CREATE INDEX IF NOT EXISTS idx_dev_item_producto
+  ON tb_devolucion_items (id_producto);
+
 CREATE TABLE IF NOT EXISTS tb_permisos (
   id_permiso   INTEGER PRIMARY KEY AUTOINCREMENT,
   clave        TEXT NOT NULL UNIQUE,

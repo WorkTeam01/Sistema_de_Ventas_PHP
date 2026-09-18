@@ -188,6 +188,62 @@
                 </div>
             </div>
 
+            <!-- Devoluciones -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card card-outline card-warning">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-undo mr-1"></i> Devoluciones</h2>
+                            <div class="card-tools">
+                                <?php if ($can['manage_returns'] ?? false): ?>
+                                    <a href="<?= BASE_URL ?>/returns/create?sale_id=<?= (int)$id_venta ?>"
+                                        class="btn btn-warning btn-sm" aria-label="Registrar devolución">
+                                        <i class="fas fa-plus" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Registrar devolución</span>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <?php if (empty($devoluciones)): ?>
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-check-circle fa-2x mb-2 text-success" aria-hidden="true"></i>
+                                    <p class="mb-0">No hay devoluciones registradas para esta venta.</p>
+                                </div>
+                            <?php else: ?>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="bg-secondary text-white">
+                                            <tr class="text-center">
+                                                <th>N° Devolución</th>
+                                                <th>Motivo</th>
+                                                <th>Monto</th>
+                                                <th>Fecha</th>
+                                                <th>Usuario</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($devoluciones as $dev): ?>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-warning"><?= (int)$dev['nro_devolucion'] ?></span>
+                                                    </td>
+                                                    <td><?= htmlspecialchars($dev['motivo'], ENT_QUOTES, 'UTF-8') ?></td>
+                                                    <td class="text-right">
+                                                        <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$dev['monto'], 2), ENT_QUOTES, 'UTF-8') ?>
+                                                    </td>
+                                                    <td class="text-center"><?= htmlspecialchars($dev['fyh_creacion'], ENT_QUOTES, 'UTF-8') ?></td>
+                                                    <td><?= htmlspecialchars($dev['usuario_nombre'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div><!-- /.container-fluid -->
     </div>
 </section>

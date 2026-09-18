@@ -311,6 +311,35 @@ final class SaleRepositoryTest extends TestCase
         $this->assertEqualsWithDelta(20.00, (float)$topAfter[0]['ingresos'], 0.001);
     }
 
+    public function test_dashboard_aggregations_subtract_returns_by_return_period_and_keep_quantity(): void
+    {
+        $this->pdo->exec(
+            "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado, fyh_creacion)
+             VALUES
+                (10, 1, 1, 100.00, datetime('now')),
+                (11, 1, 1, 50.00, datetime('now', '-1 month'))"
+        );
+        $this->pdo->exec(
+            "INSERT INTO tb_devoluciones
+                (nro_devolucion, id_venta, id_usuario, motivo, monto, fyh_creacion)
+             VALUES
+                   (1, 1, 1, 'Devolución imputada al mes anterior', 30.00, datetime('now', '-1 month')),
+                   (2, 2, 1, 'Devolución imputada al mes', 20.00, datetime('now'))"
+        );
+
+        $this->assertEqualsWithDelta(80.00, $this->sale->totalCurrentMonth(1), 0.001);
+        $this->assertEqualsWithDelta(20.00, $this->sale->totalPreviousMonth(1), 0.001);
+
+        $today = $this->sale->todaySummary(1);
+        $this->assertSame(1, $today['cantidad']);
+        $this->assertEqualsWithDelta(80.00, $today['monto'], 0.001);
+
+        $months = $this->sale->totalsByMonth(2, 1);
+        $this->assertCount(2, $months);
+        $this->assertEqualsWithDelta(20.00, (float)$months[0]['total'], 0.001);
+        $this->assertEqualsWithDelta(80.00, (float)$months[1]['total'], 0.001);
+    }
+
     // -------------------------------------------------------------------------
     // destroyWithStock
     // -------------------------------------------------------------------------

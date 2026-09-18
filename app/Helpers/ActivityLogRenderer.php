@@ -26,11 +26,15 @@ class ActivityLogRenderer
         'empresa'          => 'Empresa',
         'nombre_categoria' => 'Categoría',
         // sales / purchases
+        'id_venta'         => 'ID Venta',
         'nro_venta'        => 'Nro. Venta',
         'nro_compra'       => 'Nro. Compra',
         'total_pagado'     => 'Total pagado',
         'fyh_creacion'     => 'Fecha/Hora',
         'items'            => 'Ítems',
+        'motivo'           => 'Motivo',
+        'monto_devuelto'   => 'Monto devuelto',
+        'detalle'          => 'Detalle',
         // sale/purchase item fields
         'nombre_producto'  => 'Producto',
         'cantidad'         => 'Cantidad',

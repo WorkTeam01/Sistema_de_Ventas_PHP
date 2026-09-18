@@ -63,7 +63,12 @@
                                         <tr>
                                             <td class="text-center"><?= $contador += 1; ?></td>
                                             <td class="text-center"><?= htmlspecialchars($sale['nro_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                            <td><?= htmlspecialchars($sale['nombre_cliente'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <td>
+                                                <?= htmlspecialchars($sale['nombre_cliente'], ENT_QUOTES, 'UTF-8'); ?>
+                                                <?php if (!empty($sale['tiene_devoluciones'])): ?>
+                                                    <span class="badge badge-warning ml-1" style="font-size:.75rem;">Devuelto</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td class="text-right">
                                                 <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$sale['total_pagado'], 2), ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="text-center"><?= htmlspecialchars($sale['fyh_creacion'], ENT_QUOTES, 'UTF-8'); ?></td>

@@ -1,0 +1,54 @@
+/* =============================================
+   Devoluciones — Estilos del módulo
+   ============================================= */
+
+/* ---- Tabla DataTables: ocultar hasta inicializar ---- */
+#tbl-returns {
+    visibility: hidden;
+}
+
+/* ---- Tabla de selección de venta ---- */
+#tbl-sales {
+    width: 100%;
+}
+
+/* ---- Badge de estado en tabla ---- */
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+body.dark-mode .badge-warning {
+    background-color: #d39e00;
+    color: #fff;
+}
+
+/* ---- Preview de monto ---- */
+.monto-preview {
+    color: #856404;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+body.dark-mode .monto-preview {
+    color: #ffc107;
+}
+
+/* ---- Input de cantidad ---- */
+.qty-input {
+    width: 80px;
+}
+
+/* ---- Tooltip en acciones de tabla ---- */
+#tbl-returns .btn-info {
+    min-width: 32px;
+    min-height: 32px;
+}
+
+/* ---- Área táctil mínima para botones de acción ---- */
+@media (pointer: coarse) {
+    #tbl-returns .btn-sm {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}

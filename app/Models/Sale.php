@@ -25,7 +25,11 @@ class Sale extends Model
      */
     public function allWithDetails(?int $userId = null): array
     {
-        $sql = "SELECT v.*, c.nombre_cliente, c.nit_ci_cliente
+        $sql = "SELECT v.*, c.nombre_cliente, c.nit_ci_cliente,
+                       EXISTS(
+                           SELECT 1 FROM tb_devoluciones d
+                           WHERE d.id_venta = v.id_venta
+                       ) AS tiene_devoluciones
                 FROM tb_ventas v
                 INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente";
         $params = [];
@@ -174,15 +178,20 @@ class Sale extends Model
     /** Suma de ventas del mes actual. Filtra por usuario si se indica $userId. */
     public function totalCurrentMonth(?int $userId = null): float
     {
-        $sql = "SELECT COALESCE(SUM(total_pagado), 0) AS total
-                FROM tb_ventas
-                WHERE YEAR(fyh_creacion) = YEAR(CURDATE())
-                  AND MONTH(fyh_creacion) = MONTH(CURDATE())";
-        $params = [];
-        if ($userId !== null) {
-            $sql .= " AND id_usuario = ?";
-            $params[] = $userId;
-        }
+        $isSqlite = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        $period = $isSqlite
+            ? "strftime('%Y-%m', fyh_creacion) = strftime('%Y-%m', 'now')"
+            : "YEAR(fyh_creacion) = YEAR(CURDATE()) AND MONTH(fyh_creacion) = MONTH(CURDATE())";
+        $returnPeriod = str_replace('fyh_creacion', 'dv.fyh_creacion', $period);
+        $sql = "SELECT
+                    (SELECT COALESCE(SUM(v.total_pagado), 0) FROM tb_ventas v WHERE $period"
+            . ($userId !== null ? " AND v.id_usuario = ?" : '') . ")
+                    - (SELECT COALESCE(SUM(dv.monto), 0)
+                       FROM tb_devoluciones dv
+                       INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
+                       WHERE $returnPeriod"
+            . ($userId !== null ? " AND v2.id_usuario = ?" : '') . ") AS total";
+        $params = $userId !== null ? [$userId, $userId] : [];
         $rows = $this->query($sql, $params);
         return (float)$rows[0]['total'];
     }
@@ -190,15 +199,21 @@ class Sale extends Model
     /** Suma de ventas del mes anterior. Filtra por usuario si se indica $userId. */
     public function totalPreviousMonth(?int $userId = null): float
     {
-        $sql = "SELECT COALESCE(SUM(total_pagado), 0) AS total
-                FROM tb_ventas
-                WHERE YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
-                  AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)";
-        $params = [];
-        if ($userId !== null) {
-            $sql .= " AND id_usuario = ?";
-            $params[] = $userId;
-        }
+        $isSqlite = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        $period = $isSqlite
+            ? "strftime('%Y-%m', fyh_creacion) = strftime('%Y-%m', 'now', '-1 month')"
+            : "YEAR(fyh_creacion) = YEAR(CURDATE() - INTERVAL 1 MONTH)
+               AND MONTH(fyh_creacion) = MONTH(CURDATE() - INTERVAL 1 MONTH)";
+        $returnPeriod = str_replace('fyh_creacion', 'dv.fyh_creacion', $period);
+        $sql = "SELECT
+                    (SELECT COALESCE(SUM(v.total_pagado), 0) FROM tb_ventas v WHERE $period"
+            . ($userId !== null ? " AND v.id_usuario = ?" : '') . ")
+                    - (SELECT COALESCE(SUM(dv.monto), 0)
+                       FROM tb_devoluciones dv
+                       INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
+                       WHERE $returnPeriod"
+            . ($userId !== null ? " AND v2.id_usuario = ?" : '') . ") AS total";
+        $params = $userId !== null ? [$userId, $userId] : [];
         $rows = $this->query($sql, $params);
         return (float)$rows[0]['total'];
     }
@@ -210,14 +225,22 @@ class Sale extends Model
      */
     public function todaySummary(?int $userId = null): array
     {
-        $sql = "SELECT COUNT(*) AS cantidad, COALESCE(SUM(total_pagado), 0) AS monto
-                FROM tb_ventas
-                WHERE DATE(fyh_creacion) = CURDATE()";
-        $params = [];
-        if ($userId !== null) {
-            $sql .= " AND id_usuario = ?";
-            $params[] = $userId;
-        }
+        $isSqlite = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        $period = $isSqlite
+            ? "DATE(fyh_creacion) = DATE('now')"
+            : "DATE(fyh_creacion) = CURDATE()";
+        $returnPeriod = str_replace('fyh_creacion', 'dv.fyh_creacion', $period);
+        $sql = "SELECT
+                    (SELECT COUNT(*) FROM tb_ventas v WHERE $period"
+            . ($userId !== null ? " AND v.id_usuario = ?" : '') . ") AS cantidad,
+                    (SELECT COALESCE(SUM(v.total_pagado), 0) FROM tb_ventas v WHERE $period"
+            . ($userId !== null ? " AND v.id_usuario = ?" : '') . ")
+                    - (SELECT COALESCE(SUM(dv.monto), 0)
+                       FROM tb_devoluciones dv
+                       INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
+                       WHERE $returnPeriod"
+            . ($userId !== null ? " AND v2.id_usuario = ?" : '') . ") AS monto";
+        $params = $userId !== null ? [$userId, $userId, $userId] : [];
         $rows = $this->query($sql, $params);
         return [
             'cantidad' => (int)$rows[0]['cantidad'],
@@ -233,16 +256,29 @@ class Sale extends Model
     public function totalsByMonth(int $months = 6, ?int $userId = null): array
     {
         $interval = (int)($months - 1);
-        $sql = "SELECT DATE_FORMAT(fyh_creacion, '%Y-%m') AS mes,
-                       COALESCE(SUM(total_pagado), 0) AS total
-                FROM tb_ventas
-                WHERE fyh_creacion >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')";
-        $params = [];
-        if ($userId !== null) {
-            $sql .= " AND id_usuario = ?";
-            $params[] = $userId;
-        }
-        $sql .= " GROUP BY DATE_FORMAT(fyh_creacion, '%Y-%m') ORDER BY mes ASC";
+        $isSqlite = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite';
+        $month = $isSqlite ? "strftime('%Y-%m', fyh_creacion)" : "DATE_FORMAT(fyh_creacion, '%Y-%m')";
+        $returnMonth = str_replace('fyh_creacion', 'dv.fyh_creacion', $month);
+        $start = $isSqlite
+            ? "date('now', '-$interval months', 'start of month')"
+            : "DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')";
+        $sql = "SELECT mes, COALESCE(SUM(total), 0) AS total
+                FROM (
+                    SELECT $month AS mes, SUM(v.total_pagado) AS total
+                    FROM tb_ventas v
+                    WHERE v.fyh_creacion >= $start"
+            . ($userId !== null ? " AND v.id_usuario = ?" : '') . "
+                    GROUP BY $month
+                    UNION ALL
+                    SELECT $returnMonth AS mes, -SUM(dv.monto) AS total
+                    FROM tb_devoluciones dv
+                    INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
+                    WHERE dv.fyh_creacion >= $start"
+            . ($userId !== null ? " AND v2.id_usuario = ?" : '') . "
+                    GROUP BY $returnMonth
+                ) periods
+                GROUP BY mes ORDER BY mes ASC";
+        $params = $userId !== null ? [$userId, $userId] : [];
         return $this->query($sql, $params);
     }
 
@@ -301,6 +337,16 @@ class Sale extends Model
             $item['subtotal'] = (float)$item['cantidad'] * (float)$item['precio_venta'];
             return $item;
         }, $items);
+    }
+
+    public function isReferenced(int|string $id): bool
+    {
+        $stmt = $this->db->prepare(
+            'SELECT COUNT(*) FROM tb_devoluciones WHERE id_venta = ?'
+        );
+        $stmt->execute([$id]);
+
+        return (int)$stmt->fetchColumn() > 0;
     }
 
     public function destroyWithStock(int $id): bool

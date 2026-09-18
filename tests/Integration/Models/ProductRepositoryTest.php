@@ -241,4 +241,38 @@ final class ProductRepositoryTest extends TestCase
         $this->assertEqualsWithDelta(62.00, (float)$result[0]['ingresos'], 0.001);
         $this->assertSame(4, (int)$result[0]['cantidad_vendida']);
     }
+
+    public function test_getTopSelling_subtracts_returned_quantities_and_historical_amounts_with_user_scope(): void
+    {
+        $pid = $this->createProduct([
+            'codigo' => 'P-00001',
+            'nombre' => 'Producto A',
+            'precio_venta' => 99.00,
+        ]);
+        $this->seedSale(1, 1);
+        $this->pdo->exec(
+            "UPDATE tb_ventas SET id_usuario = 1, total_pagado = 40.00 WHERE id_venta = 1"
+        );
+        $this->pdo->exec(
+            "INSERT INTO tb_carrito
+                (nro_venta, id_producto, cantidad, precio_unitario)
+             VALUES (1, $pid, 4, 10.00)"
+        );
+        $this->pdo->exec(
+            "INSERT INTO tb_devoluciones
+                (nro_devolucion, id_venta, id_usuario, motivo, monto, fyh_creacion)
+             VALUES (1, 1, 1, 'Ajuste', 20.00, datetime('now'))"
+        );
+        $this->pdo->exec(
+            "INSERT INTO tb_devolucion_items
+                (id_devolucion, id_producto, cantidad, precio_unitario)
+             VALUES (1, $pid, 2, 10.00)"
+        );
+
+        $result = $this->product->getTopSelling(5, 1);
+
+        $this->assertCount(1, $result);
+        $this->assertSame(2, (int)$result[0]['cantidad_vendida']);
+        $this->assertEqualsWithDelta(20.00, (float)$result[0]['ingresos'], 0.001);
+    }
 }

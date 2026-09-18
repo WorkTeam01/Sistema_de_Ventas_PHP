@@ -91,6 +91,7 @@ class Controller
             'view_clients_report',
             'view_activity_log',
             'manage_inventory',
+            'manage_returns',
         ];
         $can = [];
         foreach ($claves as $c) {

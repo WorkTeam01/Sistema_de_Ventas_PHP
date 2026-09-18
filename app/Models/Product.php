@@ -84,15 +84,26 @@ class Product extends Model
     {
         $limit = max(1, (int)$limit);
         $sql = "SELECT al.id_producto, al.codigo, al.nombre,
-                       SUM(car.cantidad) AS cantidad_vendida,
-                       SUM(car.cantidad * COALESCE(car.precio_unitario, al.precio_venta)) AS ingresos
+                       SUM(car.cantidad) - COALESCE(dev.cantidad_devuelta, 0) AS cantidad_vendida,
+                       SUM(car.cantidad * COALESCE(car.precio_unitario, al.precio_venta))
+                           - COALESCE(dev.ingresos_devueltos, 0) AS ingresos
                 FROM tb_carrito car
                 INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
-                INNER JOIN tb_ventas v ON car.nro_venta = v.nro_venta";
+                INNER JOIN tb_ventas v ON car.nro_venta = v.nro_venta
+                LEFT JOIN (
+                    SELECT di.id_producto,
+                           SUM(di.cantidad) AS cantidad_devuelta,
+                           SUM(di.cantidad * di.precio_unitario) AS ingresos_devueltos
+                    FROM tb_devolucion_items di
+                    INNER JOIN tb_devoluciones dv ON dv.id_devolucion = di.id_devolucion
+                    INNER JOIN tb_ventas rv ON rv.id_venta = dv.id_venta
+                    " . ($userId !== null ? "WHERE rv.id_usuario = ?" : '') . "
+                    GROUP BY di.id_producto
+                ) dev ON dev.id_producto = car.id_producto";
         $params = [];
         if ($userId !== null) {
             $sql .= " WHERE v.id_usuario = ?";
-            $params[] = $userId;
+            $params = [$userId, $userId];
         }
         $sql .= " GROUP BY al.id_producto, al.codigo, al.nombre
                   ORDER BY cantidad_vendida DESC

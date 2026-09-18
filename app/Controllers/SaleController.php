@@ -10,6 +10,7 @@ use App\Models\CartItem;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\SaleReturn;
 
 class SaleController extends Controller
 {
@@ -229,6 +230,9 @@ class SaleController extends Controller
         $items = $saleModel->withSubtotals($sale['items']);
         $totals = $saleModel->computeInvoiceTotals($items);
 
+        $returnModel = new SaleReturn();
+        $devoluciones = $returnModel->byVenta($id);
+
         $this->renderWithLayout('views/sales/show.php', array_merge(
             $this->sessionData(),
             [
@@ -245,6 +249,7 @@ class SaleController extends Controller
                 'total_productos' => count($items),
                 'cantidad_acum' => $totals['cantidad_total'],
                 'subtotal_acum' => $totals['precio_total'],
+                'devoluciones' => $devoluciones,
             ]
         ));
     }
@@ -351,6 +356,16 @@ class SaleController extends Controller
 
         $saleModel = new Sale();
         $snapshot = $saleModel->findWithDetails($id_venta);
+
+        if ($snapshot && $saleModel->isReferenced($id_venta)) {
+            $this->flash(
+                'No se puede eliminar la venta porque tiene devoluciones asociadas.',
+                'warning'
+            );
+            $this->redirect(BASE_URL . '/sales');
+            return;
+        }
+
         $ok = $saleModel->destroyWithStock($id_venta);
 
         if ($ok) {

@@ -17,36 +17,53 @@ class Report
 
     public function salesByPeriod(string $desde, string $hasta, ?int $userId = null): array
     {
-        $scopeSql = $userId !== null ? ' AND v.id_usuario = ?' : '';
-        $params   = $userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta];
+        $returnScope = $userId !== null ? ' AND v2.id_usuario = ?' : '';
 
         $stmt = $this->pdo->prepare("
             SELECT v.id_venta, v.nro_venta, v.fyh_creacion,
                    c.nombre_cliente AS cliente,
-                   v.total_pagado
+                   v.total_pagado,
+                   COALESCE((
+                       SELECT SUM(dv.monto) FROM tb_devoluciones dv
+                       INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
+                       WHERE v2.id_venta = v.id_venta
+                         AND dv.fyh_creacion BETWEEN ? AND ?
+                         {$returnScope}
+                   ), 0) AS monto_devuelto
             FROM tb_ventas v
             LEFT JOIN tb_clientes c ON c.id_cliente = v.id_cliente
             WHERE v.fyh_creacion BETWEEN ? AND ?
-            {$scopeSql}
+            " . ($userId !== null ? ' AND v.id_usuario = ?' : '') . "
             ORDER BY v.fyh_creacion DESC
         ");
+        $params = $userId !== null
+            ? [$desde, $hasta, $userId, $desde, $hasta, $userId]
+            : [$desde, $hasta, $desde, $hasta];
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function salesTotals(string $desde, string $hasta, ?int $userId = null): array
     {
-        $scopeSql = $userId !== null ? ' AND v.id_usuario = ?' : '';
-        $params   = $userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta];
+        $returnScope = $userId !== null ? ' AND v2.id_usuario = ?' : '';
 
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*)                          AS num_ventas,
-                   COALESCE(SUM(v.total_pagado), 0)  AS total_ingresos,
+                   COALESCE(SUM(v.total_pagado), 0)
+                     - COALESCE((
+                         SELECT SUM(dv.monto) FROM tb_devoluciones dv
+                         INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
+                         WHERE dv.fyh_creacion BETWEEN ? AND ?
+                         {$returnScope}
+                     ), 0)                            AS total_ingresos,
                    COALESCE(AVG(v.total_pagado), 0)  AS ticket_promedio
             FROM tb_ventas v
             WHERE v.fyh_creacion BETWEEN ? AND ?
-            {$scopeSql}
-        ");
+            " . ($userId !== null ? ' AND v.id_usuario = ?' : '')
+        );
+        $params = $userId !== null
+            ? [$desde, $hasta, $userId, $desde, $hasta, $userId]
+            : [$desde, $hasta, $desde, $hasta];
         $stmt->execute($params);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
@@ -115,8 +132,20 @@ class Report
         $stmt = $this->pdo->prepare("
             SELECT a.id_producto, a.nombre,
                    cat.nombre_categoria AS categoria,
-                   SUM(ca.cantidad)                          AS unidades_vendidas,
-                   SUM(ca.cantidad * COALESCE(ca.precio_unitario, a.precio_venta)) AS ingresos
+                   SUM(ca.cantidad)
+                     - COALESCE((
+                         SELECT SUM(di.cantidad) FROM tb_devolucion_items di
+                         INNER JOIN tb_devoluciones dv ON dv.id_devolucion = di.id_devolucion
+                         WHERE di.id_producto = a.id_producto
+                           AND dv.fyh_creacion BETWEEN ? AND ?
+                     ), 0)                              AS unidades_vendidas,
+                   SUM(ca.cantidad * COALESCE(ca.precio_unitario, a.precio_venta))
+                     - COALESCE((
+                         SELECT SUM(di.cantidad * di.precio_unitario) FROM tb_devolucion_items di
+                         INNER JOIN tb_devoluciones dv ON dv.id_devolucion = di.id_devolucion
+                         WHERE di.id_producto = a.id_producto
+                           AND dv.fyh_creacion BETWEEN ? AND ?
+                     ), 0)                              AS ingresos
             FROM tb_carrito ca
             JOIN tb_ventas    v   ON v.nro_venta   = ca.nro_venta
             JOIN tb_almacen   a   ON a.id_producto = ca.id_producto
@@ -124,11 +153,16 @@ class Report
             WHERE v.fyh_creacion BETWEEN ? AND ?
             {$catSql}
             GROUP BY a.id_producto, a.nombre, cat.nombre_categoria
+            HAVING unidades_vendidas > 0
             ORDER BY {$orderCol} DESC
             LIMIT ?
         ");
 
         $pos = 1;
+        $stmt->bindValue($pos++, $desde);
+        $stmt->bindValue($pos++, $hasta);
+        $stmt->bindValue($pos++, $desde);
+        $stmt->bindValue($pos++, $hasta);
         $stmt->bindValue($pos++, $desde);
         $stmt->bindValue($pos++, $hasta);
         if ($catParam !== null) {
@@ -143,16 +177,24 @@ class Report
 
     public function salesSummary(string $desde, string $hasta, ?int $userId = null): array
     {
-        $scopeSql = $userId !== null ? ' AND v.id_usuario = ?' : '';
-        $params   = $userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta];
+        $returnScope = $userId !== null ? ' AND v2.id_usuario = ?' : '';
 
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*)                          AS num_ventas,
-                   COALESCE(SUM(v.total_pagado), 0)  AS total_ingresos
+                   COALESCE(SUM(v.total_pagado), 0)
+                     - COALESCE((
+                         SELECT SUM(dv.monto) FROM tb_devoluciones dv
+                         INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
+                         WHERE dv.fyh_creacion BETWEEN ? AND ?
+                         {$returnScope}
+                     ), 0)                            AS total_ingresos
             FROM tb_ventas v
             WHERE v.fyh_creacion BETWEEN ? AND ?
-            {$scopeSql}
-        ");
+            " . ($userId !== null ? ' AND v.id_usuario = ?' : '')
+        );
+        $params = $userId !== null
+            ? [$desde, $hasta, $userId, $desde, $hasta, $userId]
+            : [$desde, $hasta, $desde, $hasta];
         $stmt->execute($params);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
@@ -167,7 +209,13 @@ class Report
                    c.nit_ci_cliente                        AS nit_ci,
                    c.email_cliente                         AS email,
                    COUNT(v.id_venta)                       AS num_compras,
-                   COALESCE(SUM(v.total_pagado), 0)        AS monto_acumulado,
+                   COALESCE(SUM(v.total_pagado), 0)
+                     - COALESCE((
+                         SELECT SUM(dv.monto) FROM tb_devoluciones dv
+                         INNER JOIN tb_ventas vc ON vc.id_venta = dv.id_venta
+                         WHERE vc.id_cliente = c.id_cliente
+                           AND dv.fyh_creacion BETWEEN ? AND ?
+                     ), 0)                                 AS monto_acumulado,
                    MAX(v.fyh_creacion)                     AS ultima_compra
             FROM tb_clientes c
             JOIN tb_ventas v ON v.id_cliente = c.id_cliente
@@ -175,7 +223,7 @@ class Report
             GROUP BY c.id_cliente, c.nombre_cliente, c.nit_ci_cliente, c.email_cliente
             ORDER BY monto_acumulado DESC
         ");
-        $stmt->execute([$desde, $hasta]);
+        $stmt->execute([$desde, $hasta, $desde, $hasta]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

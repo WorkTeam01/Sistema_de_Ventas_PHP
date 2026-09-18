@@ -14,6 +14,7 @@ use App\Controllers\PermissionController;
 use App\Controllers\RoleController;
 use App\Controllers\SupplierController;
 use App\Controllers\UserController;
+use App\Controllers\SaleReturnController;
 use App\Core\Router;
 
 /**
@@ -131,6 +132,12 @@ $router->get('/sales/show/{id}',    [SaleController::class, 'show'],           [
 $router->get('/sales/delete/{id}',  [SaleController::class, 'confirmDelete'],  ['auth', 'can:manage_sales']);
 $router->get('/sales/invoice/{id}', [SaleController::class, 'invoice'],        ['auth', 'can:view_sales']);
 $router->post('/sales/delete',      [SaleController::class, 'destroy'],        ['auth', 'can:manage_sales']);
+
+// Rutas del módulo returns/devoluciones (MVC)
+$router->get('/returns',             [SaleReturnController::class, 'index'],  ['auth', 'can:view_sales']);
+$router->get('/returns/create',      [SaleReturnController::class, 'create'], ['auth', 'can:manage_returns']);
+$router->post('/returns',            [SaleReturnController::class, 'store'],  ['auth', 'can:manage_returns']);
+$router->get('/returns/show/{id}',   [SaleReturnController::class, 'show'],   ['auth', 'can:view_sales']);
 
 // Rutas del módulo activity-log (solo Administrador)
 $router->get('/activity-log',           [ActivityLogController::class, 'index'], ['auth', 'can:view_activity_log']);

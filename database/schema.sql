@@ -209,6 +209,37 @@ CREATE TABLE IF NOT EXISTS `tb_ajustes_stock` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
+-- Tabla: tb_devoluciones
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_devoluciones` (
+  `id_devolucion`  int(11)        NOT NULL AUTO_INCREMENT,
+  `nro_devolucion`  int(11)        NOT NULL,
+  `id_venta`       int(11)        NOT NULL,
+  `id_usuario`     int(11)        DEFAULT NULL,
+  `motivo`         varchar(255)   NOT NULL,
+  `monto`          DECIMAL(10,2)  NOT NULL DEFAULT 0.00,
+  `fyh_creacion`   datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_devolucion`),
+  UNIQUE KEY `uq_devolucion_nro` (`nro_devolucion`),
+  KEY `idx_devolucion_venta` (`id_venta`),
+  KEY `idx_devolucion_usuario` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+-- --------------------------------------------------------
+-- Tabla: tb_devolucion_items
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_devolucion_items` (
+  `id_detalle`     int(11)        NOT NULL AUTO_INCREMENT,
+  `id_devolucion`  int(11)        NOT NULL,
+  `id_producto`    int(11)        NOT NULL,
+  `cantidad`       int(11)        NOT NULL,
+  `precio_unitario` DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (`id_detalle`),
+  KEY `idx_dev_item_devolucion` (`id_devolucion`),
+  KEY `idx_dev_item_producto` (`id_producto`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+-- --------------------------------------------------------
 -- Tabla: tb_permisos
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `tb_permisos` (
@@ -258,6 +289,14 @@ ALTER TABLE `tb_ventas`
 ALTER TABLE `tb_ajustes_stock`
   ADD CONSTRAINT `tb_ajustes_stock_ibfk_1` FOREIGN KEY (`id_producto`) REFERENCES `tb_almacen` (`id_producto`) ON UPDATE CASCADE,
   ADD CONSTRAINT `tb_ajustes_stock_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `tb_devoluciones`
+  ADD CONSTRAINT `tb_devoluciones_ibfk_1` FOREIGN KEY (`id_venta`) REFERENCES `tb_ventas` (`id_venta`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `tb_devoluciones_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `tb_devolucion_items`
+  ADD CONSTRAINT `tb_devolucion_items_ibfk_1` FOREIGN KEY (`id_devolucion`) REFERENCES `tb_devoluciones` (`id_devolucion`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `tb_devolucion_items_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `tb_almacen` (`id_producto`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 COMMIT;
 
