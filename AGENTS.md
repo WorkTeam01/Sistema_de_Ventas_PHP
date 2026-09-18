@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.16.6 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.17.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -162,10 +162,18 @@ tb_almacen
 tb_ventas
     (id_venta, nro_venta, id_cliente, id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
     -- id_usuario registra al vendedor; NULL en registros anteriores a v1.12.1
-    -- total_pagado calculado server-side como SUM(cantidad * precio_unitario) desde tb_carrito, nunca del POST
+    -- total_pagado calculado server-side como SUM(cantidad * precio_unitario) desde tb_carrito, nunca del POST;
+    -- la venta neta de un período es ventas menos devoluciones imputadas a ese período
     tb_carrito
     (id_carrito, nro_venta, id_producto, cantidad, precio_unitario [DECIMAL(10,2) NULL → fijado por
         Sale::storeWithStock desde tb_almacen.precio_venta al finalizar la venta; NULL = carrito en curso])
+    tb_devoluciones
+    (id_devolucion, nro_devolucion UNIQUE, id_venta [FK → tb_ventas], id_usuario [FK NULL → tb_usuarios],
+        motivo, monto, fyh_creacion)
+    tb_devolucion_items
+    (id_detalle, id_devolucion [FK → tb_devoluciones CASCADE], id_producto [FK → tb_almacen],
+        cantidad, precio_unitario)
+    -- devoluciones parciales acumulativas; monto calculado desde el precio histórico de cada línea
     tb_compras
 (id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion)
     tb_activity_log
@@ -174,7 +182,7 @@ tb_ventas
     -- acciones registradas: 'create', 'update', 'delete', 'price_change', 'role_change', 'permission_change',
     --   'stock_adjustment', 'export', 'login', 'login_failed', 'logout'
     -- entidades: 'sale', 'purchase', 'product', 'user', 'client', 'supplier', 'category', 'role', 'permission',
-    --   'report', 'auth'
+    --   'report', 'auth', 'sale_return'
     -- KPIs agregados (total, usuarios distintos, eliminaciones, cambios sensibles) vía ActivityLog::kpis(),
     --   calculados por COUNT/GROUP BY sobre el rango filtrado, no sobre la página ya paginada
     -- usuario_nombre desnormalizado para persistir incluso si el usuario es eliminado
@@ -278,7 +286,7 @@ Auth::logout()          // limpia sesión, BD y cookie
 - `PermissionMiddleware` resuelve el prefijo `can:` en rutas — redirige a `/errors/403` si el permiso falta.
 - En controladores, usar `Auth::can('permiso')` para scoping de datos o restricciones inline.
 - En vistas, el controlador pasa `$can` (array) con los permisos necesarios via `renderWithLayout()` — nunca llamar `Auth::` directamente en vistas.
-- Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `view_purchases`, `manage_purchases`, `view_sales`, `manage_sales`, `view_sales_all`, `view_purchases_all`, `view_activity_log`, `manage_inventory`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
+- Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `view_purchases`, `manage_purchases`, `view_sales`, `manage_sales`, `manage_returns`, `view_sales_all`, `view_purchases_all`, `view_activity_log`, `manage_inventory`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
 - **Scoping de datos por usuario (`*_all`):** `view_sales_all` y `view_purchases_all` distinguen "ver todos los
   registros" de "ver solo los propios". Sin el permiso `_all`, los métodos de listado/agregado filtran por
   `id_usuario` (ver `Sale`/`Purchase`/`Product::getTopSelling()`, que aceptan `?int $userId` opcional). Patrón usado
@@ -563,4 +571,4 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 
 ---
 
-_Última actualización: 2026-09-07 — 1.16.6. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-09-18 — 1.17.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

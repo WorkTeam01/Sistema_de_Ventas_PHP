@@ -47,7 +47,7 @@ git checkout -b docs/nombre-descriptor     # Documentación
 # 4. Mantén sincronización
 git remote add upstream https://github.com/WorkTeam01/Sistema_de_Ventas_PHP.git
 git fetch upstream
-git rebase upstream/develop
+git rebase upstream/master
 ```
 
 ### 3️⃣ Desarrolla
@@ -76,8 +76,9 @@ Para nuevo módulo [nombre]:
 **Convenciones de código:**
 
 - **SQL:** Siempre usar placeholders `?` con `execute([$var])`; nunca concatenación; enteros interpolados (LIMIT, INTERVAL) con cast `(int)` explícito
-- **Controladores:** Solo estos 6 métodos estándar: `index()`, `create()`, `store()`, `edit()`, `update()`, `destroy()`.
-  No inventar métodos como `showCreate()`, `toggle()`, `activate()`, etc.
+- **Controladores:** Usar los métodos estándar del proyecto: `index()`, `create()`, `store()`, `edit()`, `update()`,
+  `destroy()` y los auxiliares documentados (`show()`, `check()`, `delete()`, `checkNombre()`, etc.). No inventar
+  métodos como `showCreate()`, `toggle()` o `activate()`.
 - **Modelos:** Extender de `App\Core\Model`; implementar `isReferenced()` si hay FKs
 - **Vistas:** Usar `renderWithLayout()` desde controlador; no variable `Auth::` directo
 - **JavaScript:** Usar `json_encode()` para pasar datos PHP → JS; nunca comillas simples
@@ -202,7 +203,7 @@ Resuelve #123: [descripción del issue]
 
 - El equipo revisará tu código (2-3 días máximo)
 - Si hay cambios pendientes, actualiza con commits adicionales
-- Una vez aprobado, se mergea a `develop`
+- Una vez aprobado, se mergea a `master`
 
 ---
 
@@ -273,5 +274,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-09-07 — 1.16.6_
+_Última actualización: 2026-09-18 — 1.17.0_
 _Sigue las prácticas de AGENTS.md y CLAUDE.md — son la fuente de verdad._

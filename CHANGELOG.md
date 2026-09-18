@@ -9,7 +9,23 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+_Sin cambios todavía._
+
+## [1.17.0] - 2026-09-18
+
 ### Cambiado
+
+- **Devoluciones de ventas** (spec 001):
+  - Nuevas tablas `tb_devoluciones` y `tb_devolucion_items`, con cantidades
+    parciales acumulativas, precio histórico por línea, reingreso atómico de
+    stock y trazabilidad en `tb_activity_log` como `sale_return`.
+  - Nuevo permiso `manage_returns` para registrar devoluciones; el listado y
+    detalle reutilizan `view_sales` y respetan el scoping por vendedor.
+  - Dashboard y reportes descuentan las devoluciones imputadas al período de
+    sus agregaciones de venta neta; el listado de ventas identifica las ventas
+    con devoluciones sin alterar el total original de la factura.
+  - **Paso de migración requerido:** ejecutar
+    `database/migrations/007_devoluciones.sql` sobre BDs existentes.
 
 - **Precio histórico por línea de venta** (spec 002):
   - Nueva columna `tb_carrito.precio_unitario DECIMAL(10,2) DEFAULT NULL` — almacena el precio de venta
@@ -709,6 +725,8 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.17.0...HEAD
+[1.17.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.6...1.17.0
 [1.16.6]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.5...1.16.6
 [1.16.5]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.4...1.16.5
 [1.16.4]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.3...1.16.4

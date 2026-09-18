@@ -27,13 +27,13 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 13. **Cache-busting de assets propios** vía `APP_VERSION`. → CHANGELOG 1.16.1
 14. **Moneda configurable** vía `.env` (`APP_CURRENCY_SYMBOL`). → CHANGELOG 1.16.x
 15. **Precio histórico por línea de venta** — `tb_carrito.precio_unitario`, congelamiento al finalizar, backfill idempotente, COALESCE en lecturas. → `specs/002-precio-historico-por-linea/`
+16. **Devoluciones de ventas** — devoluciones parciales acumulativas, reingreso atómico de stock, permiso `manage_returns`, auditoría y venta neta en dashboard/reportes. → `specs/001-devoluciones-ventas/`
 
 ## Siguiente 🔜
 
-1. **Devoluciones de ventas** — tabla `tb_devoluciones` con FK a `tb_ventas`,
-   reversión de stock, devolución parcial acumulativa, slug `manage_returns`,
-   entrada en el activity log, venta neta en reportes/KPIs.
-   → `specs/001-devoluciones-ventas/`
+1. **Formas de pago + pago mixto** — registrar efectivo, tarjeta y
+   transferencia, y permitir pagos combinados por venta. La normalización de
+   pagos debe preceder a arqueo/cuadre de caja. → backlog promovido
 
 _Fix suelto previo (fuera de SDD, no cambia esquema/permiso): cerrar el hueco de
 scoping en `SaleController::destroy` (un vendedor puede eliminar por POST una
@@ -44,13 +44,11 @@ venta ajena)._
 _No comprometido ni ordenado. Toda idea debe respetar `docs/constitution.md`,
 incluido el alcance del producto. Ordenadas por qué tan propias de un POS son._
 
-- **Formas de pago + pago mixto** — hoy `tb_ventas` solo guarda `total_pagado`
-  sin método. Registrar efectivo / tarjeta / transferencia y permitir pago
-  combinado en una venta. Cambio de esquema chico, cierra un hueco básico de POS.
 - **Arqueo / cuadre de caja** — abrir caja con fondo inicial, registrar
-  entradas/salidas de efectivo, cerrar con conteo y diferencia, reporte Z. Es lo
-  que distingue un POS de un CRUD de ventas. Feature grande: máquina de estados,
-  sesión de caja, conciliación — buen candidato para estrenar el ciclo SDD completo.
+  entradas/salidas de efectivo, cerrar con conteo y diferencia, reporte Z.
+  Depende de que los pagos estén normalizados por método. Es lo que distingue
+  a un POS de un CRUD de ventas. Feature grande: máquina de estados, sesión de
+  caja y conciliación — buen candidato para estrenar el ciclo SDD completo.
 - **Ventas a crédito / cuenta corriente de cliente** — saldo pendiente por
   cliente + registro de abonos (`tb_pagos`). Condicional: solo si se quiere
   extender el alcance del producto. Requiere diseño previo cuidadoso.

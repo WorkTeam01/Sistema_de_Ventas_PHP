@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.16.6-blue)
+![Versión](https://img.shields.io/badge/Versión-1.17.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -192,7 +192,7 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 
 Si ya tienes una versión anterior del sistema instalada, aplica las migraciones
 pendientes sobre tu base de datos existente, en orden y **una sola vez** (solo los
-archivos 003, 005 y 006 son repetibles sin efectos; los demás insertan datos o
+archivos 003, 005, 006 y 007 son repetibles sin efectos; los demás insertan datos o
 añaden constraints y darían error de duplicado si se relanzan).
 
 **Linux / macOS:**
@@ -204,6 +204,7 @@ mysql -u root -p sistemadeventas < database/migrations/003_permisos_version.sql
 mysql -u root -p sistemadeventas < database/migrations/004_view_purchases_all.sql
 mysql -u root -p sistemadeventas < database/migrations/005_reports_admin_only.sql
 mysql -u root -p sistemadeventas < database/migrations/006_carrito_precio_unitario.sql
+mysql -u root -p sistemadeventas < database/migrations/007_devoluciones.sql
 ```
 
 **Windows** (desde `C:\xampp\mysql\bin\`):
@@ -215,6 +216,7 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\004_view_purchases_all.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\005_reports_admin_only.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\006_carrito_precio_unitario.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\007_devoluciones.sql
 ```
 
 > Si instalaste desde cero con la versión actual, la BD ya incluye todos los

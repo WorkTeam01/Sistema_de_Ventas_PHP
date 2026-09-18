@@ -208,11 +208,13 @@ custom, diseño de base de datos y patrones de diseño.
 
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
-Estado actual: MVP completado con módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas.
+Estado actual: 1.17.0; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas, devoluciones.
 BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_categorias, tb_proveedores,
                  tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
-                 tb_activity_log, tb_ajustes_stock, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
+                 tb_activity_log, tb_ajustes_stock, tb_devoluciones, tb_devolucion_items, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
                  con UI de gestión — catálogo + asignación por rol — desde v1.14.0).
+                 Las devoluciones son parciales y acumulativas, reingresan stock de forma atómica,
+                 usan el permiso `manage_returns` y descuentan la venta neta en dashboard/reportes.
                  Scoping por usuario (`view_sales_all`/`view_purchases_all`): sin ese permiso, ventas/compras
                  (dashboard, listado y detalle) se filtran por id_usuario — patrón obligatorio para cualquier
                  módulo nuevo con datos "propios de cada usuario".
@@ -364,5 +366,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.16.6 (2026-09-07)_
+_Última actualización: 1.17.0 (2026-09-18)_
 _Mantener sincronizado con AGENTS.md y CLAUDE.md al iniciar cada sesión._
