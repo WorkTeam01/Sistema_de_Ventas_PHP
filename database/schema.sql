@@ -240,6 +240,41 @@ CREATE TABLE IF NOT EXISTS `tb_devolucion_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
+-- Tabla: tb_metodos_pago (catálogo configurable de métodos de cobro)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_metodos_pago` (
+  `id_metodo_pago`    int(11)      NOT NULL AUTO_INCREMENT,
+  `nombre`            varchar(60)  NOT NULL,
+  `tipo`              enum('efectivo','no_efectivo') NOT NULL DEFAULT 'no_efectivo',
+  `activo`            tinyint(1)   NOT NULL DEFAULT 1,
+  `fyh_creacion`      datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fyh_actualizacion` datetime     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_metodo_pago`),
+  UNIQUE KEY `uq_metodo_nombre` (`nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- Tabla: tb_pagos (una línea de pago por método por venta)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_pagos` (
+  `id_pago`        int(11)       NOT NULL AUTO_INCREMENT,
+  `id_venta`       int(11)       NOT NULL,
+  `id_metodo_pago` int(11)       NOT NULL,
+  `monto`          DECIMAL(10,2) NOT NULL,
+  `referencia`     varchar(100)  DEFAULT NULL,
+  `detalle`        varchar(255)  DEFAULT NULL,
+  `fyh_creacion`   datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_pago`),
+  UNIQUE KEY `uq_pago_venta_metodo` (`id_venta`, `id_metodo_pago`),
+  KEY `idx_pago_venta` (`id_venta`),
+  KEY `idx_pago_metodo` (`id_metodo_pago`),
+  CONSTRAINT `fk_pago_venta` FOREIGN KEY (`id_venta`) REFERENCES `tb_ventas` (`id_venta`)
+    ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_pago_metodo` FOREIGN KEY (`id_metodo_pago`) REFERENCES `tb_metodos_pago` (`id_metodo_pago`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
 -- Tabla: tb_permisos
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `tb_permisos` (

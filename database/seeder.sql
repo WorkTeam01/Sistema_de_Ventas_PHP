@@ -15,6 +15,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 DELETE FROM `tb_devolucion_items`;
 DELETE FROM `tb_devoluciones`;
+DELETE FROM `tb_pagos`;
 DELETE FROM `tb_ajustes_stock`;
 DELETE FROM `tb_activity_log`;
 DELETE FROM `tb_ventas`;
@@ -27,9 +28,11 @@ DELETE FROM `tb_usuarios`;
 DELETE FROM `tb_clientes`;
 DELETE FROM `tb_proveedores`;
 DELETE FROM `tb_categorias`;
+DELETE FROM `tb_metodos_pago`;
 DELETE FROM `tb_roles`;
 ALTER TABLE `tb_devolucion_items` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_devoluciones` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_pagos` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_ajustes_stock` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_activity_log` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_ventas` AUTO_INCREMENT = 1;
@@ -41,6 +44,7 @@ ALTER TABLE `tb_usuarios` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_clientes` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_proveedores` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_categorias` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_metodos_pago` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_roles` AUTO_INCREMENT = 1;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -55,7 +59,7 @@ INSERT INTO `tb_roles` (`id_rol`, `rol`) VALUES
 (3, 'Comprador');
 
 -- -------------------------------------------------------------
--- tb_permisos (26 permisos del sistema RBAC)
+-- tb_permisos (27 permisos del sistema RBAC)
 -- -------------------------------------------------------------
 INSERT INTO `tb_permisos` (`clave`, `descripcion`, `modulo`) VALUES
 ('is_superadmin',            'Rol superusuario del sistema',             'sistema'),
@@ -83,7 +87,8 @@ INSERT INTO `tb_permisos` (`clave`, `descripcion`, `modulo`) VALUES
 ('view_clients_report',      'Ver reporte de clientes',                  'reportes'),
 ('view_activity_log',        'Ver log de actividad',                     'auditoria'),
 ('manage_inventory',         'Ajustar inventario',                       'inventario'),
-('manage_returns',           'Gestionar devoluciones de ventas',         'ventas');
+('manage_returns',           'Gestionar devoluciones de ventas',         'ventas'),
+('manage_payment_methods',   'Gestionar métodos de pago',                'ventas');
 
 -- -------------------------------------------------------------
 -- tb_rol_permiso — Administrador (todos los permisos, incluyendo is_superadmin)
@@ -123,6 +128,16 @@ FROM `tb_roles` r JOIN `tb_permisos` p ON p.clave IN (
     'view_purchases', 'manage_purchases'
 )
 WHERE r.rol = 'Comprador';
+
+-- -------------------------------------------------------------
+-- tb_metodos_pago — catálogo sembrado (los 4 métodos por defecto)
+-- El grant a Administrador ya ocurre por el CROSS JOIN de permisos.
+-- -------------------------------------------------------------
+INSERT INTO `tb_metodos_pago` (`id_metodo_pago`, `nombre`, `tipo`) VALUES
+(1, 'Efectivo',              'efectivo'),
+(2, 'Tarjeta',               'no_efectivo'),
+(3, 'Transferencia bancaria', 'no_efectivo'),
+(4, 'QR',                    'no_efectivo');
 
 -- -------------------------------------------------------------
 -- tb_categorias

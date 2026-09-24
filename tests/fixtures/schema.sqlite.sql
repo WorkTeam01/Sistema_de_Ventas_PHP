@@ -171,6 +171,36 @@ CREATE INDEX IF NOT EXISTS idx_dev_item_devolucion
 CREATE INDEX IF NOT EXISTS idx_dev_item_producto
   ON tb_devolucion_items (id_producto);
 
+CREATE TABLE IF NOT EXISTS tb_metodos_pago (
+    id_metodo_pago      INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre              TEXT    NOT NULL UNIQUE,
+    tipo                TEXT    NOT NULL DEFAULT 'no_efectivo',
+    activo              INTEGER NOT NULL DEFAULT 1,
+    fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fyh_actualizacion   TEXT    DEFAULT NULL,
+    CHECK (tipo IN ('efectivo', 'no_efectivo')),
+    CHECK (activo IN (0, 1))
+);
+
+CREATE TABLE IF NOT EXISTS tb_pagos (
+    id_pago         INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_venta        INTEGER NOT NULL,
+    id_metodo_pago  INTEGER NOT NULL,
+    monto           NUMERIC NOT NULL,
+    referencia      TEXT    DEFAULT NULL,
+    detalle         TEXT    DEFAULT NULL,
+    fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (id_venta, id_metodo_pago),
+    FOREIGN KEY (id_venta) REFERENCES tb_ventas (id_venta) ON DELETE CASCADE,
+    FOREIGN KEY (id_metodo_pago) REFERENCES tb_metodos_pago (id_metodo_pago) ON DELETE NO ACTION
+);
+
+CREATE INDEX IF NOT EXISTS idx_pago_venta
+  ON tb_pagos (id_venta);
+
+CREATE INDEX IF NOT EXISTS idx_pago_metodo
+  ON tb_pagos (id_metodo_pago);
+
 CREATE TABLE IF NOT EXISTS tb_permisos (
   id_permiso   INTEGER PRIMARY KEY AUTOINCREMENT,
   clave        TEXT NOT NULL UNIQUE,
