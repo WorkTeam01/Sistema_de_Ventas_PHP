@@ -24,15 +24,15 @@
     <div class="content">
         <div class="container-fluid">
 
-            <form id="formVenta" action="<?= BASE_URL ?>/sales" method="post" autocomplete="off">
+            <form id="formVenta" action="<?= BASE_URL ?>/sales" method="post" autocomplete="off"
+                data-currency="<?= APP_CURRENCY_SYMBOL ?>"
+                data-total="<?= number_format($precio_total, 2, '.', '') ?>">
 
                 <!-- Campos ocultos del formulario principal -->
                 <input type="hidden" name="csrf_token"
                     value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="nro_venta" value="<?= (int)$nro_venta ?>">
                 <input type="hidden" name="id_cliente" id="id_cliente_hidden">
-                <input type="hidden" name="total_a_cancelar" id="total_a_cancelar_hidden"
-                    value="<?= number_format($precio_total, 2, '.', '') ?>">
 
                 <div class="row">
 
@@ -63,7 +63,7 @@
                                         <a class="nav-link" id="tab-pago-link"
                                             data-toggle="tab" href="#pane-pago" role="tab"
                                             aria-controls="pane-pago" aria-selected="false">
-                                            <i class="fas fa-cash-register mr-1"></i> 3. Pago
+                                            <i class="fas fa-cash-register mr-1"></i> 3. Cobro
                                         </a>
                                     </li>
                                 </ul>
@@ -273,67 +273,102 @@
                                     </div>
                                     <!-- /Tab Carrito -->
 
-                                    <!-- ===== Tab 3: Pago ===== -->
+                                    <!-- ===== Tab 3: Cobro ===== -->
                                     <div class="tab-pane fade" id="pane-pago" role="tabpanel"
                                         aria-labelledby="tab-pago-link">
 
-                                        <h2 class="h5 mb-3">Detalles del pago</h2>
+                                        <h2 class="h5 mb-3">Cobro</h2>
 
-                                        <div class="row justify-content-center">
-                                            <div class="col-md-8">
-
-                                                <div class="form-group">
-                                                    <label for="total_a_cancelar_display" class="text-muted small mb-1">Monto a cancelar</label>
-                                                    <input type="text" id="total_a_cancelar_display"
-                                                        class="form-control text-center bg-warning font-weight-bold"
-                                                        style="font-size: 1.3rem;"
-                                                        value="<?= APP_CURRENCY_SYMBOL ?> <?= number_format($precio_total, 2) ?>" readonly>
-                                                </div>
-
-                                                <div class="row">
-                                                    <div class="col-sm-6">
-                                                        <div class="form-group">
-                                                            <label for="total_pagado">Total pagado</label>
-                                                            <div class="input-group">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text"><?= APP_CURRENCY_SYMBOL ?></span>
-                                                                </div>
-                                                                <input type="text" name="total_pagado"
-                                                                    id="total_pagado"
-                                                                    class="form-control text-center"
-                                                                    inputmode="decimal"
-                                                                    placeholder="0.00" autocomplete="off">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm-6">
-                                                        <div class="form-group">
-                                                            <label for="cambio">Cambio</label>
-                                                            <div class="input-group">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text"><?= APP_CURRENCY_SYMBOL ?></span>
-                                                                </div>
-                                                                <input type="text" id="cambio"
-                                                                    class="form-control text-center"
-                                                                    placeholder="0.00" readonly>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
+                                        <?php if (empty($metodos_activos)) : ?>
+                                            <div class="alert alert-warning py-2" role="alert" id="alert-sin-metodos">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                No hay métodos de pago activos. Configure al menos un método de pago
+                                                para poder cobrar la venta.
                                             </div>
-                                        </div>
+                                        <?php else : ?>
+                                            <div class="row justify-content-center">
+                                                <div class="col-md-8">
+
+                                                    <div class="form-group">
+                                                        <label for="total_a_cancelar_display" class="text-muted small mb-1">Monto a cancelar</label>
+                                                        <input type="text" id="total_a_cancelar_display"
+                                                            class="form-control text-center bg-warning font-weight-bold"
+                                                            style="font-size: 1.3rem;"
+                                                            value="<?= APP_CURRENCY_SYMBOL ?> <?= number_format($precio_total, 2) ?>" readonly>
+                                                    </div>
+
+                                                    <div id="pagos-list">
+                                                        <?php foreach ($metodos_activos as $metodo) :
+                                                            $mid = (int)$metodo['id_metodo_pago'];
+                                                            $esEfectivo = $metodo['tipo'] === 'efectivo';
+                                                        ?>
+                                                            <div class="form-group pago-row"
+                                                                data-tipo="<?= htmlspecialchars($metodo['tipo'], ENT_QUOTES, 'UTF-8') ?>"
+                                                                data-id="<?= $mid ?>">
+                                                                <label for="pago_monto_<?= $mid ?>">
+                                                                    <?= htmlspecialchars($metodo['nombre'], ENT_QUOTES, 'UTF-8') ?>
+                                                                </label>
+                                                                <div class="input-group">
+                                                                    <div class="input-group-prepend">
+                                                                        <span class="input-group-text"><?= APP_CURRENCY_SYMBOL ?></span>
+                                                                    </div>
+                                                                    <input type="number" name="pagos[<?= $mid ?>][monto]"
+                                                                        id="pago_monto_<?= $mid ?>"
+                                                                        class="form-control text-center pago-monto"
+                                                                        inputmode="decimal" step="0.01" min="0"
+                                                                        placeholder="0.00" autocomplete="off"
+                                                                        aria-describedby="pago-help-<?= $mid ?>">
+                                                                </div>
+                                                                <?php if (!$esEfectivo) : ?>
+                                                                    <small id="pago-help-<?= $mid ?>" class="form-text text-muted">
+                                                                        Referencia y detalle son opcionales.
+                                                                    </small>
+                                                                    <div class="row mt-1">
+                                                                        <div class="col-sm-6">
+                                                                            <label for="pago_ref_<?= $mid ?>" class="small mb-1">Referencia</label>
+                                                                            <input type="text"
+                                                                                name="pagos[<?= $mid ?>][referencia]"
+                                                                                id="pago_ref_<?= $mid ?>"
+                                                                                class="form-control form-control-sm"
+                                                                                maxlength="100"
+                                                                                placeholder="N° operación, últimos 4 dígitos…"
+                                                                                autocomplete="off">
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            <label for="pago_det_<?= $mid ?>" class="small mb-1">Detalle</label>
+                                                                            <input type="text"
+                                                                                name="pagos[<?= $mid ?>][detalle]"
+                                                                                id="pago_det_<?= $mid ?>"
+                                                                                class="form-control form-control-sm"
+                                                                                maxlength="255"
+                                                                                placeholder="Detalle opcional"
+                                                                                autocomplete="off">
+                                                                        </div>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+
+                                                    <div class="alert alert-info py-2 mb-2 d-none" id="cobro-faltante" role="status"></div>
+                                                    <div class="alert alert-success py-2 mb-2 d-none" id="cobro-vuelto" role="status"></div>
+                                                    <div class="alert alert-warning py-2 mb-2 d-none" id="cobro-exceso-aviso" role="alert"></div>
+
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
 
                                         <div class="d-flex justify-content-between mt-3">
                                             <button type="button" class="btn btn-secondary" id="btn-ant-pago">
                                                 <i class="fas fa-arrow-left mr-1"></i> Anterior
                                             </button>
-                                            <button type="submit" class="btn btn-primary" id="btn_guardar_venta">
+                                            <button type="submit" class="btn btn-primary" id="btn_guardar_venta"
+                                                <?= empty($metodos_activos) ? 'disabled' : '' ?>>
                                                 <i class="fas fa-check mr-1"></i> Guardar venta
                                             </button>
                                         </div>
                                     </div>
-                                    <!-- /Tab Pago -->
+                                    <!-- /Tab Cobro -->
 
                                 </div>
                                 <!-- /tab-content -->

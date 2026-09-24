@@ -52,6 +52,9 @@ $(function () {
         sessionStorage.removeItem('pos_step');
         goToStep(parseInt(savedStep, 10));
     }
+
+    // Estado inicial del cobro (suma / faltante / vuelto / bloqueo)
+    updatePaymentSummary();
 });
 
 // Guardar paso actual antes de agregar al carrito (vuelve a Tab 2)
@@ -325,14 +328,73 @@ $('#modal-nuevo_cliente').on('hidden.bs.modal', function () {
     $('#formNuevoCliente').find('.is-invalid').removeClass('is-invalid');
 });
 
-// ---- Calcular cambio ----
+// ---- Cobro: suma en vivo, faltante/vuelto, bloqueo de submit ----
 
-$(document).on('input keyup', '#total_pagado', function () {
-    const cancelar = parseFloat($('#total_a_cancelar_hidden').val()) || 0;
-    const pagado = parseFloat($(this).val()) || 0;
-    const cambio = pagado - cancelar;
-    $('#cambio').val(cambio.toFixed(2));
-});
+function formatMoney(amount) {
+    const currency = $('#formVenta').data('currency') || 'Bs.';
+    return currency + ' ' + amount.toFixed(2);
+}
+
+function parseAmount(value) {
+    const n = parseFloat(value);
+    return isNaN(n) ? 0 : n;
+}
+
+function paymentSummary() {
+    const total = parseAmount($('#formVenta').data('total'));
+    let suma = 0;
+    let hasCashAmount = false;
+
+    $('.pago-row').each(function () {
+        const monto = parseAmount($(this).find('.pago-monto').val());
+        suma += monto;
+        if ($(this).data('tipo') === 'efectivo' && monto > 0) {
+            hasCashAmount = true;
+        }
+    });
+
+    suma = Math.round(suma * 100) / 100;
+    const diff = Math.round((suma - total) * 100) / 100;
+    const noMethods = $('.pago-row').length === 0;
+    const coverTotal = total > 0 && suma >= total;
+    const excessOk = diff <= 0 || (diff > 0 && hasCashAmount);
+    const canSubmit = !noMethods && coverTotal && excessOk;
+
+    return {total, suma, diff, hasCashAmount, canSubmit, noMethods};
+}
+
+function updatePaymentSummary() {
+    const s = paymentSummary();
+
+    $('#cobro-faltante').addClass('d-none');
+    $('#cobro-vuelto').addClass('d-none');
+    $('#cobro-exceso-aviso').addClass('d-none');
+
+    if (s.noMethods) {
+        $('#btn_guardar_venta').prop('disabled', true);
+        return;
+    }
+
+    if (s.suma < s.total) {
+        $('#cobro-faltante')
+            .text('Faltan ' + formatMoney(s.total - s.suma) + ' para completar el total.')
+            .removeClass('d-none');
+    } else if (s.diff > 0) {
+        if (s.hasCashAmount) {
+            $('#cobro-vuelto')
+                .text('Vuelto: ' + formatMoney(s.diff))
+                .removeClass('d-none');
+        } else {
+            $('#cobro-exceso-aviso')
+                .text('El exceso sobre el total solo se admite en efectivo.')
+                .removeClass('d-none');
+        }
+    }
+
+    $('#btn_guardar_venta').prop('disabled', !s.canSubmit);
+}
+
+$(document).on('input', '.pago-monto', updatePaymentSummary);
 
 // ---- Validar antes de guardar la venta ----
 
@@ -343,6 +405,20 @@ $('#formVenta').on('submit', function (e) {
         goToStep(0);
         return;
     }
+
+    const s = paymentSummary();
+    if (!s.canSubmit) {
+        e.preventDefault();
+        AlertUtils.warning(
+            'Atención',
+            s.noMethods
+                ? 'No hay métodos de pago activos. Configure al menos un método para poder cobrar.'
+                : 'La suma de los pagos debe cubrir el total de la venta.'
+        );
+        goToStep(2);
+        return;
+    }
+
     // Limpiar sesión al confirmar la venta
     sessionStorage.removeItem('pos_client');
     sessionStorage.removeItem('pos_step');
