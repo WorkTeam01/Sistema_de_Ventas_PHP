@@ -405,6 +405,10 @@ class SaleController extends Controller
         $saleModel = new Sale();
         $snapshot = $saleModel->findWithDetails($id_venta);
 
+        if ($snapshot && !Auth::can('view_sales_all') && (int)$snapshot['id_usuario'] !== (int)Auth::user()['id_usuario']) {
+            $this->forbidden('No tienes permiso para eliminar esta venta.');
+        }
+
         if ($snapshot && $saleModel->isReferenced($id_venta)) {
             $this->flash(
                 'No se puede eliminar la venta porque tiene devoluciones asociadas.',

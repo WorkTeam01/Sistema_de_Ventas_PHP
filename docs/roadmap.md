@@ -37,10 +37,6 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 
 ## Siguiente 🔜
 
-_Fix suelto previo (fuera de SDD, no cambia esquema/permiso): cerrar el hueco de
-scoping en `SaleController::destroy` (un vendedor puede eliminar por POST una
-venta ajena)._
-
 ## Backlog · ideas 💡
 
 _No comprometido ni ordenado. Toda idea debe respetar `docs/constitution.md`,
