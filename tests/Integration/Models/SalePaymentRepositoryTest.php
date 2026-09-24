@@ -84,12 +84,11 @@ final class SalePaymentRepositoryTest extends TestCase
         return (int)$this->pdo->lastInsertId();
     }
 
-    private function insertPago(int $idVenta, int $idMetodo, float $monto, ?string $ref = null): void
+    private function insertPago(int $idVenta, int $idMetodo, float $monto): void
     {
-        $refSql = $ref === null ? 'NULL' : "'$ref'";
         $this->pdo->exec(
-            "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto, referencia)
-             VALUES ($idVenta, $idMetodo, $monto, $refSql)"
+            "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto)
+             VALUES ($idVenta, $idMetodo, $monto)"
         );
     }
 
@@ -118,7 +117,7 @@ final class SalePaymentRepositoryTest extends TestCase
     {
         $idVenta = $this->seedVentaFinalizada();
         $this->insertPago($idVenta, 1, 30.00);
-        $this->insertPago($idVenta, 2, 32.50, '****4242');
+        $this->insertPago($idVenta, 2, 32.50);
 
         $lines = $this->payments->byVenta($idVenta);
 
@@ -127,12 +126,10 @@ final class SalePaymentRepositoryTest extends TestCase
         $this->assertSame('Efectivo', $lines[0]['nombre']);
         $this->assertSame('efectivo', $lines[0]['tipo']);
         $this->assertEqualsWithDelta(30.00, (float)$lines[0]['monto'], 0.001);
-        $this->assertNull($lines[0]['referencia']);
 
         $this->assertSame('Tarjeta', $lines[1]['nombre']);
         $this->assertSame('no_efectivo', $lines[1]['tipo']);
         $this->assertEqualsWithDelta(32.50, (float)$lines[1]['monto'], 0.001);
-        $this->assertSame('****4242', $lines[1]['referencia']);
     }
 
     public function test_byVenta_is_scoped_to_requested_sale(): void
@@ -149,21 +146,6 @@ final class SalePaymentRepositoryTest extends TestCase
         $this->assertCount(1, $lines2);
         $this->assertEqualsWithDelta(62.50, (float)$lines1[0]['monto'], 0.001);
         $this->assertEqualsWithDelta(20.00, (float)$lines2[0]['monto'], 0.001);
-    }
-
-    public function test_byVenta_includes_detalle_when_present(): void
-    {
-        $idVenta = $this->seedVentaFinalizada();
-        $this->pdo->exec(
-            "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto, referencia, detalle)
-             VALUES ($idVenta, 2, 62.50, 'OP-999', 'Operación 123')"
-        );
-
-        $lines = $this->payments->byVenta($idVenta);
-
-        $this->assertCount(1, $lines);
-        $this->assertSame('OP-999', $lines[0]['referencia']);
-        $this->assertSame('Operación 123', $lines[0]['detalle']);
     }
 
     // -------------------------------------------------------------------------
@@ -197,7 +179,7 @@ final class SalePaymentRepositoryTest extends TestCase
             ['nro_venta' => 1, 'id_cliente' => 1],
             [
                 ['id_metodo_pago' => 1, 'monto' => 30.00],
-                ['id_metodo_pago' => 2, 'monto' => 32.50, 'referencia' => '****4242', 'detalle' => 'OP-1'],
+                ['id_metodo_pago' => 2, 'monto' => 32.50],
             ]
         );
 
@@ -212,8 +194,6 @@ final class SalePaymentRepositoryTest extends TestCase
         $this->assertSame('Tarjeta', $lines[1]['nombre']);
         $this->assertSame('no_efectivo', $lines[1]['tipo']);
         $this->assertEqualsWithDelta(32.50, (float)$lines[1]['monto'], 0.001);
-        $this->assertSame('****4242', $lines[1]['referencia']);
-        $this->assertSame('OP-1', $lines[1]['detalle']);
     }
 
     public function test_storeWithStock_faltante_rejects_without_sale_or_payments(): void
@@ -278,7 +258,7 @@ final class SalePaymentRepositoryTest extends TestCase
             ['nro_venta' => 1, 'id_cliente' => 1],
             [
                 ['id_metodo_pago' => 2, 'monto' => 30.00],
-                ['id_metodo_pago' => 2, 'monto' => 32.50, 'referencia' => 'B'],
+                ['id_metodo_pago' => 2, 'monto' => 32.50],
             ]
         );
 
@@ -288,8 +268,6 @@ final class SalePaymentRepositoryTest extends TestCase
         $this->assertCount(1, $lines);
         $this->assertSame('Tarjeta', $lines[0]['nombre']);
         $this->assertEqualsWithDelta(62.50, (float)$lines[0]['monto'], 0.001);
-        // Primera referencia gana (la suma es de montos; referencia no se concatena)
-        $this->assertNull($lines[0]['referencia']);
     }
 
     public function test_storeWithStock_sin_metodos_when_catalog_empty_or_all_deactivated(): void

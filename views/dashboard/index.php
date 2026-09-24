@@ -147,7 +147,7 @@
 
             <!-- ===== Gráficos ===== -->
             <?php if (!empty($chartData['datasets'])) :
-                $chartLabelsList = array_map(static fn ($d) => mb_strtolower($d['label']), $chartData['datasets']);
+                $chartLabelsList = array_map(static fn($d) => mb_strtolower($d['label']), $chartData['datasets']);
                 $chartTitle      = implode(' vs ', array_map('ucfirst', $chartLabelsList));
                 $chartDescriptor = implode(' y ', $chartLabelsList);
             ?>
@@ -267,7 +267,7 @@
                                                         #<?= $venta['nro_venta'] ?>
                                                     </a>
                                                 </td>
-                                                <td><?= htmlspecialchars($venta['nombre_cliente']) ?></td>
+                                                <td><?= htmlspecialchars($venta['nombre_cliente'] ?? 'Consumidor final') ?></td>
                                                 <td class="text-right text-success font-weight-bold">
                                                     <?= APP_CURRENCY_SYMBOL ?> <?= number_format($venta['total_pagado'], 2, ',', '.') ?>
                                                 </td>

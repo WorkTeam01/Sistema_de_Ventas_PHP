@@ -30,8 +30,8 @@ class Sale extends Model
                            SELECT 1 FROM tb_devoluciones d
                            WHERE d.id_venta = v.id_venta
                        ) AS tiene_devoluciones
-                FROM tb_ventas v
-                INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente";
+                 FROM tb_ventas v
+                 LEFT JOIN tb_clientes c ON v.id_cliente = c.id_cliente";
         $params = [];
         if ($userId !== null) {
             $sql .= " WHERE v.id_usuario = ?";
@@ -53,7 +53,7 @@ class Sale extends Model
             "SELECT v.*, c.nombre_cliente, c.nit_ci_cliente, c.celular_cliente,
                     c.email_cliente, c.id_cliente AS id_cliente_rel
              FROM tb_ventas v
-             INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente
+             LEFT JOIN tb_clientes c ON v.id_cliente = c.id_cliente
              WHERE v.id_venta = ?",
             [$id]
         );
@@ -105,7 +105,7 @@ class Sale extends Model
      * todo en una sola transacción (sin ventana donde la venta exista sin pagos).
      *
      * @param array $data    Datos de la venta: nro_venta, id_cliente (total_pagado se ignora).
-     * @param array $payments Líneas: id_metodo_pago, monto, referencia?, detalle?.
+     * @param array $payments Líneas: id_metodo_pago, monto.
      *                        Dos entradas del mismo método se suman en una línea (UNIQUE).
      * @return array{ok: bool, id_venta: ?int, vuelto: float, error: ?string, faltante: ?float}
      *         error: empty_cart|sin_metodos|invalid_payment|faltante|exceso_sin_efectivo|generic
@@ -174,11 +174,7 @@ class Sale extends Model
                     return $fail('invalid_payment');
                 }
                 if (!isset($merged[$idMetodo])) {
-                    $merged[$idMetodo] = [
-                        'monto'      => 0.0,
-                        'referencia' => $payment['referencia'] ?? null,
-                        'detalle'    => $payment['detalle'] ?? null,
-                    ];
+                    $merged[$idMetodo] = ['monto' => 0.0];
                 }
                 $merged[$idMetodo]['monto'] += $monto;
             }
@@ -210,13 +206,16 @@ class Sale extends Model
                 }
             }
 
-            // INSERT cabecera de venta
+            // INSERT cabecera de venta (id_cliente opcional → NULL = venta sin cliente)
             $idUsuario = Auth::user()['id_usuario'] ?? null;
+            $idCliente = isset($data['id_cliente']) && (int)$data['id_cliente'] > 0
+                ? (int)$data['id_cliente']
+                : null;
             $db->prepare(
                 "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado) VALUES (?, ?, ?, ?)"
             )->execute([
                 $data['nro_venta'],
-                $data['id_cliente'],
+                $idCliente,
                 $idUsuario,
                 $totalReal,
             ]);
@@ -224,16 +223,13 @@ class Sale extends Model
 
             // INSERT una línea por método (monto ya sumado; vuelto nunca se persiste)
             $insertPago = $db->prepare(
-                "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto, referencia, detalle)
-                 VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto) VALUES (?, ?, ?)"
             );
             foreach ($merged as $idMetodo => $line) {
                 $insertPago->execute([
                     $idVenta,
                     $idMetodo,
                     round($line['monto'], 2),
-                    $line['referencia'],
-                    $line['detalle'],
                 ]);
             }
 
@@ -389,7 +385,7 @@ class Sale extends Model
         $limit = (int)$limit;
         $sql = "SELECT v.id_venta, v.nro_venta, c.nombre_cliente, v.total_pagado, v.fyh_creacion
                 FROM tb_ventas v
-                INNER JOIN tb_clientes c ON v.id_cliente = c.id_cliente";
+                LEFT JOIN tb_clientes c ON v.id_cliente = c.id_cliente";
         $params = [];
         if ($userId !== null) {
             $sql .= " WHERE v.id_usuario = ?";

@@ -31,6 +31,9 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 17. **Formas de pago + pago mixto** — catálogo configurable de métodos, pago mixto
     por venta, validación suma ≥ total, vuelto, desglose en detalle/PDF y backfill
     idempotente. Prerequisito del arqueo/cuadre de caja. → `specs/003-formas-de-pago-mixto/`
+18. **Ventas sin cliente + forma de pago único/mixto** — `tb_ventas.id_cliente`
+    nullable ("Consumidor final"), selector único/mixto en el paso Cobro con
+    `<template>`, método único no duplicable, vuelto intacto. → CHANGELOG 1.18.1
 
 ## Siguiente 🔜
 

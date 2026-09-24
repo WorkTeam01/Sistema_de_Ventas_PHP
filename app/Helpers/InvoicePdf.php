@@ -22,8 +22,8 @@ class InvoicePdf
      */
     public static function generate(array $sale, array $totals, string $vendedor, int $id): void
     {
-        $nombreCliente = $sale['nombre_cliente'];
-        $nitCiCliente = $sale['nit_ci_cliente'];
+        $nombreCliente = $sale['nombre_cliente'] ?? 'Consumidor final';
+        $nitCiCliente = $sale['nit_ci_cliente'] ?? '—';
         $fecha = date('d/m/Y', strtotime($sale['fyh_creacion']));
         $items = $sale['items'];
         $precioTotal = $totals['precio_total'];
@@ -100,7 +100,7 @@ class InvoicePdf
      * @param float $totalUnitarios Suma de precios unitarios.
      * @param string $montoLiteral Monto en letras.
      * @param string $vendedor Nombre del vendedor.
-     * @param array $payments Líneas de pago (nombre, monto, referencia, detalle).
+     * @param array $payments Líneas de pago (nombre, monto).
      * @param float $vuelto Vuelto derivado (0 si no corresponde).
      * @return string HTML listo para writeHTML().
      */
@@ -198,35 +198,31 @@ class InvoicePdf
 <br>
 <table border="0" cellpadding="2" style="font-size: 11px">
     <tr>
-        <td colspan="4"><b>Pagos</b></td>
+        <td colspan="2"><b>Pagos</b></td>
     </tr>';
 
         if (empty($payments)) {
             $html .= '
     <tr>
-        <td colspan="4" style="text-align: center">—</td>
+        <td colspan="2" style="text-align: center">—</td>
     </tr>';
         } else {
             $html .= '
     <tr style="background-color: #d6d6d6">
         <td><b>Método</b></td>
         <td><b>Monto</b></td>
-        <td><b>Referencia</b></td>
-        <td><b>Detalle</b></td>
     </tr>';
             foreach ($payments as $payment) {
                 $html .= '
     <tr>
         <td>' . htmlspecialchars((string)($payment['nombre'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>
         <td style="text-align: right">' . APP_CURRENCY_SYMBOL . ' ' . number_format((float)($payment['monto'] ?? 0), 2) . '</td>
-        <td>' . htmlspecialchars((string)($payment['referencia'] ?? '—'), ENT_QUOTES, 'UTF-8') . '</td>
-        <td>' . htmlspecialchars((string)($payment['detalle'] ?? '—'), ENT_QUOTES, 'UTF-8') . '</td>
     </tr>';
             }
             if ($vuelto > 0) {
                 $html .= '
     <tr>
-        <td colspan="3" style="text-align: right"><b>Vuelto</b></td>
+        <td style="text-align: right"><b>Vuelto</b></td>
         <td style="text-align: right">' . APP_CURRENCY_SYMBOL . ' ' . number_format($vuelto, 2) . '</td>
     </tr>';
             }
@@ -244,4 +240,3 @@ class InvoicePdf
         return $html;
     }
 }
-

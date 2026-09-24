@@ -55,7 +55,7 @@ final class SalePaymentVueltoForTest extends TestCase
     public function test_missing_monto_key_is_treated_as_zero(): void
     {
         $result = SalePayment::vueltoFor(50.00, [
-            ['referencia' => '1234'],
+            ['tipo' => 'efectivo'],
             ['monto' => 50.00],
         ]);
 

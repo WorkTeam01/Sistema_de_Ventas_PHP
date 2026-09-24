@@ -52,9 +52,6 @@ $(function () {
         sessionStorage.removeItem('pos_step');
         goToStep(parseInt(savedStep, 10));
     }
-
-    // Estado inicial del cobro (suma / faltante / vuelto / bloqueo)
-    updatePaymentSummary();
 });
 
 // Guardar paso actual antes de agregar al carrito (vuelve a Tab 2)
@@ -84,10 +81,6 @@ $(document).on('submit', '.form-cart-remove', function () {
 // ---- Botones de navegación ----
 
 $('#btn-sig-cliente').on('click', function () {
-    if (!$('#id_cliente_hidden').val()) {
-        AlertUtils.warning('Atención', 'Debe seleccionar un cliente antes de continuar.');
-        return;
-    }
     goToStep(1);
 });
 
@@ -130,7 +123,7 @@ $('#modal-buscar_producto').on('shown.bs.modal', function () {
             sInfoFiltered: '(de _MAX_ productos)',
             sSearch: 'Buscar:',
             sLoadingRecords: 'Cargando...',
-            oPaginate: {sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior'}
+            oPaginate: { sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior' }
         }
     });
 });
@@ -155,7 +148,7 @@ $('#modal-buscar_cliente').on('shown.bs.modal', function () {
             sInfoFiltered: '(de _MAX_ clientes)',
             sSearch: 'Buscar:',
             sLoadingRecords: 'Cargando...',
-            oPaginate: {sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior'}
+            oPaginate: { sFirst: 'Primero', sLast: 'Último', sNext: 'Siguiente', sPrevious: 'Anterior' }
         }
     });
 });
@@ -189,7 +182,7 @@ function seleccionarCliente(id, nombre, nit, celular, email) {
     $('#resumen-cliente').removeClass('text-muted font-italic').text(nombre);
 
     // Persistir en sessionStorage para sobrevivir recargas del carrito
-    sessionStorage.setItem('pos_client', JSON.stringify({id, nombre, nit, celular, email}));
+    sessionStorage.setItem('pos_client', JSON.stringify({ id, nombre, nit, celular, email }));
 }
 
 $(document).on('click', '.btn-seleccionar-cliente', function () {
@@ -207,7 +200,7 @@ $(document).on('click', '.btn-seleccionar-cliente', function () {
 
 $('#formNuevoCliente').validate({
     rules: {
-        nombre_cliente: {required: true, minlength: 3, maxlength: 255},
+        nombre_cliente: { required: true, minlength: 3, maxlength: 255 },
         nit_ci_cliente: {
             required: true, minlength: 3, maxlength: 50,
             remote: {
@@ -223,7 +216,7 @@ $('#formNuevoCliente').validate({
                 }
             }
         },
-        celular_cliente: {required: true, minlength: 7, maxlength: 50},
+        celular_cliente: { required: true, minlength: 7, maxlength: 50 },
         email_cliente: {
             required: true, email: true, maxlength: 254,
             remote: {
@@ -328,7 +321,18 @@ $('#modal-nuevo_cliente').on('hidden.bs.modal', function () {
     $('#formNuevoCliente').find('.is-invalid').removeClass('is-invalid');
 });
 
-// ---- Cobro: suma en vivo, faltante/vuelto, bloqueo de submit ----
+// ---- Cobro: forma de pago (único / mixto), suma en vivo ----
+
+let metodosActivos = $('#formVenta').data('metodos') || [];
+if (typeof metodosActivos === 'string') {
+    try {
+        metodosActivos = JSON.parse(metodosActivos);
+    } catch (e) {
+        metodosActivos = [];
+    }
+}
+
+let currentPaymentMode = 'unico';
 
 function formatMoney(amount) {
     const currency = $('#formVenta').data('currency') || 'Bs.';
@@ -340,27 +344,94 @@ function parseAmount(value) {
     return isNaN(n) ? 0 : n;
 }
 
+function optionForMetodo(m) {
+    return $('<option>').val(m.id_metodo_pago).attr('data-tipo', m.tipo).text(m.nombre);
+}
+
+function refillMethodSelect($select, excludedIds) {
+    $select.empty().append($('<option>').val('').text('-- Seleccione método --'));
+    metodosActivos.forEach(function (m) {
+        if (excludedIds.indexOf(m.id_metodo_pago) !== -1) return;
+        $select.append(optionForMetodo(m));
+    });
+}
+
+function currentUsedMethodIds() {
+    const used = [];
+    $('#contenedor-pagos .pago-item').each(function () {
+        const v = $(this).find('.select-metodo-pago').val();
+        if (v) used.push(parseInt(v, 10));
+    });
+    return used;
+}
+
+function refillOtherSelects() {
+    const ids = currentUsedMethodIds();
+    $('#contenedor-pagos .pago-item').each(function () {
+        const $sel = $(this).find('.select-metodo-pago');
+        const propio = parseInt($sel.val(), 10) || 0;
+        const others = $.grep(ids, function (id) { return id !== propio; });
+        refillMethodSelect($sel, others);
+        if (propio) $sel.val(propio);
+    });
+}
+
+function agregarPagoMixto() {
+    const $template = $('#template-pago-mixto')[0];
+    const $row = $(document.importNode($template.content, true));
+    refillMethodSelect($row.find('.select-metodo-pago'), currentUsedMethodIds());
+    $('#contenedor-pagos').append($row);
+    refillOtherSelects();
+    syncPaymentNames();
+    updatePaymentSummary();
+}
+
+function paymentLines() {
+    const lines = [];
+    if (currentPaymentMode === 'unico') {
+        const id = parseInt($('#metodo-pago-unico').val(), 10);
+        if (id) {
+            lines.push({
+                id_metodo_pago: id,
+                tipo: $('#metodo-pago-unico option:selected').data('tipo') || '',
+                monto: parseAmount($('#monto-unico').val())
+            });
+        }
+    } else {
+        $('#contenedor-pagos .pago-item').each(function () {
+            const $sel = $(this).find('.select-metodo-pago');
+            const id = parseInt($sel.val(), 10);
+            if (!id) return;
+            lines.push({
+                id_metodo_pago: id,
+                tipo: $sel.find('option:selected').data('tipo') || '',
+                monto: parseAmount($(this).find('.pago-monto-mixto').val())
+            });
+        });
+    }
+    return lines;
+}
+
 function paymentSummary() {
     const total = parseAmount($('#formVenta').data('total'));
     let suma = 0;
     let hasCashAmount = false;
 
-    $('.pago-row').each(function () {
-        const monto = parseAmount($(this).find('.pago-monto').val());
-        suma += monto;
-        if ($(this).data('tipo') === 'efectivo' && monto > 0) {
+    paymentLines().forEach(function (line) {
+        suma += line.monto;
+        if (line.tipo === 'efectivo' && line.monto > 0) {
             hasCashAmount = true;
         }
     });
 
     suma = Math.round(suma * 100) / 100;
     const diff = Math.round((suma - total) * 100) / 100;
-    const noMethods = $('.pago-row').length === 0;
+    const noMethods = metodosActivos.length === 0;
     const coverTotal = total > 0 && suma >= total;
     const excessOk = diff <= 0 || (diff > 0 && hasCashAmount);
     const canSubmit = !noMethods && coverTotal && excessOk;
 
-    return {total, suma, diff, hasCashAmount, canSubmit, noMethods};
+    return { total, suma, diff, hasCashAmount, canSubmit, noMethods };
 }
 
 function updatePaymentSummary() {
@@ -394,17 +465,94 @@ function updatePaymentSummary() {
     $('#btn_guardar_venta').prop('disabled', !s.canSubmit);
 }
 
-$(document).on('input', '.pago-monto', updatePaymentSummary);
+function syncPaymentNames() {
+    $('#pane-pago input[name^="pagos["]').removeAttr('name');
+
+    if (currentPaymentMode === 'unico') {
+        const id = parseInt($('#metodo-pago-unico').val(), 10);
+        if (id) {
+            $('#monto-unico').attr('name', 'pagos[' + id + '][monto]');
+        }
+    } else {
+        $('#contenedor-pagos .pago-item').each(function () {
+            const id = parseInt($(this).find('.select-metodo-pago').val(), 10);
+            if (!id) return;
+            $(this).find('.pago-monto-mixto').attr('name', 'pagos[' + id + '][monto]');
+        });
+    }
+}
+
+function setPaymentMode(mode) {
+    currentPaymentMode = mode;
+    const isUnico = mode === 'unico';
+    const $unico = $('#seccion-pago-unico');
+    const $mixto = $('#seccion-pago-mixto');
+
+    $('#btn-pago-unico').toggleClass('active', isUnico);
+    $('#btn-pago-mixto').toggleClass('active', !isUnico);
+    $('#forma_pago_unico').prop('checked', isUnico);
+    $('#forma_pago_mixto').prop('checked', !isUnico);
+
+    $unico.toggleClass('d-none', !isUnico);
+    $mixto.toggleClass('d-none', isUnico);
+
+    // La sección inactiva queda deshabilitada para que no envíe inputs al backend
+    (isUnico ? $mixto : $unico).find('input, select, textarea').prop('disabled', true);
+    (isUnico ? $unico : $mixto).find('input, select, textarea').prop('disabled', false);
+
+    if (!isUnico && $('#contenedor-pagos .pago-item').length === 0) {
+        agregarPagoMixto();
+    }
+
+    syncPaymentNames();
+    updatePaymentSummary();
+}
+
+$(document).on('change', 'input[name="forma_pago"]', function () {
+    const mode = $('input[name="forma_pago"]:checked').val() === 'mixto' ? 'mixto' : 'unico';
+    setPaymentMode(mode);
+    sessionStorage.setItem('pos_forma_pago', mode);
+});
+
+$('#metodo-pago-unico').on('change', function () {
+    syncPaymentNames();
+    updatePaymentSummary();
+});
+
+$(document).on('input', '#monto-unico', updatePaymentSummary);
+
+$('#btn-agregar-pago').on('click', agregarPagoMixto);
+
+$(document).on('change', '.select-metodo-pago', function () {
+    refillOtherSelects();
+    syncPaymentNames();
+    updatePaymentSummary();
+});
+
+$(document).on('input', '.pago-monto-mixto', function () {
+    syncPaymentNames();
+    updatePaymentSummary();
+});
+
+$(document).on('click', '.btn-eliminar-pago', function () {
+    $(this).closest('.pago-item').remove();
+    refillOtherSelects();
+    syncPaymentNames();
+    updatePaymentSummary();
+    if ($('#contenedor-pagos .pago-item').length === 0) {
+        agregarPagoMixto();
+    }
+});
+
+$(function () {
+    const savedMode = sessionStorage.getItem('pos_forma_pago');
+    setPaymentMode(savedMode === 'mixto' ? 'mixto' : 'unico');
+});
 
 // ---- Validar antes de guardar la venta ----
 
 $('#formVenta').on('submit', function (e) {
-    if (!$('#id_cliente_hidden').val()) {
-        e.preventDefault();
-        AlertUtils.warning('Atención', 'Debe seleccionar un cliente antes de guardar la venta.');
-        goToStep(0);
-        return;
-    }
+    syncPaymentNames();
 
     const s = paymentSummary();
     if (!s.canSubmit) {
@@ -422,17 +570,19 @@ $('#formVenta').on('submit', function (e) {
     // Limpiar sesión al confirmar la venta
     sessionStorage.removeItem('pos_client');
     sessionStorage.removeItem('pos_step');
+    sessionStorage.removeItem('pos_forma_pago');
 });
 
 // ---- Cancelar venta ----
 
 $('#btn-cancelar-venta').on('click', function () {
-    const $btn      = $(this);
-    const nroVenta  = $btn.data('nro-venta');
+    const $btn = $(this);
+    const nroVenta = $btn.data('nro-venta');
     const csrfToken = $btn.data('csrf');
 
     sessionStorage.removeItem('pos_client');
     sessionStorage.removeItem('pos_step');
+    sessionStorage.removeItem('pos_forma_pago');
 
     fetch(BASE_URL + '/sales/cancel', {
         method: 'POST',

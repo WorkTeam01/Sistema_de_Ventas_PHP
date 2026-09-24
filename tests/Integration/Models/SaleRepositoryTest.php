@@ -390,6 +390,77 @@ final class SaleRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // Venta sin cliente (Consumidor final)
+    // -------------------------------------------------------------------------
+
+    private function storeSaleSinCliente(int $nroVenta = 1, int $cantidad = 3): array
+    {
+        $this->seedCart($nroVenta, 1, $cantidad);
+        $total = $cantidad * 10.00;
+        return $this->sale->storeWithStock(
+            [
+                'nro_venta'  => $nroVenta,
+                'id_cliente' => null,
+            ],
+            $this->payEfectivo($total)
+        );
+    }
+
+    public function test_storeWithStock_creates_sale_without_client(): void
+    {
+        $result = $this->storeSaleSinCliente();
+
+        $this->assertTrue($result['ok']);
+        $this->assertNotNull($result['id_venta']);
+
+        $row = $this->pdo->query("SELECT id_cliente FROM tb_ventas WHERE nro_venta = 1")->fetch();
+        $this->assertNull($row['id_cliente']);
+    }
+
+    public function test_storeWithStock_treats_id_cliente_zero_as_null(): void
+    {
+        $this->seedCart(1, 1, 3);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 0],
+            $this->payEfectivo(30.00)
+        );
+
+        $this->assertTrue($result['ok']);
+        $row = $this->pdo->query("SELECT id_cliente FROM tb_ventas WHERE nro_venta = 1")->fetch();
+        $this->assertNull($row['id_cliente']);
+    }
+
+    public function test_allWithDetails_includes_sales_without_client(): void
+    {
+        $this->storeSaleSinCliente();
+
+        $rows = $this->sale->allWithDetails();
+        $this->assertCount(1, $rows);
+        $this->assertArrayHasKey('nombre_cliente', $rows[0]);
+        $this->assertNull($rows[0]['nombre_cliente']);
+    }
+
+    public function test_findWithDetails_returns_client_fields_null_without_client(): void
+    {
+        $this->storeSaleSinCliente();
+
+        $sale = $this->sale->findWithDetails(1);
+        $this->assertIsArray($sale);
+        $this->assertNull($sale['nombre_cliente']);
+        $this->assertNull($sale['nit_ci_cliente']);
+        $this->assertCount(1, $sale['items']);
+    }
+
+    public function test_latest_includes_sales_without_client(): void
+    {
+        $this->storeSaleSinCliente();
+
+        $rows = $this->sale->latest(5);
+        $this->assertCount(1, $rows);
+        $this->assertNull($rows[0]['nombre_cliente']);
+    }
+
+    // -------------------------------------------------------------------------
     // computeInvoiceTotals (lógica pura, no toca BD)
     // -------------------------------------------------------------------------
 

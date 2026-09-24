@@ -65,8 +65,7 @@ efectivo`) y un estado activo.
 
 - FR-5: WHEN el vendedor llega al paso Cobro del wizard de venta, THE SYSTEM
   shall mostrar el total de la venta y una fila por cada método de pago activo
-  con un campo de monto, y — WHERE el método es de tipo `no efectivo` — campos
-  opcionales `referencia` y `detalle`.
+  con un campo de monto.
 - FR-6: WHEN el vendedor confirma el cobro, THE SYSTEM shall validar que la suma
   de los montos por método sea **mayor o igual** al total de la venta, calculando
   tanto el total como la suma server-side dentro de la transacción.
@@ -80,9 +79,8 @@ efectivo`) y un estado activo.
   (suma − total) y mostrarlo en la confirmación; el vuelto no se persiste como
   línea de pago.
 - FR-10: WHEN el cobro es válido y se confirma, THE SYSTEM shall registrar una
-  línea de pago por cada método con monto > 0 (método, monto, `referencia` /
-  `detalle` opcionales), dentro de la misma transacción que crea la venta
-  (`Sale::storeWithStock`).
+  línea de pago por cada método con monto > 0 (método, monto), dentro de la misma
+  transacción que crea la venta (`Sale::storeWithStock`).
 - FR-11: IF no existe ningún método de pago activo, THEN THE SYSTEM shall
   bloquear la finalización de la venta e indicar al administrador que debe
   configurar al menos un método.
@@ -90,7 +88,7 @@ efectivo`) y un estado activo.
 ### Consulta y presentación
 
 - FR-12: THE SYSTEM shall mostrar en el detalle de la venta el desglose de pagos:
-  método, monto, referencia/detalle si los tiene, y el vuelto si correspondió.
+  método, monto, y el vuelto si correspondió.
 - FR-13: THE SYSTEM shall incluir en la factura PDF (`InvoicePdf`) el desglose de
   pagos y el vuelto si correspondió.
 - FR-14: WHERE una venta no tiene líneas de pago (histórica o backfill no
@@ -139,8 +137,8 @@ efectivo`) y un estado activo.
 - Doble tarjeta o doble QR en una misma venta → el paso Cobro ofrece una fila por
   método activo; dos cobros del mismo método se suman en su monto (una sola
   línea por método por venta).
-- Efectivo sin referencia → los campos `referencia`/`detalle` son opcionales y
-  solo se ofrecen en métodos `no efectivo` (FR-5).
+- Pago confirmado: cada fila del Cobro persiste una línea `método + monto`; no
+  se capturan referencias de pago en caja (FR-5/FR-10).
 - Catálogo vacío o todos desactivados → no se puede finalizar venta (FR-11).
 - Método referenciado en ventas históricas → no se elimina, solo se desactiva
   (FR-2/FR-3).
@@ -165,7 +163,7 @@ efectivo`) y un estado activo.
   detalle de la venta y en el PDF; el reporte puede venir con el arqueo).
 - Nota de crédito / comprobante adicional por la venta.
 - Métodos de pago con integración real a pasarelas/POS bancario (solo registro
-  informativo de referencia).
+  informativo del monto por método).
 - Fix del hueco de scoping en `SaleController::destroy` (un vendedor puede
   eliminar por POST una venta ajena): no cambia esquema ni agrega permiso ni
   regla de negocio → va como `fix(sales):` directo, fuera de specs.
@@ -202,7 +200,5 @@ Ronda de especificación (2026-09-23):
   método en esta iteración → FR-12 a FR-14.
 - Histórico: datos existentes válidos sin pagos (mostrar "—") + backfill
   idempotente opcional que asume "Efectivo = total" → FR-15 y FR-14.
-- Campos opcionales `referencia`/`detalle` en métodos no efectivo (últimos
-  4 dígitos, código de autorización, N° de operación) → FR-5 y FR-10.
 - Métodos típicos mínimos: Efectivo, Tarjeta, Transferencia bancaria, QR → FR-4
   (el catálogo permite otros).

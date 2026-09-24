@@ -173,7 +173,7 @@ class ReportController extends Controller
         $data = array_map(fn($r) => [
             $r['nro_venta'],
             date('d/m/Y H:i', strtotime($r['fyh_creacion'])),
-            $r['cliente'],
+            $r['cliente'] ?? 'Consumidor final',
             number_format((float)$r['total_pagado'], 2),
         ], $rows);
 

@@ -64,7 +64,7 @@
                                             <td class="text-center"><?= $contador += 1; ?></td>
                                             <td class="text-center"><?= htmlspecialchars($sale['nro_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td>
-                                                <?= htmlspecialchars($sale['nombre_cliente'], ENT_QUOTES, 'UTF-8'); ?>
+                                                <?= htmlspecialchars($sale['nombre_cliente'] ?? 'Consumidor final', ENT_QUOTES, 'UTF-8'); ?>
                                                 <?php if (!empty($sale['tiene_devoluciones'])): ?>
                                                     <span class="badge badge-warning ml-1" style="font-size:.75rem;">Devuelto</span>
                                                 <?php endif; ?>

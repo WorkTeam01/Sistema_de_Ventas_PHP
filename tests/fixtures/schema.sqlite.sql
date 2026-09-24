@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS tb_carrito (
 CREATE TABLE IF NOT EXISTS tb_ventas (
     id_venta            INTEGER PRIMARY KEY AUTOINCREMENT,
     nro_venta           INTEGER NOT NULL,
-    id_cliente          INTEGER NOT NULL,
+    id_cliente          INTEGER DEFAULT NULL,
     id_usuario          INTEGER DEFAULT NULL,
     total_pagado        NUMERIC NOT NULL,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -187,8 +187,6 @@ CREATE TABLE IF NOT EXISTS tb_pagos (
     id_venta        INTEGER NOT NULL,
     id_metodo_pago  INTEGER NOT NULL,
     monto           NUMERIC NOT NULL,
-    referencia      TEXT    DEFAULT NULL,
-    detalle         TEXT    DEFAULT NULL,
     fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (id_venta, id_metodo_pago),
     FOREIGN KEY (id_venta) REFERENCES tb_ventas (id_venta) ON DELETE CASCADE,

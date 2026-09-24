@@ -94,10 +94,10 @@
                         <div class="card-body pb-2">
                             <dl class="row mb-0">
                                 <dt class="col-sm-4 text-muted">Nombre</dt>
-                                <dd class="col-sm-8"><?= htmlspecialchars($nombre_cliente, ENT_QUOTES, 'UTF-8') ?></dd>
+                                <dd class="col-sm-8"><?= htmlspecialchars($nombre_cliente ?? 'Consumidor final', ENT_QUOTES, 'UTF-8') ?></dd>
 
                                 <dt class="col-sm-4 text-muted">NIT/CI</dt>
-                                <dd class="col-sm-8"><?= htmlspecialchars($nit_ci_cliente, ENT_QUOTES, 'UTF-8') ?></dd>
+                                <dd class="col-sm-8"><?= htmlspecialchars($nit_ci_cliente ?? '—', ENT_QUOTES, 'UTF-8') ?></dd>
 
                                 <dt class="col-sm-4 text-muted">Celular</dt>
                                 <dd class="col-sm-8"><?= htmlspecialchars($celular_cliente ?? '—', ENT_QUOTES, 'UTF-8') ?></dd>
@@ -215,8 +215,6 @@
                                             <tr class="text-center">
                                                 <th class="text-left">Método</th>
                                                 <th>Monto</th>
-                                                <th class="d-none d-md-table-cell">Referencia</th>
-                                                <th class="d-none d-md-table-cell">Detalle</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -227,12 +225,6 @@
                                                     </td>
                                                     <td class="text-center align-middle">
                                                         <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$pago['monto'], 2), ENT_QUOTES, 'UTF-8') ?>
-                                                    </td>
-                                                    <td class="text-center align-middle d-none d-md-table-cell">
-                                                        <?= htmlspecialchars($pago['referencia'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
-                                                    </td>
-                                                    <td class="text-center align-middle d-none d-md-table-cell">
-                                                        <?= htmlspecialchars($pago['detalle'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>

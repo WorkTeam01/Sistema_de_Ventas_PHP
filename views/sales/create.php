@@ -26,7 +26,8 @@
 
             <form id="formVenta" action="<?= BASE_URL ?>/sales" method="post" autocomplete="off"
                 data-currency="<?= APP_CURRENCY_SYMBOL ?>"
-                data-total="<?= number_format($precio_total, 2, '.', '') ?>">
+                data-total="<?= number_format($precio_total, 2, '.', '') ?>"
+                data-metodos="<?= htmlspecialchars(json_encode($metodos_activos), ENT_QUOTES, 'UTF-8') ?>">
 
                 <!-- Campos ocultos del formulario principal -->
                 <input type="hidden" name="csrf_token"
@@ -117,8 +118,9 @@
                                             <div class="card-body" aria-live="polite">
                                                 <div id="alert-sin-cliente" class="alert alert-warning py-2 mb-0">
                                                     <i class="fas fa-exclamation-triangle mr-1"></i>
-                                                    No se ha seleccionado ningún cliente. Por favor, busque y seleccione
-                                                    un cliente para continuar.
+                                                    No se ha seleccionado ningún cliente. Puede continuar con la venta
+                                                    (se registrará como <strong>Consumidor final</strong>) o buscar/crear
+                                                    un cliente.
                                                 </div>
                                                 <div id="cliente-fields" class="d-none">
                                                     <div id="alert-cliente-ok"
@@ -297,57 +299,64 @@
                                                             value="<?= APP_CURRENCY_SYMBOL ?> <?= number_format($precio_total, 2) ?>" readonly>
                                                     </div>
 
-                                                    <div id="pagos-list">
-                                                        <?php foreach ($metodos_activos as $metodo) :
-                                                            $mid = (int)$metodo['id_metodo_pago'];
-                                                            $esEfectivo = $metodo['tipo'] === 'efectivo';
-                                                        ?>
-                                                            <div class="form-group pago-row"
-                                                                data-tipo="<?= htmlspecialchars($metodo['tipo'], ENT_QUOTES, 'UTF-8') ?>"
-                                                                data-id="<?= $mid ?>">
-                                                                <label for="pago_monto_<?= $mid ?>">
-                                                                    <?= htmlspecialchars($metodo['nombre'], ENT_QUOTES, 'UTF-8') ?>
-                                                                </label>
-                                                                <div class="input-group">
-                                                                    <div class="input-group-prepend">
-                                                                        <span class="input-group-text"><?= APP_CURRENCY_SYMBOL ?></span>
-                                                                    </div>
-                                                                    <input type="number" name="pagos[<?= $mid ?>][monto]"
-                                                                        id="pago_monto_<?= $mid ?>"
-                                                                        class="form-control text-center pago-monto"
-                                                                        inputmode="decimal" step="0.01" min="0"
-                                                                        placeholder="0.00" autocomplete="off"
-                                                                        aria-describedby="pago-help-<?= $mid ?>">
+                                                    <!-- Selector de forma de pago -->
+                                                    <fieldset class="form-group">
+                                                        <legend class="col-form-label pt-0 small text-muted mb-1">
+                                                            Forma de pago
+                                                        </legend>
+                                                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                                                            <label class="btn btn-outline-primary active" id="btn-pago-unico">
+                                                                <input type="radio" name="forma_pago" id="forma_pago_unico"
+                                                                    value="unico" autocomplete="off" checked>
+                                                                Pago único
+                                                            </label>
+                                                            <label class="btn btn-outline-primary" id="btn-pago-mixto">
+                                                                <input type="radio" name="forma_pago" id="forma_pago_mixto"
+                                                                    value="mixto" autocomplete="off">
+                                                                Pago mixto
+                                                            </label>
+                                                        </div>
+                                                    </fieldset>
+
+                                                    <!-- Pago único -->
+                                                    <div id="seccion-pago-unico">
+                                                        <div class="form-group">
+                                                            <label for="metodo-pago-unico" class="small text-muted mb-1">Método de pago</label>
+                                                            <select id="metodo-pago-unico" class="form-control">
+                                                                <?php foreach ($metodos_activos as $metodo) : ?>
+                                                                    <option value="<?= (int)$metodo['id_metodo_pago'] ?>"
+                                                                        data-tipo="<?= htmlspecialchars($metodo['tipo'], ENT_QUOTES, 'UTF-8') ?>">
+                                                                        <?= htmlspecialchars($metodo['nombre'], ENT_QUOTES, 'UTF-8') ?>
+                                                                    </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="monto-unico" class="small text-muted mb-1">Monto</label>
+                                                            <div class="input-group">
+                                                                <div class="input-group-prepend">
+                                                                    <span class="input-group-text"><?= APP_CURRENCY_SYMBOL ?></span>
                                                                 </div>
-                                                                <?php if (!$esEfectivo) : ?>
-                                                                    <small id="pago-help-<?= $mid ?>" class="form-text text-muted">
-                                                                        Referencia y detalle son opcionales.
-                                                                    </small>
-                                                                    <div class="row mt-1">
-                                                                        <div class="col-sm-6">
-                                                                            <label for="pago_ref_<?= $mid ?>" class="small mb-1">Referencia</label>
-                                                                            <input type="text"
-                                                                                name="pagos[<?= $mid ?>][referencia]"
-                                                                                id="pago_ref_<?= $mid ?>"
-                                                                                class="form-control form-control-sm"
-                                                                                maxlength="100"
-                                                                                placeholder="N° operación, últimos 4 dígitos…"
-                                                                                autocomplete="off">
-                                                                        </div>
-                                                                        <div class="col-sm-6">
-                                                                            <label for="pago_det_<?= $mid ?>" class="small mb-1">Detalle</label>
-                                                                            <input type="text"
-                                                                                name="pagos[<?= $mid ?>][detalle]"
-                                                                                id="pago_det_<?= $mid ?>"
-                                                                                class="form-control form-control-sm"
-                                                                                maxlength="255"
-                                                                                placeholder="Detalle opcional"
-                                                                                autocomplete="off">
-                                                                        </div>
-                                                                    </div>
-                                                                <?php endif; ?>
+                                                                <input type="number" id="monto-unico"
+                                                                    class="form-control text-center"
+                                                                    inputmode="decimal" step="0.01" min="0"
+                                                                    autocomplete="off"
+                                                                    value="<?= number_format($precio_total, 2, '.', '') ?>">
                                                             </div>
-                                                        <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Pago mixto -->
+                                                    <div id="seccion-pago-mixto" class="d-none">
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <small class="text-muted">
+                                                                Agregue una fila por cada método usado.
+                                                            </small>
+                                                            <button type="button" class="btn btn-success btn-sm" id="btn-agregar-pago">
+                                                                <i class="fas fa-plus mr-1"></i> Agregar método de pago
+                                                            </button>
+                                                        </div>
+                                                        <div id="contenedor-pagos"></div>
                                                     </div>
 
                                                     <div class="alert alert-info py-2 mb-2 d-none" id="cobro-faltante" role="status"></div>
@@ -356,6 +365,35 @@
 
                                                 </div>
                                             </div>
+
+                                            <!-- Template de fila de pago mixto (clonado con importNode) -->
+                                            <template id="template-pago-mixto">
+                                                <div class="card card-outline card-secondary mb-2 pago-item">
+                                                    <div class="card-body py-2">
+                                                        <div class="form-group mb-2">
+                                                            <label class="small text-muted mb-1">Método de pago</label>
+                                                            <select class="form-control form-control-sm select-metodo-pago"></select>
+                                                        </div>
+                                                        <div class="form-group mb-2">
+                                                            <label class="small text-muted mb-1">Monto</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <div class="input-group-prepend">
+                                                                    <span class="input-group-text"><?= APP_CURRENCY_SYMBOL ?></span>
+                                                                </div>
+                                                                <input type="number" class="form-control text-center pago-monto-mixto"
+                                                                    inputmode="decimal" step="0.01" min="0"
+                                                                    autocomplete="off"
+                                                                    aria-label="Monto del método de pago">
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-right">
+                                                            <button type="button" class="btn btn-danger btn-sm btn-eliminar-pago">
+                                                                <i class="fas fa-trash mr-1"></i> Eliminar
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         <?php endif; ?>
 
                                         <div class="d-flex justify-content-between mt-3">
@@ -396,7 +434,7 @@
                                     <li class="list-group-item">
                                         <small class="text-muted d-block">Cliente</small>
                                         <span id="resumen-cliente" class="text-muted font-italic">
-                                            No seleccionado
+                                            Consumidor final
                                         </span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">

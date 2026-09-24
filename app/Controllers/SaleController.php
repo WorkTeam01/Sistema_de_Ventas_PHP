@@ -148,7 +148,7 @@ class SaleController extends Controller
         $nro_venta = (int)($_POST['nro_venta'] ?? 0);
         $id_cliente = (int)($_POST['id_cliente'] ?? 0);
 
-        if ($nro_venta <= 0 || $id_cliente <= 0) {
+        if ($nro_venta <= 0) {
             $this->flash('Todos los campos son obligatorios.', 'error');
             $this->redirect(BASE_URL . '/sales/create');
             return;
@@ -163,7 +163,7 @@ class SaleController extends Controller
             return;
         }
 
-        // Líneas de pago desde el POST: solo montos > 0 (pagos[id][monto|referencia|detalle]).
+        // Líneas de pago desde el POST: solo montos > 0 (pagos[id][monto]).
         $payments = [];
         $rawPagos = $_POST['pagos'] ?? [];
         if (is_array($rawPagos)) {
@@ -175,13 +175,9 @@ class SaleController extends Controller
                 if ($monto <= 0) {
                     continue;
                 }
-                $referencia = trim((string)($line['referencia'] ?? ''));
-                $detalle = trim((string)($line['detalle'] ?? ''));
                 $payments[] = [
                     'id_metodo_pago' => (int)$idMetodo,
                     'monto'          => $monto,
-                    'referencia'     => $referencia !== '' ? $referencia : null,
-                    'detalle'        => $detalle !== '' ? $detalle : null,
                 ];
             }
         }
@@ -189,14 +185,14 @@ class SaleController extends Controller
         $saleModel = new Sale();
         $result = $saleModel->storeWithStock([
             'nro_venta'  => $nro_venta,
-            'id_cliente' => $id_cliente,
+            'id_cliente' => $id_cliente > 0 ? $id_cliente : null,
         ], $payments);
 
         if ($result['ok']) {
             $idVenta = (int)$result['id_venta'];
             $sale = $saleModel->findWithDetails($idVenta);
             $totalPagado = (float)($sale['total_pagado'] ?? 0);
-            $cliente = (new Client())->find($id_cliente);
+            $cliente = $id_cliente > 0 ? (new Client())->find($id_cliente) : null;
             ActivityLog::record(
                 'create',
                 'sale',
@@ -205,7 +201,7 @@ class SaleController extends Controller
                 null,
                 [
                     'nro_venta'      => $nro_venta,
-                    'nombre_cliente' => $cliente['nombre_cliente'] ?? null,
+                    'nombre_cliente' => $cliente['nombre_cliente'] ?? 'Consumidor final',
                     'total_pagado'   => $totalPagado,
                 ]
             );
@@ -429,7 +425,7 @@ class SaleController extends Controller
                     "Venta Nro {$snapshot['nro_venta']} eliminada (total " . APP_CURRENCY_SYMBOL . " {$snapshot['total_pagado']}); stock restaurado.",
                     [
                         'nro_venta'      => $snapshot['nro_venta'],
-                        'nombre_cliente' => $snapshot['nombre_cliente'],
+                        'nombre_cliente' => $snapshot['nombre_cliente'] ?? 'Consumidor final',
                         'total_pagado'   => $snapshot['total_pagado'],
                         'fyh_creacion'   => $snapshot['fyh_creacion'],
                         'items'          => $snapshot['items'],

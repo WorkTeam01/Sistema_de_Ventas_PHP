@@ -68,10 +68,10 @@
                                 <div class="col-md-6">
                                     <dl class="row mb-0">
                                         <dt class="col-sm-5 text-muted">Cliente</dt>
-                                        <dd class="col-sm-7"><?= htmlspecialchars($nombre_cliente, ENT_QUOTES, 'UTF-8') ?></dd>
+                                        <dd class="col-sm-7"><?= htmlspecialchars($nombre_cliente ?? 'Consumidor final', ENT_QUOTES, 'UTF-8') ?></dd>
 
                                         <dt class="col-sm-5 text-muted">NIT/CI</dt>
-                                        <dd class="col-sm-7"><?= htmlspecialchars($nit_ci_cliente, ENT_QUOTES, 'UTF-8') ?></dd>
+                                        <dd class="col-sm-7"><?= htmlspecialchars($nit_ci_cliente ?? '—', ENT_QUOTES, 'UTF-8') ?></dd>
                                     </dl>
                                 </div>
                             </div>

@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `tb_usuarios` (
 CREATE TABLE IF NOT EXISTS `tb_ventas` (
   `id_venta` int(11) NOT NULL AUTO_INCREMENT,
   `nro_venta` int(11) NOT NULL,
-  `id_cliente` int(11) NOT NULL,
+  `id_cliente` int(11) DEFAULT NULL,
   `id_usuario` int(11) DEFAULT NULL,
   `total_pagado` DECIMAL(10,2) NOT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -261,8 +261,6 @@ CREATE TABLE IF NOT EXISTS `tb_pagos` (
   `id_venta`       int(11)       NOT NULL,
   `id_metodo_pago` int(11)       NOT NULL,
   `monto`          DECIMAL(10,2) NOT NULL,
-  `referencia`     varchar(100)  DEFAULT NULL,
-  `detalle`        varchar(255)  DEFAULT NULL,
   `fyh_creacion`   datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_pago`),
   UNIQUE KEY `uq_pago_venta_metodo` (`id_venta`, `id_metodo_pago`),
