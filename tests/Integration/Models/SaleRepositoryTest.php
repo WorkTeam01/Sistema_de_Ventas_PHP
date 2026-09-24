@@ -32,6 +32,7 @@ final class SaleRepositoryTest extends TestCase
         $this->pdo->exec("INSERT INTO tb_categorias (nombre_categoria) VALUES ('General')");
         $this->pdo->exec("INSERT INTO tb_clientes (nombre_cliente, nit_ci_cliente, celular_cliente, email_cliente) VALUES ('Cliente A', '12345678', '70000001', 'cliente@test.com')");
         $this->pdo->exec("INSERT INTO tb_almacen (codigo, nombre, precio_compra, precio_venta, stock, stock_minimo, stock_maximo, fecha_ingreso, id_usuario, id_categoria) VALUES ('P001', 'Producto A', 5.00, 10.00, 50, 2, 100, '2026-01-01', 1, 1)");
+        $this->pdo->exec("INSERT INTO tb_metodos_pago (nombre, tipo) VALUES ('Efectivo', 'efectivo'), ('Tarjeta', 'no_efectivo')");
     }
 
     private function seedCart(int $nroVenta, int $productId = 1, int $cantidad = 3): void
@@ -39,14 +40,23 @@ final class SaleRepositoryTest extends TestCase
         $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES ($nroVenta, $productId, $cantidad)");
     }
 
-    private function storeSale(int $nroVenta = 1, int $cantidad = 3): bool
+    /** Pago exacto en efectivo por el total (producto a 10.00). */
+    private function payEfectivo(float $total): array
+    {
+        return [['id_metodo_pago' => 1, 'monto' => $total]];
+    }
+
+    private function storeSale(int $nroVenta = 1, int $cantidad = 3): array
     {
         $this->seedCart($nroVenta, 1, $cantidad);
-        return $this->sale->storeWithStock([
-            'nro_venta'    => $nroVenta,
-            'id_cliente'   => 1,
-            'total_pagado' => $cantidad * 10.00,
-        ]);
+        $total = $cantidad * 10.00;
+        return $this->sale->storeWithStock(
+            [
+                'nro_venta'  => $nroVenta,
+                'id_cliente' => 1,
+            ],
+            $this->payEfectivo($total)
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -94,7 +104,8 @@ final class SaleRepositoryTest extends TestCase
     {
         $result = $this->storeSale();
 
-        $this->assertTrue($result);
+        $this->assertTrue($result['ok']);
+        $this->assertNotNull($result['id_venta']);
         $this->assertSame(1, $this->sale->count());
     }
 
@@ -106,32 +117,29 @@ final class SaleRepositoryTest extends TestCase
         $this->assertSame(45, (int)$row['stock']);
     }
 
-    public function test_storeWithStock_returns_false_for_empty_cart(): void
+    public function test_storeWithStock_returns_empty_cart_error_for_empty_cart(): void
     {
-        // No seedear carrito
-        $result = $this->sale->storeWithStock([
-            'nro_venta'    => 99,
-            'id_cliente'   => 1,
-            'total_pagado' => 0,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 99, 'id_cliente' => 1],
+            $this->payEfectivo(10.00)
+        );
 
-        $this->assertFalse($result);
+        $this->assertFalse($result['ok']);
+        $this->assertSame('empty_cart', $result['error']);
+        $this->assertNull($result['id_venta']);
         $this->assertSame(0, $this->sale->count());
     }
 
     public function test_storeWithStock_persists_precio_unitario_in_cart(): void
     {
-        // Arrange: carrito de 1 ítem (precio_venta = 10.00)
         $this->seedCart(1, 1, 1);
 
-        // Act
-        $this->sale->storeWithStock([
-            'nro_venta'    => 1,
-            'id_cliente'   => 1,
-            'total_pagado' => 10.00,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            $this->payEfectivo(10.00)
+        );
+        $this->assertTrue($result['ok']);
 
-        // Assert: precio_unitario poblado con precio_venta del catálogo
         $row = $this->pdo->query("SELECT precio_unitario FROM tb_carrito WHERE nro_venta = 1")->fetch();
         $this->assertNotNull($row['precio_unitario']);
         $this->assertEqualsWithDelta(10.00, (float)$row['precio_unitario'], 0.001);
@@ -139,20 +147,17 @@ final class SaleRepositoryTest extends TestCase
 
     public function test_storeWithStock_total_pagado_matches_sum_of_precio_unitario(): void
     {
-        // Arrange: 2 productos con precios distintos
         $this->pdo->exec("INSERT INTO tb_almacen (codigo, nombre, precio_compra, precio_venta, stock, stock_minimo, stock_maximo, fecha_ingreso, id_usuario, id_categoria) VALUES ('P002', 'Producto B', 8.00, 25.00, 30, 2, 100, '2026-01-01', 1, 1)");
 
         $this->seedCart(1, 1, 2); // 2 × 10.00 = 20.00
         $this->seedCart(1, 2, 1); // 1 × 25.00 = 25.00 → total esperado: 45.00
 
-        // Act
-        $this->sale->storeWithStock([
-            'nro_venta'    => 1,
-            'id_cliente'   => 1,
-            'total_pagado' => 45.00,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            $this->payEfectivo(45.00)
+        );
+        $this->assertTrue($result['ok']);
 
-        // Assert: total_pagado == SUM(cantidad * precio_unitario)
         $expected = (float)$this->pdo->query(
             "SELECT SUM(cantidad * precio_unitario) FROM tb_carrito WHERE nro_venta = 1"
         )->fetchColumn();
@@ -163,19 +168,16 @@ final class SaleRepositoryTest extends TestCase
 
     public function test_findWithDetails_returns_frozen_price_after_catalog_change(): void
     {
-        // Arrange: venta de 1 ítem a 10.00
         $this->seedCart(1, 1, 1);
-        $this->sale->storeWithStock([
-            'nro_venta'    => 1,
-            'id_cliente'   => 1,
-            'total_pagado' => 10.00,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            $this->payEfectivo(10.00)
+        );
+        $this->assertTrue($result['ok']);
 
-        // Act: cambiar precio de catálogo
         $this->pdo->exec("UPDATE tb_almacen SET precio_venta = 99.99 WHERE id_producto = 1");
         $details = $this->sale->findWithDetails(1);
 
-        // Assert: ítem devuelve el precio congelado (10.00), no el nuevo (99.99)
         $this->assertNotNull($details);
         $this->assertCount(1, $details['items']);
         $this->assertEqualsWithDelta(10.00, (float)$details['items'][0]['precio_venta'], 0.001);
@@ -183,65 +185,54 @@ final class SaleRepositoryTest extends TestCase
 
     public function test_getByNroVenta_returns_catalog_price_when_cart_is_in_progress(): void
     {
-        // Arrange: carrito sin store (precio_unitario = NULL)
         $cartItem = new \App\Models\CartItem();
         $cartItem->addItem(1, 1, 1);
 
-        // Act
         $items = $cartItem->getByNroVenta(1);
 
-        // Assert: devuelve precio de catálogo actual (10.00)
         $this->assertCount(1, $items);
         $this->assertEqualsWithDelta(10.00, (float)$items[0]['precio_venta'], 0.001);
     }
 
     public function test_getByNroVenta_returns_frozen_price_for_finalized_sale(): void
     {
-        // Arrange: venta finalizada, precio_unitario = 10.00
         $this->seedCart(1, 1, 1);
-        $this->sale->storeWithStock([
-            'nro_venta'    => 1,
-            'id_cliente'   => 1,
-            'total_pagado' => 10.00,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            $this->payEfectivo(10.00)
+        );
+        $this->assertTrue($result['ok']);
 
-        // Act: cambiar precio de catálogo
         $this->pdo->exec("UPDATE tb_almacen SET precio_venta = 99.99 WHERE id_producto = 1");
         $cartItem = new \App\Models\CartItem();
         $items = $cartItem->getByNroVenta(1);
 
-        // Assert: devuelve precio congelado (10.00)
         $this->assertCount(1, $items);
         $this->assertEqualsWithDelta(10.00, (float)$items[0]['precio_venta'], 0.001);
     }
 
     public function test_invoice_subtotals_use_frozen_prices_after_catalog_change(): void
     {
-        // Arrange: venta de 2 ítems (2 × 10.00 + 3 × 25.00 = 95.00)
         $this->pdo->exec("INSERT INTO tb_almacen (codigo, nombre, precio_compra, precio_venta, stock, stock_minimo, stock_maximo, fecha_ingreso, id_usuario, id_categoria) VALUES ('P002', 'Producto B', 8.00, 25.00, 30, 2, 100, '2026-01-01', 1, 1)");
         $this->seedCart(1, 1, 2);
         $this->seedCart(1, 2, 3);
-        $this->sale->storeWithStock([
-            'nro_venta'    => 1,
-            'id_cliente'   => 1,
-            'total_pagado' => 95.00,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            $this->payEfectivo(95.00)
+        );
+        $this->assertTrue($result['ok']);
 
-        // Act: obtener ítems y calcular subtotales ANTES del cambio
         $itemsBefore = $this->sale->findWithDetails(1)['items'];
         $subtotalsBefore = $this->sale->withSubtotals($itemsBefore);
         $totalsBefore = $this->sale->computeInvoiceTotals($itemsBefore);
 
-        // Cambiar precios de catálogo
         $this->pdo->exec("UPDATE tb_almacen SET precio_venta = 99.99 WHERE id_producto = 1");
         $this->pdo->exec("UPDATE tb_almacen SET precio_venta = 88.88 WHERE id_producto = 2");
 
-        // Act: obtener ítems y calcular subtotales DESPUÉS del cambio
         $itemsAfter = $this->sale->findWithDetails(1)['items'];
         $subtotalsAfter = $this->sale->withSubtotals($itemsAfter);
         $totalsAfter = $this->sale->computeInvoiceTotals($itemsAfter);
 
-        // Assert: subtotales idénticos (precios congelados)
         $this->assertEquals($subtotalsBefore, $subtotalsAfter);
         $this->assertEquals($totalsBefore, $totalsAfter);
         $this->assertEqualsWithDelta(95.00, $totalsAfter['precio_total'], 0.001);
@@ -249,62 +240,50 @@ final class SaleRepositoryTest extends TestCase
 
     public function test_backfill_populates_null_precio_unitario_and_is_idempotent(): void
     {
-        // Arrange: venta de 2 ítems, precio_unitario poblado por T4
         $this->pdo->exec("INSERT INTO tb_almacen (codigo, nombre, precio_compra, precio_venta, stock, stock_minimo, stock_maximo, fecha_ingreso, id_usuario, id_categoria) VALUES ('P002', 'Producto B', 8.00, 25.00, 30, 2, 100, '2026-01-01', 1, 1)");
         $this->seedCart(1, 1, 2);
         $this->seedCart(1, 2, 3);
-        $this->sale->storeWithStock([
-            'nro_venta'    => 1,
-            'id_cliente'   => 1,
-            'total_pagado' => 95.00,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            $this->payEfectivo(95.00)
+        );
+        $this->assertTrue($result['ok']);
 
-        // Simular estado pre-migración: NULL en precio_unitario
         $this->pdo->exec("UPDATE tb_carrito SET precio_unitario = NULL WHERE nro_venta = 1");
         $totalBefore = $this->pdo->query("SELECT total_pagado FROM tb_ventas WHERE id_venta = 1")->fetchColumn();
 
-        // Act: ejecutar backfill (bloque de la migración 006)
         $this->pdo->exec("UPDATE tb_carrito SET precio_unitario = (SELECT precio_venta FROM tb_almacen WHERE id_producto = tb_carrito.id_producto) WHERE precio_unitario IS NULL AND nro_venta IN (SELECT nro_venta FROM tb_ventas)");
 
-        // Assert: precio_unitario poblado con catálogo
         $items = $this->pdo->query("SELECT id_producto, precio_unitario FROM tb_carrito WHERE nro_venta = 1 ORDER BY id_producto")->fetchAll(\PDO::FETCH_ASSOC);
         $this->assertCount(2, $items);
         $this->assertEqualsWithDelta(10.00, (float)$items[0]['precio_unitario'], 0.001);
         $this->assertEqualsWithDelta(25.00, (float)$items[1]['precio_unitario'], 0.001);
 
-        // Assert: total_pagado intacto
         $totalAfter = $this->pdo->query("SELECT total_pagado FROM tb_ventas WHERE id_venta = 1")->fetchColumn();
         $this->assertEquals($totalBefore, $totalAfter);
 
-        // Act 2: segunda ejecución (idempotente)
         $this->pdo->exec("UPDATE tb_carrito SET precio_unitario = (SELECT precio_venta FROM tb_almacen WHERE id_producto = tb_carrito.id_producto) WHERE precio_unitario IS NULL AND nro_venta IN (SELECT nro_venta FROM tb_ventas)");
 
-        // Assert 2: precios sin cambios
         $items2 = $this->pdo->query("SELECT id_producto, precio_unitario FROM tb_carrito WHERE nro_venta = 1 ORDER BY id_producto")->fetchAll(\PDO::FETCH_ASSOC);
         $this->assertEquals($items, $items2);
     }
 
     public function test_top_selling_uses_frozen_price_after_catalog_change(): void
     {
-        // Arrange: venta de 2 unidades a 10.00 = 20.00 ingresos
         $this->seedCart(1, 1, 2);
-        $this->sale->storeWithStock([
-            'nro_venta'    => 1,
-            'id_cliente'   => 1,
-            'total_pagado' => 20.00,
-        ]);
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            $this->payEfectivo(20.00)
+        );
+        $this->assertTrue($result['ok']);
 
-        // Act: obtener top antes del cambio de catálogo
         $product = new \App\Models\Product();
         $topBefore = $product->getTopSelling(5);
 
-        // Cambiar precio de catálogo
         $this->pdo->exec("UPDATE tb_almacen SET precio_venta = 99.99 WHERE id_producto = 1");
 
-        // Act: obtener top después del cambio
         $topAfter = $product->getTopSelling(5);
 
-        // Assert: ingresos idénticos (precio congelado)
         $this->assertCount(1, $topBefore);
         $this->assertCount(1, $topAfter);
         $this->assertEqualsWithDelta(20.00, (float)$topBefore[0]['ingresos'], 0.001);

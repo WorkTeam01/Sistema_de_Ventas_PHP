@@ -74,6 +74,11 @@ class Sale extends Model
         );
 
         $sale['items'] = $items;
+
+        $payments = (new SalePayment())->byVenta((int)$sale['id_venta']);
+        $sale['payments'] = $payments;
+        $sale['vuelto'] = SalePayment::vueltoFor((float)$sale['total_pagado'], $payments);
+
         return $sale;
     }
 
@@ -96,15 +101,26 @@ class Sale extends Model
     }
 
     /**
-     * Inserta la cabecera de venta y decrementa el stock de cada producto del carrito,
-     * todo en una sola transacción.
+     * Inserta la cabecera de venta, sus líneas de pago y decrementa el stock,
+     * todo en una sola transacción (sin ventana donde la venta exista sin pagos).
      *
-     * @param array $data Datos de la venta: nro_venta, id_cliente, total_pagado.
-     * @return bool true si la transacción se completó, false si hubo error.
+     * @param array $data    Datos de la venta: nro_venta, id_cliente (total_pagado se ignora).
+     * @param array $payments Líneas: id_metodo_pago, monto, referencia?, detalle?.
+     *                        Dos entradas del mismo método se suman en una línea (UNIQUE).
+     * @return array{ok: bool, id_venta: ?int, vuelto: float, error: ?string, faltante: ?float}
+     *         error: empty_cart|sin_metodos|invalid_payment|faltante|exceso_sin_efectivo|generic
      */
-    public function storeWithStock(array $data): int|false
+    public function storeWithStock(array $data, array $payments): array
     {
         $db = $this->db;
+        $fail = static fn(string $error, ?float $faltante = null): array => [
+            'ok'          => false,
+            'id_venta'    => null,
+            'vuelto'      => 0.0,
+            'error'       => $error,
+            'faltante'    => $faltante,
+        ];
+
         try {
             $db->beginTransaction();
 
@@ -113,7 +129,7 @@ class Sale extends Model
             $stmt->execute([$data['nro_venta']]);
             if ((int)$stmt->fetchColumn() === 0) {
                 $db->rollBack();
-                return false;
+                return $fail('empty_cart');
             }
 
             // Persistir precio de venta actual en cada ítem del carrito
@@ -122,13 +138,77 @@ class Sale extends Model
             );
             $persistPrice->execute([$data['nro_venta']]);
 
-            // Calcular total desde precios congelados
+            // Calcular total desde precios congelados (SIEMPRE server-side, ignora el POST)
             $totalsStmt = $db->prepare(
                 "SELECT SUM(cantidad * precio_unitario) AS total
                  FROM tb_carrito WHERE nro_venta = ?"
             );
             $totalsStmt->execute([$data['nro_venta']]);
-            $totalReal = (float)($totalsStmt->fetchColumn() ?? 0.0);
+            $totalReal = round((float)($totalsStmt->fetchColumn() ?? 0.0), 2);
+
+            // Mapa de métodos: id → (tipo, activo); catálogo vacío o todo desactivado → sin_metodos
+            $methodRows = $db->query(
+                "SELECT id_metodo_pago, tipo, activo FROM tb_metodos_pago"
+            )->fetchAll(\PDO::FETCH_ASSOC);
+            $map = [];
+            $activeCount = 0;
+            foreach ($methodRows as $row) {
+                $id = (int)$row['id_metodo_pago'];
+                $map[$id] = ['tipo' => $row['tipo'], 'activo' => (int)$row['activo']];
+                if ($map[$id]['activo'] === 1) {
+                    $activeCount++;
+                }
+            }
+            if ($activeCount === 0) {
+                $db->rollBack();
+                return $fail('sin_metodos');
+            }
+
+            // Validar cada línea y sumar duplicados del mismo método en una sola línea
+            $merged = [];
+            foreach ($payments as $payment) {
+                $idMetodo = (int)($payment['id_metodo_pago'] ?? 0);
+                $monto = is_numeric($payment['monto'] ?? null) ? (float)$payment['monto'] : 0.0;
+                if ($monto <= 0 || !isset($map[$idMetodo]) || $map[$idMetodo]['activo'] !== 1) {
+                    $db->rollBack();
+                    return $fail('invalid_payment');
+                }
+                if (!isset($merged[$idMetodo])) {
+                    $merged[$idMetodo] = [
+                        'monto'      => 0.0,
+                        'referencia' => $payment['referencia'] ?? null,
+                        'detalle'    => $payment['detalle'] ?? null,
+                    ];
+                }
+                $merged[$idMetodo]['monto'] += $monto;
+            }
+
+            $suma = 0.0;
+            foreach ($merged as $line) {
+                $suma += $line['monto'];
+            }
+            $suma = round($suma, 2);
+
+            // FR-7: suma < total → faltante, sin crear venta ni pagos
+            if ($suma < $totalReal) {
+                $db->rollBack();
+                return $fail('faltante', round($totalReal - $suma, 2));
+            }
+
+            // FR-8: exceso solo admite efectivo
+            if ($suma > $totalReal) {
+                $hasCash = false;
+                foreach ($merged as $idMetodo => $line) {
+                    if (($map[$idMetodo]['tipo'] ?? '') === 'efectivo') {
+                        $hasCash = true;
+                        break;
+                    }
+                }
+                if (!$hasCash) {
+                    $db->rollBack();
+                    return $fail('exceso_sin_efectivo');
+                }
+            }
 
             // INSERT cabecera de venta
             $idUsuario = Auth::user()['id_usuario'] ?? null;
@@ -142,6 +222,21 @@ class Sale extends Model
             ]);
             $idVenta = (int)$db->lastInsertId();
 
+            // INSERT una línea por método (monto ya sumado; vuelto nunca se persiste)
+            $insertPago = $db->prepare(
+                "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto, referencia, detalle)
+                 VALUES (?, ?, ?, ?, ?)"
+            );
+            foreach ($merged as $idMetodo => $line) {
+                $insertPago->execute([
+                    $idVenta,
+                    $idMetodo,
+                    round($line['monto'], 2),
+                    $line['referencia'],
+                    $line['detalle'],
+                ]);
+            }
+
             // Decrementar stock de cada ítem — la cláusula AND stock >= ? previene stock negativo
             $items = $db->prepare(
                 "SELECT id_producto, cantidad FROM tb_carrito WHERE nro_venta = ?"
@@ -154,15 +249,21 @@ class Sale extends Model
                 $updateStock->execute([$item['cantidad'], $item['id_producto'], $item['cantidad']]);
                 if ($updateStock->rowCount() === 0) {
                     $db->rollBack();
-                    return false;
+                    return $fail('generic');
                 }
             }
 
             $db->commit();
-            return $idVenta;
+            return [
+                'ok'       => true,
+                'id_venta' => $idVenta,
+                'vuelto'   => max(0.0, round($suma - $totalReal, 2)),
+                'error'    => null,
+                'faltante' => null,
+            ];
         } catch (\Throwable $e) {
             $db->rollBack();
-            return false;
+            return $fail('generic');
         }
     }
 
