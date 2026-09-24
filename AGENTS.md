@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.17.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.18.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -98,7 +98,8 @@ Sistema_de_Ventas_PHP/
 │   ├── purchases/
 │   ├── sales/
 │   ├── activity-log/         ← index.php, show.php; partial/_data-panel.php, _item-accordion.php
-│   └── reports/              ← index.php, sales.php, purchases.php, top-products.php, clients.php; partial/_date_filter.php
+│   ├── payment-methods/       ← index.php; partial/_modals.php (catálogo modal+AJAX)
+│   └── reports/               ← index.php, sales.php, purchases.php, top-products.php, clients.php; partial/_date_filter.php
 ├── routes/
 │   └── web.php               ← Todas las rutas MVC registradas
 ├── public/
@@ -174,6 +175,15 @@ tb_ventas
     (id_detalle, id_devolucion [FK → tb_devoluciones CASCADE], id_producto [FK → tb_almacen],
         cantidad, precio_unitario)
     -- devoluciones parciales acumulativas; monto calculado desde el precio histórico de cada línea
+    tb_metodos_pago
+    (id_metodo_pago, nombre UNIQUE, tipo [enum: efectivo|no_efectivo], activo, fyh_creacion, fyh_actualizacion)
+    -- catálogo configurable de métodos de cobro; solo `efectivo` admite exceso (vuelto); se gestiona
+    -- desde /payment-methods con el permiso manage_payment_methods
+    tb_pagos
+    (id_pago, id_venta [FK → tb_ventas CASCADE], id_metodo_pago [FK → tb_metodos_pago NO ACTION],
+        monto, referencia NULL, detalle NULL, fyh_creacion)
+    -- una línea por método por venta (UNIQUE venta+metodo); el vuelto NUNCA se persiste como línea,
+    -- se deriva con SalePayment::vueltoFor(suma_montos, total_pagado)
     tb_compras
 (id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion)
     tb_activity_log
@@ -286,7 +296,7 @@ Auth::logout()          // limpia sesión, BD y cookie
 - `PermissionMiddleware` resuelve el prefijo `can:` en rutas — redirige a `/errors/403` si el permiso falta.
 - En controladores, usar `Auth::can('permiso')` para scoping de datos o restricciones inline.
 - En vistas, el controlador pasa `$can` (array) con los permisos necesarios via `renderWithLayout()` — nunca llamar `Auth::` directamente en vistas.
-- Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `view_purchases`, `manage_purchases`, `view_sales`, `manage_sales`, `manage_returns`, `view_sales_all`, `view_purchases_all`, `view_activity_log`, `manage_inventory`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
+- Slugs de permisos en uso: `view_dashboard`, `manage_users`, `manage_roles`, `view_categories`, `manage_categories`, `view_suppliers`, `manage_suppliers`, `view_clients`, `manage_clients`, `view_products`, `manage_products`, `view_purchases`, `manage_purchases`, `view_sales`, `manage_sales`, `manage_returns`, `view_sales_all`, `view_purchases_all`, `view_activity_log`, `manage_inventory`, `manage_payment_methods`, `view_reports`, `view_sales_report`, `view_purchases_report`, `view_top_products_report`, `view_clients_report`, `is_superadmin`.
 - **Scoping de datos por usuario (`*_all`):** `view_sales_all` y `view_purchases_all` distinguen "ver todos los
   registros" de "ver solo los propios". Sin el permiso `_all`, los métodos de listado/agregado filtran por
   `id_usuario` (ver `Sale`/`Purchase`/`Product::getTopSelling()`, que aceptan `?int $userId` opcional). Patrón usado
@@ -571,4 +581,4 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 
 ---
 
-_Última actualización: 2026-09-18 — 1.17.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-09-23 — 1.18.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
