@@ -188,6 +188,63 @@
                 </div>
             </div>
 
+            <!-- Pagos -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card card-outline card-success">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-credit-card mr-1"></i> Pagos</h2>
+                            <div class="card-tools">
+                                <?php if ((float)($vuelto ?? 0) > 0): ?>
+                                    <span class="badge badge-success px-2 py-1">
+                                        Vuelto: <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$vuelto, 2), ENT_QUOTES, 'UTF-8') ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <?php if (empty($pagos)): ?>
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-money-check-alt fa-2x mb-2" aria-hidden="true"></i>
+                                    <p class="mb-0">—</p>
+                                </div>
+                            <?php else: ?>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="bg-secondary text-white">
+                                            <tr class="text-center">
+                                                <th class="text-left">Método</th>
+                                                <th>Monto</th>
+                                                <th class="d-none d-md-table-cell">Referencia</th>
+                                                <th class="d-none d-md-table-cell">Detalle</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($pagos as $pago): ?>
+                                                <tr>
+                                                    <td class="align-middle">
+                                                        <?= htmlspecialchars($pago['nombre'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                                                    </td>
+                                                    <td class="text-center align-middle">
+                                                        <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$pago['monto'], 2), ENT_QUOTES, 'UTF-8') ?>
+                                                    </td>
+                                                    <td class="text-center align-middle d-none d-md-table-cell">
+                                                        <?= htmlspecialchars($pago['referencia'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                                                    </td>
+                                                    <td class="text-center align-middle d-none d-md-table-cell">
+                                                        <?= htmlspecialchars($pago['detalle'] ?? '—', ENT_QUOTES, 'UTF-8') ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Devoluciones -->
             <div class="row">
                 <div class="col-md-12">

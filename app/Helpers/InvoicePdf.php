@@ -59,7 +59,9 @@ class InvoicePdf
             $cantidadTotal,
             $totalUnitarios,
             $montoLiteral,
-            $vendedor
+            $vendedor,
+            $sale['payments'] ?? [],
+            (float)($sale['vuelto'] ?? 0)
         );
 
         $pdf->writeHTML($html, true, false, true, false, '');
@@ -98,6 +100,8 @@ class InvoicePdf
      * @param float $totalUnitarios Suma de precios unitarios.
      * @param string $montoLiteral Monto en letras.
      * @param string $vendedor Nombre del vendedor.
+     * @param array $payments Líneas de pago (nombre, monto, referencia, detalle).
+     * @param float $vuelto Vuelto derivado (0 si no corresponde).
      * @return string HTML listo para writeHTML().
      */
     private static function buildHtml(
@@ -111,7 +115,9 @@ class InvoicePdf
         int    $cantidadTotal,
         float  $totalUnitarios,
         string $montoLiteral,
-        string $vendedor
+        string $vendedor,
+        array  $payments = [],
+        float  $vuelto = 0.0
     ): string {
         $html = '
 <table border="0" style="font-size: 10px">
@@ -190,7 +196,46 @@ class InvoicePdf
 <p style="text-align: right"><b>Monto Total: </b>' . APP_CURRENCY_SYMBOL . ' ' . number_format($precioTotal, 2) . '</p>
 <p><b>Son: </b>' . $montoLiteral . '</p>
 <br>
-======================================<br>
+<table border="0" cellpadding="2" style="font-size: 11px">
+    <tr>
+        <td colspan="4"><b>Pagos</b></td>
+    </tr>';
+
+        if (empty($payments)) {
+            $html .= '
+    <tr>
+        <td colspan="4" style="text-align: center">—</td>
+    </tr>';
+        } else {
+            $html .= '
+    <tr style="background-color: #d6d6d6">
+        <td><b>Método</b></td>
+        <td><b>Monto</b></td>
+        <td><b>Referencia</b></td>
+        <td><b>Detalle</b></td>
+    </tr>';
+            foreach ($payments as $payment) {
+                $html .= '
+    <tr>
+        <td>' . htmlspecialchars((string)($payment['nombre'] ?? ''), ENT_QUOTES, 'UTF-8') . '</td>
+        <td style="text-align: right">' . APP_CURRENCY_SYMBOL . ' ' . number_format((float)($payment['monto'] ?? 0), 2) . '</td>
+        <td>' . htmlspecialchars((string)($payment['referencia'] ?? '—'), ENT_QUOTES, 'UTF-8') . '</td>
+        <td>' . htmlspecialchars((string)($payment['detalle'] ?? '—'), ENT_QUOTES, 'UTF-8') . '</td>
+    </tr>';
+            }
+            if ($vuelto > 0) {
+                $html .= '
+    <tr>
+        <td colspan="3" style="text-align: right"><b>Vuelto</b></td>
+        <td style="text-align: right">' . APP_CURRENCY_SYMBOL . ' ' . number_format($vuelto, 2) . '</td>
+    </tr>';
+            }
+        }
+
+        $html .= '
+</table>
+<br>
+=====================================<br>
 <b>Usuario: </b>' . htmlspecialchars($vendedor, ENT_QUOTES, 'UTF-8') . '
 <p style="text-align: center"></p>
 <p style="text-align: center">Esta factura contribuye al desarrollo del país, el uso ilícito de ésta será sancionado de acuerdo a la ley</p>
@@ -199,3 +244,4 @@ class InvoicePdf
         return $html;
     }
 }
+
