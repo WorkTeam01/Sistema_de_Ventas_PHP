@@ -1,0 +1,29 @@
+{
+  "total_violations": 0,
+  "results": {
+    "pos-cobro:light": {
+      "violationCount": 0,
+      "error": null
+    },
+    "pos-cobro:dark": {
+      "violationCount": 0,
+      "error": null
+    },
+    "sale-show:light": {
+      "violationCount": 0,
+      "error": null
+    },
+    "sale-show:dark": {
+      "violationCount": 0,
+      "error": null
+    },
+    "payment-methods:light": {
+      "violationCount": 0,
+      "error": null
+    },
+    "payment-methods:dark": {
+      "violationCount": 0,
+      "error": null
+    }
+  }
+}

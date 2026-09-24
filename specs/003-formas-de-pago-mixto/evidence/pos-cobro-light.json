@@ -1,0 +1,40 @@
+{
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "aria-valid-attr-value",
+      "impact": "critical",
+      "help": "ARIA attributes must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            "#pago_monto_1"
+          ],
+          "failureSummary": "Fix all of the following:\n  ARIA attribute element ID does not exist on the page: aria-describedby=\"pago-help-1\"",
+          "html": "<input type=\"number\" name=\"pagos[1][monto]\" id=\"pago_monto_1\" class=\"form-control text-center pago-monto\" inputmode=\"decimal\" step=\"0.01\" min=\"0\" placeholder=\"0.00\" autocomplete=\"off\" aria-describedby"
+        }
+      ],
+      "nodeCount": 1
+    },
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            "#tab-progress"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient",
+          "html": "<div id=\"tab-progress\" class=\"progress-bar progress-bar-striped progress-bar-animated\" role=\"progressbar\" aria-label=\"Progreso de la venta\" style=\"width: 100%;\" aria-valuenow=\"100\" aria-valuemin=\"0\" a"
+        }
+      ],
+      "nodeCount": 1
+    }
+  ],
+  "passCount": 46,
+  "violationCount": 0,
+  "incompleteCount": 2
+}

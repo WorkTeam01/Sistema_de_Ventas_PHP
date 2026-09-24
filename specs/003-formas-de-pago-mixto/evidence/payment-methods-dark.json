@@ -1,0 +1,54 @@
+{
+  "violations": [],
+  "incomplete": [
+    {
+      "id": "aria-valid-attr-value",
+      "impact": "critical",
+      "help": "ARIA attributes must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-valid-attr-value?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            ".btn-group:nth-child(1) > .btn-secondary.buttons-collection.dropdown-toggle"
+          ],
+          "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"paymentMethodTable\"",
+          "html": "<button class=\"btn btn-secondary buttons-collection dropdown-toggle\" tabindex=\"0\" aria-controls=\"paymentMethodTable\" type=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\"><span>Reportes</span><span"
+        },
+        {
+          "target": [
+            ".buttons-colvis"
+          ],
+          "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"paymentMethodTable\"",
+          "html": "<button class=\"btn btn-secondary buttons-collection dropdown-toggle buttons-colvis\" tabindex=\"0\" aria-controls=\"paymentMethodTable\" type=\"button\" aria-haspopup=\"true\"><span>Columnas</span><span class="
+        }
+      ],
+      "nodeCount": 2
+    },
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "target": [
+            ".custom-select-sm"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image",
+          "html": "<select name=\"paymentMethodTable_length\" aria-controls=\"paymentMethodTable\" class=\"custom-select custom-select-sm form-control form-control-sm\"><option value=\"3\">3</option><option value=\"5\">5</option>"
+        },
+        {
+          "target": [
+            "a[data-dt-idx=\"1\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content",
+          "html": "<a href=\"#\" aria-controls=\"paymentMethodTable\" data-dt-idx=\"1\" tabindex=\"0\" class=\"page-link\">1</a>"
+        }
+      ],
+      "nodeCount": 2
+    }
+  ],
+  "passCount": 47,
+  "violationCount": 0,
+  "incompleteCount": 2
+}

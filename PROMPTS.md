@@ -208,7 +208,7 @@ custom, diseño de base de datos y patrones de diseño.
 
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
-Estado actual: 1.17.0; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas, devoluciones.
+Estado actual: 1.18.0; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas, devoluciones, métodos de pago (catálogo + cobro mixto).
 BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_categorias, tb_proveedores,
                  tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
                  tb_activity_log, tb_ajustes_stock, tb_devoluciones, tb_devolucion_items, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
@@ -366,5 +366,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.17.0 (2026-09-18)_
+_Última actualización: 1.18.0 (2026-09-23)_
 _Mantener sincronizado con AGENTS.md y CLAUDE.md al iniciar cada sesión._

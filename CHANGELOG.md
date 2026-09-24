@@ -11,6 +11,30 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 _Sin cambios todavía._
 
+## [1.18.0] - 2026-09-23
+
+### Cambiado
+
+- **Formas de pago + pago mixto** (spec 003):
+  - Nuevas tablas `tb_metodos_pago` (catálogo configurable con tipo
+    `efectivo`/`no_efectivo` y flag `activo`) y `tb_pagos` (una línea por
+    método por venta, UNIQUE venta+método, FK CASCADE sobre la venta).
+  - Nuevo permiso `manage_payment_methods` para gestionar el catálogo desde
+    `/payment-methods` (CRUD modal+AJAX, gate en sidebar y rutas).
+  - Paso **Cobro** del wizard POS: una fila por método activo, validación
+    server-side de suma ≥ total, rechazo de exceso sin efectivo, **vuelto**
+    derivado (no persistido) y desglose en el detalle de la venta y en la
+    factura PDF; estado vacío "—" para ventas históricas sin líneas de pago.
+  - `Sale::storeWithStock()` ahora recibe `$payments` y retorna
+    `['ok','id_venta','vuelto','error','faltante']`; `findWithDetails()`
+    adjunta `payments` y `vuelto`.
+  - Backfill idempotente opcional en la migración 008 (línea `Efectivo` =
+    total para ventas sin pagos).
+  - **Paso de migración requerido:** ejecutar
+    `database/migrations/008_formas_de_pago.sql` sobre BDs existentes
+    (idempotente; se puede correr más de una vez sin duplicar tablas,
+    métodos, permisos ni líneas de pago).
+
 ## [1.17.0] - 2026-09-18
 
 ### Cambiado
@@ -725,7 +749,8 @@ _Sin cambios todavía._
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.17.0...HEAD
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.0...HEAD
+[1.18.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.17.0...1.18.0
 [1.17.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.6...1.17.0
 [1.16.6]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.5...1.16.6
 [1.16.5]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.4...1.16.5

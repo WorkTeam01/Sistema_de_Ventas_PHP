@@ -28,12 +28,11 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 14. **Moneda configurable** vía `.env` (`APP_CURRENCY_SYMBOL`). → CHANGELOG 1.16.x
 15. **Precio histórico por línea de venta** — `tb_carrito.precio_unitario`, congelamiento al finalizar, backfill idempotente, COALESCE en lecturas. → `specs/002-precio-historico-por-linea/`
 16. **Devoluciones de ventas** — devoluciones parciales acumulativas, reingreso atómico de stock, permiso `manage_returns`, auditoría y venta neta en dashboard/reportes. → `specs/001-devoluciones-ventas/`
+17. **Formas de pago + pago mixto** — catálogo configurable de métodos, pago mixto
+    por venta, validación suma ≥ total, vuelto, desglose en detalle/PDF y backfill
+    idempotente. Prerequisito del arqueo/cuadre de caja. → `specs/003-formas-de-pago-mixto/`
 
 ## Siguiente 🔜
-
-1. **Formas de pago + pago mixto** — registrar efectivo, tarjeta y
-   transferencia, y permitir pagos combinados por venta. La normalización de
-   pagos debe preceder a arqueo/cuadre de caja. → backlog promovido
 
 _Fix suelto previo (fuera de SDD, no cambia esquema/permiso): cerrar el hueco de
 scoping en `SaleController::destroy` (un vendedor puede eliminar por POST una
