@@ -11,6 +11,48 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 _Sin cambios todavía._
 
+## [1.18.1] - 2026-09-24
+
+### Corregido
+
+- **IDOR en eliminación de ventas**: `SaleController::destroy()` no re-verificaba
+  la propiedad de la venta — un vendedor con `manage_sales` podía eliminar por
+  POST directo a `/sales/delete` una venta registrada por otro usuario. Ahora
+  aplica el mismo guard `view_sales_all` + `id_usuario` que `show()`/`invoice()`
+  y responde 403.
+
+### Cambiado
+
+- **Ventas sin cliente ("Consumidor final")**:
+  - `tb_ventas.id_cliente` pasa a nullable (migración `009`, idempotente); las
+    ventas sin cliente se registran con `NULL`.
+  - `Sale::allWithDetails()`, `findWithDetails()` y `latest()` usan `LEFT JOIN`
+    para incluir ventas sin cliente.
+  - El wizard POS permite avanzar y finalizar la venta sin seleccionar cliente;
+    el resumen lateral muestra "Consumidor final".
+  - Fallback "Consumidor final"/"—" en listado de ventas, detalle, confirmación
+    de eliminación, dashboard, factura PDF (`InvoicePdf`), export de reportes y
+    activity log.
+  - **Paso de migración requerido:** ejecutar
+    `database/migrations/009_ventas_sin_cliente.sql` sobre BDs existentes.
+- **Forma de pago: selector único / mixto en el paso Cobro**:
+  - Toggle "Pago único | Pago mixto" (estilo AdminLTE). En **único** se elige un
+    solo método con monto (prefill = total, editable para exceso en efectivo). En
+    **mixto** se agregan filas dinámicas desde un `<template>` (método + monto +
+    eliminar), sin permitir un método duplicado en la misma venta.
+  - Se mantienen las reglas de dinero existentes: suma ≥ total, exceso solo con
+    efectivo = vuelto, sin persistir el vuelto. La restricción "único" aplica
+    en la UI; el backend sigue modo-agnóstico (merge de métodos como respaldo).
+  - La preferencia de modo y montos sobreviven recargas vía `sessionStorage`
+    (`pos_forma_pago`), igual que la selección de cliente.
+  - Se eliminan los campos `referencia`/`detalle` de `tb_pagos` y de todo el
+    flujo de cobro (migración `010`): un POS estándar no captura referencias de
+    pago en caja; la línea de pago queda como método + monto. El desglose en el
+    detalle y el PDF muestra solo método + monto (+ vuelto si correspondió).
+  - **Paso de migración requerido:** ejecutar
+    `database/migrations/010_quitar_referencia_detalle_pagos.sql` sobre BDs
+    existentes (junto a la `009`).
+
 ## [1.18.0] - 2026-09-23
 
 ### Cambiado
@@ -749,7 +791,8 @@ _Sin cambios todavía._
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.0...HEAD
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.1...HEAD
+[1.18.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.0...1.18.1
 [1.18.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.17.0...1.18.0
 [1.17.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.6...1.17.0
 [1.16.6]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.5...1.16.6

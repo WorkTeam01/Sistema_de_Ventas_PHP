@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.18.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.18.1-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -52,7 +52,7 @@ Historial de compras a proveedores, con actualización automática de stock al r
 | Módulo          | Descripción                                                                                                       |
 | --------------- | ----------------------------------------------------------------------------------------------------------------- |
 | **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías                                                    |
-| **Ventas**      | POS wizard (Cliente → Carrito → Pago), creación inline de clientes y facturas PDF                                 |
+| **Ventas**      | POS wizard (Cliente → Carrito → Cobro), venta sin cliente ("Consumidor final"), cobro único/mixto y facturas PDF  |
 | **Compras**     | Registro de compras a proveedores con actualización automática de stock                                           |
 | **Inventario**  | Alertas de stock bajo, barras de progreso y ajustes manuales con historial                                        |
 | **Reportes**    | Ventas, compras, top productos y clientes por período; export PDF / CSV / Excel                                   |
@@ -191,9 +191,10 @@ Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 ## Actualización
 
 Si ya tienes una versión anterior del sistema instalada, aplica las migraciones
-pendientes sobre tu base de datos existente, en orden y **una sola vez** (solo los
-archivos 003, 005, 006 y 007 son repetibles sin efectos; los demás insertan datos o
-añaden constraints y darían error de duplicado si se relanzan).
+pendientes sobre tu base de datos existente, en orden. Los archivos 003, 005,
+006, 007, 008 y 009 son repetibles sin efectos; 001, 002, 004 y 010 se ejecutan
+**una sola vez** (re-ejecutar una no-repetible daría error de duplicado o de
+columna inexistente).
 
 **Linux / macOS:**
 
@@ -205,6 +206,9 @@ mysql -u root -p sistemadeventas < database/migrations/004_view_purchases_all.sq
 mysql -u root -p sistemadeventas < database/migrations/005_reports_admin_only.sql
 mysql -u root -p sistemadeventas < database/migrations/006_carrito_precio_unitario.sql
 mysql -u root -p sistemadeventas < database/migrations/007_devoluciones.sql
+mysql -u root -p sistemadeventas < database/migrations/008_formas_de_pago.sql
+mysql -u root -p sistemadeventas < database/migrations/009_ventas_sin_cliente.sql
+mysql -u root -p sistemadeventas < database/migrations/010_quitar_referencia_detalle_pagos.sql
 ```
 
 **Windows** (desde `C:\xampp\mysql\bin\`):
@@ -217,6 +221,9 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\005_reports_admin_only.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\006_carrito_precio_unitario.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\007_devoluciones.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\008_formas_de_pago.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\009_ventas_sin_cliente.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\010_quitar_referencia_detalle_pagos.sql
 ```
 
 > Si instalaste desde cero con la versión actual, la BD ya incluye todos los

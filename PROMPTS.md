@@ -208,7 +208,7 @@ custom, diseño de base de datos y patrones de diseño.
 
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
-Estado actual: 1.18.0; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas, devoluciones, métodos de pago (catálogo + cobro mixto).
+Estado actual: 1.18.1; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas (con venta sin cliente), devoluciones, métodos de pago (catálogo + cobro único/mixto).
 BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_categorias, tb_proveedores,
                  tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
                  tb_activity_log, tb_ajustes_stock, tb_devoluciones, tb_devolucion_items, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
@@ -269,9 +269,11 @@ BD relevante:
 - tb_roles (id_rol, rol)
 - tb_almacen (id_producto, nombre, descripcion, precio_venta, precio_compra, stock, stock_minimo, stock_maximo, id_categoria, imagen, codigo)
 - tb_categorias (id_categoria, nombre_categoria)
-- tb_ventas (id_venta, nro_venta, id_cliente, id_usuario [FK NULL], total_pagado, fyh_creacion)
+- tb_ventas (id_venta, nro_venta, id_cliente [NULL = "Consumidor final"], id_usuario [FK NULL], total_pagado, fyh_creacion)
   -- total_pagado calculado server-side; id_usuario registra al vendedor (desde v1.12.1)
 - tb_carrito (id_carrito, nro_venta, id_producto, cantidad)
+- tb_metodos_pago (id_metodo_pago, nombre, tipo [efectivo|no_efectivo], activo)
+- tb_pagos (id_pago, id_venta [FK], id_metodo_pago [FK], monto)
 - tb_compras (id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad)
 - tb_activity_log (id_log, id_usuario [FK NULL], usuario_nombre, accion, entidad, entidad_id, descripcion, datos_anteriores, datos_nuevos, ip_address, fyh_creacion)
 - tb_ajustes_stock (id_ajuste, id_producto, tipo [entrada|salida], cantidad, stock_anterior, stock_posterior, motivo, id_usuario [FK NULL], usuario_nombre, fyh_creacion)
@@ -366,5 +368,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.18.0 (2026-09-23)_
+_Última actualización: 1.18.1 (2026-09-24)_
 _Mantener sincronizado con AGENTS.md y CLAUDE.md al iniciar cada sesión._

@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.18.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.18.1 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -161,8 +161,11 @@ tb_almacen
 (id_almacen, nombre_almacen, descripcion, precio_compra, precio_venta,
     stock, imagen, id_categoria, fyh_creacion, fyh_actualizacion)
 tb_ventas
-    (id_venta, nro_venta, id_cliente, id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
+    (id_venta, nro_venta, id_cliente [NULL → venta sin cliente, se muestra como "Consumidor final"], id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
     -- id_usuario registra al vendedor; NULL en registros anteriores a v1.12.1
+    -- id_cliente opcional desde 1.18.1: las lecturas usan LEFT JOIN y las salidas
+    -- (listado, detalle, delete, dashboard, factura PDF, activity log, exports)
+    -- muestran "Consumidor final"/"—" cuando es NULL
     -- total_pagado calculado server-side como SUM(cantidad * precio_unitario) desde tb_carrito, nunca del POST;
     -- la venta neta de un período es ventas menos devoluciones imputadas a ese período
     tb_carrito
@@ -181,7 +184,7 @@ tb_ventas
     -- desde /payment-methods con el permiso manage_payment_methods
     tb_pagos
     (id_pago, id_venta [FK → tb_ventas CASCADE], id_metodo_pago [FK → tb_metodos_pago NO ACTION],
-        monto, referencia NULL, detalle NULL, fyh_creacion)
+        monto, fyh_creacion)
     -- una línea por método por venta (UNIQUE venta+metodo); el vuelto NUNCA se persiste como línea,
     -- se deriva con SalePayment::vueltoFor(suma_montos, total_pagado)
     tb_compras
@@ -581,4 +584,4 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 
 ---
 
-_Última actualización: 2026-09-23 — 1.18.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-09-24 — 1.18.1. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
