@@ -15,6 +15,7 @@ use App\Controllers\RoleController;
 use App\Controllers\SupplierController;
 use App\Controllers\UserController;
 use App\Controllers\SaleReturnController;
+use App\Controllers\PaymentMethodController;
 use App\Core\Router;
 
 /**
@@ -146,6 +147,14 @@ $router->get('/activity-log/show/{id}', [ActivityLogController::class, 'show'], 
 // Rutas del módulo inventario (solo Administrador)
 $router->get('/inventory',              [InventoryController::class, 'index'],           ['auth', 'can:manage_inventory']);
 $router->post('/inventory/adjustments', [InventoryController::class, 'storeAdjustment'], ['auth', 'can:manage_inventory']);
+
+// Rutas del módulo payment-methods (catálogo formas de pago) (MVC)
+$router->get('/payment-methods',               [PaymentMethodController::class, 'index'],       ['auth', 'can:manage_payment_methods']);
+$router->post('/payment-methods/store',        [PaymentMethodController::class, 'store'],       ['auth', 'can:manage_payment_methods']);
+$router->get('/payment-methods/show/{id}',     [PaymentMethodController::class, 'show'],        ['auth', 'can:manage_payment_methods']);
+$router->post('/payment-methods/update/{id}',  [PaymentMethodController::class, 'update'],      ['auth', 'can:manage_payment_methods']);
+$router->post('/payment-methods/check-nombre', [PaymentMethodController::class, 'checkNombre'], ['auth', 'can:manage_payment_methods']);
+$router->post('/payment-methods/delete',       [PaymentMethodController::class, 'destroy'],     ['auth', 'can:manage_payment_methods']);
 
 // Rutas del módulo reportes
 $router->get('/reports',              [ReportController::class, 'index'],       ['auth', 'can:view_reports']);

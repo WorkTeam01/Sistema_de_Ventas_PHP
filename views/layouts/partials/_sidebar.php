@@ -32,6 +32,9 @@ $clientsActive = str_starts_with($_currentPath, '/clients');
 // — Módulo Ventas —
 $salesActive = str_starts_with($_currentPath, '/sales');
 
+// — Módulo Métodos de pago —
+$paymentMethodsActive = str_starts_with($_currentPath, '/payment-methods');
+
 // — Módulo Activity Log —
 $activityLogActive = str_starts_with($_currentPath, '/activity-log');
 
@@ -209,6 +212,15 @@ $link = fn(bool $on) => $on ? ' active' : '';
                             <p>Ventas</p>
                         </a>
                     </li>
+
+                    <?php if ($can['manage_payment_methods'] ?? false): ?>
+                        <li class="nav-item">
+                            <a href="<?= BASE_URL ?>/payment-methods" class="nav-link<?= $link($paymentMethodsActive) ?>">
+                                <i class="nav-icon fas fa-credit-card"></i>
+                                <p>Métodos de pago</p>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 <?php endif; ?>
 
             </ul>
