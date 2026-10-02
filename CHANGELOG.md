@@ -7,9 +7,25 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
-## [Unreleased]
+## [1.18.3] - 2026-10-02
 
-_Sin cambios todavía._
+### Corregido
+
+- **Escalada a superusuario renombrando permisos**: `PermissionController::update()`
+  permitía cambiar la `clave` de un permiso, y los guards anti escalada buscan por la
+  clave `is_superadmin`. Con solo `manage_roles` se podía renombrar la fila original y
+  darle esa clave a otro permiso ya asignado al propio rol. La `clave` ahora es
+  inmutable (`Permission::updateDetails()` solo edita descripción y módulo) y el campo
+  queda de solo lectura en el modal de edición.
+- **"Mi perfil" bloqueado para roles sin `manage_users`**: la validación remota del
+  email apuntaba a `/users/check-email`, que exige `manage_users`; el Vendedor o el
+  Comprador recibían un 403 y jquery.validate dejaba el formulario pendiente. Nueva
+  ruta `/profile/check-email` (solo `auth`) que excluye siempre al usuario de la
+  sesión en vez de fiarse de un id enviado por el cliente.
+- **Doble clic en "Registrar devolución"**: el botón no se deshabilitaba al enviar, así
+  que dos clics seguidos creaban dos devoluciones parciales válidas (doble reposición de
+  stock y venta neta rebajada dos veces). Ahora el envío se bloquea tras el primer clic.
+  El símbolo de moneda de la vista previa sale de `APP_CURRENCY_SYMBOL` y no de "Bs.".
 
 ## [1.18.2] - 2026-10-01
 

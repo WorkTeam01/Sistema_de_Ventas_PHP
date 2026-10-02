@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.18.2 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.18.3 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -320,7 +320,7 @@ Auth::logout()          // limpia sesión, BD y cookie
   `$isSeller` en vez de `$can['view_reports']`) hace que el menú muestre enlaces a los que el usuario en realidad no
   tiene acceso (la ruta responde 403, pero la UI confunde). Está bien usarlos para las secciones cuyo único gate es
   precisamente `view_sales`/`view_purchases` (Ventas, Compras, Inventario).
-- **Gestión vía UI:** catálogo de permisos en `/permissions` (CRUD de clave/descripción/módulo, `PermissionController`,
+- **Gestión vía UI:** catálogo de permisos en `/permissions` (alta con clave/descripción/módulo; la `clave` es **inmutable** tras crearla — los guards de escalada y las rutas `can:` la usan como identificador, renombrarla reasignaría su efecto; `PermissionController`,
   `views/permissions/`) y asignación por rol en `/roles/permisos/{id}` (checkboxes agrupados por `modulo`,
   `RoleController::permisos()`/`syncPermisos()`, `views/roles/permisos.php`). Ambas rutas reutilizan el permiso
   `manage_roles` — no se sembró un slug nuevo.
@@ -592,4 +592,4 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 
 ---
 
-_Última actualización: 2026-10-01 — 1.18.2. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-10-02 — 1.18.3. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
