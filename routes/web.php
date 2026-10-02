@@ -49,6 +49,7 @@ $router->post('/auth/reset-password',          [AuthController::class, 'resetPas
 $router->get('/profile',           [UserController::class, 'profile'],        ['auth']);
 $router->post('/profile/update',   [UserController::class, 'updateProfile'],  ['auth']);
 $router->post('/profile/password', [UserController::class, 'updatePassword'], ['auth']);
+$router->post('/profile/check-email', [UserController::class, 'checkProfileEmail'], ['auth']);
 
 // Rutas del módulo users (MVC)
 $router->get('/users',              [UserController::class, 'index'],       ['auth', 'can:manage_users']);

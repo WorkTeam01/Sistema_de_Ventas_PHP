@@ -2,7 +2,6 @@ $(function () {
     const $formInfo = $('#form-info');
     const $formPassword = $('#form-password');
     const checkEmailUrl = $formInfo.data('check-email-url');
-    const userId = $formInfo.data('user-id');
 
     // ── Validación: Editar perfil ────────────────────────────────────────────
     $formInfo.validate({
@@ -16,12 +15,7 @@ $(function () {
                 email: true,
                 remote: {
                     url: checkEmailUrl,
-                    type: 'post',
-                    data: {
-                        id_usuario: function () {
-                            return userId;
-                        }
-                    }
+                    type: 'post'
                 }
             }
         },

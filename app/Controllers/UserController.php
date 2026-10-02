@@ -301,6 +301,22 @@ class UserController extends Controller
     }
 
     /**
+     * Verifica vía AJAX si un email está libre para el perfil propio (jquery.validate remote).
+     * Excluye siempre al usuario de la sesión, nunca un id enviado por el cliente.
+     */
+    public function checkProfileEmail(): void
+    {
+        $email = trim($_POST['email'] ?? '');
+
+        $userModel = new User();
+        if ($userModel->emailExists($email, (int)Auth::user()['id_usuario'])) {
+            echo json_encode('El correo electrónico ya está registrado en el sistema');
+        } else {
+            echo json_encode(true);
+        }
+    }
+
+    /**
      * Muestra la pantalla de confirmación antes de eliminar un usuario.
      *
      * @param int|null $id ID del usuario a eliminar
@@ -391,7 +407,7 @@ class UserController extends Controller
                 'initSafe' => htmlspecialchars($initials, ENT_QUOTES, 'UTF-8'),
                 'fechaSafe' => htmlspecialchars($fechaRegistro, ENT_QUOTES, 'UTF-8'),
                 'csrfSafe' => htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'),
-                'checkUrl' => htmlspecialchars(BASE_URL . '/users/check-email', ENT_QUOTES, 'UTF-8'),
+                'checkUrl' => htmlspecialchars(BASE_URL . '/profile/check-email', ENT_QUOTES, 'UTF-8'),
                 'navPerfilClass' => $activeTab === 'perfil' ? 'active' : '',
                 'navPasswordClass' => $activeTab === 'password' ? 'active' : '',
                 'panePerfilClass' => $activeTab === 'perfil' ? 'show active' : '',
