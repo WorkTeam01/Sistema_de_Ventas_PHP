@@ -26,7 +26,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-8">
-                    <form id="formReturn" method="POST" action="<?= BASE_URL ?>/returns">
+                    <form id="formReturn" method="POST" action="<?= BASE_URL ?>/returns"
+                          data-currency="<?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                         <input type="hidden" name="id_venta" value="<?= (int)$id_venta ?>">
                         <input type="hidden" name="id_usuario_venta" value="<?= (int)$id_usuario ?>">

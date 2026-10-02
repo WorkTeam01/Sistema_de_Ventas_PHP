@@ -4,7 +4,9 @@ $(function () {
     var $montoPreview = $('#montoPreview');
     var $motivo = $('#motivo');
     var $motivoCount = $('#motivoCount');
-    var currencySymbol = window.APP_CURRENCY_SYMBOL || 'Bs.';
+    var $form = $('#formReturn');
+    var currencySymbol = $form.data('currency') || 'Bs.';
+    var submitting = false;
     var MOTIVO_MIN = 10;
 
     function updatePreview() {
@@ -41,6 +43,18 @@ $(function () {
         var motivoValid = motivoLen >= MOTIVO_MIN;
         $btnRegistrar.prop('disabled', !hasAny || !motivoValid);
     }
+
+    // Cada envío válido registra una devolución parcial nueva: un doble clic
+    // crearía dos y repondría el stock dos veces.
+    $form.on('submit', function (e) {
+        if (submitting) {
+            e.preventDefault();
+            return;
+        }
+        submitting = true;
+        $btnRegistrar.prop('disabled', true);
+        ToastUtils.loading('Registrando devolución...');
+    });
 
     $inputs.on('input change', updatePreview);
     $motivo.on('input', updatePreview);
