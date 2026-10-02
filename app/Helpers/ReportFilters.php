@@ -18,7 +18,20 @@ class ReportFilters
         $desdeDate = self::parseDate($desde);
         $hastaDate = self::parseDate($hasta);
 
-        if ($desdeDate === null || $hastaDate === null || $desdeDate > $hastaDate) {
+        if ($desdeDate !== null && $hastaDate !== null && $desdeDate > $hastaDate) {
+            $desdeDate = null;
+            $hastaDate = null;
+        }
+
+        // Una fecha sola no invalida el rango: se completa con el extremo del
+        // mismo mes, para no descartar silenciosamente la fecha elegida.
+        if ($desdeDate !== null && $hastaDate === null) {
+            $hastaDate = new \DateTime($desdeDate->format('Y-m-t'));
+        } elseif ($hastaDate !== null && $desdeDate === null) {
+            $desdeDate = new \DateTime($hastaDate->format('Y-m-01'));
+        }
+
+        if ($desdeDate === null || $hastaDate === null) {
             $desdeDate = new \DateTime('first day of this month');
             $hastaDate = new \DateTime('last day of this month');
         }

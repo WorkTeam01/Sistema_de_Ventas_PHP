@@ -70,7 +70,9 @@ class Report
 
     // ── Compras ───────────────────────────────────────────────────────────────
 
-    public function purchasesByPeriod(string $desde, string $hasta): array
+    // Se filtra por fecha_compra (la fecha de la compra) y no por fyh_creacion
+    // (cuando se registró) para que el reporte coincida con el dashboard.
+    public function purchasesByPeriod(string $desde, string $hasta, ?int $userId = null): array
     {
         $stmt = $this->pdo->prepare("
             SELECT c.id_compra, c.nro_compra, c.fecha_compra,
@@ -80,22 +82,24 @@ class Report
             FROM tb_compras c
             LEFT JOIN tb_proveedores p ON p.id_proveedor = c.id_proveedor
             LEFT JOIN tb_usuarios    u ON u.id_usuario   = c.id_usuario
-            WHERE c.fyh_creacion BETWEEN ? AND ?
-            ORDER BY c.fyh_creacion DESC
+            WHERE DATE(c.fecha_compra) BETWEEN DATE(?) AND DATE(?)
+            " . ($userId !== null ? ' AND c.id_usuario = ?' : '') . "
+            ORDER BY c.fecha_compra DESC, c.id_compra DESC
         ");
-        $stmt->execute([$desde, $hasta]);
+        $stmt->execute($userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function purchasesTotals(string $desde, string $hasta): array
+    public function purchasesTotals(string $desde, string $hasta, ?int $userId = null): array
     {
         $stmt = $this->pdo->prepare("
             SELECT COUNT(*)                                        AS num_compras,
                    COALESCE(SUM(c.precio_compra * c.cantidad), 0) AS total_egresos
             FROM tb_compras c
-            WHERE c.fyh_creacion BETWEEN ? AND ?
-        ");
-        $stmt->execute([$desde, $hasta]);
+            WHERE DATE(c.fecha_compra) BETWEEN DATE(?) AND DATE(?)
+            " . ($userId !== null ? ' AND c.id_usuario = ?' : '')
+        );
+        $stmt->execute($userId !== null ? [$desde, $hasta, $userId] : [$desde, $hasta]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
@@ -111,13 +115,15 @@ class Report
      * @param int    $top       Whitelist: 5, 10, 20, 50 — default 10.
      * @param string $orden     'cantidad'|'ingresos' — default 'cantidad'.
      * @param int    $categoria Filtra por categoría si > 0.
+     * @param int    $userId    Si se indica, limita a las ventas (y devoluciones) de ese vendedor.
      */
     public function topProducts(
         string $desde,
         string $hasta,
         int    $top       = 10,
         string $orden     = 'cantidad',
-        int    $categoria = 0
+        int    $categoria = 0,
+        ?int   $userId    = null
     ): array {
         $top      = in_array($top, self::TOP_WHITELIST, true) ? $top : 10;
         $orderCol = self::ORDER_MAP[$orden] ?? 'unidades_vendidas';
@@ -129,6 +135,8 @@ class Report
             $catParam = $categoria;
         }
 
+        $returnScope = $userId !== null ? ' AND v3.id_usuario = ?' : '';
+
         $stmt = $this->pdo->prepare("
             SELECT a.id_producto, a.nombre,
                    cat.nombre_categoria AS categoria,
@@ -136,21 +144,26 @@ class Report
                      - COALESCE((
                          SELECT SUM(di.cantidad) FROM tb_devolucion_items di
                          INNER JOIN tb_devoluciones dv ON dv.id_devolucion = di.id_devolucion
+                         INNER JOIN tb_ventas v3 ON v3.id_venta = dv.id_venta
                          WHERE di.id_producto = a.id_producto
                            AND dv.fyh_creacion BETWEEN ? AND ?
+                           {$returnScope}
                      ), 0)                              AS unidades_vendidas,
                    SUM(ca.cantidad * COALESCE(ca.precio_unitario, a.precio_venta))
                      - COALESCE((
                          SELECT SUM(di.cantidad * di.precio_unitario) FROM tb_devolucion_items di
                          INNER JOIN tb_devoluciones dv ON dv.id_devolucion = di.id_devolucion
+                         INNER JOIN tb_ventas v3 ON v3.id_venta = dv.id_venta
                          WHERE di.id_producto = a.id_producto
                            AND dv.fyh_creacion BETWEEN ? AND ?
+                           {$returnScope}
                      ), 0)                              AS ingresos
             FROM tb_carrito ca
             JOIN tb_ventas    v   ON v.nro_venta   = ca.nro_venta
             JOIN tb_almacen   a   ON a.id_producto = ca.id_producto
             LEFT JOIN tb_categorias cat ON cat.id_categoria = a.id_categoria
             WHERE v.fyh_creacion BETWEEN ? AND ?
+            " . ($userId !== null ? ' AND v.id_usuario = ?' : '') . "
             {$catSql}
             GROUP BY a.id_producto, a.nombre, cat.nombre_categoria
             HAVING unidades_vendidas > 0
@@ -159,12 +172,13 @@ class Report
         ");
 
         $pos = 1;
-        $stmt->bindValue($pos++, $desde);
-        $stmt->bindValue($pos++, $hasta);
-        $stmt->bindValue($pos++, $desde);
-        $stmt->bindValue($pos++, $hasta);
-        $stmt->bindValue($pos++, $desde);
-        $stmt->bindValue($pos++, $hasta);
+        foreach ([[$desde, $hasta], [$desde, $hasta], [$desde, $hasta]] as $range) {
+            $stmt->bindValue($pos++, $range[0]);
+            $stmt->bindValue($pos++, $range[1]);
+            if ($userId !== null) {
+                $stmt->bindValue($pos++, $userId, \PDO::PARAM_INT);
+            }
+        }
         if ($catParam !== null) {
             $stmt->bindValue($pos++, $catParam, \PDO::PARAM_INT);
         }
@@ -201,8 +215,10 @@ class Report
 
     // ── Clientes ──────────────────────────────────────────────────────────────
 
-    public function clientsByPeriod(string $desde, string $hasta): array
+    public function clientsByPeriod(string $desde, string $hasta, ?int $userId = null): array
     {
+        $returnScope = $userId !== null ? ' AND vc.id_usuario = ?' : '';
+
         $stmt = $this->pdo->prepare("
             SELECT c.id_cliente,
                    c.nombre_cliente                        AS cliente,
@@ -215,15 +231,20 @@ class Report
                          INNER JOIN tb_ventas vc ON vc.id_venta = dv.id_venta
                          WHERE vc.id_cliente = c.id_cliente
                            AND dv.fyh_creacion BETWEEN ? AND ?
+                           {$returnScope}
                      ), 0)                                 AS monto_acumulado,
                    MAX(v.fyh_creacion)                     AS ultima_compra
             FROM tb_clientes c
             JOIN tb_ventas v ON v.id_cliente = c.id_cliente
             WHERE v.fyh_creacion BETWEEN ? AND ?
+            " . ($userId !== null ? ' AND v.id_usuario = ?' : '') . "
             GROUP BY c.id_cliente, c.nombre_cliente, c.nit_ci_cliente, c.email_cliente
             ORDER BY monto_acumulado DESC
         ");
-        $stmt->execute([$desde, $hasta, $desde, $hasta]);
+        $params = $userId !== null
+            ? [$desde, $hasta, $userId, $desde, $hasta, $userId]
+            : [$desde, $hasta, $desde, $hasta];
+        $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

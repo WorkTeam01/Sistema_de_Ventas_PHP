@@ -100,6 +100,37 @@ final class ReportPurchasesTest extends TestCase
         $this->assertSame(1, (int)$rows[1]['nro_compra']);
     }
 
+    public function test_purchasesByPeriod_filters_by_fecha_compra_not_registration_date(): void
+    {
+        // Compra de junio registrada en julio → pertenece a junio.
+        $this->seedPurchase(1, 100.00, 1, '2025-06-15', '2025-07-02 10:00:00');
+        // Compra de julio registrada en junio → no pertenece a junio.
+        $this->seedPurchase(2, 200.00, 1, '2025-07-05', '2025-06-25 10:00:00');
+
+        $rows = $this->report->purchasesByPeriod('2025-06-01 00:00:00', '2025-06-30 23:59:59');
+
+        $this->assertCount(1, $rows);
+        $this->assertSame(1, (int)$rows[0]['nro_compra']);
+    }
+
+    public function test_purchasesByPeriod_includes_purchase_on_first_day_of_range(): void
+    {
+        $this->seedPurchase(1, 50.00, 1, '2025-06-01', '2025-06-01 23:00:00');
+
+        $rows = $this->report->purchasesByPeriod('2025-06-01 00:00:00', '2025-06-30 23:59:59');
+
+        $this->assertCount(1, $rows);
+    }
+
+    public function test_purchasesByPeriod_includes_purchase_on_last_day_of_range(): void
+    {
+        $this->seedPurchase(1, 50.00, 1, '2025-06-30', '2025-06-30 08:00:00');
+
+        $rows = $this->report->purchasesByPeriod('2025-06-01 00:00:00', '2025-06-30 23:59:59');
+
+        $this->assertCount(1, $rows);
+    }
+
     // ── purchasesTotals ───────────────────────────────────────────────────────
 
     public function test_purchasesTotals_sums_correctly(): void
@@ -125,6 +156,17 @@ final class ReportPurchasesTest extends TestCase
     {
         $this->seedPurchase(1, 500.00, 1, '2025-05-01', '2025-05-01 10:00:00'); // fuera
         $this->seedPurchase(2, 100.00, 2, '2025-06-10', '2025-06-10 10:00:00'); // dentro → 200
+
+        $totals = $this->report->purchasesTotals('2025-06-01 00:00:00', '2025-06-30 23:59:59');
+
+        $this->assertSame(1, (int)$totals['num_compras']);
+        $this->assertEqualsWithDelta(200.00, (float)$totals['total_egresos'], 0.01);
+    }
+
+    public function test_purchasesTotals_filter_by_fecha_compra_not_registration_date(): void
+    {
+        $this->seedPurchase(1, 100.00, 2, '2025-06-15', '2025-07-02 10:00:00'); // dentro → 200
+        $this->seedPurchase(2, 300.00, 1, '2025-07-05', '2025-06-25 10:00:00'); // fuera
 
         $totals = $this->report->purchasesTotals('2025-06-01 00:00:00', '2025-06-30 23:59:59');
 

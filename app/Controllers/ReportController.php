@@ -12,20 +12,30 @@ use App\Models\Report;
 
 class ReportController extends Controller
 {
+    /**
+     * Devuelve el ID con el que acotar un reporte: null cuando el rol tiene el
+     * permiso `_all` (ve todos los registros) o el ID propio en caso contrario.
+     * Sin sesión devuelve 0, que no matchea ningún registro (fail-closed).
+     */
+    private function scopeUserId(string $allPermission): ?int
+    {
+        if (Auth::can($allPermission)) {
+            return null;
+        }
+        $user = Auth::user();
+        return (int)($user['id_usuario'] ?? 0);
+    }
+
     public function index(): void
     {
         $session = $this->sessionData();
         $filters = ReportFilters::parseDateRange([]);
         $report  = new Report();
 
-        $userId = Auth::can('view_sales_all')
-            ? null
-            : (int)Auth::user()['id_usuario'];
-
-        $salesSummary     = $report->salesSummary($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
-        $purchaseSummary  = Auth::can('view_purchases_report') ? $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta']) : null;
-        $topProductos     = Auth::can('view_top_products_report') ? $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], 5) : [];
-        $clientesActivos  = Auth::can('view_clients_report') ? count($report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'])) : 0;
+        $salesSummary     = $report->salesSummary($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all'));
+        $purchaseSummary  = Auth::can('view_purchases_report') ? $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_purchases_all')) : null;
+        $topProductos     = Auth::can('view_top_products_report') ? $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], 5, 'cantidad', 0, $this->scopeUserId('view_sales_all')) : [];
+        $clientesActivos  = Auth::can('view_clients_report') ? count($report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all'))) : 0;
 
         $this->renderWithLayout(
             'views/reports/index.php',
@@ -47,9 +57,7 @@ class ReportController extends Controller
         $filters  = ReportFilters::parseDateRange($_GET);
         $report   = new Report();
         $session  = $this->sessionData();
-        $userId = Auth::can('view_sales_all')
-            ? null
-            : (int)Auth::user()['id_usuario'];
+        $userId   = $this->scopeUserId('view_sales_all');
 
         $rows   = $report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
         $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
@@ -78,9 +86,10 @@ class ReportController extends Controller
     {
         $filters = ReportFilters::parseDateRange($_GET);
         $report  = new Report();
+        $userId  = $this->scopeUserId('view_purchases_all');
 
-        $rows   = $report->purchasesByPeriod($filters['fecha_desde'], $filters['fecha_hasta']);
-        $totals = $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta']);
+        $rows   = $report->purchasesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
+        $totals = $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
 
         $export = trim($_GET['export'] ?? '');
         if ($export !== '') {
@@ -112,7 +121,7 @@ class ReportController extends Controller
         $orden     = in_array($_GET['orden'] ?? '', ['cantidad', 'ingresos'], true) ? $_GET['orden'] : 'cantidad';
         $categoria = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int)$_GET['categoria'] : 0;
 
-        $rows       = $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], $top, $orden, $categoria);
+        $rows       = $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], $top, $orden, $categoria, $this->scopeUserId('view_sales_all'));
         $categories = (new Category())->all();
 
         $export = trim($_GET['export'] ?? '');
@@ -143,7 +152,7 @@ class ReportController extends Controller
         $filters = ReportFilters::parseDateRange($_GET);
         $report  = new Report();
 
-        $rows = $report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta']);
+        $rows = $report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all'));
 
         $export = trim($_GET['export'] ?? '');
         if ($export !== '') {
@@ -174,14 +183,14 @@ class ReportController extends Controller
             $r['nro_venta'],
             date('d/m/Y H:i', strtotime($r['fyh_creacion'])),
             $r['cliente'] ?? 'Consumidor final',
-            number_format((float)$r['total_pagado'], 2),
+            (float) $r['total_pagado'],
         ], $rows);
 
         $subtitulo = 'Período: ' . date('d/m/Y', strtotime($filters['desde_display'])) . ' — ' . date('d/m/Y', strtotime($filters['hasta_display']));
         $totalRows = [
-            'N° Ventas'     => $totals['num_ventas'],
-            'Total ' . APP_CURRENCY_SYMBOL     => APP_CURRENCY_SYMBOL . ' ' . number_format((float)$totals['total_ingresos'], 2),
-            'Ticket Prom.'  => APP_CURRENCY_SYMBOL . ' ' . number_format((float)$totals['ticket_promedio'], 2),
+            'N° Ventas'    => (int) $totals['num_ventas'],
+            'Total'        => (float) $totals['total_ingresos'],
+            'Ticket Prom.' => (float) $totals['ticket_promedio'],
         ];
 
         $this->dispatchExport($format, 'Reporte de Ventas', $subtitulo, $headers, $data, $totalRows, 'reporte_ventas');
@@ -195,13 +204,13 @@ class ReportController extends Controller
             date('d/m/Y', strtotime($r['fecha_compra'])),
             $r['proveedor'],
             $r['registrado_por'],
-            number_format((float)$r['monto_total'], 2),
+            (float) $r['monto_total'],
         ], $rows);
 
         $subtitulo = 'Período: ' . date('d/m/Y', strtotime($filters['desde_display'])) . ' — ' . date('d/m/Y', strtotime($filters['hasta_display']));
         $totalRows = [
-            'N° Compras'  => $totals['num_compras'],
-            'Total ' . APP_CURRENCY_SYMBOL   => APP_CURRENCY_SYMBOL . ' ' . number_format((float)$totals['total_egresos'], 2),
+            'N° Compras' => (int) $totals['num_compras'],
+            'Total'      => (float) $totals['total_egresos'],
         ];
 
         $this->dispatchExport($format, 'Reporte de Compras', $subtitulo, $headers, $data, $totalRows, 'reporte_compras');
@@ -214,7 +223,7 @@ class ReportController extends Controller
             $r['nombre'],
             $r['categoria'] ?? '—',
             $r['unidades_vendidas'],
-            number_format((float)$r['ingresos'], 2),
+            (float) $r['ingresos'],
         ], $rows);
 
         $subtitulo = 'Período: ' . date('d/m/Y', strtotime($filters['desde_display'])) . ' — ' . date('d/m/Y', strtotime($filters['hasta_display']));
@@ -230,7 +239,7 @@ class ReportController extends Controller
             $r['nit_ci'],
             $r['email'],
             $r['num_compras'],
-            number_format((float)$r['monto_acumulado'], 2),
+            (float) $r['monto_acumulado'],
             $r['ultima_compra'] ? date('d/m/Y', strtotime($r['ultima_compra'])) : '—',
         ], $rows);
 
@@ -260,7 +269,25 @@ class ReportController extends Controller
             ['formato' => $format, 'filas' => count($rows)]
         );
 
-        if ($format === 'pdf') {
+        $isPdf = $format === 'pdf';
+
+        // Las celdas numéricas se pasan en bruto y se formatean según destino:
+        // el CSV/Excel necesita punto decimal y sin separador de miles, porque
+        // la coma partiría la celda y desordenaría las columnas.
+        $decimals = static fn(float $value): string => $isPdf
+            ? number_format($value, 2)
+            : number_format($value, 2, '.', '');
+
+        $rows = array_map(
+            fn($row) => array_map(fn($cell) => is_float($cell) ? $decimals($cell) : $cell, $row),
+            $rows
+        );
+        $totals = array_map(
+            fn($value) => is_float($value) ? APP_CURRENCY_SYMBOL . ' ' . $decimals($value) : $value,
+            $totals
+        );
+
+        if ($isPdf) {
             ReportPdf::generate($titulo, $subtitulo, $headers, $rows, $totals, $filename, $emisor);
             exit();
         }
@@ -278,15 +305,30 @@ class ReportController extends Controller
         fwrite($out, "\xEF\xBB\xBF");
         fputcsv($out, $headers);
         foreach ($rows as $row) {
-            fputcsv($out, $row);
+            fputcsv($out, array_map([$this, 'csvCell'], $row));
         }
         if (!empty($totals)) {
             fputcsv($out, []);
             foreach ($totals as $label => $valor) {
-                fputcsv($out, [$label, $valor]);
+                fputcsv($out, array_map([$this, 'csvCell'], [$label, $valor]));
             }
         }
         fclose($out);
         exit();
+    }
+
+    /**
+     * Escapa el prefijo de fórmula de celdas que Excel/Sheets interpretaría
+     * al abrir el CSV (=, +, @ o menos seguido de texto).
+     */
+    private function csvCell(mixed $value): string
+    {
+        $text = (string) $value;
+
+        if ($text !== '' && preg_match('/^[=+@]|^-[^\d.]/', $text) === 1) {
+            return "'" . $text;
+        }
+
+        return $text;
     }
 }

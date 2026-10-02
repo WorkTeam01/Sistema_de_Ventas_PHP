@@ -53,13 +53,24 @@ final class ReportFiltersTest extends TestCase
         $this->assertSame(date('Y-m-t')  . ' 23:59:59', $result['fecha_hasta']);
     }
 
-    public function test_missing_hasta_falls_back_to_current_month(): void
+    public function test_missing_hasta_completes_with_month_of_desde(): void
     {
         $result = ReportFilters::parseDateRange([
             'fecha_desde' => '2025-06-01',
         ]);
 
-        $this->assertSame(date('Y-m-01') . ' 00:00:00', $result['fecha_desde']);
+        $this->assertSame('2025-06-01 00:00:00', $result['fecha_desde']);
+        $this->assertSame('2025-06-30 23:59:59', $result['fecha_hasta']);
+    }
+
+    public function test_missing_desde_completes_with_month_of_hasta(): void
+    {
+        $result = ReportFilters::parseDateRange([
+            'fecha_hasta' => '2025-03-15',
+        ]);
+
+        $this->assertSame('2025-03-01 00:00:00', $result['fecha_desde']);
+        $this->assertSame('2025-03-15 23:59:59', $result['fecha_hasta']);
     }
 
     public function test_same_day_range_is_valid(): void

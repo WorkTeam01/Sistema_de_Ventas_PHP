@@ -101,8 +101,8 @@ class ActivityLogController extends Controller
     {
         $today = date('Y-m-d');
 
-        $from = $rawFrom !== '' ? $rawFrom : date('Y-m-d', strtotime("-" . self::DEFAULT_RANGE_DAYS . " days"));
-        $to   = $rawTo   !== '' ? $rawTo   : $today;
+        $from = $this->validDate($rawFrom) ?? date('Y-m-d', strtotime("-" . self::DEFAULT_RANGE_DAYS . " days"));
+        $to   = $this->validDate($rawTo)   ?? $today;
 
         // Garantizar from <= to
         if ($from > $to) {
@@ -116,5 +116,20 @@ class ActivityLogController extends Controller
         }
 
         return [$from, $to];
+    }
+
+    /**
+     * Devuelve el valor solo si es una fecha real en formato Y-m-d; cualquier
+     * otra cosa (texto arbitrario del GET, otro formato) se trata como vacío.
+     */
+    private function validDate(string $value): ?string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        $d = \DateTime::createFromFormat('Y-m-d', $value);
+        return ($d && $d->format('Y-m-d') === $value) ? $value : null;
     }
 }
