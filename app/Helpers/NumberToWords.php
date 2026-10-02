@@ -148,34 +148,36 @@ class NumberToWords
                 $xi += 3;
             }
 
-            if (substr(trim($xcadena), -5, 5) === 'ILLON') {
-                $xcadena .= ' DE';
-            }
-            if (substr(trim($xcadena), -7, 7) === 'ILLONES') {
-                $xcadena .= ' DE';
-            }
-
-            if (trim($xaux) !== '') {
-                switch ($xz) {
-                    case 0:
-                        $xcadena .= trim(substr($XAUX, $xz * 6, 6)) === '1' ? ' UN BILLON' : ' BILLONES';
-                        break;
-                    case 1:
-                        $xcadena .= trim(substr($XAUX, $xz * 6, 6)) === '1' ? ' UN MILLON ' : ' MILLONES ';
-                        break;
-                    case 2:
-                        if ($xcifra < 1) {
-                            $xcadena = " CERO CON $xdecimales/100 $currencyLabel";
-                        } elseif ($xcifra >= 1 && $xcifra < 2) {
-                            $xcadena .= " UN CON $xdecimales/100 $currencyLabel";
-                        } else {
-                            $xcadena .= " CON $xdecimales/100 $currencyLabel";
-                        }
-                        break;
-                }
+            // Solo el grupo de unidades emite siempre el sufijo monetario; los
+            // grupos de millones/billones se omiten si el grupo es todo cero
+            // (si no, 1.000.000.000.000 saldría como "UN BILLON MILLONES").
+            $xgrupo = (int) trim(substr($XAUX, $xz * 6, 6));
+            switch ($xz) {
+                case 0:
+                    if ($xgrupo !== 0) {
+                        $xcadena .= $xgrupo === 1 ? ' UN BILLON' : ' BILLONES';
+                    }
+                    break;
+                case 1:
+                    if ($xgrupo !== 0) {
+                        $xcadena .= $xgrupo === 1 ? ' UN MILLON ' : ' MILLONES ';
+                    }
+                    break;
+                case 2:
+                    if ($xcifra < 1) {
+                        $xcadena = " CERO CON $xdecimales/100 $currencyLabel";
+                    } elseif ($xcifra >= 1 && $xcifra < 2) {
+                        $xcadena .= " UN CON $xdecimales/100 $currencyLabel";
+                    } else {
+                        $xcadena .= " CON $xdecimales/100 $currencyLabel";
+                    }
+                    break;
             }
         }
 
+        // "VEINTE UN/DOS/…" no existe en español: la serie 21-29 se une
+        // (VEINTIUN, VEINTIDOS…). "VEINTE MIL" y "VEINTE MILLONES" sí van separados.
+        $xcadena = preg_replace('/\bVEINTE (UN|DOS|TRES|CUATRO|CINCO|SEIS|SIETE|OCHO|NUEVE)\b/', 'VEINTI$1', $xcadena);
         $xcadena = str_replace('VEINTI ', 'VEINTI', $xcadena);
         $xcadena = str_replace('  ', ' ', $xcadena);
         $xcadena = str_replace('UN UN', 'UN', $xcadena);

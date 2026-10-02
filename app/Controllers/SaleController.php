@@ -382,7 +382,8 @@ class SaleController extends Controller
         }
 
         $totals = $saleModel->computeInvoiceTotals($sale['items']);
-        $vendedor = Auth::user()['nombres'] ?? '';
+        // El vendedor que consta en la factura es el de la venta, no quien la imprime.
+        $vendedor = $sale['nombre_vendedor'] ?? '—';
 
         InvoicePdf::generate($sale, $totals, $vendedor, $id);
     }

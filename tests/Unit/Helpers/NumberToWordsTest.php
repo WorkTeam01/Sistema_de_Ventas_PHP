@@ -49,7 +49,8 @@ final class NumberToWordsTest extends TestCase
             'dieciseis'  => [16, 'DIECISEIS'],
             'veinte'     => [20, 'VEINTE'],
             'treinta'    => [30, 'TREINTA'],
-            'veintiuno'  => [21, 'VEINTE'],
+            'veintiuno'  => [21, 'VEINTIUN'],
+            'veintidos'  => [22, 'VEINTIDOS'],
         ];
     }
 
@@ -119,5 +120,19 @@ final class NumberToWordsTest extends TestCase
         $result = NumberToWords::convert(42);
         $this->assertStringEndsWith('Bs.', $result);
         $this->assertStringContainsString('CON', $result);
+    }
+
+    public function test_round_millions_do_not_emit_a_stray_de(): void
+    {
+        $this->assertSame('UN MILLON CON 00/100 Bs.', NumberToWords::convert(1000000));
+        $this->assertSame('DOS MILLONES CON 00/100 Bs.', NumberToWords::convert(2000000));
+    }
+
+    public function test_twenties_series_is_joined_but_magnitudes_stay_separate(): void
+    {
+        $this->assertStringContainsString('CIENTO VEINTIUN', NumberToWords::convert(121));
+        $this->assertStringContainsString('VEINTINUEVE MIL', NumberToWords::convert(29000));
+        $this->assertStringContainsString('VEINTE MIL', NumberToWords::convert(20000));
+        $this->assertStringContainsString('VEINTE MILLONES', NumberToWords::convert(20000000));
     }
 }

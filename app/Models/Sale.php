@@ -51,9 +51,11 @@ class Sale extends Model
     {
         $rows = $this->query(
             "SELECT v.*, c.nombre_cliente, c.nit_ci_cliente, c.celular_cliente,
-                    c.email_cliente, c.id_cliente AS id_cliente_rel
+                    c.email_cliente, c.id_cliente AS id_cliente_rel,
+                    u.nombres AS nombre_vendedor
              FROM tb_ventas v
              LEFT JOIN tb_clientes c ON v.id_cliente = c.id_cliente
+             LEFT JOIN tb_usuarios u ON v.id_usuario = u.id_usuario
              WHERE v.id_venta = ?",
             [$id]
         );
