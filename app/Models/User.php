@@ -301,6 +301,27 @@ class User extends Model
         return strtotime($user['login_bloqueado_hasta']) > time();
     }
 
+    /**
+     * Si el bloqueo por intentos fallidos ya venció, reinicia el contador.
+     * Sin este paso login_intentos queda en 5 y el primer fallo posterior
+     * vuelve a bloquear la cuenta de inmediato.
+     *
+     * @param array $user Fila del usuario (necesita id_usuario y login_bloqueado_hasta).
+     * @return bool true si había un bloqueo vencido que se reinició.
+     */
+    public function clearExpiredLock(array $user): bool
+    {
+        if (empty($user['login_bloqueado_hasta'])) {
+            return false;
+        }
+        if (strtotime($user['login_bloqueado_hasta']) > time()) {
+            return false;
+        }
+
+        $this->clearLoginAttempts((int)$user['id_usuario']);
+        return true;
+    }
+
     public function recordFailedLogin(int $id): void
     {
         $this->db->prepare(

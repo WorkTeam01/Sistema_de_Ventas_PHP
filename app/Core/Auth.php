@@ -24,7 +24,13 @@ class Auth
     }
 
     /**
-     * Indica si existe una sesión activa y no ha expirado por inactividad.
+     * Indica si existe una sesión activa, no ha expirado por inactividad y la
+     * cuenta sigue siendo válida.
+     *
+     * Revalida contra la BD que la cuenta exista y que el rol de la sesión
+     * coincida con el real: un usuario eliminado o degradado pierde los
+     * permisos en la siguiente petición en vez de conservarlos hasta el
+     * timeout de inactividad.
      */
     public static function check(): bool
     {
@@ -43,14 +49,51 @@ class Auth
 
         $_SESSION['last_activity'] = time();
 
-        if (isset($_SESSION['id_rol'], $_SESSION['permisos_version'])) {
-            $currentVersion = self::fetchPermissionsVersion((int)$_SESSION['id_rol']);
-            if ($currentVersion !== (int)$_SESSION['permisos_version']) {
-                self::loadPermissions((int)$_SESSION['id_rol']);
-            }
+        $identity = self::fetchSessionIdentity((string)$_SESSION['sesion_email']);
+
+        if ($identity === null) {
+            self::logout();
+            return false;
+        }
+
+        // La comparación incluye el id_rol además de la versión: si el rol
+        // cambió, la versión podría coincidir de forma accidental.
+        if (isset($_SESSION['id_rol'], $_SESSION['permisos_version'])
+            && ((int)$identity['id_rol'] !== (int)$_SESSION['id_rol']
+                || (int)$identity['permisos_version'] !== (int)$_SESSION['permisos_version'])) {
+            self::loadPermissions((int)$identity['id_rol']);
         }
 
         return true;
+    }
+
+    /**
+     * Rol real y versión de permisos de la cuenta en sesión.
+     *
+     * @return array{id_rol:int, permisos_version:int}|null null si la cuenta ya
+     *      no existe; en fallo de BD devuelve la identidad guardada en sesión
+     *      para no invalidarla por un error transitorio.
+     */
+    private static function fetchSessionIdentity(string $email): ?array
+    {
+        try {
+            $pdo  = Database::getInstance()->getConnection();
+            $stmt = $pdo->prepare(
+                "SELECT u.id_rol, r.permisos_version
+                 FROM tb_usuarios u
+                 INNER JOIN tb_roles r ON r.id_rol = u.id_rol
+                 WHERE u.email = ?
+                 LIMIT 1"
+            );
+            $stmt->execute([$email]);
+            $identity = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return $identity ?: null;
+        } catch (\PDOException $e) {
+            return [
+                'id_rol'           => (int)($_SESSION['id_rol'] ?? 0),
+                'permisos_version' => (int)($_SESSION['permisos_version'] ?? -1),
+            ];
+        }
     }
 
     /**
@@ -128,6 +171,8 @@ class Auth
         $_SESSION['permisos'] = $stmt->fetchAll(\PDO::FETCH_COLUMN) ?: [];
         $_SESSION['id_rol'] = $idRol;
         $_SESSION['permisos_version'] = self::fetchPermissionsVersion($idRol);
+        // El rol del usuario en caché quedó desactualizado al recargar.
+        self::$cachedUser = null;
     }
 
     /**

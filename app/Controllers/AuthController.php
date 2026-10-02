@@ -44,6 +44,10 @@ class AuthController extends Controller
         $userModel = new User();
         $usuario = $userModel->findByEmail($email);
 
+        if ($usuario) {
+            $userModel->clearExpiredLock($usuario);
+        }
+
         if ($usuario && $userModel->isLocked($usuario)) {
             ActivityLog::record('login_failed', 'auth', (int)$usuario['id_usuario'], "Intento de inicio de sesión con cuenta bloqueada: {$email}");
             $_SESSION['mensaje'] = 'Demasiados intentos fallidos. Tu cuenta está bloqueada por 15 minutos. Si olvidaste tu contraseña, usa la opción ¿Olvidaste tu contraseña?';

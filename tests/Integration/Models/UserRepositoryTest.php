@@ -219,6 +219,66 @@ final class UserRepositoryTest extends TestCase
         $this->assertNull($row['login_bloqueado_hasta']);
     }
 
+    public function test_clearExpiredLock_returns_false_when_there_is_no_lock(): void
+    {
+        $id = $this->createUser();
+
+        $this->assertFalse($this->user->clearExpiredLock($this->user->find($id)));
+    }
+
+    public function test_clearExpiredLock_returns_false_while_lock_is_active(): void
+    {
+        $id = $this->createUser();
+        for ($i = 0; $i < 5; $i++) {
+            $this->user->recordFailedLogin($id);
+        }
+
+        $row = $this->user->find($id);
+        $this->assertFalse($this->user->clearExpiredLock($row));
+
+        $row = $this->user->find($id);
+        $this->assertSame(5, (int)$row['login_intentos']);
+        $this->assertTrue($this->user->isLocked($row));
+    }
+
+    public function test_clearExpiredLock_resets_counter_after_lock_expires(): void
+    {
+        $id = $this->createUser();
+        for ($i = 0; $i < 5; $i++) {
+            $this->user->recordFailedLogin($id);
+        }
+
+        $past = date('Y-m-d H:i:s', time() - 60);
+        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$past' WHERE id_usuario = $id");
+
+        $this->assertTrue($this->user->clearExpiredLock($this->user->find($id)));
+
+        $row = $this->user->find($id);
+        $this->assertSame(0, (int)$row['login_intentos']);
+        $this->assertNull($row['login_bloqueado_hasta']);
+        $this->assertFalse($this->user->isLocked($row));
+    }
+
+    public function test_expired_lock_gives_back_five_attempts_before_blocking_again(): void
+    {
+        $id = $this->createUser();
+        for ($i = 0; $i < 5; $i++) {
+            $this->user->recordFailedLogin($id);
+        }
+
+        $past = date('Y-m-d H:i:s', time() - 60);
+        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$past' WHERE id_usuario = $id");
+        $this->user->clearExpiredLock($this->user->find($id));
+
+        for ($i = 0; $i < 4; $i++) {
+            $this->user->recordFailedLogin($id);
+        }
+
+        $row = $this->user->find($id);
+        $this->assertSame(4, (int)$row['login_intentos']);
+        $this->assertFalse($this->user->isLocked($row));
+    }
+
     // -------------------------------------------------------------------------
     // isReferenced — User::isReferenced verifica tb_almacen y tb_compras
     // -------------------------------------------------------------------------
