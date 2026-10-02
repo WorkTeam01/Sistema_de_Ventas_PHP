@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.18.1 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.18.2 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -282,7 +282,7 @@ $router->get('/ruta', [Controller::class, 'method'], ['auth', 'can:permiso']);  
 // Datos del usuario en sesión:
 Auth::user()            // array con datos del usuario
 Auth::role()            // nombre del rol
-Auth::check()           // bool — verifica sesión y timeout de inactividad
+Auth::check()           // bool — revalida sesión, timeout de inactividad y que la cuenta/rol sigan vigentes en BD
 Auth::can('permiso')    // bool — verifica si el usuario tiene el permiso; usa caché en $_SESSION['permisos']
 Auth::isAdmin()         // bool — alias de Auth::can('is_superadmin')
 Auth::refreshPermissions() // recarga permisos desde BD (llamar tras cambiar rol o permisos)
@@ -329,6 +329,11 @@ Auth::logout()          // limpia sesión, BD y cookie
   `refreshPermissions()` si difiere — así los usuarios activos del rol ven el cambio en su siguiente request, sin
   re-login. El propio admin que edita su rol activo se refresca de inmediato vía `Auth::refreshPermissions()` en
   `syncPermisos()`.
+- **Guard anti escalada de privilegios:** poder crear/editar usuarios (`manage_users`) o asignar permisos a roles
+  (`manage_roles`) **no** incluye poder otorgarse `is_superadmin`. `UserController::blocksSuperadminEscalation()` y
+  `Role::grantsSuperadmin()` + el guard de `RoleController::syncPermisos()` exigen `Auth::isAdmin()` cuando el rol
+  destino es superusuario o cuando el usuario/rol afectado ya lo es. Usar este helper en cualquier flujo que asigne
+  roles o permisos — gatear el CRUD no gatea la escalada.
 
 **Timeout de sesión:**
 
@@ -361,6 +366,9 @@ Auth::logout()          // limpia sesión, BD y cookie
 - `User::recordFailedLogin(int $id)` — incrementa contador y activa bloqueo al llegar a 5 (timestamp calculado en PHP, no `NOW() + INTERVAL`, para compatibilidad con SQLite en tests).
 - `User::isLocked(array $user): bool` — compara `login_bloqueado_hasta` con `time()`.
 - `User::clearLoginAttempts(int $id)` — resetea contador y timestamp al login exitoso.
+- `User::clearExpiredLock(array $user): bool` — si el bloqueo ya venció, limpia contador y timestamp; lo llama
+  `AuthController::store()` **antes** de `isLocked()`. Sin esto, un contador que queda en 5 re-bloquea la cuenta con
+  el primer fallo posterior.
 - `AuthController::store()` verifica bloqueo **antes** de `password_verify()` — sin revelar intentos restantes.
 - Mensaje de bloqueo dirige al usuario a "¿Olvidaste tu contraseña?" como salida de emergencia.
 
@@ -487,7 +495,7 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 Un único job `test`, matrix PHP 8.2/8.3, que corre en cada push a `master` y cada PR:
 
 - Ejecuta `vendor/bin/phpunit` (suites `Unit` + `Integration` en un solo proceso). La suite completa
-  tarda ~2 s; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
+  tarda ~5 s (375 tests); no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
   runner, no los tests, así que filtrar salía más caro que correr todo.
 - `concurrency` con `cancel-in-progress` descarta runs obsoletos cuando llegan pushes seguidos.
 - Levanta el servicio `mariadb:10.11` para los tests `*MariaDbTest.php`; el resto corre contra SQLite.
@@ -584,4 +592,4 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 
 ---
 
-_Última actualización: 2026-09-24 — 1.18.1. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-10-01 — 1.18.2. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.18.1-blue)
+![Versión](https://img.shields.io/badge/Versión-1.18.2-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -257,6 +257,10 @@ esos permisos queda scopeado a sus propios registros sin tocar código.
 - **Contraseñas** — `password_hash()` / `password_verify()` (BCRYPT); mínimo 6 caracteres en todos los flujos
 - **Acceso a registros ajenos** — ventas y compras se filtran por `id_usuario` salvo permiso `*_all`; bloqueado
   también en `show`/`edit`/`update`/`destroy` para prevenir acceso por URL directa (IDOR), no solo en el listado
+- **Escalada de privilegios** — gestionar usuarios o asignar permisos no habilita a otorgarse `is_superadmin`: solo
+  un superusuario puede hacerlo, y también para editar o eliminar a un usuario/rol superusuario
+- **Sesiones revalidadas en cada petición** — si la cuenta fue eliminada o su rol cambió, `Auth::check()` cierra la
+  sesión o recarga los permisos desde BD, sin esperar al siguiente login
 - **Stock negativo** — decremento con `AND stock >= ?` dentro de transacción; rollback si `rowCount() === 0`
 - **Totales** — calculados server-side desde la BD dentro de la transacción; el valor del POST se ignora
 - **Rate limiting** — 5 intentos fallidos bloquean la cuenta 15 minutos

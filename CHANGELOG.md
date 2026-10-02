@@ -11,6 +11,83 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 _Sin cambios todavía._
 
+## [1.18.2] - 2026-10-01
+
+### Corregido
+
+- **Escalada de privilegios al gestionar usuarios**: `UserController::store()` y
+  `update()` aceptaban cualquier rol válido con solo el permiso `manage_users`, de
+  modo que un usuario no superusuario podía crear un usuario con rol
+  Administrador o cambiarse el rol a sí mismo. Ahora ambos flujos exigen
+  `is_superadmin` cuando el rol destino es superusuario o cuando el usuario
+  afectado ya lo es (esto último también impide editar o degradar a un
+  superusuario).
+- **Autootorgamiento de superusuario vía roles**: `RoleController::syncPermisos()`
+  no verificaba quién asignaba los permisos — con `manage_roles` bastaba para
+  agregar `is_superadmin` al propio rol, y el refresco inmediato de sesión lo
+  activaba en la misma petición. Ahora solo un superusuario puede otregar o
+  quitar `is_superadmin`, o modificar un rol que ya lo tiene.
+- **Sesiones de cuentas eliminadas o degradadas**: `Auth::check()` solo validaba
+  el timeout de inactividad, por lo que una cuenta borrada seguía operativa y un
+  usuario con el rol cambiado conservaba los permisos antiguos hasta re-login.
+  Ahora reconsulta la cuenta por email: si ya no existe cierra la sesión; si el
+  rol real difiere del de sesión recarga los permisos. La comparación incluye
+  `id_rol` además de `permisos_version` para evitar que la versión coincida de
+  forma accidental al cambiar de rol.
+- **Compras: recálculo de stock manipulable en el cliente**:
+  `PurchaseController::update()` tomaba `old_id_producto` y `old_cantidad` de
+  campos ocultos del formulario; alterarlos desde el navegador corrompía el stock
+  al calcular el diferencial. Ambos valores provienen ahora del snapshot de BD y
+  los campos fueron eliminados del formulario de edición.
+- **Reportes sin scoping por usuario**: `purchases`, `top-products` y `clients`
+  (y sus tarjetas en el índice de reportes) ignoraban los permisos
+  `view_purchases_all` / `view_sales_all` y listaban todos los registros. Ahora
+  acotan a los propios, incluida la porción de devoluciones imputada a cada
+  reporte, siguiendo el patrón que ya aplicaban `sales` y `salesSummary`.
+- **Códigos de producto duplicados al crear**: `Product::nextCode()` calculaba el
+  siguiente código como `count() + 1`, de modo que tras borrar productos el alta
+  chocaba contra el `UNIQUE` de `tb_almacen.codigo` y devolvía un error 500. Ahora
+  parte del sufijo numérico más alto existente.
+- **Cuentas que nunca se desbloqueaban**: al vencer el bloqueo de 15 minutos el
+  contador `login_intentos` seguía en 5, por lo que el primer fallo posterior
+  volvía a bloquear la cuenta. `User::clearExpiredLock()` lo reinicia en cada
+  intento de login.
+- **Usuarios con rol superusuario eliminables**: `UserController::destroy()` no
+  aplicaba el guard anti escalada que ya usaban `store()`/`update()`, así que un
+  administrador sin `is_superadmin` podía borrar al superusuario desde `/users`.
+- **Reporte de compras filtrado por fecha de registro**: usaba `fyh_creacion`
+  (cuando se registró) mientras el dashboard usa `fecha_compra`, de modo que una
+  compra con fecha en un mes y registro en otro caía en el mes equivocado. Ahora
+  filtra y ordena por `fecha_compra`.
+- **Stock y precios negativos en productos**: el formulario aceptaba valores
+  negativos de stock y precios. Ahora se rechazan en alta y en edición.
+- **Cambios de stock sin rastro en el histórico**: editar el stock desde la ficha
+  del producto modificaba `tb_almacen` sin dejar movimiento en `tb_ajustes_stock`.
+  Ahora se genera el ajuste correspondiente.
+- **Factura PDF con el vendedor equivocado**: mostraba el nombre de quien imprimía
+  el comprobante en lugar del vendedor que registró la venta.
+- **Exportaciones CSV con montos como texto**: los montos salían con separador de
+  miles, así que Excel los importaba como texto y no como número. El CSV usa ahora
+  punto decimal sin separador de miles y escapa los prefijos de fórmula (`=`, `+`,
+  `@`) que Excel/Sheets interpretarían al abrirlo.
+- **Literales en letras mal formados**: salían "VEINTE UN" (hoy "VEINTIUN") en la
+  serie 21-29 y "UN MILLON DE CON" en montos redondos de millón.
+- **Rangos de fecha parciales descartados en reportes**: si el usuario indicaba
+  solo `fecha_desde` o solo `fecha_hasta`, el rango completo se reseteaba al mes
+  actual y la fecha elegida se perdía. Ahora la fecha faltante se completa con el
+  extremo de su propio mes.
+- **Bitácora con fechas de formato inválido**: un valor arbitrario en el filtro de
+  actividad producía un rango desde 1970-01-01 o fechas no comparables. El filtro
+  ahora exige el formato `Y-m-d`.
+
+### Añadido
+
+- Tests de scoping de reportes por usuario (`ReportScopingTest`) y de
+  revalidación de sesión contra BD (`AuthCheckTest`).
+- Tests de regresión de la ronda de auditoría: códigos de producto tras
+  borrados, desbloqueo de cuentas, filtro de compras por `fecha_compra`,
+  literales en letras y filtros de fecha parciales.
+
 ## [1.18.1] - 2026-09-24
 
 ### Corregido

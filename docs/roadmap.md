@@ -34,6 +34,12 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 18. **Ventas sin cliente + forma de pago único/mixto** — `tb_ventas.id_cliente`
     nullable ("Consumidor final"), selector único/mixto en el paso Cobro con
     `<template>`, método único no duplicable, vuelto intacto. → CHANGELOG 1.18.1
+19. **Auditoría de seguridad y lógica de negocio** — dos rondas de revisión con
+    subagentes (SQL/inputs, XSS, stock y dinero, auth/IDOR/CSRF) con 38
+    hallazgos: 16 corregidos en 1.18.2 (escalada de privilegios, revalidación de
+    cuenta/rol, scoping de reportes, códigos de producto, rate limit, stock y
+    precios negativos, histórico de ajustes, vendedor en factura, exports,
+    literales, filtros de fecha) y 10 derivados a spec. → CHANGELOG 1.18.2
 
 ## Siguiente 🔜
 
@@ -42,6 +48,15 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 _No comprometido ni ordenado. Toda idea debe respetar `docs/constitution.md`,
 incluido el alcance del producto. Ordenadas por qué tan propias de un POS son._
 
+- **Correcciones de auditoría pendientes (10)** — número `004` reservado en
+  `specs/`, carpeta aún por redactar: doble submit + `nro_venta` con TOCTOU,
+  vuelto mayor al efectivo, IDOR en las rutas del carrito, `purgeOrphans()`
+  ajeno, FK invertida `tb_ventas → tb_carrito`, `StockAdjustment` sin lock,
+  `salesTotals()` con subconsulta no correlacionada, revertir compra con
+  potencial de stock negativo, pendiente de devolución con líneas repetidas y
+  validación de stock en el carrito. Detalle y dueños en la lista ClickUp de
+  auditoría; las reglas de dinero/stock que tocan hacen que el flujo sea SDD
+  completo, no fix directo.
 - **Arqueo / cuadre de caja** — abrir caja con fondo inicial, registrar
   entradas/salidas de efectivo, cerrar con conteo y diferencia, reporte Z.
   Depende de que los pagos estén normalizados por método. Es lo que distingue

@@ -129,6 +129,8 @@ Si agregas lógica de negocio nueva en un modelo (validación, normalización, c
 - ✅ Acceso por permiso: `can:permiso` en ruta restringe correctamente; `/errors/403` si no tiene permiso
 - ✅ Datos propios: si el módulo tiene `view_*_all`, probar que un usuario sin ese permiso no vea/edite/elimine
   registros ajenos ni por listado ni por URL directa (`/modulo/show/{id}` de otro usuario)
+- ✅ Anti-escalada: con `manage_users` o `manage_roles` sin `is_superadmin`, intentar crearse/editarse
+  Administrador o autoasignarse `is_superadmin` → debe rechazarlo
 - ✅ Autenticación: login normal, "Recordarme", logout limpia cookie y BD
 - ✅ Edge cases: campos null, strings largos, caracteres especiales
 
@@ -274,5 +276,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-09-24 — 1.18.1_
+_Última actualización: 2026-10-01 — 1.18.2_
 _Sigue las prácticas de AGENTS.md y CLAUDE.md — son la fuente de verdad._
