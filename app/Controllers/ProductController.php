@@ -7,6 +7,7 @@ use App\Core\Controller;
 use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\StockAdjustment;
 
 class ProductController extends Controller
 {
@@ -85,6 +86,20 @@ class ProductController extends Controller
 
         if ($stock_maximo !== '' && $stock_maximo !== null && !is_numeric($stock_maximo)) {
             $this->flash('El stock máximo debe ser numérico.', 'error');
+            $this->redirect(BASE_URL . '/products/create');
+            return;
+        }
+
+        if ((float) $stock < 0 || (float) $precio_compra < 0 || (float) $precio_venta < 0) {
+            $this->flash('El stock y los precios no pueden ser negativos.', 'error');
+            $this->redirect(BASE_URL . '/products/create');
+            return;
+        }
+
+        if (($stock_minimo !== '' && $stock_minimo !== null && (float) $stock_minimo < 0)
+            || ($stock_maximo !== '' && $stock_maximo !== null && (float) $stock_maximo < 0)
+        ) {
+            $this->flash('El stock mínimo y el stock máximo no pueden ser negativos.', 'error');
             $this->redirect(BASE_URL . '/products/create');
             return;
         }
@@ -270,6 +285,28 @@ class ProductController extends Controller
             return;
         }
 
+        if (($stock_minimo !== '' && $stock_minimo !== null && !is_numeric($stock_minimo))
+            || ($stock_maximo !== '' && $stock_maximo !== null && !is_numeric($stock_maximo))
+        ) {
+            $this->flash('El stock mínimo y el stock máximo deben ser numéricos.', 'error');
+            $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
+            return;
+        }
+
+        if ((float) $stock < 0 || (float) $precio_compra < 0 || (float) $precio_venta < 0) {
+            $this->flash('El stock y los precios no pueden ser negativos.', 'error');
+            $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
+            return;
+        }
+
+        if (($stock_minimo !== '' && $stock_minimo !== null && (float) $stock_minimo < 0)
+            || ($stock_maximo !== '' && $stock_maximo !== null && (float) $stock_maximo < 0)
+        ) {
+            $this->flash('El stock mínimo y el stock máximo no pueden ser negativos.', 'error');
+            $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
+            return;
+        }
+
         $imagen = $image_text;
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -285,6 +322,25 @@ class ProductController extends Controller
         $productModel = new Product();
         $actual = $productModel->find($id_producto);
         $id_usuario = Auth::user()['id_usuario'];
+
+        // El ajuste se registra antes de escribir el producto porque lee el stock
+        // actual de la tabla: así el histórico de tb_ajustes_stock queda completo
+        // aunque el cambio de stock llegue por la ficha y no por Inventario.
+        if ($actual && (int) $actual['stock'] !== (int) $stock) {
+            $delta = (int) $stock - (int) $actual['stock'];
+            $adjustment = (new StockAdjustment())->register(
+                $id_producto,
+                $delta > 0 ? 'entrada' : 'salida',
+                abs($delta),
+                'Ajuste manual desde la ficha del producto'
+            );
+
+            if (!$adjustment['ok']) {
+                $this->flash($adjustment['error'] ?? 'No se pudo ajustar el stock del producto.', 'error');
+                $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
+                return;
+            }
+        }
 
         if ($productModel->updateProduct($id_producto, [
             'nombre' => $nombre,

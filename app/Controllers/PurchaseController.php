@@ -215,8 +215,6 @@ class PurchaseController extends Controller
                 'comprobante' => $purchase['comprobante'],
                 'precio_compra' => $purchase['precio_compra'],
                 'cantidad' => $purchase['cantidad'],
-                'old_id_producto' => (int)$purchase['id_producto'],
-                'old_cantidad' => (int)$purchase['cantidad'],
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'products' => $productModel->all(),
                 'suppliers' => $supplierModel->all(),
@@ -235,8 +233,6 @@ class PurchaseController extends Controller
         $this->validateCsrfOrFail();
 
         $id_compra = (int)($_POST['id_compra'] ?? 0);
-        $old_id_producto = (int)($_POST['old_id_producto'] ?? 0);
-        $old_cantidad = (int)($_POST['old_cantidad'] ?? 0);
 
         if ($id_compra <= 0) {
             $this->flash('Compra inválida.', 'error');
@@ -287,8 +283,10 @@ class PurchaseController extends Controller
                 'precio_compra' => (float)$data['precio_compra'],
                 'cantidad' => (int)$data['cantidad'],
             ],
-            $old_id_producto,
-            $old_cantidad
+            // Los valores previos vienen del snapshot de BD: son la base del
+            // recálculo de stock y un hidden del formulario es manipulable.
+            (int)$existing['id_producto'],
+            (int)$existing['cantidad']
         );
 
         if ($ok) {

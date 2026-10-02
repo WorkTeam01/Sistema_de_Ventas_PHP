@@ -29,8 +29,6 @@
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                 <input type="hidden" name="id_compra" value="<?= $id_compra; ?>">
-                <input type="hidden" name="old_id_producto" value="<?= $old_id_producto; ?>">
-                <input type="hidden" name="old_cantidad" value="<?= $old_cantidad; ?>">
 
                 <div class="row">
                     <!-- ============================================ -->

@@ -147,6 +147,20 @@ final class ProductRepositoryTest extends TestCase
         $this->assertSame('P-00002', $this->product->nextCode());
     }
 
+    public function test_nextCode_skips_gaps_left_by_deleted_products(): void
+    {
+        $id1 = $this->createProduct(['codigo' => 'P-00001']);
+        $this->createProduct(['codigo' => 'P-00002']);
+
+        $this->product->delete($id1);
+
+        // count()+1 devolvería P-00002, ya ocupado, y el UNIQUE de codigo
+        // rechazaría el alta con un error 500.
+        $codigo = $this->product->nextCode();
+        $this->assertSame('P-00003', $codigo);
+        $this->assertNotFalse($this->createProduct(['codigo' => $codigo]));
+    }
+
     // -------------------------------------------------------------------------
     // isReferenced
     // -------------------------------------------------------------------------

@@ -37,8 +37,17 @@ class Product extends Model
      */
     public function nextCode(): string
     {
-        $next = $this->count() + 1;
-        return 'P-' . str_pad((string)$next, 5, '0', STR_PAD_LEFT);
+        // El conteo de filas no sirve: al borrar productos quedan huecos en la
+        // secuencia y count()+1 devolvería un código ya usado (choque con el
+        // UNIQUE de codigo → error 500 al crear). Se toma el sufijo más alto real.
+        $max = 0;
+        foreach ($this->query("SELECT codigo FROM $this->table") as $row) {
+            if (preg_match('/(\d+)$/', (string)$row['codigo'], $m)) {
+                $max = max($max, (int)$m[1]);
+            }
+        }
+
+        return 'P-' . str_pad((string)($max + 1), 5, '0', STR_PAD_LEFT);
     }
 
     /**
