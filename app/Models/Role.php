@@ -48,6 +48,23 @@ class Role extends Model
     }
 
     /**
+     * Indica si el rol otorga is_superadmin. Se decide por el permiso y no por
+     * el nombre del rol, que es editable desde la UI.
+     */
+    public function grantsSuperadmin(int $roleId): bool
+    {
+        $rows = $this->query(
+            "SELECT 1
+             FROM tb_rol_permiso rp
+             INNER JOIN tb_permisos p ON p.id_permiso = rp.id_permiso
+             WHERE rp.id_rol = ? AND p.clave = 'is_superadmin'
+             LIMIT 1",
+            [$roleId]
+        );
+        return $rows !== [];
+    }
+
+    /**
      * Reemplaza el conjunto completo de permisos asignados a un rol
      * e incrementa permisos_version para invalidar la caché de sesión.
      *

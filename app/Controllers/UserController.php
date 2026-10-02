@@ -5,10 +5,38 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\ActivityLog;
+use App\Models\Role;
 use App\Models\User;
 
 class UserController extends Controller
 {
+    /**
+     * Cierra la petición con flash si aplicaría una escalada de privilegios:
+     * crear un usuario con rol superusuario, o editar/degradar a quien ya lo es,
+     * exige que quien lo hace también lo sea.
+     *
+     * @param int      $targetRol  Rol que se va a asignar.
+     * @param int|null $currentRol Rol actual del usuario afectado, si existe.
+     * @return bool True si la operación queda bloqueada (ya se emitió el flash).
+     */
+    private function blocksSuperadminEscalation(int $targetRol, ?int $currentRol = null): bool
+    {
+        if (Auth::isAdmin()) {
+            return false;
+        }
+
+        $roleModel = new Role();
+        $targetsSuperadmin = $roleModel->grantsSuperadmin($targetRol);
+        $ownsSuperadmin    = $currentRol !== null && $roleModel->grantsSuperadmin($currentRol);
+
+        if (!$targetsSuperadmin && !$ownsSuperadmin) {
+            return false;
+        }
+
+        $this->flash('Solo un superusuario puede gestionar usuarios con permisos de superusuario.', 'error');
+        return true;
+    }
+
     /**
      * Muestra el listado de todos los usuarios con su rol asignado.
      */
@@ -78,6 +106,10 @@ class UserController extends Controller
         }
 
         $userModel = new User();
+        if ($this->blocksSuperadminEscalation($rol)) {
+            $this->redirect(BASE_URL . '/users/create');
+            return;
+        }
         if ($userModel->emailExists($email)) {
             $this->flash('El correo electrónico ya está registrado.', 'error');
             $this->redirect(BASE_URL . '/users/create');
@@ -165,6 +197,11 @@ class UserController extends Controller
 
         $userModel = new User();
         $usuarioActual = $userModel->findWithRoleById($id_usuario);
+
+        if ($this->blocksSuperadminEscalation($rol, $usuarioActual ? (int)$usuarioActual['id_rol'] : null)) {
+            $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
+            return;
+        }
 
         if ($userModel->emailExists($email, $id_usuario)) {
             $this->flash('El correo electrónico ya está registrado por otro usuario.', 'error');
@@ -464,14 +501,18 @@ class UserController extends Controller
         }
 
         $userModel = new User();
+        $snapshot = $userModel->findWithRoleById($id_usuario);
+
+        if ($snapshot && $this->blocksSuperadminEscalation((int)$snapshot['id_rol'])) {
+            $this->redirect(BASE_URL . '/users');
+            return;
+        }
 
         if ($userModel->isReferenced($id_usuario)) {
             $this->flash('No se puede eliminar: el usuario tiene registros asociados.', 'error');
             $this->redirect(BASE_URL . '/users');
             return;
         }
-
-        $snapshot = $userModel->findWithRoleById($id_usuario);
 
         if ($userModel->delete($id_usuario)) {
             if ($snapshot) {

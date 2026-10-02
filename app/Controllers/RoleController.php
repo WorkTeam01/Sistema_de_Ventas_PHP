@@ -216,11 +216,22 @@ class RoleController extends Controller
         $previousPermissionIds = $roleModel->getAssignedPermissionIds($id);
         $permisos = array_map('intval', (array)($_POST['permisos'] ?? []));
 
+        $permissionModel = new Permission();
+
+        // Solo un superusuario puede otorgar is_superadmin o tocar un rol que ya
+        // lo tiene: con manage_roles bastaba para escalarse a superusuario.
+        if (!Auth::isAdmin()
+            && (in_array('is_superadmin', $permissionModel->findClavesByIds($permisos), true)
+                || $roleModel->grantsSuperadmin($id))) {
+            $this->json([
+                'success' => false,
+                'message' => 'Solo un superusuario puede gestionar los permisos de superusuario.',
+            ]);
+        }
+
         if (!$roleModel->syncPermissions($id, $permisos)) {
             $this->json(['success' => false, 'message' => 'Error al actualizar los permisos del rol.']);
         }
-
-        $permissionModel = new Permission();
 
         ActivityLog::record(
             'permission_change', 'role', $id,
