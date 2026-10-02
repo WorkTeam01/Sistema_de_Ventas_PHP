@@ -36,6 +36,16 @@ class Permission extends Model
     }
 
     /**
+     * Actualiza descripción y módulo de un permiso. La clave nunca se modifica:
+     * las comprobaciones de privilegios (is_superadmin) y las rutas `can:` la
+     * usan como identificador, así que renombrarla permitiría reasignar su efecto.
+     */
+    public function updateDetails(int $id, string $descripcion, string $modulo): bool
+    {
+        return $this->update($id, ['descripcion' => $descripcion, 'modulo' => $modulo]);
+    }
+
+    /**
      * Devuelve las claves de los permisos indicados, en el mismo orden en que existan.
      *
      * @param int[] $ids

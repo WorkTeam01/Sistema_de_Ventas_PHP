@@ -76,22 +76,6 @@ $(document).ready(function () {
     // ========================================================================
     $('#formEdit').validate({
         rules: {
-            clave: {
-                required: true,
-                maxlength: 60,
-                remote: {
-                    url: BASE_URL + '/permissions/check-clave',
-                    type: 'POST',
-                    data: {
-                        clave: function () {
-                            return $('#edit_clave').val();
-                        },
-                        id: function () {
-                            return $('#edit_id').val() || null;
-                        }
-                    }
-                }
-            },
             modulo: {
                 required: true,
                 maxlength: 40
@@ -102,10 +86,6 @@ $(document).ready(function () {
             }
         },
         messages: {
-            clave: {
-                required: 'La clave es obligatoria.',
-                maxlength: 'La clave no puede exceder 60 caracteres.'
-            },
             modulo: {
                 required: 'El módulo es obligatorio.',
                 maxlength: 'El módulo no puede exceder 40 caracteres.'

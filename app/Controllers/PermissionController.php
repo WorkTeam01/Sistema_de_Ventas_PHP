@@ -92,11 +92,10 @@ class PermissionController extends Controller
 
         $id = $id ?? (int)($_POST['id'] ?? 0);
 
-        $clave = trim($this->input('clave') ?? '');
         $descripcion = trim($this->input('descripcion') ?? '');
         $modulo = trim($this->input('modulo') ?? '');
 
-        if ($id <= 0 || $clave === '' || $descripcion === '' || $modulo === '') {
+        if ($id <= 0 || $descripcion === '' || $modulo === '') {
             $this->json(['success' => false, 'message' => 'Datos inválidos para actualizar el permiso.']);
         }
 
@@ -108,13 +107,14 @@ class PermissionController extends Controller
             $this->json(['success' => false, 'message' => 'Permiso no encontrado.']);
         }
 
-        if ($permissionModel->claveExists($clave, $id)) {
-            $this->json(['success' => false, 'message' => 'Ya existe otro permiso con esa clave.']);
-        }
+        // La clave es inmutable: se ignora cualquier valor enviado en el POST.
+        $clave = $previousPermission['clave'];
 
-        if ($permissionModel->update($id, ['clave' => $clave, 'descripcion' => $descripcion, 'modulo' => $modulo])) {
+        if ($permissionModel->updateDetails($id, $descripcion, $modulo)) {
             ActivityLog::record(
-                'update', 'permission', $id,
+                'update',
+                'permission',
+                $id,
                 "Permiso '{$previousPermission['clave']}' actualizado",
                 ['clave' => $previousPermission['clave'], 'descripcion' => $previousPermission['descripcion'], 'modulo' => $previousPermission['modulo']],
                 ['clave' => $clave, 'descripcion' => $descripcion, 'modulo' => $modulo]

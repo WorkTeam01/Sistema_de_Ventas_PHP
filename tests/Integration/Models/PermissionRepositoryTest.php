@@ -120,6 +120,22 @@ final class PermissionRepositoryTest extends TestCase
         $this->assertSame('manage_roles', $row['clave']);
     }
 
+    public function test_updateDetails_changes_descripcion_and_modulo_but_never_clave(): void
+    {
+        $id = $this->permission->create([
+            'clave' => 'view_dashboard',
+            'descripcion' => 'Ver dashboard',
+            'modulo' => 'dashboard',
+        ]);
+
+        $this->assertTrue($this->permission->updateDetails($id, 'Nueva descripción', 'general'));
+
+        $row = $this->permission->find($id);
+        $this->assertSame('view_dashboard', $row['clave']);
+        $this->assertSame('Nueva descripción', $row['descripcion']);
+        $this->assertSame('general', $row['modulo']);
+    }
+
     public function test_find_returns_false_for_nonexistent_id(): void
     {
         $this->assertFalse($this->permission->find(999));
