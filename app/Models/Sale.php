@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Core\Auth;
 use App\Core\Model;
+use App\Helpers\Money;
 
 /**
  * Modelo para la tabla tb_ventas.
@@ -14,6 +14,9 @@ use App\Core\Model;
  */
 class Sale extends Model
 {
+    /** Máximo de tb_ventas.total_pagado (DECIMAL(10,2)) en céntimos; SQLite no lo impone. */
+    private const MAX_TOTAL_CENTS = 9999999999;
+
     protected string $table = 'tb_ventas';
     protected string $primaryKey = 'id_venta';
 
@@ -85,46 +88,46 @@ class Sale extends Model
     }
 
     /**
-     * Retorna el siguiente número de venta usando MAX para evitar reutilizar números
-     * tras eliminaciones.
-     *
-     * @return int Siguiente número de venta.
-     */
-    public function nextNumber(): int
-    {
-        $rows = $this->query(
-            "SELECT COALESCE(MAX(n), 0) + 1 AS next FROM (
-                SELECT MAX(nro_venta) AS n FROM tb_ventas
-                UNION ALL
-                SELECT MAX(nro_venta) AS n FROM tb_carrito
-            ) sub"
-        );
-        return (int)($rows[0]['next'] ?? 1);
-    }
-
-    /**
      * Inserta la cabecera de venta, sus líneas de pago y decrementa el stock,
      * todo en una sola transacción (sin ventana donde la venta exista sin pagos).
+     *
+     * Idempotente: si el mismo usuario reenvía un nro_venta ya cobrado devuelve esa venta con
+     * `replayed` sin tocar stock ni precios; si es de otro usuario, `forbidden`. Un cobro nuevo exige
+     * que el nro_venta sea una reserva abierta del usuario, y la libera dentro de la misma transacción.
      *
      * @param array $data    Datos de la venta: nro_venta, id_cliente (total_pagado se ignora).
      * @param array $payments Líneas: id_metodo_pago, monto.
      *                        Dos entradas del mismo método se suman en una línea (UNIQUE).
-     * @return array{ok: bool, id_venta: ?int, vuelto: float, error: ?string, faltante: ?float}
-     *         error: empty_cart|sin_metodos|invalid_payment|faltante|exceso_sin_efectivo|generic
+     * @param int   $userId  Usuario que cobra; queda como vendedor de la venta.
+     * @return array{ok: bool, id_venta: ?int, vuelto: float, replayed: bool, error: ?string, faltante: ?float}
+     *         error: empty_cart|total_cero|total_excede|sin_metodos|invalid_payment|faltante|exceso_sin_efectivo|
+     *         vuelto_excede_efectivo|forbidden|generic
      */
-    public function storeWithStock(array $data, array $payments): array
+    public function storeWithStock(array $data, array $payments, int $userId): array
     {
         $db = $this->db;
         $fail = static fn(string $error, ?float $faltante = null): array => [
             'ok'          => false,
             'id_venta'    => null,
             'vuelto'      => 0.0,
+            'replayed'    => false,
             'error'       => $error,
             'faltante'    => $faltante,
         ];
 
         try {
             $db->beginTransaction();
+
+            $existing = $this->findFinalized((int)$data['nro_venta']);
+            if ($existing !== null) {
+                $db->rollBack();
+                return $this->replayResult($existing, $userId, $fail);
+            }
+
+            if (!(new PosReservation())->isOpenFor((int)$data['nro_venta'], $userId, true)) {
+                $db->rollBack();
+                return $fail('forbidden');
+            }
 
             // Verificar carrito no vacío
             $stmt = $db->prepare("SELECT COUNT(*) FROM tb_carrito WHERE nro_venta = ?");
@@ -146,7 +149,19 @@ class Sale extends Model
                  FROM tb_carrito WHERE nro_venta = ?"
             );
             $totalsStmt->execute([$data['nro_venta']]);
-            $totalReal = round((float)($totalsStmt->fetchColumn() ?? 0.0), 2);
+            $totalCents = Money::toCents($totalsStmt->fetchColumn() ?: 0);
+            if ($totalCents === null) {
+                $db->rollBack();
+                return $fail('generic');
+            }
+            if ($totalCents === 0) {
+                $db->rollBack();
+                return $fail('total_cero');
+            }
+            if ($totalCents > self::MAX_TOTAL_CENTS) {
+                $db->rollBack();
+                return $fail('total_excede');
+            }
 
             // Mapa de métodos: id → (tipo, activo); catálogo vacío o todo desactivado → sin_metodos
             $methodRows = $db->query(
@@ -166,73 +181,80 @@ class Sale extends Model
                 return $fail('sin_metodos');
             }
 
-            // Validar cada línea y sumar duplicados del mismo método en una sola línea
+            // Los montos se normalizan a céntimos al entrar y todo se compara en enteros; las líneas
+            // del mismo método se suman ya redondeadas, que es lo que realmente se guarda
             $merged = [];
             foreach ($payments as $payment) {
                 $idMetodo = (int)($payment['id_metodo_pago'] ?? 0);
-                $monto = is_numeric($payment['monto'] ?? null) ? (float)$payment['monto'] : 0.0;
-                if ($monto <= 0 || !isset($map[$idMetodo]) || $map[$idMetodo]['activo'] !== 1) {
+                $cents = Money::toCents($payment['monto'] ?? '');
+                if ($cents === null || $cents <= 0 || !isset($map[$idMetodo]) || $map[$idMetodo]['activo'] !== 1) {
                     $db->rollBack();
                     return $fail('invalid_payment');
                 }
-                if (!isset($merged[$idMetodo])) {
-                    $merged[$idMetodo] = ['monto' => 0.0];
-                }
-                $merged[$idMetodo]['monto'] += $monto;
+                $merged[$idMetodo] = ($merged[$idMetodo] ?? 0) + $cents;
             }
-
-            $suma = 0.0;
-            foreach ($merged as $line) {
-                $suma += $line['monto'];
-            }
-            $suma = round($suma, 2);
-
-            // FR-7: suma < total → faltante, sin crear venta ni pagos
-            if ($suma < $totalReal) {
+            if ($merged === []) {
                 $db->rollBack();
-                return $fail('faltante', round($totalReal - $suma, 2));
+                return $fail('invalid_payment');
             }
 
-            // FR-8: exceso solo admite efectivo
-            if ($suma > $totalReal) {
-                $hasCash = false;
-                foreach ($merged as $idMetodo => $line) {
-                    if (($map[$idMetodo]['tipo'] ?? '') === 'efectivo') {
-                        $hasCash = true;
-                        break;
+            $sumCents = array_sum($merged);
+
+            if ($sumCents < $totalCents) {
+                $db->rollBack();
+                return $fail('faltante', ($totalCents - $sumCents) / 100.0);
+            }
+
+            // El vuelto sale siempre del efectivo recibido
+            $changeCents = $sumCents - $totalCents;
+            if ($changeCents > 0) {
+                $cashCents = 0;
+                foreach ($merged as $idMetodo => $cents) {
+                    if ($map[$idMetodo]['tipo'] === 'efectivo') {
+                        $cashCents += $cents;
                     }
                 }
-                if (!$hasCash) {
+                if ($cashCents === 0) {
                     $db->rollBack();
                     return $fail('exceso_sin_efectivo');
+                }
+                if ($changeCents > $cashCents) {
+                    $db->rollBack();
+                    return $fail('vuelto_excede_efectivo');
                 }
             }
 
             // INSERT cabecera de venta (id_cliente opcional → NULL = venta sin cliente)
-            $idUsuario = Auth::user()['id_usuario'] ?? null;
             $idCliente = isset($data['id_cliente']) && (int)$data['id_cliente'] > 0
                 ? (int)$data['id_cliente']
                 : null;
-            $db->prepare(
-                "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado) VALUES (?, ?, ?, ?)"
-            )->execute([
-                $data['nro_venta'],
-                $idCliente,
-                $idUsuario,
-                $totalReal,
-            ]);
+            try {
+                $db->prepare(
+                    "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado) VALUES (?, ?, ?, ?)"
+                )->execute([
+                    $data['nro_venta'],
+                    $idCliente,
+                    $userId,
+                    Money::fromCents($totalCents),
+                ]);
+            } catch (\PDOException $e) {
+                if ($e->getCode() !== '23000') {
+                    throw $e;
+                }
+                // Otro envío del mismo cobro llegó antes (doble clic, segunda pestaña): UNIQUE(nro_venta)
+                $db->rollBack();
+                $winner = $this->findFinalized((int)$data['nro_venta']);
+
+                return $winner !== null ? $this->replayResult($winner, $userId, $fail) : $fail('generic');
+            }
             $idVenta = (int)$db->lastInsertId();
 
             // INSERT una línea por método (monto ya sumado; vuelto nunca se persiste)
             $insertPago = $db->prepare(
                 "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto) VALUES (?, ?, ?)"
             );
-            foreach ($merged as $idMetodo => $line) {
-                $insertPago->execute([
-                    $idVenta,
-                    $idMetodo,
-                    round($line['monto'], 2),
-                ]);
+            foreach ($merged as $idMetodo => $cents) {
+                $insertPago->execute([$idVenta, $idMetodo, Money::fromCents($cents)]);
             }
 
             // Decrementar stock de cada ítem — la cláusula AND stock >= ? previene stock negativo
@@ -251,18 +273,54 @@ class Sale extends Model
                 }
             }
 
+            (new PosReservation())->release((int)$data['nro_venta']);
+
             $db->commit();
             return [
                 'ok'       => true,
                 'id_venta' => $idVenta,
-                'vuelto'   => max(0.0, round($suma - $totalReal, 2)),
+                'vuelto'   => $changeCents / 100.0,
+                'replayed' => false,
                 'error'    => null,
                 'faltante' => null,
             ];
         } catch (\Throwable $e) {
-            $db->rollBack();
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             return $fail('generic');
         }
+    }
+
+    /** @return array{id_venta: int, id_usuario: ?int}|null */
+    private function findFinalized(int $nroVenta): ?array
+    {
+        $rows = $this->query('SELECT id_venta, id_usuario FROM tb_ventas WHERE nro_venta = ?', [$nroVenta]);
+
+        return $rows[0] ?? null;
+    }
+
+    /**
+     * Respuesta del reenvío de un cobro ya registrado: la venta original con el vuelto recalculado
+     * desde tb_pagos, o forbidden si la venta es de otro usuario.
+     */
+    private function replayResult(array $sale, int $userId, callable $fail): array
+    {
+        if ((int)$sale['id_usuario'] !== $userId) {
+            return $fail('forbidden');
+        }
+
+        $idVenta = (int)$sale['id_venta'];
+        $total = (float)$this->query('SELECT total_pagado FROM tb_ventas WHERE id_venta = ?', [$idVenta])[0]['total_pagado'];
+
+        return [
+            'ok'       => true,
+            'id_venta' => $idVenta,
+            'vuelto'   => SalePayment::vueltoFor($total, (new SalePayment())->byVenta($idVenta)),
+            'replayed' => true,
+            'error'    => null,
+            'faltante' => null,
+        ];
     }
 
     /**
@@ -400,10 +458,15 @@ class Sale extends Model
     /**
      * Calcula los totales derivados de los ítems de una venta para la factura.
      *
+     * `total_pagado` es el monto real de la venta; en ventas históricas puede diferir de la suma de las
+     * líneas a precio congelado, y esa diferencia (positiva o negativa) sale como `ajuste` para que la
+     * tabla sume `total_pagado`. Sin $totalPagado (carrito en curso) no hay ajuste.
+     *
      * @param array $items Ítems del carrito (deben incluir 'cantidad' y 'precio_venta').
-     * @return array{precio_total: float, cantidad_total: int, total_unitarios: float}
+     * @param float|null $totalPagado Monto guardado de la venta, si ya está finalizada.
+     * @return array{precio_total: float, cantidad_total: int, total_unitarios: float, ajuste: float, total_pagado: float}
      */
-    public function computeInvoiceTotals(array $items): array
+    public function computeInvoiceTotals(array $items, ?float $totalPagado = null): array
     {
         $precioTotal = 0.0;
         $cantidadTotal = 0;
@@ -417,10 +480,17 @@ class Sale extends Model
             $totalUnitarios += $precioUnitario;
         }
 
+        // Diferencia en céntimos para que el ruido de float (3 × 11.10) no se informe como ajuste
+        $adjustmentCents = $totalPagado === null
+            ? 0
+            : (Money::toCents(max($totalPagado, 0.0)) ?? 0) - (Money::toCents(max($precioTotal, 0.0)) ?? 0);
+
         return [
             'precio_total' => $precioTotal,
             'cantidad_total' => $cantidadTotal,
             'total_unitarios' => $totalUnitarios,
+            'ajuste' => $adjustmentCents / 100.0,
+            'total_pagado' => $totalPagado ?? $precioTotal,
         ];
     }
 
@@ -448,21 +518,33 @@ class Sale extends Model
         return (int)$stmt->fetchColumn() > 0;
     }
 
-    public function destroyWithStock(int $id): bool
+    /**
+     * Elimina una venta y repone su stock. Dentro de la transacción vuelve a comprobar que no tenga
+     * devoluciones: el bloqueo de la fila de la venta serializa el borrado con el registro de una
+     * devolución concurrente, así no quedan devoluciones huérfanas.
+     *
+     * @return array{ok: bool, error: ?string} error: not_found|has_returns|generic
+     */
+    public function destroyWithStock(int $id): array
     {
         $db = $this->db;
         try {
             $db->beginTransaction();
 
-            // Obtener nro_venta
-            $stmt = $db->prepare("SELECT nro_venta FROM tb_ventas WHERE id_venta = ?");
+            $lock = $db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite' ? '' : ' FOR UPDATE';
+            $stmt = $db->prepare("SELECT nro_venta FROM tb_ventas WHERE id_venta = ?" . $lock);
             $stmt->execute([$id]);
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if (!$row) {
                 $db->rollBack();
-                return false;
+                return ['ok' => false, 'error' => 'not_found'];
             }
             $nroVenta = (int)$row['nro_venta'];
+
+            if ($this->isReferenced($id)) {
+                $db->rollBack();
+                return ['ok' => false, 'error' => 'has_returns'];
+            }
 
             // Obtener ítems del carrito para revertir stock
             $items = $db->prepare(
@@ -483,10 +565,12 @@ class Sale extends Model
             $db->prepare("DELETE FROM tb_carrito WHERE nro_venta = ?")->execute([$nroVenta]);
 
             $db->commit();
-            return true;
+            return ['ok' => true, 'error' => null];
         } catch (\Throwable $e) {
-            $db->rollBack();
-            return false;
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            return ['ok' => false, 'error' => 'generic'];
         }
     }
 }

@@ -28,15 +28,22 @@ final class SaleRepositoryTest extends TestCase
     private function seedDependencies(): void
     {
         $this->pdo->exec("INSERT INTO tb_roles (rol) VALUES ('Vendedor')");
-        $this->pdo->exec("INSERT INTO tb_usuarios (nombres, email, password_user, id_rol) VALUES ('Vendedor', 'vendedor@test.com', 'hash', 1)");
+        $this->pdo->exec("INSERT INTO tb_usuarios (nombres, email, password_user, id_rol) VALUES ('Vendedor', 'vendedor@test.com', 'hash', 1), ('Otro', 'otro@test.com', 'hash', 1)");
         $this->pdo->exec("INSERT INTO tb_categorias (nombre_categoria) VALUES ('General')");
         $this->pdo->exec("INSERT INTO tb_clientes (nombre_cliente, nit_ci_cliente, celular_cliente, email_cliente) VALUES ('Cliente A', '12345678', '70000001', 'cliente@test.com')");
         $this->pdo->exec("INSERT INTO tb_almacen (codigo, nombre, precio_compra, precio_venta, stock, stock_minimo, stock_maximo, fecha_ingreso, id_usuario, id_categoria) VALUES ('P001', 'Producto A', 5.00, 10.00, 50, 2, 100, '2026-01-01', 1, 1)");
         $this->pdo->exec("INSERT INTO tb_metodos_pago (nombre, tipo) VALUES ('Efectivo', 'efectivo'), ('Tarjeta', 'no_efectivo')");
     }
 
+    /** Reserva abierta del POS cuyo id es el nro_venta (la venta solo se cobra sobre una reserva propia). */
+    private function openReservation(int $nroVenta, int $userId = 1): void
+    {
+        $this->pdo->exec("INSERT OR IGNORE INTO tb_pos_reservas (id_reserva, id_usuario) VALUES ($nroVenta, $userId)");
+    }
+
     private function seedCart(int $nroVenta, int $productId = 1, int $cantidad = 3): void
     {
+        $this->openReservation($nroVenta);
         $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES ($nroVenta, $productId, $cantidad)");
     }
 
@@ -55,45 +62,9 @@ final class SaleRepositoryTest extends TestCase
                 'nro_venta'  => $nroVenta,
                 'id_cliente' => 1,
             ],
-            $this->payEfectivo($total)
+            $this->payEfectivo($total),
+            1
         );
-    }
-
-    // -------------------------------------------------------------------------
-    // nextNumber
-    // -------------------------------------------------------------------------
-
-    public function test_nextNumber_returns_1_when_table_is_empty(): void
-    {
-        $this->assertSame(1, $this->sale->nextNumber());
-    }
-
-    public function test_nextNumber_uses_max_not_count_to_avoid_reuse(): void
-    {
-        $this->storeSale(1);
-        $this->storeSale(5); // nro_venta no secuencial para verificar MAX
-
-        // Con nro_venta 1 y 5 en tabla, el siguiente debe ser 6
-        $this->assertSame(6, $this->sale->nextNumber());
-    }
-
-    public function test_nextNumber_considers_active_carts_to_avoid_collision(): void
-    {
-        // Carrito en construcción con nro_venta=3 (sin venta finalizada)
-        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (3, 1, 1)");
-
-        // nextNumber debe esquivar el 3 activo en tb_carrito
-        $this->assertSame(4, $this->sale->nextNumber());
-    }
-
-    public function test_nextNumber_returns_max_across_ventas_and_carrito(): void
-    {
-        $this->storeSale(2); // nro_venta=2 en tb_ventas
-        // Carrito en curso con nro_venta=5
-        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (5, 1, 1)");
-
-        // El máximo entre tb_ventas(2) y tb_carrito(5) es 5 → siguiente es 6
-        $this->assertSame(6, $this->sale->nextNumber());
     }
 
     // -------------------------------------------------------------------------
@@ -119,9 +90,11 @@ final class SaleRepositoryTest extends TestCase
 
     public function test_storeWithStock_returns_empty_cart_error_for_empty_cart(): void
     {
+        $this->openReservation(99);
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 99, 'id_cliente' => 1],
-            $this->payEfectivo(10.00)
+            $this->payEfectivo(10.00),
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -136,7 +109,8 @@ final class SaleRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            $this->payEfectivo(10.00)
+            $this->payEfectivo(10.00),
+            1
         );
         $this->assertTrue($result['ok']);
 
@@ -154,7 +128,8 @@ final class SaleRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            $this->payEfectivo(45.00)
+            $this->payEfectivo(45.00),
+            1
         );
         $this->assertTrue($result['ok']);
 
@@ -171,7 +146,8 @@ final class SaleRepositoryTest extends TestCase
         $this->seedCart(1, 1, 1);
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            $this->payEfectivo(10.00)
+            $this->payEfectivo(10.00),
+            1
         );
         $this->assertTrue($result['ok']);
 
@@ -186,9 +162,10 @@ final class SaleRepositoryTest extends TestCase
     public function test_getByNroVenta_returns_catalog_price_when_cart_is_in_progress(): void
     {
         $cartItem = new \App\Models\CartItem();
-        $cartItem->addItem(1, 1, 1);
+        $nro = (new \App\Models\PosReservation())->openFor(1);
+        $this->assertTrue($cartItem->addItem($nro, 1, 1, 1)['ok']);
 
-        $items = $cartItem->getByNroVenta(1);
+        $items = $cartItem->getByNroVenta($nro);
 
         $this->assertCount(1, $items);
         $this->assertEqualsWithDelta(10.00, (float)$items[0]['precio_venta'], 0.001);
@@ -199,7 +176,8 @@ final class SaleRepositoryTest extends TestCase
         $this->seedCart(1, 1, 1);
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            $this->payEfectivo(10.00)
+            $this->payEfectivo(10.00),
+            1
         );
         $this->assertTrue($result['ok']);
 
@@ -218,7 +196,8 @@ final class SaleRepositoryTest extends TestCase
         $this->seedCart(1, 2, 3);
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            $this->payEfectivo(95.00)
+            $this->payEfectivo(95.00),
+            1
         );
         $this->assertTrue($result['ok']);
 
@@ -245,7 +224,8 @@ final class SaleRepositoryTest extends TestCase
         $this->seedCart(1, 2, 3);
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            $this->payEfectivo(95.00)
+            $this->payEfectivo(95.00),
+            1
         );
         $this->assertTrue($result['ok']);
 
@@ -273,7 +253,8 @@ final class SaleRepositoryTest extends TestCase
         $this->seedCart(1, 1, 2);
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            $this->payEfectivo(20.00)
+            $this->payEfectivo(20.00),
+            1
         );
         $this->assertTrue($result['ok']);
 
@@ -329,7 +310,7 @@ final class SaleRepositoryTest extends TestCase
 
         $result = $this->sale->destroyWithStock(1);
 
-        $this->assertTrue($result);
+        $this->assertSame(['ok' => true, 'error' => null], $result);
         $this->assertSame(0, $this->sale->count());
 
         $cartCount = $this->pdo->query("SELECT COUNT(*) FROM tb_carrito WHERE nro_venta = 1")->fetchColumn();
@@ -346,11 +327,35 @@ final class SaleRepositoryTest extends TestCase
         $this->assertSame(50, (int)$row['stock']);
     }
 
-    public function test_destroyWithStock_returns_false_for_nonexistent_id(): void
+    public function test_destroyWithStock_returns_not_found_for_nonexistent_id(): void
     {
         $result = $this->sale->destroyWithStock(999);
 
-        $this->assertFalse($result);
+        $this->assertSame(['ok' => false, 'error' => 'not_found'], $result);
+    }
+
+    public function test_destroyWithStock_rejects_a_sale_with_returns_and_changes_nothing(): void
+    {
+        $this->storeSale(1, 3);
+        $this->pdo->exec("INSERT INTO tb_devoluciones (nro_devolucion, id_venta, id_usuario, motivo, monto) VALUES (1, 1, 1, 'Defecto', 10)");
+
+        $result = $this->sale->destroyWithStock(1);
+
+        $this->assertSame(['ok' => false, 'error' => 'has_returns'], $result);
+        $this->assertSame(1, $this->sale->count(), 'la venta sigue existiendo');
+        $this->assertSame(1, (int)$this->pdo->query('SELECT COUNT(*) FROM tb_carrito WHERE nro_venta = 1')->fetchColumn());
+        $this->assertSame(47, (int)$this->pdo->query('SELECT stock FROM tb_almacen WHERE id_producto = 1')->fetchColumn(), 'el stock no se repone');
+        $this->assertSame(1, (int)$this->pdo->query('SELECT COUNT(*) FROM tb_devoluciones')->fetchColumn());
+    }
+
+    public function test_destroyWithStock_only_blocks_the_sale_that_has_returns(): void
+    {
+        $this->storeSale(1, 3);
+        $this->storeSale(2, 2);
+        $this->pdo->exec("INSERT INTO tb_devoluciones (nro_devolucion, id_venta, id_usuario, motivo, monto) VALUES (1, 1, 1, 'Defecto', 10)");
+
+        $this->assertSame('has_returns', $this->sale->destroyWithStock(1)['error']);
+        $this->assertTrue($this->sale->destroyWithStock(2)['ok']);
     }
 
     // -------------------------------------------------------------------------
@@ -390,6 +395,138 @@ final class SaleRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // storeWithStock — reserva, propiedad e idempotencia del cobro
+    // -------------------------------------------------------------------------
+
+    private function stockOf(int $productId = 1): int
+    {
+        return (int)$this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $productId")->fetchColumn();
+    }
+
+    private function reservationIsReleased(int $nroVenta): bool
+    {
+        return $this->pdo->query("SELECT fyh_liberacion FROM tb_pos_reservas WHERE id_reserva = $nroVenta")->fetchColumn() !== null;
+    }
+
+    public function test_storeWithStock_sets_id_usuario_from_the_user_argument(): void
+    {
+        $this->openReservation(1, 2);
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (1, 1, 1)");
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(10.00), 2);
+
+        $this->assertTrue($result['ok']);
+        $this->assertSame(2, (int)$this->pdo->query('SELECT id_usuario FROM tb_ventas WHERE nro_venta = 1')->fetchColumn());
+    }
+
+    public function test_storeWithStock_releases_the_reservation_in_the_same_transaction(): void
+    {
+        $this->seedCart(1, 1, 1);
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(10.00), 1);
+
+        $this->assertTrue($result['ok']);
+        $this->assertFalse($result['replayed']);
+        $this->assertTrue($this->reservationIsReleased(1));
+    }
+
+    public function test_storeWithStock_failure_keeps_the_reservation_open(): void
+    {
+        $this->seedCart(1, 1, 2);
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(5.00), 1);
+
+        $this->assertSame('faltante', $result['error']);
+        $this->assertFalse($this->reservationIsReleased(1));
+    }
+
+    public function test_storeWithStock_rejects_a_reservation_of_another_user(): void
+    {
+        $this->seedCart(1, 1, 1);
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(10.00), 2);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('forbidden', $result['error']);
+        $this->assertSame(50, $this->stockOf());
+        $this->assertFalse($this->reservationIsReleased(1));
+    }
+
+    public function test_storeWithStock_rejects_a_number_without_reservation(): void
+    {
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (7, 1, 1)");
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 7, 'id_cliente' => 1], $this->payEfectivo(10.00), 1);
+
+        $this->assertSame('forbidden', $result['error']);
+        $this->assertSame(0, $this->sale->count());
+    }
+
+    public function test_storeWithStock_rejects_a_cancelled_reservation_without_sale(): void
+    {
+        $this->seedCart(1, 1, 1);
+        $this->pdo->exec('UPDATE tb_pos_reservas SET fyh_liberacion = CURRENT_TIMESTAMP WHERE id_reserva = 1');
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(10.00), 1);
+
+        $this->assertSame('forbidden', $result['error']);
+        $this->assertSame(0, $this->sale->count());
+        $this->assertSame(50, $this->stockOf());
+    }
+
+    public function test_storeWithStock_replay_returns_the_original_sale_without_touching_anything(): void
+    {
+        $this->seedCart(1, 1, 3);
+        $first = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 1);
+        $this->assertTrue($first['ok']);
+        $this->pdo->exec('UPDATE tb_almacen SET precio_venta = 99.99 WHERE id_producto = 1');
+
+        $second = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 1);
+
+        $this->assertTrue($second['ok']);
+        $this->assertTrue($second['replayed']);
+        $this->assertSame($first['id_venta'], $second['id_venta']);
+        $this->assertSame(1, $this->sale->count());
+        $this->assertSame(47, $this->stockOf(), 'el stock no se descuenta otra vez');
+        $price = (float)$this->pdo->query('SELECT precio_unitario FROM tb_carrito WHERE nro_venta = 1')->fetchColumn();
+        $this->assertEqualsWithDelta(10.00, $price, 0.001, 'el precio congelado no se vuelve a fijar');
+        $this->assertSame(1, (int)$this->pdo->query('SELECT COUNT(*) FROM tb_pagos')->fetchColumn());
+    }
+
+    public function test_storeWithStock_replay_recomputes_the_change_from_stored_payments(): void
+    {
+        $this->seedCart(1, 1, 3);
+        $first = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(100.00), 1);
+        $this->assertEqualsWithDelta(70.00, $first['vuelto'], 0.001);
+
+        $second = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 1);
+
+        $this->assertTrue($second['replayed']);
+        $this->assertEqualsWithDelta(70.00, $second['vuelto'], 0.001);
+    }
+
+    public function test_storeWithStock_resending_another_users_finalized_number_is_forbidden(): void
+    {
+        $this->seedCart(1, 1, 3);
+        $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 1);
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 2);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('forbidden', $result['error']);
+        $this->assertSame(1, $this->sale->count());
+        $this->assertSame(47, $this->stockOf());
+    }
+
+    public function test_storeWithStock_database_rejects_two_sales_with_the_same_number(): void
+    {
+        $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_usuario, total_pagado) VALUES (5, 1, 10)");
+
+        $this->expectException(\PDOException::class);
+        $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_usuario, total_pagado) VALUES (5, 1, 10)");
+    }
+
+    // -------------------------------------------------------------------------
     // Venta sin cliente (Consumidor final)
     // -------------------------------------------------------------------------
 
@@ -402,7 +539,8 @@ final class SaleRepositoryTest extends TestCase
                 'nro_venta'  => $nroVenta,
                 'id_cliente' => null,
             ],
-            $this->payEfectivo($total)
+            $this->payEfectivo($total),
+            1
         );
     }
 
@@ -422,7 +560,8 @@ final class SaleRepositoryTest extends TestCase
         $this->seedCart(1, 1, 3);
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 0],
-            $this->payEfectivo(30.00)
+            $this->payEfectivo(30.00),
+            1
         );
 
         $this->assertTrue($result['ok']);
@@ -458,6 +597,54 @@ final class SaleRepositoryTest extends TestCase
         $rows = $this->sale->latest(5);
         $this->assertCount(1, $rows);
         $this->assertNull($rows[0]['nombre_cliente']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Ventas históricas: total_pagado difiere de las líneas a precio congelado
+    // -------------------------------------------------------------------------
+
+    private function seedHistoricalSale(int $nroVenta, float $lineTotal, float $totalPagado): int
+    {
+        $this->pdo->exec("INSERT INTO tb_pos_reservas (id_reserva, id_usuario, fyh_liberacion) VALUES ($nroVenta, 1, CURRENT_TIMESTAMP)");
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad, precio_unitario) VALUES ($nroVenta, 1, 2, " . ($lineTotal / 2) . ")");
+        $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado) VALUES ($nroVenta, 1, 1, $totalPagado)");
+
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    /** @dataProvider-free: positivo y negativo comparten la misma comprobación */
+    private function assertTableSumsToTotalPagado(int $idVenta, float $expectedAdjustment): void
+    {
+        $sale = $this->sale->findWithDetails($idVenta);
+        $items = $this->sale->withSubtotals($sale['items']);
+        $totals = $this->sale->computeInvoiceTotals($items, (float)$sale['total_pagado']);
+
+        $this->assertEqualsWithDelta($expectedAdjustment, $totals['ajuste'], 0.001);
+        $linesSum = array_sum(array_column($items, 'subtotal'));
+        $this->assertEqualsWithDelta((float)$sale['total_pagado'], $linesSum + $totals['ajuste'], 0.001);
+        $this->assertEqualsWithDelta((float)$sale['total_pagado'], $totals['total_pagado'], 0.001);
+    }
+
+    public function test_historical_sale_with_positive_adjustment_sums_to_total_pagado(): void
+    {
+        $id = $this->seedHistoricalSale(20, 20.00, 25.00);
+
+        $this->assertTableSumsToTotalPagado($id, 5.00);
+    }
+
+    public function test_historical_sale_with_negative_adjustment_sums_to_total_pagado(): void
+    {
+        $id = $this->seedHistoricalSale(21, 20.00, 15.00);
+
+        $this->assertTableSumsToTotalPagado($id, -5.00);
+    }
+
+    public function test_sale_without_difference_has_no_adjustment(): void
+    {
+        $this->storeSale(1, 3);
+        $id = (int)$this->pdo->query('SELECT id_venta FROM tb_ventas WHERE nro_venta = 1')->fetchColumn();
+
+        $this->assertTableSumsToTotalPagado($id, 0.0);
     }
 
     // -------------------------------------------------------------------------

@@ -100,4 +100,45 @@ final class SaleComputeTotalsTest extends TestCase
 
         $this->assertIsInt($result['cantidad_total']);
     }
+
+    public function test_without_total_pagado_there_is_no_adjustment(): void
+    {
+        $result = $this->sale->computeInvoiceTotals([['cantidad' => 2, 'precio_venta' => 10.00]]);
+
+        $this->assertSame(0.0, $result['ajuste']);
+        $this->assertSame(20.0, $result['total_pagado']);
+    }
+
+    public function test_matching_total_pagado_has_zero_adjustment(): void
+    {
+        $result = $this->sale->computeInvoiceTotals([['cantidad' => 2, 'precio_venta' => 10.00]], 20.00);
+
+        $this->assertSame(0.0, $result['ajuste']);
+        $this->assertSame(20.0, $result['total_pagado']);
+    }
+
+    public function test_positive_adjustment_when_total_pagado_is_higher_than_the_lines(): void
+    {
+        $result = $this->sale->computeInvoiceTotals([['cantidad' => 2, 'precio_venta' => 10.00]], 25.00);
+
+        $this->assertSame(5.0, $result['ajuste']);
+        $this->assertSame(25.0, $result['total_pagado']);
+        $this->assertSame(20.0, $result['precio_total'], 'precio_total sigue siendo la suma de las líneas');
+    }
+
+    public function test_negative_adjustment_when_total_pagado_is_lower_than_the_lines(): void
+    {
+        $result = $this->sale->computeInvoiceTotals([['cantidad' => 2, 'precio_venta' => 10.00]], 17.50);
+
+        $this->assertSame(-2.5, $result['ajuste']);
+        $this->assertSame(17.5, $result['total_pagado']);
+    }
+
+    public function test_float_noise_is_not_reported_as_adjustment(): void
+    {
+        // 3 × 11.10 = 33.300000000000004 en float
+        $result = $this->sale->computeInvoiceTotals([['cantidad' => 3, 'precio_venta' => 11.10]], 33.30);
+
+        $this->assertSame(0.0, $result['ajuste']);
+    }
 }

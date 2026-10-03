@@ -72,4 +72,25 @@ final class SalePaymentVueltoForTest extends TestCase
 
         $this->assertSame(10.0, $result);
     }
+
+    public function test_float_noise_does_not_create_phantom_change(): void
+    {
+        // 11.10 + 22.20 en float da 33.300000000000004 y restaba 33.30 dejando residuo
+        $result = SalePayment::vueltoFor(33.30, [
+            ['monto' => 11.10],
+            ['monto' => 22.20],
+        ]);
+
+        $this->assertSame(0.0, $result);
+    }
+
+    public function test_amounts_as_decimal_text_from_the_database(): void
+    {
+        $result = SalePayment::vueltoFor(33.30, [
+            ['monto' => '30.00'],
+            ['monto' => '10.00'],
+        ]);
+
+        $this->assertSame(6.7, $result);
+    }
 }

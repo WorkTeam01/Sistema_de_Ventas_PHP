@@ -5,10 +5,12 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Helpers\InvoicePdf;
+use App\Helpers\Money;
 use App\Models\ActivityLog;
 use App\Models\CartItem;
 use App\Models\Client;
 use App\Models\PaymentMethod;
+use App\Models\PosReservation;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleReturn;
@@ -44,13 +46,7 @@ class SaleController extends Controller
         $productModel = new Product();
         $clientModel = new Client();
 
-        if (!empty($_SESSION['pos_nro_venta'])) {
-            $nro_venta = (int)$_SESSION['pos_nro_venta'];
-        } else {
-            $nro_venta = $saleModel->nextNumber();
-            $_SESSION['pos_nro_venta'] = $nro_venta;
-            $cartItemModel->purgeOrphans($nro_venta);
-        }
+        $nro_venta = (new PosReservation())->openFor((int)Auth::user()['id_usuario']);
 
         $cart_items = $saleModel->withSubtotals($cartItemModel->getByNroVenta($nro_venta));
         $totals = $saleModel->computeInvoiceTotals($cart_items);
@@ -82,11 +78,13 @@ class SaleController extends Controller
         $nro_venta = (int)($_POST['nro_venta'] ?? 0);
 
         if ($nro_venta > 0) {
-            $cartItemModel = new CartItem();
-            $cartItemModel->clearCart($nro_venta);
+            $result = (new CartItem())->clearCart($nro_venta, (int)Auth::user()['id_usuario']);
+            if (!$result['ok']) {
+                $this->forbidden();
+            }
+            (new PosReservation())->release($nro_venta);
         }
 
-        unset($_SESSION['pos_nro_venta']);
         $this->redirect(BASE_URL . '/sales');
     }
 
@@ -107,10 +105,12 @@ class SaleController extends Controller
             return;
         }
 
-        $cartItemModel = new CartItem();
-        $ok = $cartItemModel->addItem($nro_venta, $id_producto, $cantidad);
+        $result = (new CartItem())->addItem($nro_venta, $id_producto, $cantidad, (int)Auth::user()['id_usuario']);
 
-        if (!$ok) {
+        if (in_array($result['error'], ['forbidden', 'finalized'], true)) {
+            $this->forbidden();
+        }
+        if (!$result['ok']) {
             $this->flash('Stock insuficiente para la cantidad solicitada.', 'warning');
         }
 
@@ -132,8 +132,10 @@ class SaleController extends Controller
             return;
         }
 
-        $cartItemModel = new CartItem();
-        $cartItemModel->removeItem($id_carrito);
+        $result = (new CartItem())->removeItem($id_carrito, (int)Auth::user()['id_usuario']);
+        if (!$result['ok']) {
+            $this->forbidden();
+        }
 
         $this->redirect(BASE_URL . '/sales/create');
     }
@@ -154,15 +156,6 @@ class SaleController extends Controller
             return;
         }
 
-        $cartItemModel = new CartItem();
-        // Early-return de UX: mensaje específico antes de llegar al modelo.
-        // storeWithStock() también verifica carrito vacío internamente.
-        if ($cartItemModel->countByNroVenta($nro_venta) === 0) {
-            $this->flash('El carrito está vacío. Agrega productos antes de registrar la venta.', 'error');
-            $this->redirect(BASE_URL . '/sales/create');
-            return;
-        }
-
         // Líneas de pago desde el POST: solo montos > 0 (pagos[id][monto]).
         $payments = [];
         $rawPagos = $_POST['pagos'] ?? [];
@@ -171,8 +164,10 @@ class SaleController extends Controller
                 if (!is_array($line)) {
                     continue;
                 }
-                $monto = is_numeric($line['monto'] ?? null) ? (float)$line['monto'] : 0.0;
-                if ($monto <= 0) {
+                // El monto viaja como texto: el modelo lo convierte a céntimos y rechaza lo no numérico.
+                // Solo se descartan las líneas vacías o en cero (métodos del modo mixto sin usar).
+                $monto = trim((string)($line['monto'] ?? ''));
+                if ($monto === '' || Money::toCents($monto) === 0) {
                     continue;
                 }
                 $payments[] = [
@@ -186,7 +181,17 @@ class SaleController extends Controller
         $result = $saleModel->storeWithStock([
             'nro_venta'  => $nro_venta,
             'id_cliente' => $id_cliente > 0 ? $id_cliente : null,
-        ], $payments);
+        ], $payments, (int)Auth::user()['id_usuario']);
+
+        if (($result['error'] ?? null) === 'forbidden') {
+            $this->forbidden();
+        }
+
+        if ($result['ok'] && $result['replayed']) {
+            $this->flash($this->saleSuccessMessage($result), 'success');
+            $this->redirect(BASE_URL . '/sales');
+            return;
+        }
 
         if ($result['ok']) {
             $idVenta = (int)$result['id_venta'];
@@ -205,18 +210,28 @@ class SaleController extends Controller
                     'total_pagado'   => $totalPagado,
                 ]
             );
-            unset($_SESSION['pos_nro_venta']);
-            $mensaje = 'La venta se registró exitosamente.';
-            if ((float)($result['vuelto'] ?? 0) > 0) {
-                $mensaje .= ' Vuelto: ' . APP_CURRENCY_SYMBOL . ' ' . number_format((float)$result['vuelto'], 2);
-            }
-            $this->flash($mensaje, 'success');
+            $this->flash($this->saleSuccessMessage($result), 'success');
             $this->redirect(BASE_URL . '/sales');
             return;
         }
 
         $this->flash($this->paymentErrorMessage($result), 'error');
         $this->redirect(BASE_URL . '/sales/create');
+    }
+
+    /**
+     * Mensaje de éxito del cobro (el reenvío de un cobro ya registrado muestra el mismo).
+     *
+     * @param array $result Retorno de Sale::storeWithStock().
+     */
+    private function saleSuccessMessage(array $result): string
+    {
+        $mensaje = 'La venta se registró exitosamente.';
+        if ((float)($result['vuelto'] ?? 0) > 0) {
+            $mensaje .= ' Vuelto: ' . APP_CURRENCY_SYMBOL . ' ' . number_format((float)$result['vuelto'], 2);
+        }
+
+        return $mensaje;
     }
 
     /**
@@ -239,6 +254,9 @@ class SaleController extends Controller
             'sin_metodos'        => 'No hay métodos de pago activos. Configure al menos un método para poder cobrar.',
             'invalid_payment'    => 'Pago inválido: verifique los montos y los métodos seleccionados.',
             'exceso_sin_efectivo' => 'El exceso sobre el total solo se admite en efectivo.',
+            'vuelto_excede_efectivo' => 'El vuelto no puede ser mayor al efectivo recibido.',
+            'total_cero'         => 'El total de la venta es cero: no se puede cobrar.',
+            'total_excede'       => 'El total de la venta supera el máximo permitido (' . APP_CURRENCY_SYMBOL . ' 99,999,999.99).',
             'generic'            => 'Error al registrar la venta. Intente nuevamente.',
         ];
 
@@ -274,7 +292,7 @@ class SaleController extends Controller
         }
 
         $items = $saleModel->withSubtotals($sale['items']);
-        $totals = $saleModel->computeInvoiceTotals($items);
+        $totals = $saleModel->computeInvoiceTotals($items, (float)$sale['total_pagado']);
 
         $returnModel = new SaleReturn();
         $devoluciones = $returnModel->byVenta($id);
@@ -294,7 +312,8 @@ class SaleController extends Controller
                 'items' => $items,
                 'total_productos' => count($items),
                 'cantidad_acum' => $totals['cantidad_total'],
-                'subtotal_acum' => $totals['precio_total'],
+                'subtotal_acum' => $totals['total_pagado'],
+                'ajuste' => $totals['ajuste'],
                 'pagos' => $sale['payments'] ?? [],
                 'vuelto' => $sale['vuelto'] ?? 0.0,
                 'devoluciones' => $devoluciones,
@@ -331,7 +350,7 @@ class SaleController extends Controller
         }
 
         $items = $saleModel->withSubtotals($sale['items']);
-        $totals = $saleModel->computeInvoiceTotals($items);
+        $totals = $saleModel->computeInvoiceTotals($items, (float)$sale['total_pagado']);
 
         $this->renderWithLayout('views/sales/delete.php', array_merge(
             $this->sessionData(),
@@ -345,7 +364,8 @@ class SaleController extends Controller
                 'items' => $items,
                 'total_productos' => count($items),
                 'cantidad_acum' => $totals['cantidad_total'],
-                'subtotal_acum' => $totals['precio_total'],
+                'subtotal_acum' => $totals['total_pagado'],
+                'ajuste' => $totals['ajuste'],
                 'csrf_token' => Auth::generateCsrfToken(),
                 'pageScripts' => ['/js/modules/sales/sales-delete.js'],
             ]
@@ -381,7 +401,7 @@ class SaleController extends Controller
             $this->forbidden('No tienes permiso para ver esta factura.');
         }
 
-        $totals = $saleModel->computeInvoiceTotals($sale['items']);
+        $totals = $saleModel->computeInvoiceTotals($sale['items'], (float)$sale['total_pagado']);
         // El vendedor que consta en la factura es el de la venta, no quien la imprime.
         $vendedor = $sale['nombre_vendedor'] ?? '—';
 
@@ -410,7 +430,9 @@ class SaleController extends Controller
             $this->forbidden('No tienes permiso para eliminar esta venta.');
         }
 
-        if ($snapshot && $saleModel->isReferenced($id_venta)) {
+        $result = $saleModel->destroyWithStock($id_venta);
+
+        if ($result['error'] === 'has_returns') {
             $this->flash(
                 'No se puede eliminar la venta porque tiene devoluciones asociadas.',
                 'warning'
@@ -419,9 +441,7 @@ class SaleController extends Controller
             return;
         }
 
-        $ok = $saleModel->destroyWithStock($id_venta);
-
-        if ($ok) {
+        if ($result['ok']) {
             if ($snapshot) {
                 ActivityLog::record(
                     'delete',

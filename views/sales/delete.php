@@ -110,6 +110,17 @@
                                     </tbody>
                                     <?php if (!empty($items)): ?>
                                         <tfoot>
+                                            <?php if ((float)($ajuste ?? 0) !== 0.0): ?>
+                                                <tr>
+                                                    <td colspan="2" class="text-right pr-3">Ajuste por precios históricos</td>
+                                                    <td class="d-none d-md-table-cell"></td>
+                                                    <td></td>
+                                                    <td class="d-none d-md-table-cell"></td>
+                                                    <td class="text-center">
+                                                        <?= $ajuste < 0 ? '-' : '+' ?><?= APP_CURRENCY_SYMBOL ?> <?= number_format(abs($ajuste), 2) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
                                             <tr class="bg-light">
                                                 <td colspan="2" class="text-right font-weight-bold pr-3">
                                                     <?= $total_productos ?> producto<?= $total_productos !== 1 ? 's' : '' ?>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Helpers\Money;
 
 /**
  * Modelo para la tabla tb_pagos (líneas de pago por venta).
@@ -42,11 +43,11 @@ class SalePayment extends Model
      */
     public static function vueltoFor(float $total, array $payments): float
     {
-        $suma = 0.0;
+        $sumCents = 0;
         foreach ($payments as $payment) {
-            $suma += (float)($payment['monto'] ?? 0.0);
+            $sumCents += Money::toCents($payment['monto'] ?? 0) ?? 0;
         }
 
-        return max(0.0, round($suma, 2) - $total);
+        return max(0, $sumCents - (Money::toCents(max($total, 0.0)) ?? 0)) / 100.0;
     }
 }

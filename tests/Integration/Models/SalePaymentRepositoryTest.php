@@ -64,6 +64,7 @@ final class SalePaymentRepositoryTest extends TestCase
     /** Carrito listo para storeWithStock (total = cantidad × 12.50). */
     private function seedCart(int $nroVenta, int $cantidad = 5): void
     {
+        $this->pdo->exec("INSERT OR IGNORE INTO tb_pos_reservas (id_reserva, id_usuario) VALUES ($nroVenta, 1)");
         $this->pdo->exec(
             "INSERT INTO tb_carrito (nro_venta, id_producto, cantidad)
              VALUES ($nroVenta, 1, $cantidad)"
@@ -158,7 +159,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 1, 'monto' => 62.50]]
+            [['id_metodo_pago' => 1, 'monto' => 62.50]],
+            1
         );
 
         $this->assertTrue($result['ok']);
@@ -180,7 +182,8 @@ final class SalePaymentRepositoryTest extends TestCase
             [
                 ['id_metodo_pago' => 1, 'monto' => 30.00],
                 ['id_metodo_pago' => 2, 'monto' => 32.50],
-            ]
+            ],
+            1
         );
 
         $this->assertTrue($result['ok']);
@@ -203,7 +206,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 1, 'monto' => 50.00]]
+            [['id_metodo_pago' => 1, 'monto' => 50.00]],
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -221,7 +225,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 2, 'monto' => 70.00]] // solo tarjeta
+            [['id_metodo_pago' => 2, 'monto' => 70.00]], // solo tarjeta
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -237,7 +242,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 1, 'monto' => 70.00]]
+            [['id_metodo_pago' => 1, 'monto' => 70.00]],
+            1
         );
 
         $this->assertTrue($result['ok']);
@@ -259,7 +265,8 @@ final class SalePaymentRepositoryTest extends TestCase
             [
                 ['id_metodo_pago' => 2, 'monto' => 30.00],
                 ['id_metodo_pago' => 2, 'monto' => 32.50],
-            ]
+            ],
+            1
         );
 
         $this->assertTrue($result['ok']);
@@ -277,7 +284,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 1, 'monto' => 62.50]]
+            [['id_metodo_pago' => 1, 'monto' => 62.50]],
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -287,9 +295,12 @@ final class SalePaymentRepositoryTest extends TestCase
 
     public function test_storeWithStock_empty_cart_returns_empty_cart(): void
     {
+        $this->pdo->exec("INSERT INTO tb_pos_reservas (id_reserva, id_usuario) VALUES (99, 1)");
+
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 99, 'id_cliente' => 1],
-            [['id_metodo_pago' => 1, 'monto' => 10.00]]
+            [['id_metodo_pago' => 1, 'monto' => 10.00]],
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -302,7 +313,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 1, 'monto' => 0]]
+            [['id_metodo_pago' => 1, 'monto' => 0]],
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -316,7 +328,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 999, 'monto' => 62.50]]
+            [['id_metodo_pago' => 999, 'monto' => 62.50]],
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -332,7 +345,8 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            [['id_metodo_pago' => 2, 'monto' => 62.50]]
+            [['id_metodo_pago' => 2, 'monto' => 62.50]],
+            1
         );
 
         $this->assertFalse($result['ok']);
@@ -340,18 +354,18 @@ final class SalePaymentRepositoryTest extends TestCase
         $this->assertSame(0, $this->countVentas());
     }
 
-    public function test_storeWithStock_empty_payments_with_active_methods_returns_faltante(): void
+    public function test_storeWithStock_empty_payments_with_active_methods_returns_invalid_payment(): void
     {
-        $this->seedCart(1, 5); // total = 62.50, catálogo OK pero sin líneas
+        $this->seedCart(1, 5); // total = 62.50, catálogo OK pero sin líneas de pago
 
         $result = $this->sale->storeWithStock(
             ['nro_venta' => 1, 'id_cliente' => 1],
-            []
+            [],
+            1
         );
 
         $this->assertFalse($result['ok']);
-        $this->assertSame('faltante', $result['error']);
-        $this->assertEqualsWithDelta(62.50, $result['faltante'], 0.001);
+        $this->assertSame('invalid_payment', $result['error']);
         $this->assertSame(0, $this->countVentas());
     }
 
@@ -365,7 +379,8 @@ final class SalePaymentRepositoryTest extends TestCase
             [
                 ['id_metodo_pago' => 1, 'monto' => 40.00],
                 ['id_metodo_pago' => 2, 'monto' => 30.00],
-            ]
+            ],
+            1
         );
 
         $this->assertTrue($result['ok']);
@@ -373,6 +388,162 @@ final class SalePaymentRepositoryTest extends TestCase
 
         $lines = $this->payments->byVenta((int)$result['id_venta']);
         $this->assertCount(2, $lines);
+    }
+
+    // -------------------------------------------------------------------------
+    // storeWithStock — montos en céntimos, tope de vuelto y límites del total
+    // -------------------------------------------------------------------------
+
+    /** Producto extra con stock holgado; devuelve su id. */
+    private function seedProduct(string $codigo, string $price, int $stock = 10): int
+    {
+        $this->pdo->exec(
+            "INSERT INTO tb_almacen (codigo, nombre, precio_compra, precio_venta, stock, stock_minimo,
+                 stock_maximo, fecha_ingreso, id_usuario, id_categoria)
+             VALUES ('$codigo', 'Extra $codigo', 1.00, $price, $stock, 1, 200000000, '2026-01-01', 1, 1)"
+        );
+
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    private function seedCartOf(int $nroVenta, int $productId, int $cantidad): void
+    {
+        $this->pdo->exec("INSERT OR IGNORE INTO tb_pos_reservas (id_reserva, id_usuario) VALUES ($nroVenta, 1)");
+        $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES ($nroVenta, $productId, $cantidad)");
+    }
+
+    private function pay(array $lines): array
+    {
+        $payments = [];
+        foreach ($lines as $idMetodo => $monto) {
+            $payments[] = ['id_metodo_pago' => $idMetodo, 'monto' => $monto];
+        }
+
+        return $payments;
+    }
+
+    public function test_storeWithStock_rejects_change_larger_than_the_cash_received(): void
+    {
+        $this->seedCart(1, 5); // total = 62.50
+
+        // tarjeta 100 + efectivo 1 = 101 → vuelto 38.50 pero solo entró 1.00 en efectivo
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([2 => 100.00, 1 => 1.00]), 1);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('vuelto_excede_efectivo', $result['error']);
+        $this->assertSame(0, $this->countVentas());
+        $this->assertSame(0, (int)$this->pdo->query('SELECT COUNT(*) FROM tb_pagos')->fetchColumn());
+    }
+
+    public function test_storeWithStock_change_comes_from_cash_in_a_mixed_payment(): void
+    {
+        $this->seedCart(1, 5); // total = 62.50
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([2 => 30.00, 1 => 50.00]), 1);
+
+        $this->assertTrue($result['ok']);
+        $this->assertEqualsWithDelta(17.50, $result['vuelto'], 0.001);
+    }
+
+    public function test_storeWithStock_change_equal_to_the_cash_received_is_accepted(): void
+    {
+        $this->seedCart(1, 5); // total = 62.50
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([2 => 62.50, 1 => 10.00]), 1);
+
+        $this->assertTrue($result['ok']);
+        $this->assertEqualsWithDelta(10.00, $result['vuelto'], 0.001);
+    }
+
+    public function test_storeWithStock_amounts_are_rounded_per_line_before_validating_and_saving(): void
+    {
+        $p = $this->seedProduct('P-10', '10.00');
+        $this->seedCartOf(1, $p, 2); // total = 20.00
+
+        $result = $this->sale->storeWithStock(
+            ['nro_venta' => 1, 'id_cliente' => 1],
+            [
+                ['id_metodo_pago' => 1, 'monto' => '10.004'],
+                ['id_metodo_pago' => 1, 'monto' => '10.004'],
+            ],
+            1
+        );
+
+        $this->assertTrue($result['ok'], (string)$result['error']);
+        $this->assertEqualsWithDelta(0.0, $result['vuelto'], 0.0001);
+        $stored = $this->pdo->query('SELECT monto FROM tb_pagos')->fetchAll(\PDO::FETCH_COLUMN);
+        $this->assertCount(1, $stored);
+        $this->assertEqualsWithDelta(20.00, (float)$stored[0], 0.0001);
+    }
+
+    public function test_storeWithStock_accepts_amounts_with_comma_as_text(): void
+    {
+        $this->seedCart(1, 5); // total = 62.50
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([1 => '62,50']), 1);
+
+        $this->assertTrue($result['ok']);
+    }
+
+    public function test_storeWithStock_float_sums_do_not_create_false_shortfalls(): void
+    {
+        $p = $this->seedProduct('P-33', '33.30');
+        $this->seedCartOf(1, $p, 1); // total = 33.30
+
+        // 11.10 + 22.20 en float da 33.300000000000004
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([1 => 11.10, 2 => 22.20]), 1);
+
+        $this->assertTrue($result['ok'], (string)$result['error']);
+        $this->assertEqualsWithDelta(0.0, $result['vuelto'], 0.0001);
+    }
+
+    public function test_storeWithStock_rejects_non_numeric_amount_as_invalid_payment(): void
+    {
+        $this->seedCart(1, 5);
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([1 => 'abc']), 1);
+
+        $this->assertSame('invalid_payment', $result['error']);
+    }
+
+    public function test_storeWithStock_rejects_zero_total_without_creating_anything(): void
+    {
+        $p = $this->seedProduct('P-0', '0.00');
+        $this->seedCartOf(1, $p, 1);
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([1 => 0.00]), 1);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('total_cero', $result['error']);
+        $this->assertSame(0, $this->countVentas());
+        $this->assertSame(0, (int)$this->pdo->query('SELECT COUNT(*) FROM tb_pagos')->fetchColumn());
+        $this->assertNull(
+            $this->pdo->query('SELECT fyh_liberacion FROM tb_pos_reservas WHERE id_reserva = 1')->fetchColumn(),
+            'la reserva sigue abierta'
+        );
+    }
+
+    public function test_storeWithStock_rejects_total_above_the_column_maximum(): void
+    {
+        $p = $this->seedProduct('P-BIG', '60000000.00');
+        $this->seedCartOf(1, $p, 2); // 120.000.000,00 > 99.999.999,99
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([1 => 120000000]), 1);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('total_excede', $result['error']);
+        $this->assertSame(0, $this->countVentas());
+        $this->assertSame(10, (int)$this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $p")->fetchColumn());
+    }
+
+    public function test_storeWithStock_accepts_a_total_exactly_at_the_maximum(): void
+    {
+        $p = $this->seedProduct('P-MAX', '99999999.99');
+        $this->seedCartOf(1, $p, 1);
+
+        $result = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->pay([1 => '99999999.99']), 1);
+
+        $this->assertTrue($result['ok'], (string)$result['error']);
     }
 
     // -------------------------------------------------------------------------
@@ -399,7 +570,8 @@ final class SalePaymentRepositoryTest extends TestCase
             [
                 ['id_metodo_pago' => 1, 'monto' => 40.00],
                 ['id_metodo_pago' => 2, 'monto' => 30.00],
-            ]
+            ],
+            1
         );
         $this->assertTrue($result['ok']);
 

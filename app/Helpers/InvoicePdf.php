@@ -16,7 +16,7 @@ class InvoicePdf
      * @param array $sale Datos de la venta (nro_venta, nombre_cliente, nit_ci_cliente,
      *                         fyh_creacion, items[]).
      * @param array $totals Totales calculados por Sale::computeInvoiceTotals():
-     *                         precio_total, cantidad_total, total_unitarios.
+     *                         total_pagado, ajuste, cantidad_total, total_unitarios.
      * @param string $vendedor Nombre del vendedor en sesión.
      * @param int $id ID de la venta (usado en nombre de archivo y número de factura).
      */
@@ -26,7 +26,7 @@ class InvoicePdf
         $nitCiCliente = $sale['nit_ci_cliente'] ?? '—';
         $fecha = date('d/m/Y', strtotime($sale['fyh_creacion']));
         $items = $sale['items'];
-        $precioTotal = $totals['precio_total'];
+        $precioTotal = $totals['total_pagado'];
         $cantidadTotal = $totals['cantidad_total'];
         $totalUnitarios = $totals['total_unitarios'];
         $montoLiteral = NumberToWords::convert($precioTotal);
@@ -61,7 +61,8 @@ class InvoicePdf
             $montoLiteral,
             $vendedor,
             $sale['payments'] ?? [],
-            (float)($sale['vuelto'] ?? 0)
+            (float)($sale['vuelto'] ?? 0),
+            (float)$totals['ajuste']
         );
 
         $pdf->writeHTML($html, true, false, true, false, '');
@@ -102,6 +103,7 @@ class InvoicePdf
      * @param string $vendedor Nombre del vendedor.
      * @param array $payments Líneas de pago (nombre, monto).
      * @param float $vuelto Vuelto derivado (0 si no corresponde).
+     * @param float $ajuste Diferencia entre total_pagado y la suma de las líneas (ventas históricas).
      * @return string HTML listo para writeHTML().
      */
     private static function buildHtml(
@@ -117,7 +119,8 @@ class InvoicePdf
         string $montoLiteral,
         string $vendedor,
         array  $payments = [],
-        float  $vuelto = 0.0
+        float  $vuelto = 0.0,
+        float  $ajuste = 0.0
     ): string {
         $html = '
 <table border="0" style="font-size: 10px">
@@ -181,6 +184,14 @@ class InvoicePdf
         <td style="text-align: center">' . $cantidad . '</td>
         <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($precioUnitario, 2) . '</td>
         <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($subTotal, 2) . '</td>
+    </tr>';
+        }
+
+        if ($ajuste !== 0.0) {
+            $html .= '
+    <tr>
+        <td colspan="5" style="text-align: right">Ajuste por precios históricos</td>
+        <td style="text-align: center">' . ($ajuste < 0 ? '-' : '') . APP_CURRENCY_SYMBOL . ' ' . number_format(abs($ajuste), 2) . '</td>
     </tr>';
         }
 

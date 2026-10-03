@@ -34,74 +34,126 @@ class CartItem extends Model
     }
 
     /**
-     * Agrega un producto al carrito, verificando previamente que hay stock suficiente.
+     * Agrega un producto al carrito de la reserva abierta del usuario. Si el producto ya está,
+     * acumula la cantidad en esa línea y valida el stock contra el total resultante.
      *
-     * @param int $nroVenta   Número de venta.
-     * @param int $idProducto ID del producto.
-     * @param int $cantidad   Cantidad solicitada.
-     * @return bool true si se insertó, false si no hay stock suficiente.
+     * @return array{ok: bool, error: ?string} error: forbidden|finalized|invalid_qty|stock
      */
-    public function addItem(int $nroVenta, int $idProducto, int $cantidad): bool
+    public function addItem(int $nroVenta, int $idProducto, int $cantidad, int $userId): array
     {
-        // Verificar stock disponible
-        $rows = $this->query(
-            "SELECT stock FROM tb_almacen WHERE id_producto = ?",
-            [$idProducto]
-        );
-        if (empty($rows) || (int) $rows[0]['stock'] < $cantidad) {
-            return false;
+        return $this->withOpenReservation($nroVenta, $userId, function () use ($nroVenta, $idProducto, $cantidad): array {
+            if ($cantidad < 1) {
+                return ['ok' => false, 'error' => 'invalid_qty'];
+            }
+
+            $product = $this->query('SELECT stock FROM tb_almacen WHERE id_producto = ?', [$idProducto]);
+            $lines = $this->query(
+                'SELECT MIN(id_carrito) AS id_carrito, COALESCE(SUM(cantidad), 0) AS cantidad
+                 FROM tb_carrito WHERE nro_venta = ? AND id_producto = ?',
+                [$nroVenta, $idProducto]
+            )[0];
+            $inCart = (int)$lines['cantidad'];
+
+            if (empty($product) || (int)$product[0]['stock'] < $inCart + $cantidad) {
+                return ['ok' => false, 'error' => 'stock'];
+            }
+
+            if ($inCart > 0) {
+                $this->db->prepare('UPDATE tb_carrito SET cantidad = cantidad + ? WHERE id_carrito = ?')
+                    ->execute([$cantidad, (int)$lines['id_carrito']]);
+            } else {
+                $this->create(['nro_venta' => $nroVenta, 'id_producto' => $idProducto, 'cantidad' => $cantidad]);
+            }
+
+            return ['ok' => true, 'error' => null];
+        });
+    }
+
+    /**
+     * Elimina una línea del carrito si pertenece a la reserva abierta del usuario. Quitar una línea que
+     * ya no existe (doble clic) es un no-op exitoso: sin dueño no hay nada ajeno que proteger.
+     *
+     * @return array{ok: bool, error: ?string} error: forbidden|finalized
+     */
+    public function removeItem(int $idCarrito, int $userId): array
+    {
+        $line = $this->find($idCarrito);
+        if ($line === false) {
+            return ['ok' => true, 'error' => null];
         }
 
-        $this->create([
-            'nro_venta'   => $nroVenta,
-            'id_producto' => $idProducto,
-            'cantidad'    => $cantidad,
-        ]);
-        return true;
+        return $this->withOpenReservation((int)$line['nro_venta'], $userId, function () use ($idCarrito): array {
+            $this->delete($idCarrito);
+
+            return ['ok' => true, 'error' => null];
+        });
     }
 
     /**
-     * Elimina un ítem del carrito por su PK.
+     * Vacía el carrito de la reserva abierta del usuario (cancelar una venta en curso).
      *
-     * @param int $idCarrito ID del ítem de carrito a eliminar.
-     * @return bool true si se eliminó.
+     * @return array{ok: bool, error: ?string} error: forbidden|finalized
      */
-    public function removeItem(int $idCarrito): bool
+    public function clearCart(int $nroVenta, int $userId): array
     {
-        return $this->delete($idCarrito);
+        return $this->withOpenReservation($nroVenta, $userId, function () use ($nroVenta): array {
+            $this->db->prepare('DELETE FROM tb_carrito WHERE nro_venta = ?')->execute([$nroVenta]);
+
+            return ['ok' => true, 'error' => null];
+        });
     }
 
     /**
-     * Elimina todos los ítems del carrito para un nro_venta dado.
-     * Se usa al cancelar explícitamente una venta en curso.
+     * Ejecuta $write con la reserva del usuario abierta y bloqueada hasta el fin de la transacción.
+     * El bloqueo (el mismo que toma Sale::storeWithStock al cobrar) serializa la escritura con un
+     * cobro o cancelación simultáneos: sin él, la reserva podía liberarse entre la comprobación y la
+     * escritura y las líneas de una venta ya cobrada se modificaban. Si ya hay una transacción
+     * externa en curso se une a ella.
      *
-     * @param int $nroVenta Número de venta a limpiar.
-     * @return int Número de filas eliminadas.
+     * @param callable(): array{ok: bool, error: ?string} $write
+     * @return array{ok: bool, error: ?string}
      */
-    public function clearCart(int $nroVenta): int
+    private function withOpenReservation(int $nroVenta, int $userId, callable $write): array
     {
-        $stmt = $this->db->prepare('DELETE FROM tb_carrito WHERE nro_venta = ?');
-        $stmt->execute([$nroVenta]);
-        return $stmt->rowCount();
+        $ownsTransaction = !$this->db->inTransaction();
+        if ($ownsTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            if (!(new PosReservation())->isOpenFor($nroVenta, $userId, true)) {
+                if ($ownsTransaction) {
+                    $this->db->rollBack();
+                }
+
+                return ['ok' => false, 'error' => $this->rejectionReason($nroVenta, $userId)];
+            }
+
+            $result = $write();
+
+            if ($ownsTransaction) {
+                $this->db->commit();
+            }
+
+            return $result;
+        } catch (\Throwable $e) {
+            if ($ownsTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     /**
-     * Elimina carritos huérfanos: filas en tb_carrito cuyo nro_venta
-     * no tiene venta finalizada en tb_ventas (el usuario abandonó el POS).
-     * El nro_venta activo se excluye para no borrar el carrito en construcción.
-     *
-     * @param int $excludeNroVenta nro_venta activo que no debe purgarse.
-     * @return int Número de filas eliminadas.
+     * Motivo por el que la reserva no está abierta para el usuario. "finalized" solo se informa al dueño
+     * de una reserva ya liberada (cobrada o cancelada); cualquier otro caso es "forbidden" para no
+     * revelar qué números existen.
      */
-    public function purgeOrphans(int $excludeNroVenta): int
+    private function rejectionReason(int $nroVenta, int $userId): string
     {
-        $stmt = $this->db->prepare(
-            'DELETE FROM tb_carrito
-             WHERE nro_venta NOT IN (SELECT nro_venta FROM tb_ventas)
-               AND nro_venta != ?'
-        );
-        $stmt->execute([$excludeNroVenta]);
-        return $stmt->rowCount();
+        $row = $this->query('SELECT id_usuario FROM tb_pos_reservas WHERE id_reserva = ?', [$nroVenta]);
+
+        return !empty($row) && (int)$row[0]['id_usuario'] === $userId ? 'finalized' : 'forbidden';
     }
 
     /**
