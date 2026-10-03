@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS tb_usuarios (
     login_bloqueado_hasta   TEXT    DEFAULT NULL,
     id_rol                  INTEGER NOT NULL,
     fyh_creacion            TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fyh_actualizacion       TEXT    DEFAULT NULL
+    fyh_actualizacion       TEXT    DEFAULT NULL,
+    FOREIGN KEY (id_rol) REFERENCES tb_roles (id_rol)
 );
 
 CREATE TABLE IF NOT EXISTS tb_categorias (
@@ -86,7 +87,9 @@ CREATE TABLE IF NOT EXISTS tb_almacen (
     id_usuario          INTEGER NOT NULL,
     id_categoria        INTEGER NOT NULL,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fyh_actualizacion   TEXT    DEFAULT NULL
+    fyh_actualizacion   TEXT    DEFAULT NULL,
+    FOREIGN KEY (id_categoria) REFERENCES tb_categorias (id_categoria),
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario)
 );
 
 CREATE TABLE IF NOT EXISTS tb_carrito (
@@ -96,7 +99,8 @@ CREATE TABLE IF NOT EXISTS tb_carrito (
     cantidad            INTEGER NOT NULL,
     precio_unitario     NUMERIC,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fyh_actualizacion   TEXT    DEFAULT NULL
+    fyh_actualizacion   TEXT    DEFAULT NULL,
+    FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto)
 );
 
 CREATE TABLE IF NOT EXISTS tb_ventas (
@@ -106,7 +110,9 @@ CREATE TABLE IF NOT EXISTS tb_ventas (
     id_usuario          INTEGER DEFAULT NULL,
     total_pagado        NUMERIC NOT NULL,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fyh_actualizacion   TEXT    DEFAULT NULL
+    fyh_actualizacion   TEXT    DEFAULT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES tb_clientes (id_cliente),
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS tb_compras (
@@ -120,7 +126,10 @@ CREATE TABLE IF NOT EXISTS tb_compras (
     precio_compra       NUMERIC NOT NULL,
     cantidad            INTEGER NOT NULL,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fyh_actualizacion   TEXT    DEFAULT NULL
+    fyh_actualizacion   TEXT    DEFAULT NULL,
+    FOREIGN KEY (id_proveedor) REFERENCES tb_proveedores (id_proveedor),
+    FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto),
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario)
 );
 
 CREATE TABLE IF NOT EXISTS tb_ajustes_stock (
@@ -134,7 +143,8 @@ CREATE TABLE IF NOT EXISTS tb_ajustes_stock (
   id_usuario      INTEGER,
   usuario_nombre  TEXT,
   fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto)
+  FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto),
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS tb_devoluciones (
@@ -144,6 +154,7 @@ CREATE TABLE IF NOT EXISTS tb_devoluciones (
   id_usuario     INTEGER DEFAULT NULL,
   motivo         TEXT    NOT NULL,
   monto          NUMERIC NOT NULL DEFAULT 0.00,
+  token_formulario TEXT  DEFAULT NULL UNIQUE,
   fyh_creacion   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_venta) REFERENCES tb_ventas (id_venta) ON DELETE NO ACTION,
   FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
@@ -214,3 +225,51 @@ CREATE TABLE IF NOT EXISTS tb_rol_permiso (
   FOREIGN KEY (id_rol)     REFERENCES tb_roles(id_rol)     ON DELETE CASCADE,
   FOREIGN KEY (id_permiso) REFERENCES tb_permisos(id_permiso) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS tb_pos_reservas (
+    id_reserva      INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_usuario      INTEGER NOT NULL,
+    fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fyh_liberacion  TEXT    DEFAULT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario)
+);
+
+CREATE INDEX IF NOT EXISTS idx_reserva_usuario
+  ON tb_pos_reservas (id_usuario, fyh_liberacion);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_venta_nro
+  ON tb_ventas (nro_venta);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_compra_nro
+  ON tb_compras (nro_compra);
+
+CREATE TABLE IF NOT EXISTS tb_intentos_auth (
+    id_intento   INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipo         TEXT    NOT NULL,
+    ip           TEXT    NOT NULL,
+    correo       TEXT    NOT NULL,
+    id_usuario   INTEGER DEFAULT NULL,
+    fyh_creacion TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_intento_correo
+  ON tb_intentos_auth (tipo, correo, fyh_creacion);
+
+CREATE INDEX IF NOT EXISTS idx_intento_ip
+  ON tb_intentos_auth (tipo, ip, fyh_creacion);
+
+CREATE TABLE IF NOT EXISTS tb_sesiones_recordadas (
+    id_sesion      INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_usuario     INTEGER NOT NULL,
+    selector       TEXT    NOT NULL UNIQUE,
+    token_hash     TEXT    NOT NULL,
+    fyh_expira     TEXT    NOT NULL,
+    ip             TEXT    NOT NULL,
+    user_agent     TEXT    DEFAULT NULL,
+    fyh_creacion   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fyh_ultimo_uso TEXT    DEFAULT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_sesion_usuario
+  ON tb_sesiones_recordadas (id_usuario);

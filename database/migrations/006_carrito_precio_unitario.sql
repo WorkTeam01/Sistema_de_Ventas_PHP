@@ -9,7 +9,14 @@
 -- Reversible: ALTER TABLE tb_carrito DROP COLUMN precio_unitario;
 -- =============================================================
 
-ALTER TABLE `tb_carrito` ADD COLUMN IF NOT EXISTS `precio_unitario` DECIMAL(10,2) DEFAULT NULL AFTER `cantidad`;
+SET @sql = IF((SELECT COUNT(*) FROM `information_schema`.`COLUMNS`
+               WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'tb_carrito'
+                 AND `COLUMN_NAME` = 'precio_unitario') > 0,
+              'DO 0',
+              'ALTER TABLE `tb_carrito` ADD COLUMN `precio_unitario` DECIMAL(10,2) DEFAULT NULL AFTER `cantidad`');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- Solo filas de ventas finalizadas y aún sin precio (idempotente)
 UPDATE `tb_carrito`

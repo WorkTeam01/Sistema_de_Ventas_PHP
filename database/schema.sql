@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `tb_almacen` (
   `precio_compra` DECIMAL(10,2) NOT NULL,
   `precio_venta` DECIMAL(10,2) NOT NULL,
   `fecha_ingreso` date NOT NULL,
-  `imagen` text NOT NULL DEFAULT 'producto_default.png',
+  `imagen` varchar(255) NOT NULL DEFAULT 'producto_default.png',
   `id_usuario` int(11) NOT NULL,
   `id_categoria` int(11) NOT NULL,
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `tb_compras` (
   `fyh_creacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_compra`),
+  UNIQUE KEY `uq_compra_nro` (`nro_compra`),
   KEY `id_producto` (`id_producto`),
   KEY `id_proveedor` (`id_proveedor`),
   KEY `id_usuario` (`id_usuario`)
@@ -159,7 +160,7 @@ CREATE TABLE IF NOT EXISTS `tb_ventas` (
   `fyh_actualizacion` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_venta`),
   KEY `id_cliente` (`id_cliente`),
-  KEY `nro_venta` (`nro_venta`),
+  UNIQUE KEY `uq_venta_nro` (`nro_venta`),
   KEY `id_usuario` (`id_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
@@ -218,9 +219,11 @@ CREATE TABLE IF NOT EXISTS `tb_devoluciones` (
   `id_usuario`     int(11)        DEFAULT NULL,
   `motivo`         varchar(255)   NOT NULL,
   `monto`          DECIMAL(10,2)  NOT NULL DEFAULT 0.00,
+  `token_formulario` CHAR(32)     NULL DEFAULT NULL,
   `fyh_creacion`   datetime       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_devolucion`),
   UNIQUE KEY `uq_devolucion_nro` (`nro_devolucion`),
+  UNIQUE KEY `uq_devolucion_token` (`token_formulario`),
   KEY `idx_devolucion_venta` (`id_venta`),
   KEY `idx_devolucion_usuario` (`id_usuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -297,6 +300,53 @@ CREATE TABLE IF NOT EXISTS `tb_rol_permiso` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
+-- Tabla: tb_pos_reservas (id_reserva ES el nro_venta del POS)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_pos_reservas` (
+  `id_reserva`     int(11)  NOT NULL AUTO_INCREMENT,
+  `id_usuario`     int(11)  NOT NULL,
+  `fyh_creacion`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fyh_liberacion` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_reserva`),
+  KEY `idx_reserva_usuario` (`id_usuario`, `fyh_liberacion`),
+  CONSTRAINT `fk_reserva_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+-- Tabla: tb_intentos_auth (intentos de login y de restablecimiento)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_intentos_auth` (
+  `id_intento`   int(11)      NOT NULL AUTO_INCREMENT,
+  `tipo`         varchar(10)  NOT NULL,
+  `ip`           varchar(45)  NOT NULL,
+  `correo`       varchar(150) NOT NULL,
+  `id_usuario`   int(11)      DEFAULT NULL,
+  `fyh_creacion` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_intento`),
+  KEY `idx_intento_correo` (`tipo`, `correo`, `fyh_creacion`),
+  KEY `idx_intento_ip` (`tipo`, `ip`, `fyh_creacion`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+-- Tabla: tb_sesiones_recordadas (un "recordarme" por dispositivo)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tb_sesiones_recordadas` (
+  `id_sesion`      int(11)      NOT NULL AUTO_INCREMENT,
+  `id_usuario`     int(11)      NOT NULL,
+  `selector`       char(24)     NOT NULL,
+  `token_hash`     char(64)     NOT NULL,
+  `fyh_expira`     datetime     NOT NULL,
+  `ip`             varchar(45)  NOT NULL,
+  `user_agent`     varchar(255) DEFAULT NULL,
+  `fyh_creacion`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fyh_ultimo_uso` datetime     DEFAULT NULL,
+  PRIMARY KEY (`id_sesion`),
+  UNIQUE KEY `uq_sesion_selector` (`selector`),
+  KEY `idx_sesion_usuario` (`id_usuario`),
+  CONSTRAINT `fk_sesion_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
 -- Restricciones (Foreign Keys)
 -- --------------------------------------------------------
 ALTER TABLE `tb_almacen`
@@ -316,7 +366,6 @@ ALTER TABLE `tb_usuarios`
 
 ALTER TABLE `tb_ventas`
   ADD CONSTRAINT `tb_ventas_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `tb_clientes` (`id_cliente`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `tb_ventas_ibfk_2` FOREIGN KEY (`nro_venta`) REFERENCES `tb_carrito` (`nro_venta`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `tb_ventas_ibfk_3` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `tb_ajustes_stock`

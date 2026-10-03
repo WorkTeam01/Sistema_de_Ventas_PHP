@@ -16,6 +16,9 @@ SET FOREIGN_KEY_CHECKS = 0;
 DELETE FROM `tb_devolucion_items`;
 DELETE FROM `tb_devoluciones`;
 DELETE FROM `tb_pagos`;
+DELETE FROM `tb_pos_reservas`;
+DELETE FROM `tb_sesiones_recordadas`;
+DELETE FROM `tb_intentos_auth`;
 DELETE FROM `tb_ajustes_stock`;
 DELETE FROM `tb_activity_log`;
 DELETE FROM `tb_ventas`;
@@ -33,6 +36,9 @@ DELETE FROM `tb_roles`;
 ALTER TABLE `tb_devolucion_items` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_devoluciones` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_pagos` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_pos_reservas` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_sesiones_recordadas` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_intentos_auth` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_ajustes_stock` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_activity_log` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_ventas` AUTO_INCREMENT = 1;
@@ -410,3 +416,11 @@ INSERT INTO `tb_compras` (`id_compra`, `id_producto`, `nro_compra`, `fecha_compr
 (36, 4,  1036, DATE_SUB(CURDATE(), INTERVAL 10 DAY), 2, 'FAC-0036', 3,   50.00, 25),
 (37, 6,  1037, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 1, 'FAC-0037', 3,  120.00, 15),
 (38, 10, 1038, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 3, 'FAC-0038', 3,  280.00, 10);
+
+-- -------------------------------------------------------------
+-- tb_pos_reservas: la secuencia del POS arranca por encima de todo nro_venta ya usado,
+-- para que la primera venta nueva no choque con las ventas de ejemplo.
+-- -------------------------------------------------------------
+INSERT INTO `tb_pos_reservas` (`id_reserva`, `id_usuario`, `fyh_liberacion`)
+SELECT GREATEST(IFNULL(MAX(v.`nro_venta`), 0), IFNULL((SELECT MAX(`nro_venta`) FROM `tb_carrito`), 0)), 2, NOW()
+FROM `tb_ventas` v;
