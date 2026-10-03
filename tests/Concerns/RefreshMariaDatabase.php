@@ -13,7 +13,8 @@ use PDOException;
  *
  * Si la BD de test no está disponible (credenciales en .env.testing ausentes,
  * o el servidor no responde), el test se salta en vez de fallar — así la suite
- * sigue corriendo en local sin exigir MariaDB instalada.
+ * sigue corriendo en local sin exigir MariaDB instalada. Con la variable de entorno
+ * `CI` definida, en cambio, falla.
  */
 trait RefreshMariaDatabase
 {
@@ -49,7 +50,7 @@ trait RefreshMariaDatabase
         $pass = $_ENV['DB_TEST_PASS'] ?? getenv('DB_TEST_PASS') ?: '';
 
         if (!$host || !$name || !$user) {
-            $this->markTestSkipped(
+            $this->mariaDbUnavailable(
                 'BD de test MariaDB no configurada. Copia .env.testing.example a .env.testing '
                     . 'para correr este test.'
             );
@@ -74,12 +75,26 @@ trait RefreshMariaDatabase
             $pdo->exec("CREATE DATABASE `{$this->mariaDbTestDatabase}` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
             $pdo->exec("USE `{$this->mariaDbTestDatabase}`");
         } catch (PDOException $e) {
-            $this->markTestSkipped('No se pudo conectar a la BD de test MariaDB: ' . $e->getMessage());
+            $this->mariaDbUnavailable('No se pudo conectar a la BD de test MariaDB: ' . $e->getMessage());
         }
 
         Database::set($pdo);
 
         return $pdo;
+    }
+
+    /**
+     * En CI la ausencia de MariaDB es un fallo (un salto silencioso dejaría sin cubrir lo que
+     * solo se puede probar contra el motor real); en local se salta para no exigir el servidor.
+     */
+    private function mariaDbUnavailable(string $reason): never
+    {
+        $ci = $_ENV['CI'] ?? getenv('CI');
+        if ($ci !== false && $ci !== '' && !in_array(strtolower((string)$ci), ['0', 'false'], true)) {
+            $this->fail("CI definida y sin MariaDB de test: {$reason}");
+        }
+
+        $this->markTestSkipped($reason);
     }
 
     private function dropAllTables(PDO $pdo): void

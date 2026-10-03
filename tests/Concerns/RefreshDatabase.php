@@ -26,6 +26,8 @@ trait RefreshDatabase
 
         $schema = file_get_contents(__DIR__ . '/../fixtures/schema.sqlite.sql');
         $this->pdo->exec($schema);
+
+        $this->pdo->exec('PRAGMA foreign_keys = ON');
     }
 
     protected function tearDown(): void

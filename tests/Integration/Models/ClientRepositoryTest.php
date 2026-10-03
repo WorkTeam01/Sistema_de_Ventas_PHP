@@ -95,6 +95,11 @@ final class ClientRepositoryTest extends TestCase
     public function test_isReferenced_true_when_client_has_sales(): void
     {
         $id = $this->createClient();
+        $this->pdo->exec("INSERT INTO tb_roles (rol) VALUES ('Administrador')");
+        $this->pdo->exec("INSERT INTO tb_usuarios (nombres, email, password_user, id_rol) VALUES ('Admin Test', 'admin@test.com', 'hash', 1)");
+        $this->pdo->exec("INSERT INTO tb_categorias (nombre_categoria) VALUES ('Cat')");
+        $this->pdo->exec("INSERT INTO tb_almacen (codigo, nombre, descripcion, stock, precio_compra, precio_venta, fecha_ingreso, id_usuario, id_categoria)
+                          VALUES ('P1', 'Prod', 'd', 10, 1, 2, '2025-01-01', 1, 1)");
         $this->pdo->exec("INSERT INTO tb_carrito (nro_venta, id_producto, cantidad) VALUES (1, 1, 1)");
         $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_cliente, total_pagado)
             VALUES (1, $id, 100.00)");

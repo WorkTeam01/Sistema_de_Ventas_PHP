@@ -23,9 +23,8 @@ jobs:
 
     # MariaDB real: solo la usan los tests *MariaDbTest.php (funciones de fecha
     # como CURDATE()/NOW()/DATE_FORMAT() que SQLite in-memory no soporta). El
-    # resto de la suite corre contra SQLite y no depende de este servicio
-    # (ver tests/Concerns/RefreshMariaDatabase, que se salta sola si las env
-    # vars DB_TEST_* no están presentes).
+    # resto de la suite corre contra SQLite. GitHub define CI=true, así que
+    # RefreshMariaDatabase falla (no se salta) si el servicio no responde.
     services:
       mariadb:
         image: mariadb:10.11
