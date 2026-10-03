@@ -98,6 +98,8 @@ class PaymentMethodController extends Controller
             $this->json(['success' => false, 'message' => 'No se encontró el método de pago solicitado.']);
         }
 
+        $method['tiene_pagos'] = $methodModel->isReferenced($id) ? 1 : 0;
+
         $this->json(['success' => true, 'data' => $method]);
     }
 
@@ -138,6 +140,13 @@ class PaymentMethodController extends Controller
 
         if ($methodModel->nameExists($nombre, $id)) {
             $this->json(['success' => false, 'message' => 'Ya existe un método de pago con ese nombre.']);
+        }
+
+        if ($methodModel->isTypeChangeBlocked($id, $tipo)) {
+            $this->json([
+                'success' => false,
+                'message' => 'No se puede cambiar el tipo: el método ya tiene pagos registrados. Solo se puede editar el nombre o desactivarlo.',
+            ]);
         }
 
         $payload = [

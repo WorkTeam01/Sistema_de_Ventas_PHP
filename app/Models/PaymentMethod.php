@@ -62,4 +62,28 @@ class PaymentMethod extends Model
         );
         return ($result[0]['total'] ?? 0) > 0;
     }
+
+    /**
+     * Indica si $tipo cambiaría el tipo de un método que ya tiene pagos: el tipo decide si admite
+     * vuelto, así que reclasificar un método usado alteraría el sentido de las ventas ya cobradas.
+     */
+    public function isTypeChangeBlocked(int|string $id, string $tipo): bool
+    {
+        $current = $this->find($id);
+
+        return $current !== false && $current['tipo'] !== $tipo && $this->isReferenced($id);
+    }
+
+    /**
+     * Con pagos registrados solo se editan el nombre y el estado: un cambio de tipo se rechaza
+     * completo, sin escribir ningún campo.
+     */
+    public function update(int|string $id, array $data): bool
+    {
+        if (isset($data['tipo']) && $this->isTypeChangeBlocked($id, (string)$data['tipo'])) {
+            return false;
+        }
+
+        return parent::update($id, $data);
+    }
 }

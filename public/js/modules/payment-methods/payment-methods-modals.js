@@ -187,7 +187,9 @@ $(document).ready(function () {
 
                         $('#edit_id').val(data.id_metodo_pago);
                         $('#edit_nombre').val(data.nombre);
-                        $('#edit_tipo').val(data.tipo);
+                        const typeLocked = parseInt(data.tiene_pagos, 10) === 1;
+                        $('#edit_tipo').val(data.tipo).prop('disabled', typeLocked);
+                        $('#edit_tipo_help').toggleClass('d-none', !typeLocked);
                         $('#edit_activo').prop('checked', parseInt(data.activo, 10) === 1);
 
                         $('#formEdit').validate().resetForm();

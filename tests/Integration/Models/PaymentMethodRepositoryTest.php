@@ -192,4 +192,86 @@ final class PaymentMethodRepositoryTest extends TestCase
         $this->assertTrue($this->methods->isReferenced($usedId));
         $this->assertFalse($this->methods->isReferenced($otherId));
     }
+
+    // -------------------------------------------------------------------------
+    // update — el tipo se congela cuando el método ya tiene pagos
+    // -------------------------------------------------------------------------
+
+    private function methodWithPayment(string $name = 'Efectivo', string $type = 'efectivo'): int
+    {
+        $ventaId = $this->seedVenta();
+        $id = $this->createMethod($name, $type);
+        $this->pdo->exec(
+            "INSERT INTO tb_pagos (id_venta, id_metodo_pago, monto) VALUES ($ventaId, $id, 62.50)"
+        );
+
+        return $id;
+    }
+
+    private function storedType(int $id): string
+    {
+        return (string)$this->pdo->query("SELECT tipo FROM tb_metodos_pago WHERE id_metodo_pago = $id")->fetchColumn();
+    }
+
+    public function test_update_blocks_type_change_when_method_has_payments(): void
+    {
+        $id = $this->methodWithPayment('Efectivo', 'efectivo');
+
+        $ok = $this->methods->update($id, ['nombre' => 'Efectivo', 'tipo' => 'no_efectivo']);
+
+        $this->assertFalse($ok);
+        $this->assertSame('efectivo', $this->storedType($id));
+    }
+
+    public function test_update_blocked_type_change_does_not_write_other_fields_either(): void
+    {
+        $id = $this->methodWithPayment('Efectivo', 'efectivo');
+
+        $this->methods->update($id, ['nombre' => 'Renombrado', 'tipo' => 'no_efectivo', 'activo' => 0]);
+
+        $row = $this->pdo->query("SELECT nombre, activo FROM tb_metodos_pago WHERE id_metodo_pago = $id")->fetch();
+        $this->assertSame('Efectivo', $row['nombre']);
+        $this->assertSame(1, (int)$row['activo']);
+    }
+
+    public function test_update_still_edits_name_and_active_when_type_is_unchanged_with_payments(): void
+    {
+        $id = $this->methodWithPayment('Efectivo', 'efectivo');
+
+        $ok = $this->methods->update($id, ['nombre' => 'Caja', 'tipo' => 'efectivo', 'activo' => 0]);
+
+        $this->assertTrue($ok);
+        $row = $this->pdo->query("SELECT nombre, tipo, activo FROM tb_metodos_pago WHERE id_metodo_pago = $id")->fetch();
+        $this->assertSame('Caja', $row['nombre']);
+        $this->assertSame('efectivo', $row['tipo']);
+        $this->assertSame(0, (int)$row['activo']);
+    }
+
+    public function test_update_changes_type_when_method_has_no_payments(): void
+    {
+        $id = $this->createMethod('QR', 'no_efectivo');
+
+        $ok = $this->methods->update($id, ['nombre' => 'QR', 'tipo' => 'efectivo']);
+
+        $this->assertTrue($ok);
+        $this->assertSame('efectivo', $this->storedType($id));
+    }
+
+    public function test_update_without_type_in_payload_is_not_a_type_change(): void
+    {
+        $id = $this->methodWithPayment('Efectivo', 'efectivo');
+
+        $this->assertTrue($this->methods->update($id, ['nombre' => 'Caja chica']));
+    }
+
+    public function test_isTypeChangeBlocked_only_when_type_differs_and_method_is_referenced(): void
+    {
+        $used = $this->methodWithPayment('Efectivo', 'efectivo');
+        $free = $this->createMethod('QR', 'no_efectivo');
+
+        $this->assertTrue($this->methods->isTypeChangeBlocked($used, 'no_efectivo'));
+        $this->assertFalse($this->methods->isTypeChangeBlocked($used, 'efectivo'));
+        $this->assertFalse($this->methods->isTypeChangeBlocked($free, 'efectivo'));
+        $this->assertFalse($this->methods->isTypeChangeBlocked(9999, 'efectivo'));
+    }
 }

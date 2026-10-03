@@ -61,10 +61,14 @@
                     </div>
                     <div class="form-group">
                         <label for="edit_tipo">Tipo <span class="text-danger">*</span></label>
-                        <select class="form-control" id="edit_tipo" name="tipo" required>
+                        <select class="form-control" id="edit_tipo" name="tipo" required
+                            aria-describedby="edit_tipo_help">
                             <option value="efectivo">Efectivo</option>
                             <option value="no_efectivo">No efectivo</option>
                         </select>
+                        <small id="edit_tipo_help" class="form-text text-muted d-none">
+                            El tipo no se puede cambiar porque este método ya tiene pagos registrados.
+                        </small>
                     </div>
                     <div class="custom-control custom-switch mb-0">
                         <input type="checkbox" class="custom-control-input" id="edit_activo"
