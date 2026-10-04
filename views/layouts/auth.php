@@ -39,15 +39,15 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/plugins/sweetalert2/sweetalert2.min.css">
     <!-- Custom Auth Style -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/modules/auth/login.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/modules/auth/login.css?v=<?= APP_VERSION ?>">
     <?php if (!empty($pageCss)): ?>
-        <link rel="stylesheet" href="<?= $pageCss ?>">
+        <link rel="stylesheet" href="<?= $pageCss ?>?v=<?= APP_VERSION ?>">
     <?php endif; ?>
     <!-- Icono del sitio -->
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>/img/logo.png">
 
     <script src="<?= BASE_URL ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
-    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js?v=<?= APP_VERSION ?>"></script>
 </head>
 
 <body class="hold-transition login-page">
@@ -79,13 +79,13 @@
     <script src="<?= BASE_URL ?>/js/lib/jquery/jquery.validate.min.js"></script>
     <script src="<?= BASE_URL ?>/js/lib/jquery/messages_es.min.js"></script>
     <!-- Tema (propio de auth) -->
-    <script src="<?= BASE_URL ?>/js/modules/auth/theme-toggle.js"></script>
+    <script src="<?= BASE_URL ?>/js/modules/auth/theme-toggle.js?v=<?= APP_VERSION ?>"></script>
     <!-- Mostrar/ocultar contraseña (global, en core) -->
-    <script src="<?= BASE_URL ?>/js/core/password-toggle.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/password-toggle.js?v=<?= APP_VERSION ?>"></script>
     <!-- Utilidades compartidas de formularios de auth -->
-    <script src="<?= BASE_URL ?>/js/core/auth-form-utils.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/auth-form-utils.js?v=<?= APP_VERSION ?>"></script>
     <?php foreach ($pageScripts ?? [] as $src): ?>
-        <script src="<?= BASE_URL ?>/js/modules/auth/<?= $src ?>"></script>
+        <script src="<?= BASE_URL ?>/js/modules/auth/<?= $src ?>?v=<?= APP_VERSION ?>"></script>
     <?php endforeach; ?>
 </body>
 

@@ -50,7 +50,7 @@
     <?php endif; ?>
 
     <script>
-        const BASE_URL = '<?= BASE_URL ?>';
+        const BASE_URL = <?= json_encode(BASE_URL, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     </script>
 </head>
 
@@ -121,7 +121,7 @@
                         <li class="user-footer">
                             <a href="<?= BASE_URL ?>/profile" class="btn btn-default btn-flat">Ver perfil</a>
                             <form action="<?= BASE_URL ?>/auth/logout" method="post" class="float-right">
-                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(\App\Core\Auth::generateCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($layoutCsrfToken, ENT_QUOTES, 'UTF-8') ?>">
                                 <button type="submit" class="btn btn-default btn-flat">Cerrar sesión</button>
                             </form>
                         </li>

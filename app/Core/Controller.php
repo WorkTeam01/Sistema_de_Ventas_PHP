@@ -48,6 +48,7 @@ class Controller
     protected function renderWithLayout(string $viewPath, array $data = [], bool $withMessages = true, array $assets = []): void
     {
         $data['can'] = $this->permisosVista();
+        $data['layoutCsrfToken'] = Auth::generateCsrfToken();
         extract($data);
 
         if (!isset($Año)) {

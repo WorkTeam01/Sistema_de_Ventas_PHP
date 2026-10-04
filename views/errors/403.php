@@ -28,7 +28,7 @@ if (isset($_SESSION['mensaje'])) {
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/plugins/sweetalert2/sweetalert2.min.css">
     <script src="<?= BASE_URL ?>/js/plugins/sweetalert2/sweetalert2.min.js"></script>
-    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/sweetalert-utils.js?v=<?= APP_VERSION ?>"></script>
     <!-- Icono del sitio -->
     <link rel="icon" type="image/png" href="<?= BASE_URL ?>/img/logo.png">
     <style>
