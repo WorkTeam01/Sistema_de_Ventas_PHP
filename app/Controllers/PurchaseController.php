@@ -254,6 +254,7 @@ class PurchaseController extends Controller
         }
 
         $data = [
+            'id_compra' => $id_compra,
             'id_producto' => $_POST['id_producto'] ?? '',
             'nro_compra' => $_POST['nro_compra'] ?? '',
             'fecha_compra' => trim($_POST['fecha_compra'] ?? ''),
@@ -271,7 +272,7 @@ class PurchaseController extends Controller
             return;
         }
 
-        $ok = $purchaseModel->updateWithStock(
+        $result = $purchaseModel->updateWithStock(
             [
                 'id_compra' => $id_compra,
                 'id_producto' => (int)$data['id_producto'],
@@ -279,7 +280,6 @@ class PurchaseController extends Controller
                 'fecha_compra' => $data['fecha_compra'],
                 'id_proveedor' => (int)$data['id_proveedor'],
                 'comprobante' => $data['comprobante'],
-                'id_usuario' => Auth::user()['id_usuario'],
                 'precio_compra' => (float)$data['precio_compra'],
                 'cantidad' => (int)$data['cantidad'],
             ],
@@ -289,13 +289,27 @@ class PurchaseController extends Controller
             (int)$existing['cantidad']
         );
 
-        if ($ok) {
+        if ($result['ok']) {
+            $updated = $purchaseModel->findWithDetails($id_compra);
+            ActivityLog::record(
+                'update',
+                'purchase',
+                $id_compra,
+                "Compra Nro {$existing['nro_compra']} editada — producto: {$updated['nombre_producto']}; stock ajustado.",
+                $this->purchaseAuditFields($existing),
+                $this->purchaseAuditFields($updated)
+            );
             $this->flash('La compra se actualizó exitosamente.', 'success');
             $this->redirect(BASE_URL . '/purchases');
             return;
         }
 
-        $this->flash('Error al actualizar la compra.', 'error');
+        $this->flash(
+            $result['error'] === 'stock_insufficient'
+                ? "No se puede editar la compra: el stock quedaría negativo (stock disponible: {$result['available']})."
+                : 'Error al actualizar la compra.',
+            'error'
+        );
         $this->redirect(BASE_URL . '/purchases/edit/' . $id_compra);
     }
 
@@ -359,9 +373,9 @@ class PurchaseController extends Controller
             $this->forbidden('No tienes permiso para eliminar esta compra.');
         }
 
-        $ok = $purchaseModel->destroyWithStock($id_compra, (int)$snapshot['id_producto'], (int)$snapshot['cantidad']);
+        $result = $purchaseModel->destroyWithStock($id_compra, (int)$snapshot['id_producto'], (int)$snapshot['cantidad']);
 
-        if ($ok) {
+        if ($result['ok']) {
             if ($snapshot) {
                 ActivityLog::record(
                     'delete',
@@ -383,7 +397,28 @@ class PurchaseController extends Controller
             return;
         }
 
-        $this->flash('Error al eliminar la compra.', 'error');
+        $this->flash(
+            $result['error'] === 'stock_insufficient'
+                ? "No se puede eliminar la compra: el stock quedaría negativo (stock disponible: {$result['available']})."
+                : 'Error al eliminar la compra.',
+            'error'
+        );
         $this->redirect(BASE_URL . '/purchases');
+    }
+
+    /**
+     * Campos de una compra que se guardan como valores anteriores/nuevos en el registro de actividad.
+     */
+    private function purchaseAuditFields(array $purchase): array
+    {
+        return [
+            'nro_compra'       => $purchase['nro_compra'],
+            'nombre_producto'  => $purchase['nombre_producto'],
+            'nombre_proveedor' => $purchase['nombre_proveedor'],
+            'fecha_compra'     => $purchase['fecha_compra'],
+            'comprobante'      => $purchase['comprobante'],
+            'precio_compra'    => $purchase['precio_compra'],
+            'cantidad'         => $purchase['cantidad'],
+        ];
     }
 }

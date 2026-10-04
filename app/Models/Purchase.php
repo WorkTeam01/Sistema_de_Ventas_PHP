@@ -13,6 +13,9 @@ use App\Core\Model;
 class Purchase extends Model
 {
     protected string $table = 'tb_compras';
+    public const MAX_PRICE = 9999999.99;
+    public const MAX_QUANTITY = 1000000;
+
     protected string $primaryKey = 'id_compra';
 
     /**
@@ -121,13 +124,15 @@ class Purchase extends Model
      *
      * Si el producto cambia, revierte el stock del producto viejo y suma al nuevo.
      * Si el producto no cambia, aplica el ajuste neto (nueva_cantidad - antigua_cantidad).
+     * El `id_usuario` original de la compra no se modifica. Si algún producto quedaría
+     * con stock negativo se revierte todo.
      *
      * @param array $data Datos nuevos de la compra (incluye id_compra).
      * @param int $oldProductId ID del producto antes de la edición.
      * @param int $oldCantidad Cantidad antes de la edición.
-     * @return bool true si la transacción se completó, false si hubo error.
+     * @return array{ok: bool, error: ?string, available: ?int} error: 'stock_insufficient' | 'generic'.
      */
-    public function updateWithStock(array $data, int $oldProductId, int $oldCantidad): bool
+    public function updateWithStock(array $data, int $oldProductId, int $oldCantidad): array
     {
         $db = $this->db;
         try {
@@ -135,7 +140,7 @@ class Purchase extends Model
             $db->prepare(
                 "UPDATE tb_compras
                  SET id_producto=?, nro_compra=?, fecha_compra=?, id_proveedor=?,
-                     comprobante=?, id_usuario=?, precio_compra=?, cantidad=?
+                     comprobante=?, precio_compra=?, cantidad=?
                  WHERE id_compra=?"
             )->execute([
                 $data['id_producto'],
@@ -143,40 +148,60 @@ class Purchase extends Model
                 $data['fecha_compra'],
                 $data['id_proveedor'],
                 $data['comprobante'],
-                $data['id_usuario'],
                 $data['precio_compra'],
                 $data['cantidad'],
                 $data['id_compra'],
             ]);
-            if ($data['id_producto'] === $oldProductId) {
-                $diff = $data['cantidad'] - $oldCantidad;
-                $db->prepare(
-                    "UPDATE tb_almacen SET stock = stock + ? WHERE id_producto = ?"
-                )->execute([$diff, $data['id_producto']]);
-            } else {
-                $db->prepare(
-                    "UPDATE tb_almacen SET stock = stock - ? WHERE id_producto = ?"
-                )->execute([$oldCantidad, $oldProductId]);
-                $db->prepare(
-                    "UPDATE tb_almacen SET stock = stock + ? WHERE id_producto = ?"
-                )->execute([$data['cantidad'], $data['id_producto']]);
+
+            $deltas = ($data['id_producto'] === $oldProductId)
+                ? [[$oldProductId, $data['cantidad'] - $oldCantidad]]
+                : [[$oldProductId, -$oldCantidad], [$data['id_producto'], $data['cantidad']]];
+
+            foreach ($deltas as [$productId, $delta]) {
+                $failure = $this->applyStockDelta((int)$productId, (int)$delta);
+                if ($failure !== null) {
+                    $db->rollBack();
+                    return $failure;
+                }
             }
+
             $db->commit();
-            return true;
+            return ['ok' => true, 'error' => null, 'available' => null];
         } catch (\Throwable $e) {
-            $db->rollBack();
-            return false;
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            return ['ok' => false, 'error' => 'generic', 'available' => null];
         }
     }
 
     /**
-     * Elimina una compra y revierte el stock del producto en una transacción.
+     * Suma o resta stock con un UPDATE relativo que no deja el stock bajo 0.
      *
-     * @param int $id ID de la compra.
-     * @param int $idProducto ID del producto afectado.
-     * @param int $cantidad Cantidad a revertir del stock.
-     * @return bool true si la transacción se completó, false si hubo error.
+     * @return array{ok: false, error: string, available: ?int}|null null si se aplicó.
      */
+    private function applyStockDelta(int $productId, int $delta): ?array
+    {
+        if ($delta === 0) {
+            return null;
+        }
+
+        $stmt = $this->db->prepare(
+            "UPDATE tb_almacen SET stock = stock + ? WHERE id_producto = ? AND stock + ? >= 0"
+        );
+        $stmt->execute([$delta, $productId, $delta]);
+
+        if ($stmt->rowCount() > 0) {
+            return null;
+        }
+
+        $rows = $this->query("SELECT stock FROM tb_almacen WHERE id_producto = ?", [$productId]);
+
+        return empty($rows)
+            ? ['ok' => false, 'error' => 'generic', 'available' => null]
+            : ['ok' => false, 'error' => 'stock_insufficient', 'available' => (int)$rows[0]['stock']];
+    }
+
     /** Suma de compras del mes actual (precio_compra * cantidad por fila). Filtra por usuario si se indica $userId. */
     public function totalCurrentMonth(?int $userId = null): float
     {
@@ -230,7 +255,15 @@ class Purchase extends Model
         return $this->query($sql, $params);
     }
 
-    public function destroyWithStock(int $id, int $idProducto, int $cantidad): bool
+    /**
+     * Elimina una compra y revierte el stock del producto en una transacción.
+     *
+     * @param int $id ID de la compra.
+     * @param int $idProducto ID del producto afectado.
+     * @param int $cantidad Cantidad a revertir del stock.
+     * @return array{ok: bool, error: ?string, available: ?int} error: 'stock_insufficient' | 'generic'.
+     */
+    public function destroyWithStock(int $id, int $idProducto, int $cantidad): array
     {
         $db = $this->db;
         try {
@@ -238,15 +271,32 @@ class Purchase extends Model
             $db->prepare(
                 "DELETE FROM tb_compras WHERE id_compra = ?"
             )->execute([$id]);
-            $db->prepare(
-                "UPDATE tb_almacen SET stock = stock - ? WHERE id_producto = ?"
-            )->execute([$cantidad, $idProducto]);
+
+            $failure = $this->applyStockDelta($idProducto, -$cantidad);
+            if ($failure !== null) {
+                $db->rollBack();
+                return $failure;
+            }
+
             $db->commit();
-            return true;
+            return ['ok' => true, 'error' => null, 'available' => null];
         } catch (\Throwable $e) {
-            $db->rollBack();
-            return false;
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            return ['ok' => false, 'error' => 'generic', 'available' => null];
         }
+    }
+
+    /** Indica si ya existe una compra con ese número, ignorando la que se está editando. */
+    public function nroCompraExists(int $nro, ?int $excludeId = null): bool
+    {
+        $rows = $this->query(
+            "SELECT 1 FROM tb_compras WHERE nro_compra = ? AND id_compra <> ? LIMIT 1",
+            [$nro, $excludeId ?? 0]
+        );
+
+        return !empty($rows);
     }
 
     /**
@@ -268,9 +318,18 @@ class Purchase extends Model
         }
         if (empty($data['nro_compra']) || (int)$data['nro_compra'] <= 0) {
             $errors['nro_compra'] = 'Número de compra requerido.';
+        } elseif ($this->nroCompraExists((int)$data['nro_compra'], isset($data['id_compra']) ? (int)$data['id_compra'] : null)) {
+            $errors['nro_compra'] = 'El número de compra ya existe.';
         }
         if (empty($data['fecha_compra'])) {
             $errors['fecha_compra'] = 'Fecha requerida.';
+        } else {
+            $date = \DateTime::createFromFormat('Y-m-d', (string)$data['fecha_compra']);
+            if (!$date || $date->format('Y-m-d') !== $data['fecha_compra']) {
+                $errors['fecha_compra'] = 'Fecha inválida.';
+            } elseif ($data['fecha_compra'] > date('Y-m-d')) {
+                $errors['fecha_compra'] = 'La fecha de compra no puede ser futura.';
+            }
         }
         if (empty($data['comprobante'])) {
             $errors['comprobante'] = 'Comprobante requerido.';
@@ -281,11 +340,17 @@ class Purchase extends Model
             $errors['precio_compra'] = 'Precio debe ser numérico.';
         } elseif ((float)$data['precio_compra'] <= 0) {
             $errors['precio_compra'] = 'Precio debe ser mayor a 0.';
+        } elseif (round((float)$data['precio_compra'], 2) > self::MAX_PRICE) {
+            $errors['precio_compra'] = 'Precio no puede superar 9.999.999,99.';
         }
         if (!is_numeric($data['cantidad'] ?? '')) {
             $errors['cantidad'] = 'Cantidad debe ser numérica.';
+        } elseif (filter_var($data['cantidad'], FILTER_VALIDATE_INT) === false) {
+            $errors['cantidad'] = 'Cantidad debe ser un número entero.';
         } elseif ((int)$data['cantidad'] < 1) {
             $errors['cantidad'] = 'Cantidad debe ser mayor a cero.';
+        } elseif ((int)$data['cantidad'] > self::MAX_QUANTITY) {
+            $errors['cantidad'] = 'Cantidad no puede superar 1.000.000.';
         }
 
         return empty($errors) ? true : $errors;

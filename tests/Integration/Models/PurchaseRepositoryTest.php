@@ -141,6 +141,82 @@ final class PurchaseRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // updateWithStock — piso de stock y usuario original
+    // -------------------------------------------------------------------------
+
+    private function purchaseData(array $overrides = []): array
+    {
+        return array_merge([
+            'id_compra'     => 1,
+            'id_producto'   => 1,
+            'nro_compra'    => 1,
+            'fecha_compra'  => '2026-01-15',
+            'id_proveedor'  => 1,
+            'comprobante'   => 'FAC-001',
+            'id_usuario'    => 1,
+            'precio_compra' => 10.00,
+            'cantidad'      => 10,
+        ], $overrides);
+    }
+
+    private function stockOf(int $productId): int
+    {
+        return (int)$this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $productId")->fetchColumn();
+    }
+
+    public function test_updateWithStock_rejects_reducing_quantity_when_stock_was_already_sold(): void
+    {
+        $this->storePurchase(10);
+        $this->pdo->exec("UPDATE tb_almacen SET stock = 5 WHERE id_producto = 1");
+
+        $result = $this->purchase->updateWithStock($this->purchaseData(['cantidad' => 1]), 1, 10);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('stock_insufficient', $result['error']);
+        $this->assertSame(5, $result['available']);
+        $this->assertSame(5, $this->stockOf(1));
+        $this->assertSame(10, (int)$this->purchase->find(1)['cantidad']);
+    }
+
+    public function test_updateWithStock_allows_reducing_quantity_down_to_zero_stock(): void
+    {
+        $this->storePurchase(10);
+        $this->pdo->exec("UPDATE tb_almacen SET stock = 9 WHERE id_producto = 1");
+
+        $result = $this->purchase->updateWithStock($this->purchaseData(['cantidad' => 1]), 1, 10);
+
+        $this->assertTrue($result['ok']);
+        $this->assertSame(0, $this->stockOf(1));
+    }
+
+    public function test_updateWithStock_changing_product_validates_the_old_one_and_changes_nothing(): void
+    {
+        $this->pdo->exec("INSERT INTO tb_almacen (codigo, nombre, precio_compra, precio_venta, stock, stock_minimo, stock_maximo, fecha_ingreso, id_usuario, id_categoria) VALUES ('P002', 'Producto B', 8.00, 12.00, 30, 2, 50, '2026-01-01', 1, 1)");
+        $this->storePurchase(10, 1);
+        $this->pdo->exec("UPDATE tb_almacen SET stock = 4 WHERE id_producto = 1");
+
+        $result = $this->purchase->updateWithStock($this->purchaseData(['id_producto' => 2, 'cantidad' => 5]), 1, 10);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('stock_insufficient', $result['error']);
+        $this->assertSame(4, $result['available']);
+        $this->assertSame(4, $this->stockOf(1));
+        $this->assertSame(30, $this->stockOf(2));
+        $this->assertSame(1, (int)$this->purchase->find(1)['id_producto']);
+    }
+
+    public function test_updateWithStock_keeps_original_user(): void
+    {
+        $this->pdo->exec("INSERT INTO tb_usuarios (nombres, email, password_user, id_rol) VALUES ('Otro', 'otro@test.com', 'hash', 1)");
+        $this->storePurchase(10);
+
+        $result = $this->purchase->updateWithStock($this->purchaseData(['id_usuario' => 2, 'cantidad' => 12]), 1, 10);
+
+        $this->assertTrue($result['ok']);
+        $this->assertSame(1, (int)$this->purchase->find(1)['id_usuario']);
+    }
+
+    // -------------------------------------------------------------------------
     // destroyWithStock
     // -------------------------------------------------------------------------
 
@@ -150,7 +226,7 @@ final class PurchaseRepositoryTest extends TestCase
 
         $result = $this->purchase->destroyWithStock(1, 1, 10);
 
-        $this->assertTrue($result);
+        $this->assertTrue($result['ok']);
         $this->assertSame(0, $this->purchase->count());
 
         $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
@@ -273,5 +349,19 @@ final class PurchaseRepositoryTest extends TestCase
         $result = $this->purchase->validateData($data);
         $this->assertIsArray($result);
         $this->assertArrayHasKey('comprobante', $result);
+    }
+
+    public function test_destroyWithStock_rejects_when_stock_was_already_sold(): void
+    {
+        $this->storePurchase(10);
+        $this->pdo->exec("UPDATE tb_almacen SET stock = 3 WHERE id_producto = 1");
+
+        $result = $this->purchase->destroyWithStock(1, 1, 10);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('stock_insufficient', $result['error']);
+        $this->assertSame(3, $result['available']);
+        $this->assertSame(1, $this->purchase->count());
+        $this->assertSame(3, $this->stockOf(1));
     }
 }
