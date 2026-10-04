@@ -49,4 +49,20 @@ class Config
 
         return $_ENV[$key] ?? $default;
     }
+
+    /**
+     * Devuelve una variable de entorno entera dentro de [$min, $max].
+     * Si no existe, no es un entero o está fuera de rango, devuelve $default.
+     */
+    public static function int(string $key, int $default, int $min, int $max): int
+    {
+        $raw = self::get($key);
+        if (!is_string($raw) && !is_int($raw)) {
+            return $default;
+        }
+
+        $value = filter_var(trim((string)$raw), FILTER_VALIDATE_INT);
+
+        return ($value === false || $value < $min || $value > $max) ? $default : $value;
+    }
 }
