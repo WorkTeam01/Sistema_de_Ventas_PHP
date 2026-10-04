@@ -30,9 +30,11 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title"><i class="fas fa-list mr-1"></i> Historial de devoluciones</h2>
                                 <div class="card-tools">
+                                    <?php if ($can['manage_returns']): ?>
                                     <a href="<?= BASE_URL ?>/returns/create" class="btn btn-warning btn-sm">
                                         <i class="fas fa-plus"></i> Nueva devolución
                                     </a>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse"
                                         aria-label="Colapsar tarjeta">
                                         <i class="fas fa-minus" aria-hidden="true"></i>

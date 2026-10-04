@@ -41,10 +41,12 @@
                                     class="btn btn-success btn-sm" aria-label="Imprimir factura">
                                     <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Imprimir factura</span>
                                 </a>
+                                <?php if ($can['manage_sales']): ?>
                                 <a href="<?= BASE_URL ?>/sales/delete/<?= (int)$id_venta ?>"
                                     class="btn btn-danger btn-sm ml-1" aria-label="Eliminar venta">
                                     <i class="fas fa-trash-alt" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Eliminar</span>
                                 </a>
+                                <?php endif; ?>
                                 <a href="<?= BASE_URL ?>/sales" class="btn btn-default btn-sm ml-1" aria-label="Volver al listado de ventas">
                                     <i class="fas fa-arrow-left" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Volver</span>
                                 </a>

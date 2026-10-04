@@ -29,9 +29,11 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Usuarios registrados</h2>
                                 <div class="card-tools">
+                                    <?php if ($can['manage_users']): ?>
                                     <a href="<?= BASE_URL ?>/users/create" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Nuevo usuario
                                     </a>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -47,7 +49,9 @@
                                         <th class="text-center">Nombres</th>
                                         <th class="text-center">Email</th>
                                         <th class="text-center">Rol</th>
+                                        <?php if ($can['manage_users']): ?>
                                         <th class="text-center">Acciones</th>
+                                        <?php endif; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -60,6 +64,7 @@
                                             <td><?= htmlspecialchars($usuarios_dato['nombres'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?= htmlspecialchars($usuarios_dato['email'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?= htmlspecialchars($usuarios_dato['rol'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                            <?php if ($can['manage_users']): ?>
                                             <td class="text-center">
                                                 <div class="btn-group">
                                                     <a href="<?= BASE_URL ?>/users/edit/<?= $id_usuario ?>"
@@ -76,6 +81,7 @@
                                                     </button>
                                                 </div>
                                             </td>
+                                            <?php endif; ?>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

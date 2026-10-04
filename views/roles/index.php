@@ -29,10 +29,12 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Roles registrados</h2>
                                 <div class="card-tools d-flex">
+                                    <?php if ($can['manage_roles']): ?>
                                     <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo rol
                                     </button>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -46,7 +48,9 @@
                                 <tr>
                                     <th class="text-center">Nro</th>
                                     <th class="text-center">Nombre rol</th>
+                                    <?php if ($can['manage_roles']): ?>
                                     <th class="text-center">Acciones</th>
+                                    <?php endif; ?>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -55,6 +59,7 @@
                                     <tr>
                                         <td class="text-center"><?= ++$contador ?></td>
                                         <td><?= htmlspecialchars($roles_dato['rol'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <?php if ($can['manage_roles']): ?>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-success btn-sm btn-edit"
@@ -75,6 +80,7 @@
                                                 </a>
                                             </div>
                                         </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

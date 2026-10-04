@@ -38,10 +38,12 @@
                             <span class="badge badge-info badge-pill px-3 py-1"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
                         <div class="card-footer d-flex flex-column">
+                            <?php if ($can['manage_products']): ?>
                             <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
                                 class="btn btn-success btn-block">
                                 <i class="fas fa-pencil-alt mr-1"></i> Editar producto
                             </a>
+                            <?php endif; ?>
                             <a href="<?= BASE_URL ?>/products" class="btn btn-default btn-block mt-2">
                                 <i class="fas fa-arrow-left mr-1"></i> Volver al listado
                             </a>

@@ -29,10 +29,12 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Categorías registradas</h2>
                                 <div class="card-tools d-flex">
+                                    <?php if ($can['manage_categories']): ?>
                                     <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nueva categoría
                                     </button>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -46,7 +48,9 @@
                                 <tr>
                                     <th class="text-center">Nro</th>
                                     <th class="text-center">Nombre de categoría</th>
+                                    <?php if ($can['manage_categories']): ?>
                                     <th class="text-center">Acciones</th>
+                                    <?php endif; ?>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -55,6 +59,7 @@
                                     <tr>
                                         <td class="text-center"><?= ++$contador ?></td>
                                         <td><?= htmlspecialchars($category['nombre_categoria'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <?php if ($can['manage_categories']): ?>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-success btn-sm btn-edit"
                                                     data-id="<?= $category['id_categoria'] ?>"
@@ -65,6 +70,7 @@
                                                 <span class="sr-only">Editar</span>
                                             </button>
                                         </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

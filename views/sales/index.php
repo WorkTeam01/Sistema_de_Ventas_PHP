@@ -31,9 +31,11 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Lista de ventas</h2>
                                 <div class="card-tools">
+                                    <?php if ($can['manage_sales']): ?>
                                     <a href="<?= BASE_URL ?>/sales/create" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Nueva venta
                                     </a>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse"
                                         aria-label="Colapsar tarjeta">
                                         <i class="fas fa-minus" aria-hidden="true"></i>
@@ -84,11 +86,13 @@
                                                         title="Ver factura" target="_blank" aria-label="Ver factura">
                                                         <i class="fas fa-print" aria-hidden="true"></i>
                                                     </a>
+                                                    <?php if ($can['manage_sales']): ?>
                                                     <a href="<?= BASE_URL ?>/sales/delete/<?= $id_venta ?>"
                                                         class="btn btn-danger btn-sm" data-toggle="tooltip"
                                                         title="Eliminar venta" aria-label="Eliminar venta">
                                                         <i class="fas fa-trash" aria-hidden="true"></i>
                                                     </a>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                         </tr>

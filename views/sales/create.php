@@ -25,7 +25,7 @@
         <div class="container-fluid">
 
             <form id="formVenta" action="<?= BASE_URL ?>/sales" method="post" autocomplete="off"
-                data-currency="<?= APP_CURRENCY_SYMBOL ?>"
+                data-currency="<?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8') ?>"
                 data-total="<?= number_format($precio_total, 2, '.', '') ?>"
                 data-metodos="<?= htmlspecialchars(json_encode($metodos_activos), ENT_QUOTES, 'UTF-8') ?>">
 
@@ -94,10 +94,12 @@
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <h2 class="h5 mb-0">Selección de cliente</h2>
                                             <div>
-                                                <button type="button" class="btn btn-success btn-sm mr-1"
-                                                    data-toggle="modal" data-target="#modal-nuevo_cliente">
-                                                    <i class="fas fa-user-plus mr-1"></i> Nuevo cliente
-                                                </button>
+                                                <?php if ($can['manage_clients']): ?>
+                                                    <button type="button" class="btn btn-success btn-sm mr-1"
+                                                        data-toggle="modal" data-target="#modal-nuevo_cliente">
+                                                        <i class="fas fa-user-plus mr-1"></i> Nuevo cliente
+                                                    </button>
+                                                <?php endif; ?>
                                                 <button type="button" class="btn btn-primary btn-sm"
                                                     data-toggle="modal" data-target="#modal-buscar_cliente">
                                                     <i class="fas fa-search mr-1"></i> Buscar cliente
@@ -296,7 +298,7 @@
                                                         <input type="text" id="total_a_cancelar_display"
                                                             class="form-control text-center bg-warning font-weight-bold"
                                                             style="font-size: 1.3rem;"
-                                                            value="<?= APP_CURRENCY_SYMBOL ?> <?= number_format($precio_total, 2) ?>" readonly>
+                                                            value="<?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8') ?> <?= number_format($precio_total, 2) ?>" readonly>
                                                     </div>
 
                                                     <!-- Selector de forma de pago -->

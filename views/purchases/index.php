@@ -29,9 +29,11 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Lista de compras</h2>
                                 <div class="card-tools">
+                                    <?php if ($can['manage_purchases']): ?>
                                     <a href="<?= BASE_URL ?>/purchases/create" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Nueva compra
                                     </a>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -87,6 +89,7 @@
                                                         title="Reporte PDF" target="_blank">
                                                         <i class="fas fa-file-pdf"></i>
                                                     </a>
+                                                    <?php if ($can['manage_purchases']): ?>
                                                     <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
                                                         class="btn btn-success btn-sm" data-toggle="tooltip"
                                                         title="Editar compra">
@@ -100,6 +103,7 @@
                                                         data-toggle="tooltip" title="Eliminar compra">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                         </tr>

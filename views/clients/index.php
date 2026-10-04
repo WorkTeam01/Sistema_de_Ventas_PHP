@@ -29,10 +29,12 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Clientes registrados</h2>
                                 <div class="card-tools d-flex">
+                                    <?php if ($can['manage_clients']): ?>
                                     <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo cliente
                                     </button>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -49,7 +51,9 @@
                                     <th class="text-center">NIT/CI</th>
                                     <th class="text-center">Celular</th>
                                     <th class="text-center">Correo</th>
+                                    <?php if ($can['manage_clients']): ?>
                                     <th class="text-center">Acciones</th>
+                                    <?php endif; ?>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -61,6 +65,7 @@
                                         <td><?= htmlspecialchars($client['nit_ci_cliente'], ENT_QUOTES, 'UTF-8') ?></td>
                                         <td><?= htmlspecialchars($client['celular_cliente'], ENT_QUOTES, 'UTF-8') ?></td>
                                         <td><?= htmlspecialchars($client['email_cliente'], ENT_QUOTES, 'UTF-8') ?></td>
+                                        <?php if ($can['manage_clients']): ?>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-success btn-sm btn-edit"
@@ -82,6 +87,7 @@
                                                 </button>
                                             </div>
                                         </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

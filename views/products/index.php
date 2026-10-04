@@ -29,9 +29,11 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Productos registrados</h2>
                                 <div class="card-tools">
+                                    <?php if ($can['manage_products']): ?>
                                     <a href="<?= BASE_URL ?>/products/create" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i> Nuevo producto
                                     </a>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -94,6 +96,7 @@
                                                         <i class="fas fa-eye"></i>
                                                         <span class="sr-only">Ver detalles</span>
                                                     </a>
+                                                    <?php if ($can['manage_products']): ?>
                                                     <a href="<?= BASE_URL ?>/products/edit/<?= $id_producto ?>"
                                                         class="btn btn-success btn-sm" data-toggle="tooltip"
                                                         title="Editar producto" aria-label="Editar producto <?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -108,6 +111,7 @@
                                                         <i class="fas fa-trash"></i>
                                                         <span class="sr-only">Eliminar</span>
                                                     </button>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
                                         </tr>

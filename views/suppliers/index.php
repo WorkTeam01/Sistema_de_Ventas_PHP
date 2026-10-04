@@ -29,10 +29,12 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Proveedores registrados</h2>
                                 <div class="card-tools d-flex">
+                                    <?php if ($can['manage_suppliers']): ?>
                                     <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
                                             data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo proveedor
                                     </button>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -71,6 +73,7 @@
                                                     <i class="fas fa-eye"></i>
                                                     <span class="sr-only">Ver detalle</span>
                                                 </button>
+                                                <?php if ($can['manage_suppliers']): ?>
                                                 <button type="button" class="btn btn-success btn-sm btn-edit"
                                                         data-id="<?= $supplier['id_proveedor'] ?>"
                                                         data-toggle="tooltip"
@@ -88,6 +91,7 @@
                                                     <i class="fas fa-trash"></i>
                                                     <span class="sr-only">Eliminar</span>
                                                 </button>
+                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>

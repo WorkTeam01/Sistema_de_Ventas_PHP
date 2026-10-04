@@ -43,10 +43,12 @@
                                 class="btn btn-info btn-block" target="_blank">
                                 <i class="fas fa-file-pdf mr-1"></i> Reporte PDF
                             </a>
+                            <?php if ($can['manage_purchases']): ?>
                             <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
                                 class="btn btn-success btn-block mt-2">
                                 <i class="fas fa-pencil-alt mr-1"></i> Editar
                             </a>
+                            <?php endif; ?>
                             <a href="<?= BASE_URL ?>/purchases" class="btn btn-default btn-block mt-2">
                                 <i class="fas fa-arrow-left mr-1"></i> Volver al listado
                             </a>

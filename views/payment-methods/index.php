@@ -29,10 +29,12 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center">
                                 <h2 class="card-title">Métodos de pago registrados</h2>
                                 <div class="card-tools d-flex">
+                                    <?php if ($can['manage_payment_methods']): ?>
                                     <button type="button" class="btn btn-primary btn-sm me-2" data-toggle="modal"
                                         data-target="#modalCreate">
                                         <i class="fas fa-plus"></i> Nuevo método
                                     </button>
+                                    <?php endif; ?>
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse"
                                         aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
@@ -50,7 +52,9 @@
                                         <th class="text-center">Nombre</th>
                                         <th class="text-center">Tipo</th>
                                         <th class="text-center">Estado</th>
+                                        <?php if ($can['manage_payment_methods']): ?>
                                         <th class="text-center">Acciones</th>
+                                        <?php endif; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -73,6 +77,7 @@
                                                     <span class="badge badge-secondary">Inactivo</span>
                                                 <?php endif; ?>
                                             </td>
+                                            <?php if ($can['manage_payment_methods']): ?>
                                             <td class="text-center">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-success btn-sm btn-edit"
@@ -94,6 +99,7 @@
                                                     </button>
                                                 </div>
                                             </td>
+                                            <?php endif; ?>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
