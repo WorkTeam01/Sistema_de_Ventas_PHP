@@ -91,24 +91,13 @@ final class UserRepositoryTest extends TestCase
     // Reset token
     // -------------------------------------------------------------------------
 
-    public function test_storeResetToken_persists_token_and_expiry(): void
-    {
-        $id = $this->createUser();
-        $token = bin2hex(random_bytes(32));
-        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
-
-        $result = $this->user->storeResetToken($id, $token, $expiry);
-
-        $this->assertTrue($result);
-        $row = $this->user->find($id);
-        $this->assertSame($token, $row['reset_token']);
-        $this->assertSame($expiry, $row['reset_token_expiracion']);
-    }
-
     public function test_clearResetToken_nullifies_token(): void
     {
         $id = $this->createUser();
-        $this->user->storeResetToken($id, 'sometoken', date('Y-m-d H:i:s', strtotime('+1 hour')));
+        $this->pdo->exec(
+            "UPDATE tb_usuarios SET reset_token = 'sometoken', reset_token_expiracion = '2999-01-01 00:00:00'
+             WHERE id_usuario = $id"
+        );
 
         $result = $this->user->clearResetToken($id);
 
@@ -118,170 +107,63 @@ final class UserRepositoryTest extends TestCase
         $this->assertNull($row['reset_token_expiracion']);
     }
 
-    // -------------------------------------------------------------------------
-    // Remember token
-    // -------------------------------------------------------------------------
-
-    public function test_storeRememberToken_persists_hash_and_expiry(): void
-    {
-        $id = $this->createUser();
-        $tokenHash = hash('sha256', 'plaintoken');
-        $expiry = date('Y-m-d H:i:s', strtotime('+14 days'));
-
-        $result = $this->user->storeRememberToken($id, $tokenHash, $expiry);
-
-        $this->assertTrue($result);
-        $row = $this->user->find($id);
-        $this->assertSame($tokenHash, $row['remember_token']);
-        $this->assertSame($expiry, $row['remember_token_expiry']);
-    }
-
-    public function test_clearRememberToken_nullifies_token(): void
-    {
-        $id = $this->createUser();
-        $this->user->storeRememberToken($id, hash('sha256', 'x'), date('Y-m-d H:i:s', strtotime('+14 days')));
-
-        $result = $this->user->clearRememberToken($id);
-
-        $this->assertTrue($result);
-        $row = $this->user->find($id);
-        $this->assertNull($row['remember_token']);
-        $this->assertNull($row['remember_token_expiry']);
-    }
-
-    // -------------------------------------------------------------------------
-    // Rate limiting — isLocked, recordFailedLogin, clearLoginAttempts
-    // -------------------------------------------------------------------------
-
-    public function test_isLocked_returns_false_when_bloqueado_hasta_is_null(): void
+    public function test_passwordMatches_accepts_correct_password_and_rejects_wrong_one(): void
     {
         $id = $this->createUser();
         $row = $this->user->find($id);
-        $this->assertFalse($this->user->isLocked($row));
+
+        $this->assertTrue(User::passwordMatches($row, 'secret123'));
+        $this->assertFalse(User::passwordMatches($row, 'otra-cosa'));
     }
 
-    public function test_isLocked_returns_false_with_past_timestamp(): void
+    public function test_passwordMatches_is_false_for_missing_user_even_if_password_matches_the_dummy_hash(): void
     {
-        $id = $this->createUser();
-        $past = date('Y-m-d H:i:s', time() - 1);
-        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$past' WHERE id_usuario = $id");
-
-        $row = $this->user->find($id);
-        $this->assertFalse($this->user->isLocked($row));
+        $this->assertFalse(User::passwordMatches(null, 'secret123'));
+        $this->assertFalse(User::passwordMatches(null, ''));
+        $this->assertFalse(User::passwordMatches(['password_user' => null], 'secret123'));
+        $this->assertFalse(User::passwordMatches(['password_user' => ''], ''));
     }
 
-    public function test_isLocked_returns_true_with_future_timestamp(): void
+    private function seedRememberSessions(int $userId, int $count = 2): void
     {
-        $id = $this->createUser();
-        $future = date('Y-m-d H:i:s', time() + 900);
-        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$future' WHERE id_usuario = $id");
-
-        $row = $this->user->find($id);
-        $this->assertTrue($this->user->isLocked($row));
-    }
-
-    public function test_recordFailedLogin_does_not_lock_before_5_attempts(): void
-    {
-        $id = $this->createUser();
-
-        for ($i = 0; $i < 4; $i++) {
-            $this->user->recordFailedLogin($id);
+        for ($i = 1; $i <= $count; $i++) {
+            $this->pdo->exec(
+                "INSERT INTO tb_sesiones_recordadas (id_usuario, selector, token_hash, fyh_expira, ip)
+                 VALUES ($userId, 'sel-$userId-$i', 'h', '2999-01-01 00:00:00', '1.1.1.1')"
+            );
         }
-
-        $row = $this->user->find($id);
-        $this->assertSame(4, (int)$row['login_intentos']);
-        $this->assertNull($row['login_bloqueado_hasta']);
     }
 
-    public function test_recordFailedLogin_locks_on_5th_attempt(): void
+    private function rememberSessionsOf(int $userId): int
+    {
+        return (int)$this->pdo->query("SELECT COUNT(*) FROM tb_sesiones_recordadas WHERE id_usuario = $userId")->fetchColumn();
+    }
+
+    public function test_updatePassword_revokes_all_remember_sessions_of_that_user_only(): void
+    {
+        $id    = $this->createUser();
+        $other = $this->createUser('otro@example.com');
+        $this->seedRememberSessions($id);
+        $this->seedRememberSessions($other, 1);
+
+        $this->assertTrue($this->user->updatePassword($id, 'nueva-clave-1'));
+
+        $this->assertSame(0, $this->rememberSessionsOf($id));
+        $this->assertSame(1, $this->rememberSessionsOf($other));
+        $this->assertTrue($this->user->verifyCurrentPassword($id, 'nueva-clave-1'));
+    }
+
+    public function test_updateUser_with_password_revokes_remember_sessions_but_without_it_keeps_them(): void
     {
         $id = $this->createUser();
+        $this->seedRememberSessions($id);
 
-        for ($i = 0; $i < 5; $i++) {
-            $this->user->recordFailedLogin($id);
-        }
+        $this->user->updateUser($id, 'Nuevo Nombre', 'test@example.com', 1);
+        $this->assertSame(2, $this->rememberSessionsOf($id));
 
-        $row = $this->user->find($id);
-        $this->assertTrue($this->user->isLocked($row));
+        $this->user->updateUser($id, 'Nuevo Nombre', 'test@example.com', 1, 'otra-clave-123');
+        $this->assertSame(0, $this->rememberSessionsOf($id));
     }
-
-    public function test_clearLoginAttempts_resets_counter_and_timestamp(): void
-    {
-        $id = $this->createUser();
-        for ($i = 0; $i < 5; $i++) {
-            $this->user->recordFailedLogin($id);
-        }
-
-        $this->user->clearLoginAttempts($id);
-
-        $row = $this->user->find($id);
-        $this->assertSame(0, (int)$row['login_intentos']);
-        $this->assertNull($row['login_bloqueado_hasta']);
-    }
-
-    public function test_clearExpiredLock_returns_false_when_there_is_no_lock(): void
-    {
-        $id = $this->createUser();
-
-        $this->assertFalse($this->user->clearExpiredLock($this->user->find($id)));
-    }
-
-    public function test_clearExpiredLock_returns_false_while_lock_is_active(): void
-    {
-        $id = $this->createUser();
-        for ($i = 0; $i < 5; $i++) {
-            $this->user->recordFailedLogin($id);
-        }
-
-        $row = $this->user->find($id);
-        $this->assertFalse($this->user->clearExpiredLock($row));
-
-        $row = $this->user->find($id);
-        $this->assertSame(5, (int)$row['login_intentos']);
-        $this->assertTrue($this->user->isLocked($row));
-    }
-
-    public function test_clearExpiredLock_resets_counter_after_lock_expires(): void
-    {
-        $id = $this->createUser();
-        for ($i = 0; $i < 5; $i++) {
-            $this->user->recordFailedLogin($id);
-        }
-
-        $past = date('Y-m-d H:i:s', time() - 60);
-        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$past' WHERE id_usuario = $id");
-
-        $this->assertTrue($this->user->clearExpiredLock($this->user->find($id)));
-
-        $row = $this->user->find($id);
-        $this->assertSame(0, (int)$row['login_intentos']);
-        $this->assertNull($row['login_bloqueado_hasta']);
-        $this->assertFalse($this->user->isLocked($row));
-    }
-
-    public function test_expired_lock_gives_back_five_attempts_before_blocking_again(): void
-    {
-        $id = $this->createUser();
-        for ($i = 0; $i < 5; $i++) {
-            $this->user->recordFailedLogin($id);
-        }
-
-        $past = date('Y-m-d H:i:s', time() - 60);
-        $this->pdo->exec("UPDATE tb_usuarios SET login_bloqueado_hasta = '$past' WHERE id_usuario = $id");
-        $this->user->clearExpiredLock($this->user->find($id));
-
-        for ($i = 0; $i < 4; $i++) {
-            $this->user->recordFailedLogin($id);
-        }
-
-        $row = $this->user->find($id);
-        $this->assertSame(4, (int)$row['login_intentos']);
-        $this->assertFalse($this->user->isLocked($row));
-    }
-
-    // -------------------------------------------------------------------------
-    // isReferenced — User::isReferenced verifica tb_almacen y tb_compras
-    // -------------------------------------------------------------------------
 
     public function test_isReferenced_false_when_no_products_or_purchases(): void
     {

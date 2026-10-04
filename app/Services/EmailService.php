@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\AuthSettings;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -42,7 +43,7 @@ class EmailService
 
             $this->mailer->Subject = 'Restablecimiento de contraseña — Sistema de Ventas';
             $this->mailer->Body    = $this->buildHtmlBody($nombres, $resetUrl);
-            $this->mailer->AltBody = "Hola $nombres,\n\nUsa este enlace para restablecer tu contraseña (válido 60 minutos):\n$resetUrl\n\nSi no solicitaste esto, ignora este mensaje.";
+            $this->mailer->AltBody = "Hola $nombres,\n\nUsa este enlace para restablecer tu contraseña (válido " . AuthSettings::resetTokenMinutes() . " minutos):\n$resetUrl\n\nSi no solicitaste esto, ignora este mensaje.";
 
             $this->mailer->send();
             return true;
@@ -54,7 +55,10 @@ class EmailService
 
     private function buildHtmlBody(string $nombres, string $resetUrl): string
     {
-        $year = $this->currentYear();
+        $year    = $this->currentYear();
+        $minutes = AuthSettings::resetTokenMinutes();
+        $nombres  = htmlspecialchars($nombres, ENT_QUOTES, 'UTF-8');
+        $resetUrl = htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8');
         return <<<HTML
         <!DOCTYPE html>
         <html lang="es">
@@ -113,7 +117,7 @@ class EmailService
                       <hr style="border:none;border-top:1px solid #eeeeee;margin:0 0 20px;">
 
                       <p style="margin:0;font-size:13px;color:#999999;line-height:1.6;">
-                        &#9888; Este enlace expirará en <strong>60 minutos</strong>.<br>
+                        &#9888; Este enlace expirará en <strong>$minutes minutos</strong>.<br>
                         Si no solicitaste este cambio, puedes ignorar este mensaje con seguridad.
                       </p>
                     </td>

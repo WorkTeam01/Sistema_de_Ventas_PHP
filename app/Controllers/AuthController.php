@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\ActivityLog;
+use App\Models\AuthAttempt;
 use App\Models\User;
 use App\Services\EmailService;
 
@@ -41,36 +42,29 @@ class AuthController extends Controller
         $password_user = $_POST['password_user'] ?? '';
         $remember = isset($_POST['remember']) && $_POST['remember'] === '1';
 
-        $userModel = new User();
-        $usuario = $userModel->findByEmail($email);
+        $email    = User::normalizeEmail($email);
+        $usuario  = (new User())->findByEmail($email) ?: null;
+        $attempts = new AuthAttempt();
+        $ip       = (string)($_SERVER['REMOTE_ADDR'] ?? '');
 
-        if ($usuario) {
-            $userModel->clearExpiredLock($usuario);
-        }
+        $attemptId = $attempts->register('login', $ip, $email, $usuario ? (int)$usuario['id_usuario'] : null);
+        $blocked   = $attempts->isBlocked('login', $attemptId, $ip, $email);
 
-        if ($usuario && $userModel->isLocked($usuario)) {
-            ActivityLog::record('login_failed', 'auth', (int)$usuario['id_usuario'], "Intento de inicio de sesión con cuenta bloqueada: {$email}");
-            $_SESSION['mensaje'] = 'Demasiados intentos fallidos. Tu cuenta está bloqueada por 15 minutos. Si olvidaste tu contraseña, usa la opción ¿Olvidaste tu contraseña?';
-            $_SESSION['icono'] = 'warning';
-            $this->redirect(BASE_URL . '/auth');
-            return;
-        }
-
-        if ($usuario && isset($usuario['password_user']) && password_verify($password_user, $usuario['password_user'])) {
-            $userModel->clearLoginAttempts((int)$usuario['id_usuario']);
+        // Bloqueado no verifica la contraseña; los demás fallos responden con el mismo mensaje.
+        if (!$blocked && User::passwordMatches($usuario, $password_user)) {
+            $attempts->clear('login', $email);
             Auth::login($usuario, $remember);
             $_SESSION['welcome_user'] = $usuario['nombres'];
             ActivityLog::record('login', 'auth', (int)$usuario['id_usuario'], "Inicio de sesión exitoso: {$email}");
             $this->redirect(BASE_URL . '/');
-        } else {
-            if ($usuario) {
-                $userModel->recordFailedLogin((int)$usuario['id_usuario']);
-            }
-            ActivityLog::record('login_failed', 'auth', $usuario ? (int)$usuario['id_usuario'] : null, "Intento fallido de inicio de sesión: {$email}");
-            $_SESSION['mensaje'] = 'Datos incorrectos';
-            $_SESSION['icono'] = 'error';
-            $this->redirect(BASE_URL . '/auth');
+            return;
         }
+
+        $motivo = $blocked ? 'Intento de inicio de sesión bloqueado por exceso de intentos' : 'Intento fallido de inicio de sesión';
+        ActivityLog::record('login_failed', 'auth', $usuario ? (int)$usuario['id_usuario'] : null, "{$motivo}: {$email}");
+        $_SESSION['mensaje'] = 'Correo o contraseña incorrectos, o demasiados intentos. Si olvidaste tu contraseña, usa la opción ¿Olvidaste tu contraseña?';
+        $_SESSION['icono'] = 'error';
+        $this->redirect(BASE_URL . '/auth');
     }
 
     /**
@@ -100,14 +94,15 @@ class AuthController extends Controller
     }
 
     /**
-     * Procesa el formulario de recuperación: genera el token y lo envía por email (o lo muestra en modo dev).
+     * Procesa el formulario de recuperación: genera el token y lo envía por email. Responde siempre igual,
+     * exista o no el correo, y nunca muestra el enlace en pantalla.
      */
     public function sendResetLink(): void
     {
         Auth::startSession();
         $this->validateCsrfOrFail();
 
-        $email = trim($_POST['email'] ?? '');
+        $email = User::normalizeEmail($_POST['email'] ?? '');
 
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->flash('Ingresa un correo electrónico válido.', 'error');
@@ -115,34 +110,22 @@ class AuthController extends Controller
         }
 
         $userModel = new User();
-        $usuario = $userModel->findByEmail($email);
-        $isDebug = ($_ENV['APP_DEBUG'] ?? 'false') === 'true' || ($_ENV['APP_ENV'] ?? '') === 'local';
+        $usuario   = $userModel->findByEmail($email) ?: null;
+        $attempts  = new AuthAttempt();
+        $ip        = (string)($_SERVER['REMOTE_ADDR'] ?? '');
 
-        if (!$usuario) {
-            if ($isDebug) {
-                $this->flash('DEBUG: El correo ' . $email . ' no está registrado en el sistema.', 'error');
-            } else {
-                $this->flash('Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.', 'info');
+        $attemptId = $attempts->register('reset', $ip, $email, $usuario ? (int)$usuario['id_usuario'] : null);
+
+        if ($usuario && !$attempts->resetThrottled($attemptId, $ip, (int)$usuario['id_usuario'])) {
+            $token = bin2hex(random_bytes(32));
+            $userModel->storeResetToken((int)$usuario['id_usuario'], hash('sha256', $token));
+
+            $resetUrl = BASE_URL . '/auth/reset-password/' . $token;
+            (new EmailService())->sendResetLink($email, $usuario['nombres'], $resetUrl);
+
+            if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
+                error_log("[reset-password] enlace para {$email}: {$resetUrl}");
             }
-            $this->redirect(BASE_URL . '/auth/forgot-password');
-        }
-
-        $token = bin2hex(random_bytes(32));
-        $expiracion = date('Y-m-d H:i:s', strtotime('+1 hour'));
-        $userModel->storeResetToken((int)$usuario['id_usuario'], $token, $expiracion);
-
-        $resetUrl = BASE_URL . '/auth/reset-password/' . $token;
-        $emailService = new EmailService();
-        $emailSent = $emailService->sendResetLink($email, $usuario['nombres'], $resetUrl);
-
-        if ($isDebug) {
-            $this->view('views/auth/show-reset-link.php', [
-                'URL' => BASE_URL,
-                'resetUrl' => $resetUrl,
-                'emailSent' => $emailSent,
-                'email' => $email,
-            ]);
-            return;
         }
 
         $this->flash('Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.', 'info');
@@ -183,8 +166,8 @@ class AuthController extends Controller
         $password = $_POST['password'] ?? '';
         $passwordConfirm = $_POST['password_confirm'] ?? '';
 
-        if (empty($token) || empty($password) || strlen($password) < 8) {
-            $this->flash('La contraseña debe tener al menos 8 caracteres.', 'error');
+        if (empty($token) || !User::validatePassword($password)) {
+            $this->flash('La contraseña debe tener al menos ' . User::MIN_PASSWORD_LENGTH . ' caracteres.', 'error');
             $this->redirect(BASE_URL . '/auth/reset-password/' . $token);
         }
 

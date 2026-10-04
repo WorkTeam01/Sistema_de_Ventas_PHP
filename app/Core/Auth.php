@@ -2,6 +2,9 @@
 
 namespace App\Core;
 
+use App\Helpers\AuthSettings;
+use App\Models\ActivityLog;
+use App\Models\RememberToken;
 use App\Models\User;
 
 /**
@@ -19,6 +22,11 @@ class Auth
     public static function startSession(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
+            session_set_cookie_params([
+                'httponly' => true,
+                'samesite' => 'Lax',
+                'secure'   => self::isHttps(),
+            ]);
             session_start();
         }
     }
@@ -40,7 +48,7 @@ class Auth
             return false;
         }
 
-        $lifetime = (int)($_ENV['SESSION_LIFETIME'] ?? 30) * 60;
+        $lifetime = (int)($_ENV['SESSION_LIFETIME'] ?? 60) * 60;
 
         if (isset($_SESSION['last_activity']) && time() - $_SESSION['last_activity'] > $lifetime) {
             self::logout();
@@ -153,11 +161,6 @@ class Auth
         return $user['nombres'] ?? null;
     }
 
-    /**
-     * Inicia sesión: regenera el ID de sesión y guarda el email del usuario.
-     * Si $remember es true, emite una cookie de remember_token (30 días).
-     *
-     */
     private static function loadPermissions(int $idRol): void
     {
         $pdo  = Database::getInstance()->getConnection();
@@ -210,11 +213,16 @@ class Auth
         }
     }
 
+    /**
+     * Inicia sesión: regenera el ID de sesión y el token CSRF, y carga los permisos.
+     * Si $remember es true, emite una cookie "recordarme" para este dispositivo.
+     */
     public static function login(array $user, bool $remember = false): void
     {
         self::$cachedUser = null;
         self::startSession();
         session_regenerate_id(true);
+        $_SESSION['csrf_token']    = bin2hex(random_bytes(32));
         $_SESSION['sesion_email']  = $user['email'] ?? null;
         $_SESSION['last_activity'] = time();
 
@@ -224,22 +232,8 @@ class Auth
         }
 
         if ($remember && !empty($user['id_usuario'])) {
-            $plain        = bin2hex(random_bytes(32));
-            $hash         = hash('sha256', $plain);
-            $days         = (int)($_ENV['REMEMBER_LIFETIME'] ?? 14);
-            $seconds      = $days * 24 * 3600;
-            $expiry       = date('Y-m-d H:i:s', time() + $seconds);
-
-            $userModel = new User();
-            $userModel->storeRememberToken((int)$user['id_usuario'], $hash, $expiry);
-
-            setcookie('remember_token', $user['id_usuario'] . ':' . $plain, [
-                'expires'  => time() + $seconds,
-                'path'     => '/',
-                'secure'   => self::isHttps(),
-                'httponly' => true,
-                'samesite' => 'Strict',
-            ]);
+            $issued = (new RememberToken())->issue((int)$user['id_usuario'], self::clientIp(), self::clientAgent());
+            self::setRememberCookie($issued['cookie']);
         }
     }
 
@@ -258,8 +252,9 @@ class Auth
     }
 
     /**
-     * Intenta autenticar al usuario a partir de la cookie remember_token.
-     * Rota el token en cada auto-login para mitigar robo de cookie.
+     * Intenta autenticar al usuario a partir de la cookie remember_token (`selector:validador`).
+     * Rota solo el validador de ese dispositivo. Una cookie inválida solo se borra del cliente:
+     * no se toca ninguna fila, para que una pestaña con cookie vieja no cierre el dispositivo.
      */
     public static function loginWithCookie(): bool
     {
@@ -267,42 +262,44 @@ class Auth
             return false;
         }
 
-        $parts = explode(':', $_COOKIE['remember_token'], 2);
-
-        if (count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
+        $parts = explode(':', (string)$_COOKIE['remember_token'], 2);
+        if (count($parts) !== 2 || $parts[0] === '' || $parts[1] === '') {
             self::clearRememberCookie();
             return false;
         }
 
-        [$id, $plain] = $parts;
-        $hash = hash('sha256', $plain);
-
-        $userModel = new User();
-        $user = $userModel->findByRememberToken((int)$id, $hash);
-
-        if (!$user) {
-            $userModel->clearRememberToken((int)$id);
+        $result = (new RememberToken())->consume($parts[0], $parts[1], self::clientIp(), self::clientAgent());
+        $user   = $result ? (new User())->find($result['id_usuario']) : null;
+        if (!$result || !$user) {
             self::clearRememberCookie();
             return false;
         }
 
-        self::login($user, remember: true);
+        self::login($user);
+        self::setRememberCookie($result['cookie']);
+
+        if ($result['ip_changed']) {
+            ActivityLog::record(
+                'login',
+                'auth',
+                (int)$user['id_usuario'],
+                "Sesión recordada reanudada desde otra IP: {$user['email']}"
+            );
+        }
+
         return true;
     }
 
     /**
-     * Cierra la sesión: limpia el remember_token en BD, borra cookie y destruye la sesión.
+     * Cierra la sesión: revoca solo el "recordarme" de este dispositivo, borra la cookie y destruye la sesión.
      */
     public static function logout(): void
     {
         self::startSession();
 
-        if (!empty($_SESSION['sesion_email'])) {
-            $user = self::user();
-            if ($user) {
-                $userModel = new User();
-                $userModel->clearRememberToken((int)$user['id_usuario']);
-            }
+        $selector = explode(':', (string)($_COOKIE['remember_token'] ?? ''), 2)[0];
+        if ($selector !== '') {
+            (new RememberToken())->revoke($selector);
         }
 
         self::$cachedUser = null;
@@ -323,6 +320,27 @@ class Auth
         }
 
         session_destroy();
+    }
+
+    private static function setRememberCookie(string $value): void
+    {
+        setcookie('remember_token', $value, [
+            'expires'  => time() + AuthSettings::rememberDays() * 86400,
+            'path'     => '/',
+            'secure'   => self::isHttps(),
+            'httponly' => true,
+            'samesite' => 'Strict',
+        ]);
+    }
+
+    private static function clientIp(): string
+    {
+        return (string)($_SERVER['REMOTE_ADDR'] ?? '');
+    }
+
+    private static function clientAgent(): ?string
+    {
+        return $_SERVER['HTTP_USER_AGENT'] ?? null;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Tests\Integration\Models;
 
+use App\Core\Config;
 use App\Models\User;
 use Tests\Concerns\RefreshMariaDatabase;
 use Tests\TestCase;
@@ -43,48 +44,93 @@ final class UserRepositoryMariaDbTest extends TestCase
             WHERE id_usuario = $id");
     }
 
-    private function setRememberTokenExpiry(int $id, string $tokenHash, string $sqlInterval): void
-    {
-        $this->pdo->exec("UPDATE tb_usuarios
-            SET remember_token = '$tokenHash', remember_token_expiry = $sqlInterval
-            WHERE id_usuario = $id");
-    }
-
-    public function test_findByResetToken_returns_user_when_not_expired(): void
+    public function test_storeResetToken_saves_hash_not_plain_token_and_finds_by_plain(): void
     {
         $id = $this->createUser();
-        $this->setResetTokenExpiry($id, 'valid-token', 'NOW() + INTERVAL 1 HOUR');
+        $plain = bin2hex(random_bytes(32));
 
-        $row = $this->user->findByResetToken('valid-token');
+        $this->assertTrue($this->user->storeResetToken($id, hash('sha256', $plain)));
 
+        $stored = $this->user->find($id)['reset_token'];
+        $this->assertNotSame($plain, $stored);
+        $this->assertSame(hash('sha256', $plain), $stored);
+
+        $row = $this->user->findByResetToken($plain);
         $this->assertIsArray($row);
         $this->assertSame($id, (int)$row['id_usuario']);
+    }
+
+    public function test_storeResetToken_expiry_is_about_one_hour_by_db_clock(): void
+    {
+        $id = $this->createUser();
+        Config::load();
+        $saved = $_ENV['RESET_TOKEN_MINUTES'] ?? null;
+        unset($_ENV['RESET_TOKEN_MINUTES']);
+        try {
+            $this->user->storeResetToken($id, hash('sha256', 'abc'));
+        } finally {
+            if ($saved !== null) {
+                $_ENV['RESET_TOKEN_MINUTES'] = $saved;
+            }
+        }
+
+        $minutes = (int)$this->pdo->query(
+            "SELECT TIMESTAMPDIFF(MINUTE, NOW(), reset_token_expiracion)
+             FROM tb_usuarios WHERE id_usuario = $id"
+        )->fetchColumn();
+
+        $this->assertGreaterThanOrEqual(59, $minutes);
+        $this->assertLessThanOrEqual(60, $minutes);
+    }
+
+    public function test_findByResetToken_does_not_match_the_stored_hash_used_as_token(): void
+    {
+        $id = $this->createUser();
+        $hash = hash('sha256', 'plain-token');
+        $this->user->storeResetToken($id, $hash);
+
+        $this->assertFalse($this->user->findByResetToken($hash));
     }
 
     public function test_findByResetToken_returns_false_when_expired(): void
     {
         $id = $this->createUser();
-        $this->setResetTokenExpiry($id, 'expired-token', 'NOW() - INTERVAL 1 HOUR');
+        $this->setResetTokenExpiry($id, hash('sha256', 'expired-token'), 'NOW() - INTERVAL 1 HOUR');
 
         $this->assertFalse($this->user->findByResetToken('expired-token'));
     }
 
-    public function test_findByRememberToken_returns_user_when_not_expired(): void
+    public function test_findByEmail_finds_legacy_mixed_case_row(): void
     {
-        $id = $this->createUser();
-        $this->setRememberTokenExpiry($id, 'token-hash', 'NOW() + INTERVAL 1 DAY');
+        $this->pdo->exec(
+            "INSERT INTO tb_usuarios (nombres, email, id_rol, password_user)
+             VALUES ('Legacy', 'Legacy@Sistema.com', 1, 'x')"
+        );
 
-        $row = $this->user->findByRememberToken($id, 'token-hash');
-
-        $this->assertIsArray($row);
-        $this->assertSame($id, (int)$row['id_usuario']);
+        $this->assertIsArray($this->user->findByEmail('legacy@sistema.com'));
     }
 
-    public function test_findByRememberToken_returns_null_when_expired(): void
+    public function test_storeResetToken_expiry_is_read_from_env(): void
     {
         $id = $this->createUser();
-        $this->setRememberTokenExpiry($id, 'token-hash', 'NOW() - INTERVAL 1 DAY');
+        Config::load();
+        $saved = $_ENV['RESET_TOKEN_MINUTES'] ?? null;
+        $_ENV['RESET_TOKEN_MINUTES'] = '10';
+        try {
+            $this->user->storeResetToken($id, hash('sha256', 'abc'));
+        } finally {
+            if ($saved === null) {
+                unset($_ENV['RESET_TOKEN_MINUTES']);
+            } else {
+                $_ENV['RESET_TOKEN_MINUTES'] = $saved;
+            }
+        }
 
-        $this->assertNull($this->user->findByRememberToken($id, 'token-hash'));
+        $minutes = (int)$this->pdo->query(
+            "SELECT TIMESTAMPDIFF(MINUTE, NOW(), reset_token_expiracion) FROM tb_usuarios WHERE id_usuario = $id"
+        )->fetchColumn();
+
+        $this->assertGreaterThanOrEqual(9, $minutes);
+        $this->assertLessThanOrEqual(10, $minutes);
     }
 }
