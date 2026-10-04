@@ -114,6 +114,32 @@ class Controller
     }
 
     /**
+     * Redirige y cierra la conexión con el cliente antes de ejecutar $afterResponse,
+     * para que el trabajo lento (p. ej. SMTP) no alargue la respuesta.
+     */
+    protected function redirectThenRun(string $url, callable $afterResponse): never
+    {
+        ignore_user_abort(true);
+        session_write_close();
+
+        header("Location: $url");
+        header('Connection: close');
+        header('Content-Length: 0');
+
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        } else {
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+            flush();
+        }
+
+        $afterResponse();
+        exit();
+    }
+
+    /**
      * Devuelve una respuesta JSON con el código HTTP indicado y termina la ejecución.
      *
      * @param mixed $data   Datos a serializar.

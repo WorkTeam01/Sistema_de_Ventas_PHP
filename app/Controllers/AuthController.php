@@ -116,20 +116,28 @@ class AuthController extends Controller
 
         $attemptId = $attempts->register('reset', $ip, $email, $usuario ? (int)$usuario['id_usuario'] : null);
 
+        $sendMail = null;
+
         if ($usuario && !$attempts->resetThrottled($attemptId, $ip, (int)$usuario['id_usuario'])) {
             $token = bin2hex(random_bytes(32));
             $userModel->storeResetToken((int)$usuario['id_usuario'], hash('sha256', $token));
 
             $resetUrl = BASE_URL . '/auth/reset-password/' . $token;
-            (new EmailService())->sendResetLink($email, $usuario['nombres'], $resetUrl);
+            $sendMail = static function () use ($email, $usuario, $resetUrl): void {
+                (new EmailService())->sendResetLink($email, $usuario['nombres'], $resetUrl);
 
-            if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
-                error_log("[reset-password] enlace para {$email}: {$resetUrl}");
-            }
+                if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
+                    error_log("[reset-password] enlace para {$email}: {$resetUrl}");
+                }
+            };
         }
 
         $this->flash('Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.', 'info');
-        $this->redirect(BASE_URL . '/auth/forgot-password');
+
+        // El SMTP tarda segundos: enviarlo antes de responder haría que el tiempo delate si el correo existe.
+        $sendMail !== null
+            ? $this->redirectThenRun(BASE_URL . '/auth/forgot-password', $sendMail)
+            : $this->redirect(BASE_URL . '/auth/forgot-password');
     }
 
     /**
