@@ -56,9 +56,16 @@ trait RefreshMariaDatabase
             );
         }
 
-        // Nombre único por proceso (sufijo PID): evita que dos ejecuciones concurrentes de
-        // la suite compartan la misma BD física y se pisen el DROP/CREATE entre sí.
-        $this->mariaDbTestDatabase = $name . '_' . getmypid();
+        // Cada setUp hace DROP DATABASE: el nombre debe ser inequívocamente de test para que una
+        // configuración equivocada nunca borre la BD de desarrollo.
+        if (stripos($name, 'test') === false) {
+            $this->fail("DB_TEST_NAME='{$name}' no parece una BD de test (debe contener \"test\"): el trait la borra y la recrea.");
+        }
+
+        // Nombre fijo: una sola BD de test, recreada en cada test. Por eso la suite no debe
+        // ejecutarse en paralelo (dos procesos se pisarían el DROP/CREATE); una corrida
+        // interrumpida deja esa misma BD, que la siguiente recrea.
+        $this->mariaDbTestDatabase = $name;
 
         try {
             $pdo = new PDO(

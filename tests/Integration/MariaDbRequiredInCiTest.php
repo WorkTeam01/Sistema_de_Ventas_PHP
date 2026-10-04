@@ -22,7 +22,7 @@ final class MariaDbRequiredInCiTest extends TestCase
         }
         $env['DB_TEST_HOST'] = '127.0.0.1';
         $env['DB_TEST_PORT'] = '1';
-        $env['DB_TEST_NAME'] = 'inexistente';
+        $env['DB_TEST_NAME'] = 'inexistente_test';
         $env['DB_TEST_USER'] = 'nadie';
         $env['DB_TEST_PASS'] = 'mala';
 

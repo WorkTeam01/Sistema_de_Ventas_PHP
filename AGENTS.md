@@ -478,8 +478,10 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 - Local: copiar `.env.testing.example` a `.env.testing` y ajustar credenciales; `tests/bootstrap.php` la carga
   automáticamente si existe. Sin ese archivo (o si el servidor no responde), el test se salta con
   `markTestSkipped()` en vez de fallar — la suite completa sigue corriendo sin exigir MariaDB instalada.
-- El trait recrea la BD de test (`DROP`/`CREATE DATABASE` + `database/schema.sql`) en cada `setUp()`/`tearDown()` —
-  usar un nombre de BD dedicado (`DB_TEST_NAME`), nunca la BD de desarrollo.
+- El trait recrea la BD de test (`DROP`/`CREATE DATABASE` + `database/schema.sql`) en cada `setUp()`/`tearDown()`
+  sobre **una sola BD de nombre fijo** (`DB_TEST_NAME`, p. ej. `sistemadeventas_test`), nunca la de desarrollo: el
+  trait falla si el nombre no contiene `test`. Por eso la suite no se ejecuta en paralelo contra la misma BD; una
+  corrida interrumpida deja esa BD, que la siguiente recrea.
 - **Nunca calcular la fecha límite con `date()`/`strtotime()` de PHP y comparar contra `NOW()`/`CURDATE()` de la
   BD** — el reloj/timezone del proceso PHP y el del servidor MariaDB pueden diferir. Calcular la fecha límite con
   una expresión SQL evaluada por el propio motor (`NOW() - INTERVAL 1 HOUR`, etc.).
