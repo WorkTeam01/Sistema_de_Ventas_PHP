@@ -25,8 +25,9 @@ class Database
     public static function getInstance(): self
     {
         if (self::$instance === null) {
-            self::$instance = new self();
-            self::$instance->connect();
+            $instance = new self();
+            $instance->connect();
+            self::$instance = $instance;
         }
 
         return self::$instance;
@@ -34,7 +35,7 @@ class Database
 
     /**
      * Crea la conexión PDO con charset utf8mb4, modo de error por excepción
-     * y fetch mode asociativo. Termina la ejecución si la conexión falla.
+     * y fetch mode asociativo. Si la conexión falla lanza una RuntimeException genérica.
      */
     private function connect(): void
     {
@@ -52,7 +53,9 @@ class Database
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
             ]);
         } catch (PDOException $e) {
-            die("Error de conexión: " . $e->getMessage());
+            // El mensaje de PDO incluye host y usuario: solo va al log, nunca a la excepción.
+            error_log('Error de conexión a la base de datos: ' . $e->getMessage());
+            throw new \RuntimeException('No se pudo conectar a la base de datos.');
         }
     }
 

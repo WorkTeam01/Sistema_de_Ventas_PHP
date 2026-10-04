@@ -24,7 +24,13 @@ header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // Variables backward-compat para vistas y controladores
-$pdo = App\Core\Database::getInstance()->getConnection();
+try {
+    $pdo = App\Core\Database::getInstance()->getConnection();
+} catch (RuntimeException $e) {
+    http_response_code(500);
+    require BASE_PATH . '/views/errors/500.php';
+    exit;
+}
 $URL = BASE_URL;
 $Año = date('Y');
 $fechaHora = date("Y-m-d H:i:s");

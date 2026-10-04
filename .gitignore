@@ -56,6 +56,7 @@ cache/
 # Archivos subidos por usuarios
 public/uploads/products/*
 !public/uploads/products/.gitkeep
+!public/uploads/products/.htaccess
 !public/uploads/products/producto_default.png
 
 # Archivos de respaldo de base de datos (excepto el inicial)

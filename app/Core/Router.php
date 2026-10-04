@@ -60,9 +60,7 @@ class Router
                 $normalizedRoute = '/';
             }
 
-            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $normalizedRoute);
-            $normalizedPattern = $pattern === '/' ? '/' : rtrim($pattern, '/');
-            $pattern = '#^' . $normalizedPattern . '$#';
+            $pattern = self::compilePattern($normalizedRoute);
 
             $normalizedUri = rtrim($uri, '/');
             if ($normalizedUri === '') {
@@ -85,6 +83,22 @@ class Router
 
         http_response_code(404);
         require_once __DIR__ . '/../../views/errors/404.php';
+    }
+
+    /**
+     * Convierte un patrón de ruta en su expresión regular.
+     * `{id}` solo admite dígitos para que un id malformado caiga en 404 y no llegue al
+     * controlador; el resto de parámetros (ej. `{token}`) admiten alfanuméricos, `-` y `_`.
+     *
+     * @param string $route Patrón de ruta (ej. '/users/edit/{id}').
+     */
+    public static function compilePattern(string $route): string
+    {
+        $pattern = preg_replace('/\{id\}/', '(\d+)', $route);
+        $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $pattern);
+        $pattern = $pattern === '/' ? '/' : rtrim($pattern, '/');
+
+        return '#^' . $pattern . '$#';
     }
 
     /**

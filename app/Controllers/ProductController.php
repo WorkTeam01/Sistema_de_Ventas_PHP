@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Helpers\ImageUpload;
 use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
@@ -269,7 +270,6 @@ class ProductController extends Controller
         $precio_compra = $_POST['precio_compra'] ?? '';
         $precio_venta = $_POST['precio_venta'] ?? '';
         $fecha_ingreso = trim($_POST['fecha_ingreso'] ?? '');
-        $image_text = trim($_POST['image_text'] ?? 'producto_default.png');
 
         if ($id_producto <= 0 || $nombre === '' || $id_categoria <= 0 || $precio_compra === '' || $precio_venta === '' || $fecha_ingreso === '') {
             $this->flash('Datos inválidos para actualizar el producto.', 'error');
@@ -304,7 +304,16 @@ class ProductController extends Controller
             return;
         }
 
-        $imagen = $image_text;
+        $productModel = new Product();
+        $actual = $productModel->find($id_producto);
+
+        if (!$actual) {
+            $this->flash('Producto no encontrado.', 'error');
+            $this->redirect(BASE_URL . '/products');
+            return;
+        }
+
+        $imagen = $actual['imagen'];
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
             $uploadResult = $this->handleImageUpload($_FILES['image']);
@@ -315,9 +324,6 @@ class ProductController extends Controller
             }
             $imagen = $uploadResult['filename'];
         }
-
-        $productModel = new Product();
-        $actual = $productModel->find($id_producto);
 
         if ($productModel->updateProduct($id_producto, [
             'nombre' => $nombre,
@@ -513,16 +519,12 @@ class ProductController extends Controller
      */
     private function handleImageUpload(array $file): array
     {
-        $extensiones_permitidas = ['jpg', 'jpeg', 'png', 'webp'];
-        $mimes_permitidos = ['image/jpeg', 'image/png', 'image/webp'];
-        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $mime_real = mime_content_type($file['tmp_name']);
-        $tamanio_max = 2 * 1024 * 1024;
-
-        if (!in_array($extension, $extensiones_permitidas) || !in_array($mime_real, $mimes_permitidos) || $file['size'] > $tamanio_max) {
-            return ['error' => 'Imagen no válida. Solo se permiten JPG, PNG o WEBP de hasta 2MB.', 'filename' => null];
+        $error = ImageUpload::validate($file);
+        if ($error !== null) {
+            return ['error' => $error, 'filename' => null];
         }
 
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $filename = date('Y-m-d-H-i-s') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
         $destino = dirname(__DIR__, 2) . '/public/uploads/products/' . $filename;
 
