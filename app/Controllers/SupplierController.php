@@ -119,8 +119,9 @@ class SupplierController extends Controller
         }
 
         $supplierModel = new Supplier();
+        $previous = $supplierModel->find($id);
 
-        if (!$supplierModel->find($id)) {
+        if (!$previous) {
             $this->json(['success' => false, 'message' => 'Proveedor no encontrado.']);
         }
 
@@ -129,6 +130,28 @@ class SupplierController extends Controller
         }
 
         if ($supplierModel->updateSupplier($id, $nombre_proveedor, $empresa, $celular, $direccion, $telefono, $email)) {
+            ActivityLog::record(
+                'update',
+                'supplier',
+                $id,
+                "Proveedor '{$previous['empresa']}' actualizado",
+                [
+                    'nombre_proveedor' => $previous['nombre_proveedor'],
+                    'empresa'          => $previous['empresa'],
+                    'celular'          => $previous['celular'],
+                    'direccion'        => $previous['direccion'],
+                    'telefono'         => $previous['telefono'],
+                    'email'            => $previous['email'],
+                ],
+                [
+                    'nombre_proveedor' => $nombre_proveedor,
+                    'empresa'          => $empresa,
+                    'celular'          => $celular,
+                    'direccion'        => $direccion,
+                    'telefono'         => trim((string)$telefono) !== '' ? trim($telefono) : null,
+                    'email'            => trim((string)$email) !== '' ? trim($email) : null,
+                ]
+            );
             $this->json(['success' => true, 'message' => 'El proveedor se actualizó exitosamente.']);
         }
 

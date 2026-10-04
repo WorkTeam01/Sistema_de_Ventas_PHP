@@ -144,7 +144,9 @@ class ClientController extends Controller
             $this->json(['success' => false, 'message' => 'El formato del correo electrónico no es válido.']);
         }
 
-        if (!$clientModel->find($id)) {
+        $previous = $clientModel->find($id);
+
+        if (!$previous) {
             $this->json(['success' => false, 'message' => 'Cliente no encontrado.']);
         }
 
@@ -162,6 +164,24 @@ class ClientController extends Controller
             'celular_cliente' => $celular_cliente,
             'email_cliente' => $email_cliente,
         ])) {
+            ActivityLog::record(
+                'update',
+                'client',
+                $id,
+                "Cliente '{$previous['nombre_cliente']}' actualizado",
+                [
+                    'nombre_cliente'  => $previous['nombre_cliente'],
+                    'nit_ci_cliente'  => $previous['nit_ci_cliente'],
+                    'celular_cliente' => $previous['celular_cliente'],
+                    'email_cliente'   => $previous['email_cliente'],
+                ],
+                [
+                    'nombre_cliente'  => $nombre_cliente,
+                    'nit_ci_cliente'  => $nit_ci_cliente,
+                    'celular_cliente' => $celular_cliente,
+                    'email_cliente'   => $email_cliente,
+                ]
+            );
             $this->json(['success' => true, 'message' => 'El cliente se actualizó exitosamente.']);
         }
 
