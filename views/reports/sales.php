@@ -93,6 +93,8 @@
                                         <th>Fecha</th>
                                         <th>Cliente</th>
                                         <th class="text-right">Total (<?= APP_CURRENCY_SYMBOL ?>)</th>
+                                        <th class="text-right">Devuelto (<?= APP_CURRENCY_SYMBOL ?>)</th>
+                                        <th class="text-right">Neto (<?= APP_CURRENCY_SYMBOL ?>)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -104,9 +106,19 @@
                                             </td>
                                             <td><?= htmlspecialchars($row['cliente'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
                                             <td class="text-right"><?= number_format((float)$row['total_pagado'], 2) ?></td>
+                                            <td class="text-right"><?= number_format((float)$row['monto_devuelto'], 2) ?></td>
+                                            <td class="text-right"><?= number_format((float)$row['total_neto'], 2) ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
+                                <?php if ((float)$totals['devoluciones_periodos_anteriores'] > 0): ?>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="5">Devoluciones de ventas de períodos anteriores</th>
+                                            <th class="text-right">-<?= number_format((float)$totals['devoluciones_periodos_anteriores'], 2) ?></th>
+                                        </tr>
+                                    </tfoot>
+                                <?php endif; ?>
                             </table>
                         </div>
                     </div>

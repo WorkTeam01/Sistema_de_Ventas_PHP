@@ -59,8 +59,9 @@ class ReportController extends Controller
         $session  = $this->sessionData();
         $userId   = $this->scopeUserId('view_sales_all');
 
-        $rows   = $report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
+        $rows   = $report->withNetAmounts($report->salesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $userId));
         $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
+        $totals['devoluciones_periodos_anteriores'] = $report->returnsOutsideListed($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
 
         $export = trim($_GET['export'] ?? '');
         if ($export !== '') {
@@ -178,13 +179,19 @@ class ReportController extends Controller
 
     private function exportSales(string $format, array $filters, array $rows, array $totals): void
     {
-        $headers = ['N° Venta', 'Fecha', 'Cliente', 'Total (' . APP_CURRENCY_SYMBOL . ')'];
+        $currency = '(' . APP_CURRENCY_SYMBOL . ')';
+        $headers  = ['N° Venta', 'Fecha', 'Cliente', "Total $currency", "Devuelto $currency", "Neto $currency"];
         $data = array_map(fn($r) => [
             $r['nro_venta'],
             date('d/m/Y H:i', strtotime($r['fyh_creacion'])),
             $r['cliente'] ?? 'Consumidor final',
             (float) $r['total_pagado'],
+            (float) $r['monto_devuelto'],
+            (float) $r['total_neto'],
         ], $rows);
+        if ((float) $totals['devoluciones_periodos_anteriores'] > 0) {
+            $data[] = ['', '', 'Devoluciones de ventas de períodos anteriores', '', '', -(float) $totals['devoluciones_periodos_anteriores']];
+        }
 
         $subtitulo = 'Período: ' . date('d/m/Y', strtotime($filters['desde_display'])) . ' — ' . date('d/m/Y', strtotime($filters['hasta_display']));
         $totalRows = [

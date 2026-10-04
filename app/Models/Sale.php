@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Core\Model;
 use App\Helpers\Money;
+use App\Helpers\MonthSeries;
 
 /**
  * Modelo para la tabla tb_ventas.
@@ -406,36 +407,35 @@ class Sale extends Model
     }
 
     /**
-     * Ventas agrupadas por mes — últimos N meses. Filtra por usuario si se indica $userId.
+     * Ventas agrupadas por mes — últimos N meses, desde el primer día del mes más antiguo de
+     * MonthSeries (la misma serie que rotula el gráfico). Filtra por usuario si se indica $userId.
      *
+     * @param \DateTimeImmutable|null $base Fecha de referencia; hoy si es null.
      * @return array Lista de ['mes' => 'YYYY-MM', 'total' => float]
      */
-    public function totalsByMonth(int $months = 6, ?int $userId = null): array
+    public function totalsByMonth(int $months, ?int $userId = null, ?\DateTimeImmutable $base = null): array
     {
-        $interval = (int)($months - 1);
+        $start = MonthSeries::lastMonths(max(1, $months), $base)[0] . '-01';
         $isSqlite = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite';
         $month = $isSqlite ? "strftime('%Y-%m', fyh_creacion)" : "DATE_FORMAT(fyh_creacion, '%Y-%m')";
         $returnMonth = str_replace('fyh_creacion', 'dv.fyh_creacion', $month);
-        $start = $isSqlite
-            ? "date('now', '-$interval months', 'start of month')"
-            : "DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')";
         $sql = "SELECT mes, COALESCE(SUM(total), 0) AS total
                 FROM (
                     SELECT $month AS mes, SUM(v.total_pagado) AS total
                     FROM tb_ventas v
-                    WHERE v.fyh_creacion >= $start"
+                    WHERE v.fyh_creacion >= ?"
             . ($userId !== null ? " AND v.id_usuario = ?" : '') . "
                     GROUP BY $month
                     UNION ALL
                     SELECT $returnMonth AS mes, -SUM(dv.monto) AS total
                     FROM tb_devoluciones dv
                     INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
-                    WHERE dv.fyh_creacion >= $start"
+                    WHERE dv.fyh_creacion >= ?"
             . ($userId !== null ? " AND v2.id_usuario = ?" : '') . "
                     GROUP BY $returnMonth
                 ) periods
                 GROUP BY mes ORDER BY mes ASC";
-        $params = $userId !== null ? [$userId, $userId] : [];
+        $params = $userId !== null ? [$start, $userId, $start, $userId] : [$start, $start];
         return $this->query($sql, $params);
     }
 

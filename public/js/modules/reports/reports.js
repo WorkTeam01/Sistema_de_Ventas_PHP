@@ -26,21 +26,21 @@ $(function () {
                 buttons: [{
                     text: 'Copiar',
                     extend: 'copy',
-                    exportOptions: { columns: [0, 1, 2, 3] }
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
                 }, {
                     extend: 'excel',
                     title: 'Reporte de Ventas - Sistema de Ventas',
                     messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
-                    exportOptions: { columns: [0, 1, 2, 3] }
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
                 }, {
                     extend: 'csv',
-                    exportOptions: { columns: [0, 1, 2, 3] }
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
                 }, {
                     extend: 'print',
                     text: 'Imprimir',
                     title: 'Reporte de Ventas - Sistema de Ventas',
                     messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
-                    exportOptions: { columns: [0, 1, 2, 3] },
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
                     customize: function (win) {
                         $(win.document.body).find('table')
                             .addClass('table-striped')
@@ -52,7 +52,7 @@ $(function () {
                 text: '<i class="fas fa-columns mr-1"></i> Columnas'
             }],
             columnDefs: [
-                { className: 'text-right', targets: [3] }
+                { className: 'text-right', targets: [3, 4, 5] }
             ],
             language: dtLanguage(),
             initComplete: function () {

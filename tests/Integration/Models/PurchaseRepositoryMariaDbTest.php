@@ -79,6 +79,32 @@ final class PurchaseRepositoryMariaDbTest extends TestCase
         $this->assertSame(50.00, (float)$result[1]['total']);
     }
 
+    public function test_totalsByMonth_window_from_day_31_does_not_skip_february(): void
+    {
+        $base = new \DateTimeImmutable('2026-03-31');
+        $this->createPurchase(1.00, 1, "'2025-09-30'");   // fuera de la ventana
+        $this->createPurchase(2.00, 1, "'2025-10-01'");
+        $this->createPurchase(3.00, 1, "'2026-02-28'");
+        $this->createPurchase(4.00, 1, "'2026-03-31'");
+
+        $result = $this->purchase->totalsByMonth(6, null, $base);
+
+        $this->assertSame(['2025-10', '2026-02', '2026-03'], array_column($result, 'mes'));
+        $this->assertEqualsWithDelta([2.0, 3.0, 4.0], array_map('floatval', array_column($result, 'total')), 0.001);
+    }
+
+    public function test_totalsByMonth_filters_by_user_within_the_window(): void
+    {
+        $base = new \DateTimeImmutable('2026-03-31');
+        $this->createPurchase(2.00, 1, "'2026-03-10'", 1);
+        $this->createPurchase(9.00, 1, "'2026-03-11'", 2);
+
+        $result = $this->purchase->totalsByMonth(6, 1, $base);
+
+        $this->assertCount(1, $result);
+        $this->assertEqualsWithDelta(2.0, (float)$result[0]['total'], 0.001);
+    }
+
     public function test_totalCurrentMonth_filters_by_userId(): void
     {
         $this->createPurchase(10.00, 5, 'CURDATE()', 1);

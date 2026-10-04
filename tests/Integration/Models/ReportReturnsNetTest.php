@@ -165,6 +165,89 @@ final class ReportReturnsNetTest extends TestCase
         $this->assertEqualsWithDelta(0.00, (float)$summary['total_ingresos'], 0.01);
     }
 
+    // ── Fila de períodos anteriores y ticket neto ────────────────────────────
+
+    public function test_returnsOutsideListed_only_counts_returns_of_unlisted_sales(): void
+    {
+        $this->seedVenta(1, 1, 100.00, '2025-05-10 10:00:00'); // período anterior
+        $this->seedVenta(2, 1, 200.00, '2025-06-15 12:00:00');
+        $this->seedDevolucion(1, 1, 30.00, '2025-06-20 09:00:00', [[1, 1, 30.00]]);
+        $this->seedDevolucion(2, 1, 50.00, '2025-06-21 09:00:00', [[1, 1, 50.00]]);
+
+        $outside = $this->report->returnsOutsideListed('2025-06-01 00:00:00', '2025-06-30 23:59:59');
+
+        $this->assertEqualsWithDelta(30.00, $outside, 0.01);
+    }
+
+    public function test_listed_rows_plus_outside_row_sum_to_total(): void
+    {
+        $this->seedVenta(1, 1, 100.00, '2025-05-10 10:00:00');
+        $this->seedVenta(2, 1, 200.00, '2025-06-15 12:00:00');
+        $this->seedDevolucion(1, 1, 30.00, '2025-06-20 09:00:00', [[1, 1, 30.00]]);
+        $this->seedDevolucion(2, 1, 50.00, '2025-06-21 09:00:00', [[1, 1, 50.00]]);
+        $from = '2025-06-01 00:00:00';
+        $to   = '2025-06-30 23:59:59';
+
+        $rows  = $this->report->salesByPeriod($from, $to);
+        $listed = array_sum(array_map(fn($r) => (float)$r['total_pagado'] - (float)$r['monto_devuelto'], $rows));
+        $total = (float)$this->report->salesTotals($from, $to)['total_ingresos'];
+
+        $this->assertEqualsWithDelta($total, $listed - $this->report->returnsOutsideListed($from, $to), 0.01);
+        $this->assertEqualsWithDelta(120.00, $total, 0.01);
+    }
+
+    public function test_returnsOutsideListed_respects_user_scope(): void
+    {
+        $this->pdo->exec("INSERT INTO tb_usuarios (nombres, email, password_user, id_rol)
+                          VALUES ('Otro', 'otro@test.com', 'hash', 1)");
+        $this->seedVenta(1, 1, 100.00, '2025-05-10 10:00:00', 1);
+        $this->seedVenta(2, 1, 100.00, '2025-05-11 10:00:00', 2);
+        $this->seedDevolucion(1, 1, 30.00, '2025-06-20 09:00:00', [[1, 1, 30.00]]);
+        $this->seedDevolucion(2, 2, 10.00, '2025-06-20 10:00:00', [[1, 1, 10.00]]);
+
+        $this->assertEqualsWithDelta(30.00, $this->report->returnsOutsideListed('2025-06-01 00:00:00', '2025-06-30 23:59:59', 1), 0.01);
+        $this->assertEqualsWithDelta(40.00, $this->report->returnsOutsideListed('2025-06-01 00:00:00', '2025-06-30 23:59:59'), 0.01);
+    }
+
+    public function test_withNetAmounts_adds_net_per_row_and_rows_plus_outside_match_total(): void
+    {
+        $this->seedVenta(1, 1, 100.00, '2025-05-10 10:00:00');
+        $this->seedVenta(2, 1, 200.00, '2025-06-15 12:00:00');
+        $this->seedDevolucion(1, 1, 30.00, '2025-06-20 09:00:00', [[1, 1, 30.00]]);
+        $this->seedDevolucion(2, 1, 50.00, '2025-06-21 09:00:00', [[1, 1, 50.00]]);
+        $from = '2025-06-01 00:00:00';
+        $to   = '2025-06-30 23:59:59';
+
+        $rows = $this->report->withNetAmounts($this->report->salesByPeriod($from, $to));
+
+        $this->assertCount(1, $rows);
+        $this->assertEqualsWithDelta(150.00, $rows[0]['total_neto'], 0.001);
+        $this->assertEqualsWithDelta(
+            (float)$this->report->salesTotals($from, $to)['total_ingresos'],
+            array_sum(array_column($rows, 'total_neto')) - $this->report->returnsOutsideListed($from, $to),
+            0.001
+        );
+    }
+
+    public function test_salesTotals_ticket_is_net_total_over_sales_count(): void
+    {
+        $this->seedVenta(1, 1, 100.00, '2025-06-10 10:00:00');
+        $this->seedVenta(2, 1, 200.00, '2025-06-15 12:00:00');
+        $this->seedDevolucion(1, 1, 40.00, '2025-06-20 09:00:00', [[1, 1, 40.00]]);
+
+        $totals = $this->report->salesTotals('2025-06-01 00:00:00', '2025-06-30 23:59:59');
+
+        $this->assertEqualsWithDelta(130.00, (float)$totals['ticket_promedio'], 0.01);
+    }
+
+    public function test_salesTotals_ticket_is_zero_without_sales(): void
+    {
+        $totals = $this->report->salesTotals('2025-06-01 00:00:00', '2025-06-30 23:59:59');
+
+        $this->assertSame(0, (int)$totals['num_ventas']);
+        $this->assertEqualsWithDelta(0.00, (float)$totals['ticket_promedio'], 0.001);
+    }
+
     // ── topProducts net ──────────────────────────────────────────────────────
 
     public function test_topProducts_subtracts_returned_quantities_and_amounts(): void

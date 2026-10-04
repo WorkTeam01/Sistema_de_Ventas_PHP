@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Helpers\MonthSeries;
 
 /**
  * Modelo para la tabla tb_compras.
@@ -235,18 +236,20 @@ class Purchase extends Model
     }
 
     /**
-     * Compras agrupadas por mes — últimos N meses. Filtra por usuario si se indica $userId.
+     * Compras agrupadas por mes — últimos N meses, desde el primer día del mes más antiguo de
+     * MonthSeries (la misma serie que rotula el gráfico). Filtra por usuario si se indica $userId.
      *
+     * @param \DateTimeImmutable|null $base Fecha de referencia; hoy si es null.
      * @return array Lista de ['mes' => 'YYYY-MM', 'total' => float]
      */
-    public function totalsByMonth(int $months = 6, ?int $userId = null): array
+    public function totalsByMonth(int $months, ?int $userId = null, ?\DateTimeImmutable $base = null): array
     {
-        $interval = (int)($months - 1);
+        $start = MonthSeries::lastMonths(max(1, $months), $base)[0] . '-01';
         $sql = "SELECT DATE_FORMAT(fecha_compra, '%Y-%m') AS mes,
                        COALESCE(SUM(precio_compra * cantidad), 0) AS total
                 FROM tb_compras
-                WHERE fecha_compra >= DATE_FORMAT(CURDATE() - INTERVAL $interval MONTH, '%Y-%m-01')";
-        $params = [];
+                WHERE fecha_compra >= ?";
+        $params = [$start];
         if ($userId !== null) {
             $sql .= " AND id_usuario = ?";
             $params[] = $userId;

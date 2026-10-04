@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Helpers\MonthSeries;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -11,6 +12,9 @@ use App\Models\Sale;
 
 class DashboardController extends Controller
 {
+    /** Meses del gráfico: las etiquetas y las consultas salen de este mismo valor. */
+    private const MONTHS = 6;
+
     public function index(): void
     {
         $sessionData = $this->sessionData();
@@ -49,7 +53,7 @@ class DashboardController extends Controller
             $kpis['ventas_var_bar'] = min(abs($var), 100);
             $kpis['ventas_hoy']     = $saleModel->todaySummary($ventasUserId);
             $kpis['ultimas_ventas'] = $saleModel->latest(5, $ventasUserId);
-            $kpis['ventas_por_mes'] = $saleModel->totalsByMonth(6, $ventasUserId);
+            $kpis['ventas_por_mes'] = $saleModel->totalsByMonth(self::MONTHS, $ventasUserId);
             $kpis['top_productos']  = $productModel->getTopSelling(5, $ventasUserId);
         }
 
@@ -65,7 +69,7 @@ class DashboardController extends Controller
             $kpis['compras_var_cls'] = $var > 0 ? 'text-danger' : ($var < 0 ? 'text-success' : 'text-muted');
             $kpis['compras_var_ico'] = $var > 0 ? 'fa-arrow-up' : ($var < 0 ? 'fa-arrow-down' : 'fa-minus');
             $kpis['compras_var_bar'] = min(abs($var), 100);
-            $kpis['compras_por_mes'] = $purchaseModel->totalsByMonth(6, $comprasUserId);
+            $kpis['compras_por_mes'] = $purchaseModel->totalsByMonth(self::MONTHS, $comprasUserId);
         }
 
         // Utilidad bruta — requiere ver ventas y compras a la vez
@@ -81,10 +85,7 @@ class DashboardController extends Controller
 
         // Datos del gráfico
         $mesesEs   = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        $mesesBase = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $mesesBase[date('Y-m', strtotime("-$i months"))] = 0;
-        }
+        $mesesBase = array_fill_keys(MonthSeries::lastMonths(self::MONTHS), 0);
 
         $chartLabels   = [];
         $chartDatasets = [];

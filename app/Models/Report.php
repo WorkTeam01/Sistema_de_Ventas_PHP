@@ -43,29 +43,45 @@ class Report
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    /** Agrega `total_neto` (total pagado menos lo devuelto en el período) a cada fila. */
+    public function withNetAmounts(array $rows): array
+    {
+        return array_map(function (array $row): array {
+            $row['total_neto'] = round((float)$row['total_pagado'] - (float)$row['monto_devuelto'], 2);
+            return $row;
+        }, $rows);
+    }
+
     public function salesTotals(string $desde, string $hasta, ?int $userId = null): array
     {
-        $returnScope = $userId !== null ? ' AND v2.id_usuario = ?' : '';
+        $totals = $this->salesSummary($desde, $hasta, $userId);
+        $count  = (int)$totals['num_ventas'];
 
-        $stmt = $this->pdo->prepare("
-            SELECT COUNT(*)                          AS num_ventas,
-                   COALESCE(SUM(v.total_pagado), 0)
-                     - COALESCE((
-                         SELECT SUM(dv.monto) FROM tb_devoluciones dv
-                         INNER JOIN tb_ventas v2 ON v2.id_venta = dv.id_venta
-                         WHERE dv.fyh_creacion BETWEEN ? AND ?
-                         {$returnScope}
-                     ), 0)                            AS total_ingresos,
-                   COALESCE(AVG(v.total_pagado), 0)  AS ticket_promedio
-            FROM tb_ventas v
-            WHERE v.fyh_creacion BETWEEN ? AND ?
+        $totals['ticket_promedio'] = $count > 0 ? (float)$totals['total_ingresos'] / $count : 0.0;
+        return $totals;
+    }
+
+    /**
+     * Devoluciones registradas en el período cuyas ventas no están en el listado
+     * (ventas de períodos anteriores): completan el total neto junto a las filas.
+     */
+    public function returnsOutsideListed(string $desde, string $hasta, ?int $userId = null): float
+    {
+        $stmt = $this->pdo->prepare(
+            "
+            SELECT COALESCE(SUM(dv.monto), 0)
+            FROM tb_devoluciones dv
+            INNER JOIN tb_ventas v ON v.id_venta = dv.id_venta
+            WHERE dv.fyh_creacion BETWEEN ? AND ?
+              AND v.fyh_creacion NOT BETWEEN ? AND ?
             " . ($userId !== null ? ' AND v.id_usuario = ?' : '')
         );
-        $params = $userId !== null
-            ? [$desde, $hasta, $userId, $desde, $hasta, $userId]
-            : [$desde, $hasta, $desde, $hasta];
+        $params = [$desde, $hasta, $desde, $hasta];
+        if ($userId !== null) {
+            $params[] = $userId;
+        }
         $stmt->execute($params);
-        return $stmt->fetch(\PDO::FETCH_ASSOC);
+        return (float)$stmt->fetchColumn();
     }
 
     // ── Compras ───────────────────────────────────────────────────────────────
@@ -92,7 +108,8 @@ class Report
 
     public function purchasesTotals(string $desde, string $hasta, ?int $userId = null): array
     {
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->pdo->prepare(
+            "
             SELECT COUNT(*)                                        AS num_compras,
                    COALESCE(SUM(c.precio_compra * c.cantidad), 0) AS total_egresos
             FROM tb_compras c
@@ -193,7 +210,8 @@ class Report
     {
         $returnScope = $userId !== null ? ' AND v2.id_usuario = ?' : '';
 
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->pdo->prepare(
+            "
             SELECT COUNT(*)                          AS num_ventas,
                    COALESCE(SUM(v.total_pagado), 0)
                      - COALESCE((

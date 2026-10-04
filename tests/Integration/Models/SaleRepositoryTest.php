@@ -301,6 +301,56 @@ final class SaleRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // totalsByMonth — ventana de meses consecutivos desde el primer día del mes
+    // -------------------------------------------------------------------------
+
+    private function insertSaleOn(int $nroVenta, string $date, float $total): void
+    {
+        $this->pdo->exec(
+            "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado, fyh_creacion)
+             VALUES ($nroVenta, 1, 1, $total, '$date')"
+        );
+    }
+
+    public function test_totalsByMonth_window_from_day_31_does_not_skip_february(): void
+    {
+        $base = new \DateTimeImmutable('2026-03-31');
+        $this->insertSaleOn(1, '2025-09-30 23:59:59', 1.00);   // fuera: un mes antes de la ventana
+        $this->insertSaleOn(2, '2025-10-01 00:00:00', 10.00);  // primer instante de la ventana
+        $this->insertSaleOn(3, '2025-12-31 23:00:00', 20.00);
+        $this->insertSaleOn(4, '2026-02-28 12:00:00', 30.00);  // febrero: lo que la resta de meses desde el 31 saltaba
+        $this->insertSaleOn(5, '2026-03-31 10:00:00', 40.00);
+
+        $result = $this->sale->totalsByMonth(6, null, $base);
+
+        $this->assertSame(['2025-10', '2025-12', '2026-02', '2026-03'], array_column($result, 'mes'));
+        $this->assertEqualsWithDelta([10.0, 20.0, 30.0, 40.0], array_map('floatval', array_column($result, 'total')), 0.001);
+    }
+
+    public function test_totalsByMonth_window_covers_exactly_the_requested_months(): void
+    {
+        $base = new \DateTimeImmutable('2026-07-31');
+        $this->insertSaleOn(1, '2026-01-31 23:59:59', 1.00);  // fuera (6 meses: feb..jul)
+        $this->insertSaleOn(2, '2026-02-01 00:00:00', 2.00);
+
+        $result = $this->sale->totalsByMonth(6, null, $base);
+
+        $this->assertSame(['2026-02'], array_column($result, 'mes'));
+    }
+
+    public function test_totalsByMonth_filters_by_user_within_the_window(): void
+    {
+        $base = new \DateTimeImmutable('2026-03-31');
+        $this->insertSaleOn(1, '2026-03-10 10:00:00', 10.00);
+        $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado, fyh_creacion) VALUES (2, 1, 2, 99.00, '2026-03-11 10:00:00')");
+
+        $result = $this->sale->totalsByMonth(6, 1, $base);
+
+        $this->assertCount(1, $result);
+        $this->assertEqualsWithDelta(10.0, (float)$result[0]['total'], 0.001);
+    }
+
+    // -------------------------------------------------------------------------
     // destroyWithStock
     // -------------------------------------------------------------------------
 
