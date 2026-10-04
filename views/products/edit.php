@@ -140,16 +140,16 @@
                                 <div class="row">
                                     <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="stock">Stock <span class="text-danger">*</span></label>
+                                            <label for="stock">Stock actual</label>
                                             <input
                                                     type="number"
                                                     id="stock"
-                                                    name="stock"
                                                     class="form-control"
                                                     value="<?= htmlspecialchars($stock, ENT_QUOTES, 'UTF-8'); ?>"
-                                                    min="0"
-                                                    required
+                                                    readonly
+                                                    aria-describedby="stockHelp"
                                             >
+                                            <small id="stockHelp" class="form-text text-muted">Se modifica desde Inventario.</small>
                                         </div>
                                     </div>
                                     <div class="col-md-3">

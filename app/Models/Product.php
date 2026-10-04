@@ -12,6 +12,9 @@ use App\Core\Model;
 class Product extends Model
 {
     protected string $table = 'tb_almacen';
+    public const MAX_PRICE = 9999999.99;
+    public const MAX_STOCK = 1000000;
+
     protected string $primaryKey = 'id_producto';
 
     /**
@@ -51,16 +54,14 @@ class Product extends Model
     }
 
     /**
-     * Indica si el producto está referenciado en tb_carrito o tb_compras.
+     * Indica si el producto está referenciado en carrito, compras, ajustes de stock o devoluciones.
      *
      * @param int|string $id ID del producto.
      * @return bool true si existe al menos una referencia activa.
      */
     public function isReferenced(int|string $id): bool
     {
-        $inCart = $this->query("SELECT COUNT(*) AS total FROM tb_carrito WHERE id_producto = ?", [$id]);
-        $inPurchase = $this->query("SELECT COUNT(*) AS total FROM tb_compras WHERE id_producto = ?", [$id]);
-        return ($inCart[0]['total'] ?? 0) > 0 || ($inPurchase[0]['total'] ?? 0) > 0;
+        return array_sum($this->getReferenceCount((int)$id)) > 0;
     }
 
     /** Cuenta productos con stock por debajo del mínimo (o 5 si stock_minimo es NULL). */
@@ -120,20 +121,23 @@ class Product extends Model
         return $this->query($sql, $params);
     }
 
+    /**
+     * Cuenta las filas que referencian al producto, por tabla.
+     *
+     * @return array{carrito: int, compras: int, ajustes: int, devoluciones: int}
+     */
     public function getReferenceCount(int $id): array
     {
-        $carrito = $this->query(
-            "SELECT COUNT(*) AS total FROM tb_carrito WHERE id_producto = ?",
+        $count = fn(string $table): int => (int)($this->query(
+            "SELECT COUNT(*) AS total FROM {$table} WHERE id_producto = ?",
             [$id]
-        );
-        $compras = $this->query(
-            "SELECT COUNT(*) AS total FROM tb_compras WHERE id_producto = ?",
-            [$id]
-        );
+        )[0]['total'] ?? 0);
 
         return [
-            'carrito' => (int)($carrito[0]['total'] ?? 0),
-            'compras' => (int)($compras[0]['total'] ?? 0),
+            'carrito' => $count('tb_carrito'),
+            'compras' => $count('tb_compras'),
+            'ajustes' => $count('tb_ajustes_stock'),
+            'devoluciones' => $count('tb_devolucion_items'),
         ];
     }
 
@@ -156,6 +160,38 @@ class Product extends Model
     }
 
     /**
+     * Valida precios y, si viene en $data, el stock inicial.
+     *
+     * @param array $data Claves: precio_compra, precio_venta y opcionalmente stock.
+     * @return bool|array true si es válido, array campo => mensaje si no.
+     */
+    public function validateData(array $data): bool|array
+    {
+        $errors = [];
+
+        foreach (['precio_compra' => 'compra', 'precio_venta' => 'venta'] as $field => $label) {
+            $value = $data[$field] ?? '';
+            if (!is_numeric($value)) {
+                $errors[$field] = "El precio de {$label} debe ser numérico.";
+            } elseif ((float)$value <= 0) {
+                $errors[$field] = "El precio de {$label} debe ser mayor a 0.";
+            } elseif (round((float)$value, 2) > self::MAX_PRICE) {
+                $errors[$field] = "El precio de {$label} no puede superar 9.999.999,99.";
+            }
+        }
+
+        if (array_key_exists('stock', $data)) {
+            if (!is_numeric($data['stock']) || filter_var($data['stock'], FILTER_VALIDATE_INT) === false) {
+                $errors['stock'] = 'El stock debe ser un número entero.';
+            } elseif ((int)$data['stock'] < 0 || (int)$data['stock'] > self::MAX_STOCK) {
+                $errors['stock'] = 'El stock debe estar entre 0 y 1.000.000.';
+            }
+        }
+
+        return empty($errors) ? true : $errors;
+    }
+
+    /**
      * Crea un nuevo producto normalizando campos opcionales y casteando tipos.
      * stock_minimo/stock_maximo/descripcion vacíos se guardan como NULL.
      *
@@ -164,24 +200,57 @@ class Product extends Model
      */
     public function createProduct(array $data): int|false
     {
-        return $this->create([
-            'codigo' => $data['codigo'],
-            'nombre' => $data['nombre'],
-            'descripcion' => !empty($data['descripcion']) ? $data['descripcion'] : null,
-            'stock' => (int)$data['stock'],
-            'stock_minimo' => $data['stock_minimo'] !== '' && $data['stock_minimo'] !== null ? (int)$data['stock_minimo'] : null,
-            'stock_maximo' => $data['stock_maximo'] !== '' && $data['stock_maximo'] !== null ? (int)$data['stock_maximo'] : null,
-            'precio_compra' => (float)$data['precio_compra'],
-            'precio_venta' => (float)$data['precio_venta'],
-            'fecha_ingreso' => $data['fecha_ingreso'],
-            'imagen' => $data['imagen'],
-            'id_usuario' => $data['id_usuario'],
-            'id_categoria' => $data['id_categoria'],
-        ]);
+        $initialStock = (int)$data['stock'];
+        $ownsTransaction = !$this->db->inTransaction();
+
+        if ($ownsTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            // Se inserta en 0 y el stock inicial entra como ajuste para que el historial lo explique.
+            $id = $this->create([
+                'codigo' => $data['codigo'],
+                'nombre' => $data['nombre'],
+                'descripcion' => !empty($data['descripcion']) ? $data['descripcion'] : null,
+                'stock' => 0,
+                'stock_minimo' => $data['stock_minimo'] !== '' && $data['stock_minimo'] !== null ? (int)$data['stock_minimo'] : null,
+                'stock_maximo' => $data['stock_maximo'] !== '' && $data['stock_maximo'] !== null ? (int)$data['stock_maximo'] : null,
+                'precio_compra' => (float)$data['precio_compra'],
+                'precio_venta' => (float)$data['precio_venta'],
+                'fecha_ingreso' => $data['fecha_ingreso'],
+                'imagen' => $data['imagen'],
+                'id_usuario' => $data['id_usuario'],
+                'id_categoria' => $data['id_categoria'],
+            ]);
+
+            if ($id && $initialStock > 0) {
+                $result = (new StockAdjustment())->registerInTransaction($id, 'entrada', $initialStock, 'Stock inicial');
+                if (!$result['ok']) {
+                    throw new \RuntimeException($result['error'] ?? 'No se pudo registrar el stock inicial');
+                }
+            }
+
+            if ($ownsTransaction) {
+                $this->db->commit();
+            }
+
+            return $id;
+        } catch (\Throwable $e) {
+            if ($ownsTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            if (!$ownsTransaction) {
+                throw $e;
+            }
+            return false;
+        }
     }
 
     /**
      * Actualiza un producto normalizando campos opcionales y casteando tipos.
+     * No toca `stock` (solo cambia por ajustes, compras, ventas y devoluciones) ni `id_usuario`
+     * (queda el registrador original).
      * stock_minimo/stock_maximo/descripcion vacíos se guardan como NULL.
      *
      * @param int $id ID del producto a actualizar.
@@ -193,14 +262,12 @@ class Product extends Model
         return $this->update($id, [
             'nombre' => $data['nombre'],
             'descripcion' => !empty($data['descripcion']) ? $data['descripcion'] : null,
-            'stock' => (int)$data['stock'],
             'stock_minimo' => $data['stock_minimo'] !== '' && $data['stock_minimo'] !== null ? (int)$data['stock_minimo'] : null,
             'stock_maximo' => $data['stock_maximo'] !== '' && $data['stock_maximo'] !== null ? (int)$data['stock_maximo'] : null,
             'precio_compra' => (float)$data['precio_compra'],
             'precio_venta' => (float)$data['precio_venta'],
             'fecha_ingreso' => $data['fecha_ingreso'],
             'imagen' => $data['imagen'],
-            'id_usuario' => $data['id_usuario'],
             'id_categoria' => $data['id_categoria'],
         ]);
     }

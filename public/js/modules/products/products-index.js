@@ -147,6 +147,8 @@ function confirmDelete(id, name) {
                     let reasons = '';
                     if (data.carrito > 0) reasons += '<li>' + data.carrito + ' ítem(s) en carrito de ventas</li>';
                     if (data.compras > 0) reasons += '<li>' + data.compras + ' compra(s) registrada(s)</li>';
+                    if (data.ajustes > 0) reasons += '<li>' + data.ajustes + ' ajuste(s) de stock registrado(s)</li>';
+                    if (data.devoluciones > 0) reasons += '<li>' + data.devoluciones + ' línea(s) de devolución</li>';
 
                     AlertUtils.blockedDelete('producto', name, reasons);
                     return;

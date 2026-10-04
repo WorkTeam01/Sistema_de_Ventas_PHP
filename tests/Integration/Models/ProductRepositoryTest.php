@@ -53,8 +53,7 @@ final class ProductRepositoryTest extends TestCase
 
     private function createProduct(array $overrides = []): int
     {
-        $this->product->createProduct($this->productData($overrides));
-        return (int)$this->pdo->lastInsertId();
+        return (int)$this->product->createProduct($this->productData($overrides));
     }
 
     // -------------------------------------------------------------------------
@@ -95,6 +94,106 @@ final class ProductRepositoryTest extends TestCase
 
         $row = $this->product->find(1);
         $this->assertNull($row['stock_maximo']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Stock inicial y edición sin stock
+    // -------------------------------------------------------------------------
+
+    public function test_createProduct_registra_stock_inicial_como_entrada(): void
+    {
+        $id = $this->createProduct(['stock' => 5]);
+
+        $this->assertSame(5, (int)$this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $id")->fetchColumn());
+
+        $rows = $this->pdo->query("SELECT * FROM tb_ajustes_stock WHERE id_producto = $id")->fetchAll();
+        $this->assertCount(1, $rows);
+        $this->assertSame('entrada', $rows[0]['tipo']);
+        $this->assertSame(5, (int)$rows[0]['cantidad']);
+        $this->assertSame(0, (int)$rows[0]['stock_anterior']);
+        $this->assertSame(5, (int)$rows[0]['stock_posterior']);
+        $this->assertSame('Stock inicial', $rows[0]['motivo']);
+    }
+
+    public function test_createProduct_con_stock_cero_no_registra_ajuste(): void
+    {
+        $id = $this->createProduct(['stock' => 0]);
+
+        $this->assertGreaterThan(0, $id);
+        $this->assertSame(0, (int)$this->pdo->query("SELECT COUNT(*) FROM tb_ajustes_stock")->fetchColumn());
+    }
+
+    public function test_createProduct_respeta_transaccion_externa_sin_anidar(): void
+    {
+        $this->pdo->beginTransaction();
+        $id = $this->createProduct(['stock' => 3]);
+        $this->assertTrue($this->pdo->inTransaction());
+        $this->pdo->rollBack();
+
+        $this->assertSame(0, (int)$this->pdo->query("SELECT COUNT(*) FROM tb_almacen WHERE id_producto = $id")->fetchColumn());
+        $this->assertSame(0, (int)$this->pdo->query("SELECT COUNT(*) FROM tb_ajustes_stock")->fetchColumn());
+    }
+
+    public function test_updateProduct_ignora_stock_e_id_usuario(): void
+    {
+        $this->pdo->exec("INSERT INTO tb_usuarios (nombres, email, password_user, id_rol)
+            VALUES ('Otro', 'otro@test.com', 'hash', 1)");
+        $id = $this->createProduct(['stock' => 7, 'id_usuario' => 1]);
+
+        $this->assertTrue($this->product->updateProduct($id, $this->productData([
+            'nombre'     => 'Renombrado',
+            'stock'      => 999,
+            'id_usuario' => 2,
+        ])));
+
+        $row = $this->product->find($id);
+        $this->assertSame('Renombrado', $row['nombre']);
+        $this->assertSame(7, (int)$row['stock']);
+        $this->assertSame(1, (int)$row['id_usuario']);
+    }
+
+    // -------------------------------------------------------------------------
+    // validateData (límites)
+    // -------------------------------------------------------------------------
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('validationProvider')]
+    public function test_validateData_limits(array $override, ?string $invalidField): void
+    {
+        $result = $this->product->validateData(array_merge(
+            ['stock' => 10, 'precio_compra' => '5.00', 'precio_venta' => '8.00'],
+            $override
+        ));
+
+        if ($invalidField === null) {
+            $this->assertTrue($result);
+        } else {
+            $this->assertIsArray($result);
+            $this->assertArrayHasKey($invalidField, $result);
+        }
+    }
+
+    public static function validationProvider(): array
+    {
+        return [
+            'datos válidos'           => [[], null],
+            'precio venta mínimo'     => [['precio_venta' => '0.01'], null],
+            'precio venta cero'       => [['precio_venta' => '0'], 'precio_venta'],
+            'precio venta máximo'     => [['precio_venta' => '9999999.99'], null],
+            'precio venta excedido'   => [['precio_venta' => '10000000'], 'precio_venta'],
+            'precio compra cero'      => [['precio_compra' => 0], 'precio_compra'],
+            'precio compra excedido'  => [['precio_compra' => '10000000.00'], 'precio_compra'],
+            'precio no numérico'      => [['precio_compra' => 'abc'], 'precio_compra'],
+            'stock cero'              => [['stock' => 0], null],
+            'stock máximo'            => [['stock' => 1000000], null],
+            'stock excedido'          => [['stock' => 1000001], 'stock'],
+            'stock negativo'          => [['stock' => -1], 'stock'],
+            'stock decimal'           => [['stock' => '2.5'], 'stock'],
+        ];
+    }
+
+    public function test_validateData_skips_stock_when_absent(): void
+    {
+        $this->assertTrue($this->product->validateData(['precio_compra' => 5, 'precio_venta' => 8]));
     }
 
     // -------------------------------------------------------------------------
@@ -149,7 +248,7 @@ final class ProductRepositoryTest extends TestCase
 
     public function test_nextCode_skips_gaps_left_by_deleted_products(): void
     {
-        $id1 = $this->createProduct(['codigo' => 'P-00001']);
+        $id1 = $this->createProduct(['codigo' => 'P-00001', 'stock' => 0]);
         $this->createProduct(['codigo' => 'P-00002']);
 
         $this->product->delete($id1);
@@ -167,7 +266,7 @@ final class ProductRepositoryTest extends TestCase
 
     public function test_isReferenced_false_when_orphan(): void
     {
-        $id = $this->createProduct();
+        $id = $this->createProduct(['stock' => 0]);
         $this->assertFalse($this->product->isReferenced($id));
     }
 
@@ -190,6 +289,41 @@ final class ProductRepositoryTest extends TestCase
             VALUES ($id, 1, '2026-01-01', 1, 'COMP-001', 1, 5.00, 10)");
 
         $this->assertTrue($this->product->isReferenced($id));
+    }
+
+    public function test_isReferenced_true_when_product_has_stock_adjustment(): void
+    {
+        $id = $this->createProduct(['stock' => 0]);
+        $this->pdo->exec("INSERT INTO tb_ajustes_stock
+            (id_producto, tipo, cantidad, stock_anterior, stock_posterior, motivo)
+            VALUES ($id, 'entrada', 3, 0, 3, 'Ajuste')");
+
+        $this->assertTrue($this->product->isReferenced($id));
+        $this->assertSame(1, $this->product->getReferenceCount($id)['ajustes']);
+    }
+
+    public function test_isReferenced_true_when_product_has_return_line(): void
+    {
+        $id = $this->createProduct(['stock' => 0]);
+        $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_usuario, total_pagado) VALUES (1, 1, 20.00)");
+        $this->pdo->exec("INSERT INTO tb_devoluciones (nro_devolucion, id_venta, motivo, monto)
+            VALUES (1, 1, 'Motivo', 20.00)");
+        $this->pdo->exec("INSERT INTO tb_devolucion_items (id_devolucion, id_producto, cantidad, precio_unitario)
+            VALUES (1, $id, 1, 20.00)");
+
+        $this->assertTrue($this->product->isReferenced($id));
+        $this->assertSame(1, $this->product->getReferenceCount($id)['devoluciones']);
+    }
+
+    public function test_product_with_stock_adjustment_cannot_be_deleted_by_guard(): void
+    {
+        $id = $this->createProduct(['stock' => 5]);
+
+        $this->assertTrue($this->product->isReferenced($id));
+        $this->assertSame(
+            ['carrito' => 0, 'compras' => 0, 'ajustes' => 1, 'devoluciones' => 0],
+            $this->product->getReferenceCount($id)
+        );
     }
 
     // -------------------------------------------------------------------------

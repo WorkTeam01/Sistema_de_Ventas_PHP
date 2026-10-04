@@ -7,7 +7,6 @@ use App\Core\Controller;
 use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\StockAdjustment;
 
 class ProductController extends Controller
 {
@@ -72,8 +71,14 @@ class ProductController extends Controller
             return;
         }
 
-        if (!is_numeric($stock) || !is_numeric($precio_compra) || !is_numeric($precio_venta)) {
-            $this->flash('Los valores de stock y precios deben ser numéricos.', 'error');
+        $validation = (new Product())->validateData([
+            'stock' => $stock,
+            'precio_compra' => $precio_compra,
+            'precio_venta' => $precio_venta,
+        ]);
+
+        if ($validation !== true) {
+            $this->flash(implode(' ', $validation), 'error');
             $this->redirect(BASE_URL . '/products/create');
             return;
         }
@@ -86,12 +91,6 @@ class ProductController extends Controller
 
         if ($stock_maximo !== '' && $stock_maximo !== null && !is_numeric($stock_maximo)) {
             $this->flash('El stock máximo debe ser numérico.', 'error');
-            $this->redirect(BASE_URL . '/products/create');
-            return;
-        }
-
-        if ((float) $stock < 0 || (float) $precio_compra < 0 || (float) $precio_venta < 0) {
-            $this->flash('El stock y los precios no pueden ser negativos.', 'error');
             $this->redirect(BASE_URL . '/products/create');
             return;
         }
@@ -265,7 +264,6 @@ class ProductController extends Controller
         $nombre = trim($_POST['nombre'] ?? '');
         $id_categoria = (int)($_POST['id_categoria'] ?? 0);
         $descripcion = trim($_POST['descripcion'] ?? '');
-        $stock = $_POST['stock'] ?? '';
         $stock_minimo = $_POST['stock_minimo'] ?? null;
         $stock_maximo = $_POST['stock_maximo'] ?? null;
         $precio_compra = $_POST['precio_compra'] ?? '';
@@ -273,14 +271,19 @@ class ProductController extends Controller
         $fecha_ingreso = trim($_POST['fecha_ingreso'] ?? '');
         $image_text = trim($_POST['image_text'] ?? 'producto_default.png');
 
-        if ($id_producto <= 0 || $nombre === '' || $id_categoria <= 0 || $stock === '' || $precio_compra === '' || $precio_venta === '' || $fecha_ingreso === '') {
+        if ($id_producto <= 0 || $nombre === '' || $id_categoria <= 0 || $precio_compra === '' || $precio_venta === '' || $fecha_ingreso === '') {
             $this->flash('Datos inválidos para actualizar el producto.', 'error');
             $this->redirect(BASE_URL . '/products');
             return;
         }
 
-        if (!is_numeric($stock) || !is_numeric($precio_compra) || !is_numeric($precio_venta)) {
-            $this->flash('Los valores de stock y precios deben ser numéricos.', 'error');
+        $validation = (new Product())->validateData([
+            'precio_compra' => $precio_compra,
+            'precio_venta' => $precio_venta,
+        ]);
+
+        if ($validation !== true) {
+            $this->flash(implode(' ', $validation), 'error');
             $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
             return;
         }
@@ -289,12 +292,6 @@ class ProductController extends Controller
             || ($stock_maximo !== '' && $stock_maximo !== null && !is_numeric($stock_maximo))
         ) {
             $this->flash('El stock mínimo y el stock máximo deben ser numéricos.', 'error');
-            $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
-            return;
-        }
-
-        if ((float) $stock < 0 || (float) $precio_compra < 0 || (float) $precio_venta < 0) {
-            $this->flash('El stock y los precios no pueden ser negativos.', 'error');
             $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
             return;
         }
@@ -321,40 +318,48 @@ class ProductController extends Controller
 
         $productModel = new Product();
         $actual = $productModel->find($id_producto);
-        $id_usuario = Auth::user()['id_usuario'];
-
-        // El ajuste se registra antes de escribir el producto porque lee el stock
-        // actual de la tabla: así el histórico de tb_ajustes_stock queda completo
-        // aunque el cambio de stock llegue por la ficha y no por Inventario.
-        if ($actual && (int) $actual['stock'] !== (int) $stock) {
-            $delta = (int) $stock - (int) $actual['stock'];
-            $adjustment = (new StockAdjustment())->register(
-                $id_producto,
-                $delta > 0 ? 'entrada' : 'salida',
-                abs($delta),
-                'Ajuste manual desde la ficha del producto'
-            );
-
-            if (!$adjustment['ok']) {
-                $this->flash($adjustment['error'] ?? 'No se pudo ajustar el stock del producto.', 'error');
-                $this->redirect(BASE_URL . '/products/edit/' . $id_producto);
-                return;
-            }
-        }
 
         if ($productModel->updateProduct($id_producto, [
             'nombre' => $nombre,
             'descripcion' => $descripcion,
-            'stock' => $stock,
             'stock_minimo' => $stock_minimo,
             'stock_maximo' => $stock_maximo,
             'precio_compra' => $precio_compra,
             'precio_venta' => $precio_venta,
             'fecha_ingreso' => $fecha_ingreso,
             'imagen' => $imagen,
-            'id_usuario' => $id_usuario,
             'id_categoria' => $id_categoria,
         ])) {
+            if ($actual) {
+                $before = [
+                    'nombre'        => $actual['nombre'],
+                    'descripcion'   => $actual['descripcion'] ?: null,
+                    'stock_minimo'  => $actual['stock_minimo'] !== null ? (int)$actual['stock_minimo'] : null,
+                    'stock_maximo'  => $actual['stock_maximo'] !== null ? (int)$actual['stock_maximo'] : null,
+                    'fecha_ingreso' => $actual['fecha_ingreso'],
+                    'imagen'        => $actual['imagen'],
+                    'id_categoria'  => (int)$actual['id_categoria'],
+                ];
+                $after = [
+                    'nombre'        => $nombre,
+                    'descripcion'   => $descripcion !== '' ? $descripcion : null,
+                    'stock_minimo'  => $stock_minimo !== '' && $stock_minimo !== null ? (int)$stock_minimo : null,
+                    'stock_maximo'  => $stock_maximo !== '' && $stock_maximo !== null ? (int)$stock_maximo : null,
+                    'fecha_ingreso' => $fecha_ingreso,
+                    'imagen'        => $imagen,
+                    'id_categoria'  => $id_categoria,
+                ];
+                $changed = array_keys(array_diff_assoc($after, $before) + array_diff_assoc($before, $after));
+
+                if ($changed) {
+                    ActivityLog::record(
+                        'update', 'product', $id_producto,
+                        "Producto '{$actual['nombre']}' actualizado",
+                        array_intersect_key($before, array_flip($changed)),
+                        array_intersect_key($after, array_flip($changed))
+                    );
+                }
+            }
             if ($actual && (
                 (float)$actual['precio_venta'] !== (float)$precio_venta ||
                 (float)$actual['precio_compra'] !== (float)$precio_compra
@@ -377,7 +382,7 @@ class ProductController extends Controller
 
     /**
      * Verifica si el producto tiene registros asociados en otras tablas.
-     * Responde JSON: { referenced: bool, carrito: int, compras: int }
+     * Responde JSON: { referenced: bool, carrito: int, compras: int, ajustes: int, devoluciones: int }
      *
      * @param int|null $id ID del producto a verificar.
      */
@@ -397,9 +402,11 @@ class ProductController extends Controller
         $counts = $productModel->getReferenceCount($id);
 
         $this->json([
-            'referenced' => ($counts['carrito'] + $counts['compras']) > 0,
+            'referenced' => array_sum($counts) > 0,
             'carrito' => $counts['carrito'],
             'compras' => $counts['compras'],
+            'ajustes' => $counts['ajustes'],
+            'devoluciones' => $counts['devoluciones'],
         ]);
     }
 
@@ -441,7 +448,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Elimina un producto si no está referenciado en compras ni en ventas.
+     * Elimina un producto si no está referenciado en compras, ventas, ajustes ni devoluciones.
      */
     public function destroy(): void
     {
@@ -456,14 +463,39 @@ class ProductController extends Controller
         }
 
         $productModel = new Product();
+        $snapshot = $productModel->find($id_producto);
 
         if ($productModel->isReferenced($id_producto)) {
-            $this->flash('No se puede eliminar el producto porque tiene compras o ventas registradas.', 'error');
+            $this->flash('No se puede eliminar el producto porque tiene compras, ventas, ajustes de stock o devoluciones registradas.', 'error');
             $this->redirect(BASE_URL . '/products');
             return;
         }
 
-        if ($productModel->delete($id_producto)) {
+        try {
+            $deleted = $productModel->delete($id_producto);
+        } catch (\PDOException $e) {
+            // Una referencia creada entre isReferenced() y el DELETE la frena la clave foránea
+            $this->flash('No se puede eliminar el producto porque tiene compras, ventas, ajustes de stock o devoluciones registradas.', 'error');
+            $this->redirect(BASE_URL . '/products');
+            return;
+        }
+
+        if ($deleted) {
+            if ($snapshot) {
+                ActivityLog::record(
+                    'delete',
+                    'product',
+                    $id_producto,
+                    "Producto '{$snapshot['nombre']}' eliminado",
+                    [
+                        'codigo'        => $snapshot['codigo'],
+                        'nombre'        => $snapshot['nombre'],
+                        'stock'         => $snapshot['stock'],
+                        'precio_compra' => $snapshot['precio_compra'],
+                        'precio_venta'  => $snapshot['precio_venta'],
+                    ]
+                );
+            }
             $this->flash('El producto se eliminó exitosamente.', 'success');
             $this->redirect(BASE_URL . '/products');
             return;
