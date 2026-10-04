@@ -101,13 +101,28 @@ final class ActivityLogRepositoryTest extends TestCase
     // record() — método estático
     // -------------------------------------------------------------------------
 
-    public function test_record_does_not_throw_when_user_session_is_absent(): void
+    public function test_record_without_session_stores_the_entry_without_user(): void
     {
-        // Sin sesión activa, record() debe silenciar el error y no insertar nada
-        // (Auth::user() retorna null/empty, pero el try/catch lo absorbe).
-        // Lo que verificamos es que no lanza excepción.
-        $this->expectNotToPerformAssertions();
-        ActivityLog::record('delete', 'sale', 1, 'Test sin sesión');
+        ActivityLog::record('delete', 'sale', 1, 'Test sin sesión', ['nro_venta' => 1], ['estado' => 'x']);
+
+        $rows = $this->log->all();
+        $this->assertCount(1, $rows);
+        $this->assertNull($rows[0]['id_usuario']);
+        $this->assertSame('', $rows[0]['usuario_nombre']);
+        $this->assertSame('delete', $rows[0]['accion']);
+        $this->assertSame('sale', $rows[0]['entidad']);
+        $this->assertSame(1, (int) $rows[0]['entidad_id']);
+        $this->assertSame('Test sin sesión', $rows[0]['descripcion']);
+        $this->assertSame(['nro_venta' => 1], json_decode($rows[0]['datos_anteriores'], true));
+        $this->assertSame(['estado' => 'x'], json_decode($rows[0]['datos_nuevos'], true));
+    }
+
+    public function test_record_truncates_description_to_255_chars(): void
+    {
+        ActivityLog::record('update', 'product', 7, str_repeat('á', 300));
+
+        $row = $this->log->all()[0];
+        $this->assertSame(255, mb_strlen($row['descripcion']));
     }
 
     // -------------------------------------------------------------------------

@@ -208,4 +208,58 @@ final class RoleRepositoryTest extends TestCase
 
         $this->assertSame(2, $this->getPermisosVersion($roleId));
     }
+
+    // -------------------------------------------------------------------------
+    // grantsSuperadmin
+    // -------------------------------------------------------------------------
+
+    public function test_grantsSuperadmin_returns_true_when_role_has_is_superadmin(): void
+    {
+        $roleId = $this->createRole('Dueño');
+        $this->role->syncPermissions($roleId, [$this->createPermission('is_superadmin')]);
+
+        $this->assertTrue($this->role->grantsSuperadmin($roleId));
+    }
+
+    public function test_grantsSuperadmin_returns_false_when_role_has_only_other_permissions(): void
+    {
+        $roleId = $this->createRole('Vendedor');
+        $this->role->syncPermissions($roleId, [
+            $this->createPermission('manage_users'),
+            $this->createPermission('manage_roles'),
+        ]);
+
+        $this->assertFalse($this->role->grantsSuperadmin($roleId));
+    }
+
+    public function test_grantsSuperadmin_returns_false_for_role_without_permissions_or_nonexistent(): void
+    {
+        $this->createPermission('is_superadmin');
+        $emptyRoleId = $this->createRole('Vacío');
+
+        $this->assertFalse($this->role->grantsSuperadmin($emptyRoleId));
+        $this->assertFalse($this->role->grantsSuperadmin(9999));
+    }
+
+    public function test_grantsSuperadmin_depends_on_the_permission_not_on_the_role_name(): void
+    {
+        $superadminPermission = $this->createPermission('is_superadmin');
+        $namedAdmin = $this->createRole('Administrador');
+        $renamed    = $this->createRole('Operador');
+        $this->role->syncPermissions($renamed, [$superadminPermission]);
+
+        $this->assertFalse($this->role->grantsSuperadmin($namedAdmin));
+        $this->assertTrue($this->role->grantsSuperadmin($renamed));
+    }
+
+    public function test_grantsSuperadmin_turns_false_after_the_permission_is_revoked(): void
+    {
+        $roleId = $this->createRole('Temporal');
+        $this->role->syncPermissions($roleId, [$this->createPermission('is_superadmin')]);
+        $this->assertTrue($this->role->grantsSuperadmin($roleId));
+
+        $this->role->syncPermissions($roleId, []);
+
+        $this->assertFalse($this->role->grantsSuperadmin($roleId));
+    }
 }
