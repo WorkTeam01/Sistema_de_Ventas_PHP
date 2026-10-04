@@ -95,8 +95,8 @@ class UserController extends Controller
             $this->redirect(BASE_URL . '/users/create');
         }
 
-        if (strlen($password_user) < 6) {
-            $this->flash('La contraseña debe tener al menos 6 caracteres.', 'error');
+        if (!User::validatePassword($password_user)) {
+            $this->flash('La contraseña debe tener al menos ' . User::MIN_PASSWORD_LENGTH . ' caracteres.', 'error');
             $this->redirect(BASE_URL . '/users/create');
         }
 
@@ -210,8 +210,8 @@ class UserController extends Controller
 
         $newPassword = null;
         if ($password_user !== '') {
-            if (strlen($password_user) < 6) {
-                $this->flash('La contraseña debe tener al menos 6 caracteres.', 'error');
+            if (!User::validatePassword($password_user)) {
+                $this->flash('La contraseña debe tener al menos ' . User::MIN_PASSWORD_LENGTH . ' caracteres.', 'error');
                 $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
             }
             if ($password_user !== $password_repeat) {
@@ -468,6 +468,7 @@ class UserController extends Controller
 
         $authUser = Auth::user();
         $id_usuario = (int)$authUser['id_usuario'];
+        $password_current = $_POST['password_current'] ?? '';
         $password_user = $_POST['password_user'] ?? '';
         $password_repeat = $_POST['password_repeat'] ?? '';
 
@@ -476,8 +477,8 @@ class UserController extends Controller
             $this->redirect(BASE_URL . '/profile?tab=password');
         }
 
-        if (strlen($password_user) < 6) {
-            $this->flash('La contraseña debe tener al menos 6 caracteres.', 'error');
+        if (!User::validatePassword($password_user)) {
+            $this->flash('La contraseña debe tener al menos ' . User::MIN_PASSWORD_LENGTH . ' caracteres.', 'error');
             $this->redirect(BASE_URL . '/profile?tab=password');
         }
 
@@ -487,6 +488,11 @@ class UserController extends Controller
         }
 
         $userModel = new User();
+
+        if (!$userModel->verifyCurrentPassword($id_usuario, $password_current)) {
+            $this->flash('La contraseña actual no es correcta.', 'error');
+            $this->redirect(BASE_URL . '/profile?tab=password');
+        }
 
         if ($userModel->updatePassword($id_usuario, $password_user)) {
             $this->flash('Contraseña actualizada exitosamente.', 'success');

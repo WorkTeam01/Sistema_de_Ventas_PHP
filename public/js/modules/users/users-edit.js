@@ -27,9 +27,9 @@ $(document).ready(function () {
             rol: {
                 required: true
             },
-            // Contraseña es opcional: si se llena, debe tener mínimo 6 caracteres
+            // Contraseña es opcional: si se llena, debe tener mínimo 8 caracteres
             password_user: {
-                minlength: 6
+                minlength: 8
             },
             // Si se llena password_user, repeat debe coincidir
             password_repeat: {
@@ -50,7 +50,7 @@ $(document).ready(function () {
                 required: 'Debe seleccionar un rol'
             },
             password_user: {
-                minlength: 'La contraseña debe tener al menos 6 caracteres'
+                minlength: 'La contraseña debe tener al menos 8 caracteres'
             },
             password_repeat: {
                 equalTo: 'Las contraseñas no coinciden'

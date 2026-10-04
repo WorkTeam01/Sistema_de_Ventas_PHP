@@ -46,9 +46,12 @@ $(function () {
     // ── Validación: Cambiar contraseña ───────────────────────────────────────
     $formPassword.validate({
         rules: {
+            password_current: {
+                required: true
+            },
             password_user: {
                 required: true,
-                minlength: 6
+                minlength: 8
             },
             password_repeat: {
                 required: true,
@@ -56,9 +59,12 @@ $(function () {
             }
         },
         messages: {
+            password_current: {
+                required: 'Ingresa tu contraseña actual.'
+            },
             password_user: {
                 required: 'La nueva contraseña es obligatoria.',
-                minlength: 'La contraseña debe tener al menos 6 caracteres.'
+                minlength: 'La contraseña debe tener al menos 8 caracteres.'
             },
             password_repeat: {
                 required: 'Confirma la nueva contraseña.',

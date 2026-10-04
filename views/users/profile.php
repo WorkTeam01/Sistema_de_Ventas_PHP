@@ -170,7 +170,28 @@
 
                                         <div class="callout callout-info">
                                             <p class="mb-0"><i class="fas fa-info-circle"></i> La contraseña debe tener
-                                                al menos <strong>6 caracteres</strong>.</p>
+                                                al menos <strong>8 caracteres</strong>.</p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="password-current-input">Contraseña actual</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                </div>
+                                                <input type="password"
+                                                    id="password-current-input"
+                                                    name="password_current"
+                                                    class="form-control"
+                                                    autocomplete="current-password">
+                                                <div class="input-group-append">
+                                                    <button type="button"
+                                                        class="btn btn-default toggle-password"
+                                                        aria-label="Mostrar contraseña">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="form-group">

@@ -26,7 +26,7 @@ $(document).ready(function () {
             },
             password_user: {
                 required: true,
-                minlength: 6
+                minlength: 8
             },
             password_repeat: {
                 required: true,
@@ -48,7 +48,7 @@ $(document).ready(function () {
             },
             password_user: {
                 required: 'La contraseña es requerida',
-                minlength: 'La contraseña debe tener al menos 6 caracteres'
+                minlength: 'La contraseña debe tener al menos 8 caracteres'
             },
             password_repeat: {
                 required: 'Debe confirmar la contraseña',

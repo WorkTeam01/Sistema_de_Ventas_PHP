@@ -108,7 +108,7 @@
                                                 </div>
                                                 <input type="password" id="password_user" name="password_user"
                                                     class="form-control"
-                                                    placeholder="Mínimo 6 caracteres" aria-required="true">
+                                                    placeholder="Mínimo 8 caracteres" aria-required="true">
                                                 <div class="input-group-append">
                                                     <button type="button" class="btn btn-default toggle-password"
                                                         aria-label="Mostrar contraseña">
@@ -178,7 +178,7 @@
                                     permisos y accesos del usuario.
                                 </li>
                                 <li class="mb-1"><i class="fas fa-lock text-warning mr-1"></i> La contraseña debe tener
-                                    al menos 6 caracteres.
+                                    al menos 8 caracteres.
                                 </li>
                             </ul>
                             <p class="text-muted mb-0"><small>El correo electrónico debe ser único en el
