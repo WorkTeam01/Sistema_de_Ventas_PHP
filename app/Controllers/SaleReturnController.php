@@ -78,6 +78,7 @@ class SaleReturnController extends Controller
                 'id_usuario' => $sale['id_usuario'],
                 'items' => $pendingItems,
                 'csrf_token' => Auth::generateCsrfToken(),
+                'form_token' => SaleReturn::issueToken(),
                 'pageScripts' => ['/js/modules/returns/returns-create.js'],
                 'pageStyles' => ['/css/modules/returns/returns.css'],
             ]
@@ -135,7 +136,22 @@ class SaleReturnController extends Controller
         }
 
         $returnModel = new SaleReturn();
-        $result = $returnModel->register($idVenta, $motivo, $quantitiesByProduct);
+        $formToken = trim((string)($_POST['form_token'] ?? ''));
+        $result = $returnModel->register(
+            $idVenta,
+            $motivo,
+            $quantitiesByProduct,
+            $formToken !== '' ? $formToken : null
+        );
+
+        if ($result['ok'] && $result['replayed']) {
+            $this->flash(
+                "Esta devolución ya estaba registrada (Nro {$result['nro']}); no se repitió.",
+                'info'
+            );
+            $this->redirect(BASE_URL . '/returns/show/' . $result['id']);
+            return;
+        }
 
         if ($result['ok']) {
             $this->flash(

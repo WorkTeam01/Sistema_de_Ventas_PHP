@@ -179,4 +179,230 @@ final class SaleReturnTest extends TestCase
 
         $this->assertTrue($sale->isReferenced(1));
     }
+
+    private function replaceSaleLines(array $lines, string $totalPaid): void
+    {
+        $this->pdo->exec('DELETE FROM tb_carrito WHERE nro_venta = 10');
+        $insert = $this->pdo->prepare(
+            'INSERT INTO tb_carrito (nro_venta, id_producto, cantidad, precio_unitario)
+             VALUES (10, 1, ?, ?)'
+        );
+        foreach ($lines as [$quantity, $price]) {
+            $insert->execute([$quantity, $price]);
+        }
+        $this->pdo->prepare('UPDATE tb_ventas SET total_pagado = ? WHERE id_venta = 1')
+            ->execute([$totalPaid]);
+    }
+
+    private function stock(): int
+    {
+        return (int)$this->pdo->query(
+            'SELECT stock FROM tb_almacen WHERE id_producto = 1'
+        )->fetchColumn();
+    }
+
+    public function test_pending_sums_repeated_lines_of_the_same_product(): void
+    {
+        $this->replaceSaleLines([[3, '12.50'], [2, '12.50']], '62.50');
+
+        $pending = $this->returns->pendingByVenta(1);
+        $this->assertCount(1, $pending);
+        $this->assertSame(5, (int)$pending[0]['vendida']);
+        $this->assertSame(5, (int)$pending[0]['pendiente']);
+
+        $this->assertTrue($this->returns->register(1, 'Parcial', [1 => 4])['ok']);
+        $this->assertSame(1, (int)$this->returns->pendingByVenta(1)[0]['pendiente']);
+
+        $excess = $this->returns->register(1, 'Excede', [1 => 2]);
+        $this->assertSame('conflict', $excess['error']);
+    }
+
+    public function test_register_caps_amount_to_remaining_and_restores_full_stock(): void
+    {
+        $this->replaceSaleLines([[5, '12.50']], '40.00');
+
+        $result = $this->returns->register(1, 'Venta con descuento', [1 => 5]);
+
+        $this->assertTrue($result['ok']);
+        $this->assertEqualsWithDelta(40.00, $result['monto'], 0.001);
+        $this->assertSame(12, $this->stock());
+    }
+
+    public function test_register_records_zero_amount_when_remaining_is_exhausted(): void
+    {
+        $this->replaceSaleLines([[5, '12.50']], '25.00');
+
+        $first = $this->returns->register(1, 'Primera', [1 => 2]);
+        $this->assertEqualsWithDelta(25.00, $first['monto'], 0.001);
+
+        $second = $this->returns->register(1, 'Segunda', [1 => 3]);
+        $this->assertTrue($second['ok']);
+        $this->assertEqualsWithDelta(0.00, $second['monto'], 0.001);
+        $this->assertSame(12, $this->stock());
+        $this->assertSame(
+            '25.00',
+            number_format((float)$this->pdo->query(
+                'SELECT SUM(monto) FROM tb_devoluciones WHERE id_venta = 1'
+            )->fetchColumn(), 2, '.', '')
+        );
+    }
+
+    public function test_register_compares_amounts_in_cents_without_float_drift(): void
+    {
+        $this->replaceSaleLines([[3, '11.10']], '33.30');
+
+        foreach ([1, 2, 3] as $n) {
+            $result = $this->returns->register(1, "Devolución $n", [1 => 1]);
+            $this->assertTrue($result['ok']);
+            $this->assertEqualsWithDelta(11.10, $result['monto'], 0.0001);
+        }
+    }
+
+    public function test_issue_token_returns_32_hex_characters_and_is_random(): void
+    {
+        $token = SaleReturn::issueToken();
+
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $token);
+        $this->assertNotSame($token, SaleReturn::issueToken());
+    }
+
+    public function test_register_with_same_token_replays_original_without_touching_stock(): void
+    {
+        $token = SaleReturn::issueToken();
+
+        $first = $this->returns->register(1, 'Primera', [1 => 2], $token);
+        $this->assertTrue($first['ok']);
+        $this->assertFalse($first['replayed']);
+
+        $second = $this->returns->register(1, 'Primera', [1 => 2], $token);
+
+        $this->assertTrue($second['ok']);
+        $this->assertTrue($second['replayed']);
+        $this->assertSame($first['id'], $second['id']);
+        $this->assertEqualsWithDelta($first['monto'], $second['monto'], 0.001);
+        $this->assertSame(9, $this->stock());
+        $this->assertSame(1, (int)$this->pdo->query(
+            'SELECT COUNT(*) FROM tb_devoluciones'
+        )->fetchColumn());
+        $this->assertSame(1, (int)$this->pdo->query(
+            "SELECT COUNT(*) FROM tb_activity_log WHERE entidad = 'sale_return'"
+        )->fetchColumn());
+    }
+
+    public function test_register_with_distinct_tokens_allows_two_partial_returns(): void
+    {
+        $first = $this->returns->register(1, 'Primera', [1 => 2], SaleReturn::issueToken());
+        $second = $this->returns->register(1, 'Segunda', [1 => 3], SaleReturn::issueToken());
+
+        $this->assertTrue($first['ok']);
+        $this->assertTrue($second['ok']);
+        $this->assertFalse($second['replayed']);
+        $this->assertNotSame($first['id'], $second['id']);
+        $this->assertSame(12, $this->stock());
+    }
+
+    public function test_register_stores_token_and_works_without_it(): void
+    {
+        $token = SaleReturn::issueToken();
+        $this->returns->register(1, 'Con token', [1 => 1], $token);
+        $this->returns->register(1, 'Sin token', [1 => 1]);
+
+        $this->assertSame($token, $this->pdo->query(
+            'SELECT token_formulario FROM tb_devoluciones WHERE id_devolucion = 1'
+        )->fetchColumn());
+        $this->assertNull($this->pdo->query(
+            'SELECT token_formulario FROM tb_devoluciones WHERE id_devolucion = 2'
+        )->fetchColumn() ?: null);
+    }
+
+    public function test_register_rejects_malformed_token(): void
+    {
+        $result = $this->returns->register(1, 'Token roto', [1 => 1], 'no-es-un-token');
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('validation', $result['error']);
+        $this->assertSame(7, $this->stock());
+    }
+
+    public function test_register_resolves_token_collision_by_returning_the_original(): void
+    {
+        $token = SaleReturn::issueToken();
+        $this->pdo->prepare(
+            "INSERT INTO tb_devoluciones (nro_devolucion, id_venta, id_usuario, motivo, monto, token_formulario)
+             VALUES (50, 1, 1, 'Ganadora', 25.00, ?)"
+        )->execute([$token]);
+
+        // Simula la carrera: la comprobación previa no ve la fila, el INSERT choca con el UNIQUE
+        $racing = new class extends SaleReturn {
+            private bool $first = true;
+
+            protected function findByToken(int $idVenta, string $token): ?array
+            {
+                if ($this->first) {
+                    $this->first = false;
+                    return null;
+                }
+                return parent::findByToken($idVenta, $token);
+            }
+        };
+
+        $result = $racing->register(1, 'Perdedora', [1 => 2], $token);
+
+        $this->assertTrue($result['ok']);
+        $this->assertTrue($result['replayed']);
+        $this->assertSame(1, $result['id']);
+        $this->assertSame(7, $this->stock());
+        $this->assertSame(1, (int)$this->pdo->query(
+            'SELECT COUNT(*) FROM tb_devoluciones'
+        )->fetchColumn());
+    }
+
+    public function test_register_reports_conflict_when_temporary_number_collides(): void
+    {
+        $this->pdo->exec(
+            "INSERT INTO tb_devoluciones (nro_devolucion, id_venta, id_usuario, motivo, monto)
+             VALUES (-1, 1, 1, 'Concurrente', 0)"
+        );
+
+        $result = $this->returns->register(1, 'Choque', [1 => 1], SaleReturn::issueToken());
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('conflict', $result['error']);
+        $this->assertSame(7, $this->stock());
+        $this->assertSame(0, (int)$this->pdo->query(
+            'SELECT COUNT(*) FROM tb_devolucion_items'
+        )->fetchColumn());
+    }
+
+    public function test_register_replays_when_the_winner_already_consumed_all_pending(): void
+    {
+        $token = SaleReturn::issueToken();
+        $winner = $this->returns->register(1, 'Ganadora', [1 => 5], $token);
+        $this->assertTrue($winner['ok']);
+
+        // El perdedor pasó la comprobación previa antes del commit del ganador; al obtener
+        // el bloqueo de la venta ya no queda pendiente, pero debe recibir la original y no un conflicto
+        $racing = new class extends SaleReturn {
+            private bool $first = true;
+
+            protected function findByToken(int $idVenta, string $token): ?array
+            {
+                if ($this->first) {
+                    $this->first = false;
+                    return null;
+                }
+                return parent::findByToken($idVenta, $token);
+            }
+        };
+
+        $result = $racing->register(1, 'Perdedora', [1 => 5], $token);
+
+        $this->assertTrue($result['ok']);
+        $this->assertTrue($result['replayed']);
+        $this->assertSame($winner['id'], $result['id']);
+        $this->assertSame(12, $this->stock());
+        $this->assertSame(1, (int)$this->pdo->query(
+            'SELECT COUNT(*) FROM tb_devoluciones'
+        )->fetchColumn());
+    }
 }
