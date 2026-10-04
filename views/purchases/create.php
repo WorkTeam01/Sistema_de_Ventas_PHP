@@ -142,7 +142,7 @@
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <a href="<?= BASE_URL ?>/suppliers/create" class="btn btn-primary"
+                                                <a href="<?= BASE_URL ?>/suppliers" class="btn btn-primary"
                                                    title="Nuevo proveedor" aria-label="Nuevo proveedor">
                                                     <i class="fas fa-plus"></i>
                                                 </a>

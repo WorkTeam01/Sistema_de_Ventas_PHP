@@ -75,7 +75,7 @@
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <a href="<?= BASE_URL ?>/categories/create" class="btn btn-primary"
+                                                <a href="<?= BASE_URL ?>/categories" class="btn btn-primary"
                                                     title="Nueva categoría">
                                                     <i class="fas fa-plus"></i>
                                                 </a>
