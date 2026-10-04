@@ -14,7 +14,7 @@ class StockAdjustment extends Model
     protected string $primaryKey = 'id_ajuste';
 
     /**
-     * Registra un ajuste de stock dentro de una transacción atómica.
+     * Registra un ajuste de stock en su propia transacción atómica.
      *
      * @param int    $idProducto ID del producto a ajustar.
      * @param string $tipo       'entrada' o 'salida'.
@@ -27,70 +27,85 @@ class StockAdjustment extends Model
         try {
             $this->db->beginTransaction();
 
-            // 1. Leer stock actual
-            $rows = $this->query(
-                "SELECT stock FROM tb_almacen WHERE id_producto = ?",
-                [$idProducto]
-            );
+            $result = $this->registerInTransaction($idProducto, $tipo, $cantidad, $motivo);
 
-            if (empty($rows)) {
+            if (!$result['ok']) {
                 $this->db->rollBack();
-                return ['ok' => false, 'error' => 'Producto no encontrado'];
+                return $result;
             }
-
-            $stock_actual = (int)$rows[0]['stock'];
-
-            // 2. Verificar stock suficiente para salida
-            if ($tipo === 'salida' && $stock_actual < $cantidad) {
-                $this->db->rollBack();
-                return ['ok' => false, 'error' => 'Stock insuficiente para realizar la salida'];
-            }
-
-            // 3. Calcular stock posterior
-            $stock_posterior = ($tipo === 'entrada')
-                ? $stock_actual + $cantidad
-                : $stock_actual - $cantidad;
-
-            // 4. Actualizar stock en tb_almacen
-            $stmt = $this->db->prepare(
-                "UPDATE tb_almacen SET stock = ? WHERE id_producto = ?"
-            );
-            $stmt->execute([$stock_posterior, $idProducto]);
-
-            // 5. Obtener datos del usuario autenticado
-            $user = Auth::user();
-            $id_usuario     = $user['id_usuario'] ?? null;
-            $usuario_nombre = trim(($user['nombres'] ?? '') . ' ' . ($user['apellidos'] ?? ''));
-
-            // 6. Insertar registro de ajuste
-            $this->create([
-                'id_producto'    => $idProducto,
-                'tipo'           => $tipo,
-                'cantidad'       => $cantidad,
-                'stock_anterior' => $stock_actual,
-                'stock_posterior' => $stock_posterior,
-                'motivo'         => $motivo,
-                'id_usuario'     => $id_usuario,
-                'usuario_nombre' => $usuario_nombre,
-            ]);
-
-            // 7. Registrar en el log de auditoría (nunca lanza excepción)
-            ActivityLog::record(
-                'stock_adjustment',
-                'product',
-                $idProducto,
-                "Ajuste de stock: {$tipo} de {$cantidad} unidades",
-                ['stock' => $stock_actual],
-                ['stock' => $stock_posterior]
-            );
 
             $this->db->commit();
 
-            return ['ok' => true, 'stock_posterior' => $stock_posterior];
+            return $result;
         } catch (\Throwable $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             return ['ok' => false, 'error' => 'Error interno al registrar el ajuste'];
         }
+    }
+
+    /**
+     * Aplica el ajuste dentro de una transacción ya abierta por el llamador
+     * (no abre ni cierra ninguna). Si devuelve `ok=false` el llamador debe
+     * hacer rollback; las excepciones de PDO se propagan.
+     *
+     * El UPDATE es relativo y con piso en 0: una venta o compra concurrente
+     * entre medias no se pierde, y `stock_anterior` se deriva del valor real
+     * posterior en vez de una lectura previa que pudo quedar vieja.
+     *
+     * @return array{ok: bool, stock_posterior?: int, error?: string}
+     */
+    public function registerInTransaction(int $idProducto, string $tipo, int $cantidad, string $motivo): array
+    {
+        if ($cantidad < 1 || !in_array($tipo, ['entrada', 'salida'], true)) {
+            return ['ok' => false, 'error' => 'Datos de ajuste inválidos'];
+        }
+
+        $delta = ($tipo === 'entrada') ? $cantidad : -$cantidad;
+
+        $stmt = $this->db->prepare(
+            "UPDATE tb_almacen SET stock = stock + ? WHERE id_producto = ? AND stock + ? >= 0"
+        );
+        $stmt->execute([$delta, $idProducto, $delta]);
+
+        if ($stmt->rowCount() === 0) {
+            $rows = $this->query("SELECT stock FROM tb_almacen WHERE id_producto = ?", [$idProducto]);
+
+            return empty($rows)
+                ? ['ok' => false, 'error' => 'Producto no encontrado']
+                : ['ok' => false, 'error' => 'Stock insuficiente para realizar la salida'];
+        }
+
+        $rows            = $this->query("SELECT stock FROM tb_almacen WHERE id_producto = ?", [$idProducto]);
+        $stock_posterior = (int)$rows[0]['stock'];
+        $stock_actual    = $stock_posterior - $delta;
+
+        $user           = Auth::user();
+        $id_usuario     = $user['id_usuario'] ?? null;
+        $usuario_nombre = trim(($user['nombres'] ?? '') . ' ' . ($user['apellidos'] ?? ''));
+
+        $this->create([
+            'id_producto'     => $idProducto,
+            'tipo'            => $tipo,
+            'cantidad'        => $cantidad,
+            'stock_anterior'  => $stock_actual,
+            'stock_posterior' => $stock_posterior,
+            'motivo'          => $motivo,
+            'id_usuario'      => $id_usuario,
+            'usuario_nombre'  => $usuario_nombre,
+        ]);
+
+        ActivityLog::record(
+            'stock_adjustment',
+            'product',
+            $idProducto,
+            "Ajuste de stock: {$tipo} de {$cantidad} unidades",
+            ['stock' => $stock_actual],
+            ['stock' => $stock_posterior]
+        );
+
+        return ['ok' => true, 'stock_posterior' => $stock_posterior];
     }
 
     /**

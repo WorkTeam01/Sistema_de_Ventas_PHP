@@ -140,6 +140,72 @@ final class StockAdjustmentTest extends TestCase
         $this->assertSame(1, (int)$count);
     }
 
+    public function test_ajuste_conserva_el_stock_cambiado_por_una_venta_previa(): void
+    {
+        $id = $this->createProduct(['stock' => 20, 'codigo' => 'P-00001']);
+
+        // Una venta concurrente baja el stock antes de que el ajuste escriba
+        $this->pdo->exec("UPDATE tb_almacen SET stock = 15 WHERE id_producto = $id");
+
+        $result = $this->adj->register($id, 'entrada', 5, 'Tras venta');
+
+        $this->assertTrue($result['ok']);
+        $this->assertSame(20, $result['stock_posterior']);
+
+        $log = $this->pdo->query("SELECT * FROM tb_ajustes_stock WHERE id_producto = $id")->fetch();
+        $this->assertSame(15, (int)$log['stock_anterior']);
+        $this->assertSame(20, (int)$log['stock_posterior']);
+    }
+
+    public function test_stock_anterior_se_deriva_de_la_bd_si_una_venta_ocurre_entre_el_update_y_la_lectura(): void
+    {
+        $id = $this->createProduct(['stock' => 20, 'codigo' => 'P-00001']);
+
+        // Simula una venta de 2 unidades confirmada justo después del UPDATE del ajuste
+        $this->pdo->exec(
+            "CREATE TRIGGER sim_venta AFTER UPDATE OF stock ON tb_almacen
+             WHEN NEW.stock = 25
+             BEGIN UPDATE tb_almacen SET stock = 23 WHERE id_producto = NEW.id_producto; END"
+        );
+
+        $result = $this->adj->register($id, 'entrada', 5, 'Con venta intermedia');
+
+        $this->assertTrue($result['ok']);
+        $this->assertSame(23, $result['stock_posterior']);
+        $this->assertSame(
+            23,
+            (int)$this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $id")->fetchColumn()
+        );
+    }
+
+    public function test_salida_igual_al_stock_deja_cero_y_mayor_se_rechaza(): void
+    {
+        $id = $this->createProduct(['stock' => 5, 'codigo' => 'P-00001']);
+
+        $this->assertFalse($this->adj->register($id, 'salida', 6, 'Excede')['ok']);
+        $this->assertSame(5, (int)$this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $id")->fetchColumn());
+
+        $result = $this->adj->register($id, 'salida', 5, 'Exacta');
+        $this->assertTrue($result['ok']);
+        $this->assertSame(0, $result['stock_posterior']);
+    }
+
+    public function test_register_in_transaction_no_abre_transaccion_propia(): void
+    {
+        $id = $this->createProduct(['stock' => 10, 'codigo' => 'P-00001']);
+
+        $this->pdo->beginTransaction();
+        $result = $this->adj->registerInTransaction($id, 'entrada', 4, 'Dentro de externa');
+
+        $this->assertTrue($result['ok']);
+        $this->assertTrue($this->pdo->inTransaction(), 'No debe cerrar la transacción del llamador');
+
+        $this->pdo->rollBack();
+
+        $this->assertSame(10, (int)$this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $id")->fetchColumn());
+        $this->assertSame(0, (int)$this->pdo->query("SELECT COUNT(*) FROM tb_ajustes_stock")->fetchColumn());
+    }
+
     public function test_history_filtra_por_tipo(): void
     {
         $id = $this->createProduct(['stock' => 50, 'codigo' => 'P-00001']);
