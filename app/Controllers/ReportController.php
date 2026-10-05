@@ -117,8 +117,7 @@ class ReportController extends Controller
         $filters = ReportFilters::parseDateRange($_GET);
         $report  = new Report();
 
-        $topWhitelist = [5, 10, 20, 50];
-        $top       = in_array((int)($_GET['top'] ?? 10), $topWhitelist, true) ? (int)$_GET['top'] : 10;
+        $top       = ReportFilters::parseTop($_GET);
         $orden     = in_array($_GET['orden'] ?? '', ['cantidad', 'ingresos'], true) ? $_GET['orden'] : 'cantidad';
         $categoria = isset($_GET['categoria']) && $_GET['categoria'] !== '' ? (int)$_GET['categoria'] : 0;
 

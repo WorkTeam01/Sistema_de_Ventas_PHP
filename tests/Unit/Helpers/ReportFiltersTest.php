@@ -83,4 +83,23 @@ final class ReportFiltersTest extends TestCase
         $this->assertSame('2025-06-15 00:00:00', $result['fecha_desde']);
         $this->assertSame('2025-06-15 23:59:59', $result['fecha_hasta']);
     }
+
+    public function test_parse_top_defaults_to_ten_without_the_parameter(): void
+    {
+        $this->assertSame(10, ReportFilters::parseTop([]));
+    }
+
+    public function test_parse_top_accepts_whitelisted_values_as_text(): void
+    {
+        foreach (['5' => 5, '10' => 10, '20' => 20, '50' => 50] as $raw => $expected) {
+            $this->assertSame($expected, ReportFilters::parseTop(['top' => $raw]));
+        }
+    }
+
+    public function test_parse_top_falls_back_to_ten_for_invalid_values(): void
+    {
+        foreach (['0', '7', '-5', '1000', 'abc', '', ['5']] as $raw) {
+            $this->assertSame(10, ReportFilters::parseTop(['top' => $raw]));
+        }
+    }
 }

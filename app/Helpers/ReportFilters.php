@@ -4,6 +4,8 @@ namespace App\Helpers;
 
 class ReportFilters
 {
+    private const TOP_OPTIONS = [5, 10, 20, 50];
+
     /**
      * Parsea y normaliza el rango de fechas del GET.
      * Default: primer y último día del mes actual.
@@ -42,6 +44,14 @@ class ReportFilters
             'desde_display'  => $desdeDate->format('Y-m-d'),
             'hasta_display'  => $hastaDate->format('Y-m-d'),
         ];
+    }
+
+    /** Cantidad de filas del ranking de productos: solo valores de la lista, 10 en cualquier otro caso. */
+    public static function parseTop(array $get): int
+    {
+        $top = is_scalar($get['top'] ?? null) ? (int)$get['top'] : 10;
+
+        return in_array($top, self::TOP_OPTIONS, true) ? $top : 10;
     }
 
     private static function parseDate(string $value): ?\DateTime
