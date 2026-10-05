@@ -568,6 +568,64 @@ final class SaleRepositoryTest extends TestCase
         $this->assertSame(47, $this->stockOf());
     }
 
+    /**
+     * Sale cuya primera lectura de "venta ya existente" devuelve null: es lo que ve el envío que perdió
+     * la carrera, con la instantánea de su transacción tomada antes de que el otro confirmara.
+     */
+    private function saleWithStaleFirstRead(): Sale
+    {
+        return new class extends Sale {
+            private int $reads = 0;
+
+            protected function findFinalized(int $nroVenta): ?array
+            {
+                return $this->reads++ === 0 ? null : parent::findFinalized($nroVenta);
+            }
+        };
+    }
+
+    public function test_storeWithStock_losing_a_simultaneous_resend_replays_the_confirmed_sale(): void
+    {
+        $this->seedCart(1, 1, 3);
+        $first = $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 1);
+        $this->assertTrue($first['ok']);
+
+        $second = $this->saleWithStaleFirstRead()
+            ->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 1);
+
+        $this->assertTrue($second['ok'], 'el reenvío simultáneo no puede ser forbidden');
+        $this->assertTrue($second['replayed']);
+        $this->assertSame($first['id_venta'], $second['id_venta']);
+        $this->assertSame(1, $this->sale->count());
+        $this->assertSame(47, $this->stockOf(), 'el stock no se descuenta otra vez');
+        $this->assertSame(1, (int)$this->pdo->query('SELECT COUNT(*) FROM tb_pagos')->fetchColumn());
+    }
+
+    public function test_storeWithStock_losing_a_simultaneous_resend_of_another_users_sale_is_forbidden(): void
+    {
+        $this->seedCart(1, 1, 3);
+        $this->sale->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 1);
+
+        $result = $this->saleWithStaleFirstRead()
+            ->storeWithStock(['nro_venta' => 1, 'id_cliente' => 1], $this->payEfectivo(30.00), 2);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('forbidden', $result['error']);
+        $this->assertSame(1, $this->sale->count());
+        $this->assertSame(47, $this->stockOf());
+    }
+
+    public function test_storeWithStock_a_number_never_reserved_and_never_sold_is_forbidden(): void
+    {
+        $result = $this->saleWithStaleFirstRead()
+            ->storeWithStock(['nro_venta' => 77, 'id_cliente' => 1], $this->payEfectivo(10.00), 1);
+
+        $this->assertFalse($result['ok']);
+        $this->assertSame('forbidden', $result['error']);
+        $this->assertSame(0, $this->sale->count());
+        $this->assertSame(50, $this->stockOf());
+    }
+
     public function test_storeWithStock_database_rejects_two_sales_with_the_same_number(): void
     {
         $this->pdo->exec("INSERT INTO tb_ventas (nro_venta, id_usuario, total_pagado) VALUES (5, 1, 10)");

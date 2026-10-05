@@ -127,7 +127,14 @@ class Sale extends Model
 
             if (!(new PosReservation())->isOpenFor((int)$data['nro_venta'], $userId, true)) {
                 $db->rollBack();
-                return $fail('forbidden');
+
+                // Un envío simultáneo pudo confirmar y liberar la reserva después de la lectura de arriba
+                // (hecha con la instantánea de esta transacción): se vuelve a leer ya sin transacción.
+                $confirmed = $this->findFinalized((int)$data['nro_venta']);
+
+                return $confirmed !== null
+                    ? $this->replayResult($confirmed, $userId, $fail)
+                    : $fail('forbidden');
             }
 
             // Verificar carrito no vacío
@@ -294,7 +301,7 @@ class Sale extends Model
     }
 
     /** @return array{id_venta: int, id_usuario: ?int}|null */
-    private function findFinalized(int $nroVenta): ?array
+    protected function findFinalized(int $nroVenta): ?array
     {
         $rows = $this->query('SELECT id_venta, id_usuario FROM tb_ventas WHERE nro_venta = ?', [$nroVenta]);
 
