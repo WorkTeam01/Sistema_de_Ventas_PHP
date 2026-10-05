@@ -597,6 +597,43 @@ body.dark-mode .card-info.card-outline-tabs .nav-link {
     color: #6edff6 !important;
 }
 
+/* La pestaña activa usa #495057 (neutro oscuro) para el modo claro; sobre el
+   fondo de card oscuro (#343a40) queda en 1.4:1. */
+body.dark-mode .card-outline-tabs .nav-link.active {
+    color: #e9ecef !important;
+}
+
+/* `.btn-outline-primary.active` pinta #007bff con texto blanco (3.97:1); se
+   usa el azul oscuro del resto de la app. En oscuro, el texto del botón
+   inactivo se aclara por la misma razón que `.text-primary`. */
+.btn-outline-primary {
+    color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-outline-primary.active,
+.btn-outline-primary:active,
+.btn-outline-primary:not(:disabled):not(.disabled).active {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: #fff;
+}
+
+body.dark-mode .btn-outline-primary:not(.active) {
+    color: #9ec5fe;
+    border-color: #9ec5fe;
+}
+
+/* Pestañas inactivas de danger/success: #dc3545 y #28a745 sobre #343a40 no
+   llegan a 4.5:1; se aclaran. */
+body.dark-mode .card-danger.card-outline-tabs .nav-link:not(.active) {
+    color: #ea868f !important;
+}
+
+body.dark-mode .card-success.card-outline-tabs .nav-link:not(.active) {
+    color: #75b798 !important;
+}
+
 body.dark-mode .breadcrumb-item.active {
     color: #ced4da;
 }

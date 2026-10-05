@@ -34,7 +34,7 @@
                                         <i class="fas fa-plus"></i> Nuevo usuario
                                     </a>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>

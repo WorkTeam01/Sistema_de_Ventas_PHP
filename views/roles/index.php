@@ -130,7 +130,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary">
-                <h5 class="modal-title" id="modalCreateLabel">Crear rol</h5>
+                <h2 class="modal-title h5" id="modalCreateLabel">Crear rol</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -163,7 +163,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success">
-                <h5 class="modal-title" id="modalEditLabel">Editar rol</h5>
+                <h2 class="modal-title h5" id="modalEditLabel">Editar rol</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>

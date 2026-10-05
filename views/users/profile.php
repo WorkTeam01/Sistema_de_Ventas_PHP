@@ -34,7 +34,7 @@
                                 <?= $initSafe ?>
                             </div>
 
-                            <h3 class="profile-username text-center"><?= $nombresSafe ?></h3>
+                            <h2 class="h3 profile-username text-center"><?= $nombresSafe ?></h2>
                             <p class="text-muted text-center">
                                 <span class="badge <?= $badgeClass ?>"><?= $rolSafe ?></span>
                             </p>
@@ -62,7 +62,7 @@
                         <!-- Tabs nav -->
                         <div class="card-header p-0 border-bottom-0">
                             <ul class="nav nav-tabs" id="profile-tabs" role="tablist">
-                                <li class="nav-item">
+                                <li class="nav-item" role="presentation">
                                     <a class="nav-link <?= $navPerfilClass ?>"
                                         id="tab-perfil-link"
                                         data-toggle="tab"
@@ -71,7 +71,7 @@
                                         <i class="fas fa-user-edit"></i> Editar perfil
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item" role="presentation">
                                     <a class="nav-link <?= $navPasswordClass ?>"
                                         id="tab-password-link"
                                         data-toggle="tab"
@@ -132,13 +132,14 @@
                                         </div>
 
                                         <div class="form-group mb-0">
-                                            <label>Rol asignado</label>
+                                            <label for="rol_asignado">Rol asignado</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text"><i
                                                             class="fas fa-user-tag"></i></span>
                                                 </div>
                                                 <input type="text"
+                                                    id="rol_asignado"
                                                     class="form-control"
                                                     value="<?= $rolSafe ?>"
                                                     disabled>

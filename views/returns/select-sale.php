@@ -68,7 +68,8 @@
                                                 <td class="text-center"><?= date('d/m/Y', strtotime($sale['fyh_creacion'])) ?></td>
                                                 <td class="text-center">
                                                     <a href="<?= BASE_URL ?>/returns/create?sale_id=<?= (int)$sale['id_venta'] ?>"
-                                                        class="btn btn-warning btn-sm" data-toggle="tooltip" title="Registrar devolución">
+                                                        class="btn btn-warning btn-sm" data-toggle="tooltip" title="Registrar devolución"
+                                                        aria-label="Registrar devolución de la venta <?= (int)$sale['id_venta'] ?>">
                                                         <i class="fas fa-undo"></i>
                                                     </a>
                                                 </td>

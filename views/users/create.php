@@ -35,7 +35,7 @@
                             <div class="card-header">
                                 <h2 class="card-title"><i class="fas fa-user mr-1"></i> Datos del usuario</h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -91,7 +91,7 @@
                             <div class="card-header">
                                 <h2 class="card-title"><i class="fas fa-key mr-1"></i> Credenciales de acceso</h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -163,7 +163,7 @@
                         <div class="card-header">
                             <h2 class="card-title"><i class="fas fa-info-circle"></i> Información adicional</h2>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </div>
@@ -191,7 +191,7 @@
                         <div class="card-header">
                             <h2 class="card-title"><i class="fas fa-eye"></i> Vista previa</h2>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </div>

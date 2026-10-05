@@ -14,7 +14,7 @@ $dateColClass  = $dateColClass  ?? 'col-lg-3';
     <div class="card-header">
         <h2 class="card-title"><i class="fas fa-filter mr-1"></i> Filtros</h2>
         <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                 <i class="fas fa-plus"></i>
             </button>
         </div>

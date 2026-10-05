@@ -41,7 +41,7 @@
                                 <h2 class="card-title"><i class="fas fa-file-invoice mr-1"></i> Encabezado de la
                                     compra</h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -50,15 +50,15 @@
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div class="form-group">
-                                            <label>N° Compra</label>
-                                            <input type="number" name="nro_compra" class="form-control"
+                                            <label for="nro_compra">N° Compra</label>
+                                            <input type="number" id="nro_compra" name="nro_compra" class="form-control"
                                                    value="<?= htmlspecialchars($next_number, ENT_QUOTES, 'UTF-8'); ?>"
                                                    readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label>Fecha de compra <span class="text-danger">*</span></label>
+                                            <label for="fecha_compra">Fecha de compra <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <button type="button" class="input-group-text"
@@ -76,14 +76,14 @@
                                     </div>
                                     <div class="col-md-5">
                                         <div class="form-group">
-                                            <label>Comprobante <span class="text-danger">*</span></label>
+                                            <label for="comprobante">Comprobante <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">
                                                         <i class="fas fa-list"></i>
                                                     </span>
                                                 </div>
-                                                <input type="text" name="comprobante" class="form-control" required>
+                                                <input type="text" id="comprobante" name="comprobante" class="form-control" required>
                                             </div>
                                         </div>
                                     </div>
@@ -97,7 +97,7 @@
                             <div class="card-header card-outline card-primary">
                                 <h2 class="card-title"><i class="fas fa-boxes mr-1"></i> Proveedor y Producto</h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -159,7 +159,7 @@
                             <div class="card-header card-outline card-primary">
                                 <h2 class="card-title"><i class="fas fa-calculator mr-1"></i> Precio y Cantidad</h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>

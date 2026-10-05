@@ -34,7 +34,7 @@
                                         <i class="fas fa-plus"></i> Nueva compra
                                     </a>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -81,18 +81,19 @@
                                                 <div class="btn-group">
                                                     <a href="<?= BASE_URL ?>/purchases/show/<?= $id_compra ?>"
                                                         class="btn btn-info btn-sm" data-toggle="tooltip"
-                                                        title="Ver detalles">
+                                                        title="Ver detalles" aria-label="Ver detalles de la compra <?= $id_compra ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <a href="<?= BASE_URL ?>/purchases/report/<?= $id_compra ?>"
                                                         class="btn btn-primary btn-sm" data-toggle="tooltip"
-                                                        title="Reporte PDF" target="_blank">
+                                                        title="Reporte PDF" target="_blank"
+                                                        aria-label="Reporte PDF de la compra <?= $id_compra ?>">
                                                         <i class="fas fa-file-pdf"></i>
                                                     </a>
                                                     <?php if ($can['manage_purchases']): ?>
                                                     <a href="<?= BASE_URL ?>/purchases/edit/<?= $id_compra ?>"
                                                         class="btn btn-success btn-sm" data-toggle="tooltip"
-                                                        title="Editar compra">
+                                                        title="Editar compra" aria-label="Editar la compra <?= $id_compra ?>">
                                                         <i class="fas fa-pencil-alt"></i>
                                                     </a>
                                                     <button type="button" class="btn btn-danger btn-sm btn-delete-purchase"
@@ -100,7 +101,8 @@
                                                         data-id-producto="<?= $id_producto ?>"
                                                         data-cantidad="<?= $cantidad ?>"
                                                         data-nombre="<?= htmlspecialchars($purchase['nombre_producto'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                        data-toggle="tooltip" title="Eliminar compra">
+                                                        data-toggle="tooltip" title="Eliminar compra"
+                                                        aria-label="Eliminar la compra <?= $id_compra ?>">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                     <?php endif; ?>

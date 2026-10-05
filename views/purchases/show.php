@@ -34,7 +34,7 @@
                                 class="img-fluid rounded mb-3"
                                 style="max-height:220px; object-fit:contain;"
                                 alt="<?= htmlspecialchars($nombre_producto, ENT_QUOTES, 'UTF-8'); ?>">
-                            <h5 class="font-weight-bold mb-1"><?= htmlspecialchars($nombre_producto, ENT_QUOTES, 'UTF-8'); ?></h5>
+                            <h2 class="h5 font-weight-bold mb-1"><?= htmlspecialchars($nombre_producto, ENT_QUOTES, 'UTF-8'); ?></h2>
                             <p class="text-muted small mb-2"><?= htmlspecialchars($codigo, ENT_QUOTES, 'UTF-8'); ?></p>
                             <span class="badge badge-info badge-pill px-3 py-1"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
                         </div>
@@ -94,19 +94,19 @@
                     <div class="card card-outline card-outline-tabs card-info">
                         <div class="card-header p-0 border-bottom-0">
                             <ul class="nav nav-tabs" id="purchaseTabs" role="tablist">
-                                <li class="nav-item">
+                                <li class="nav-item" role="presentation">
                                     <a class="nav-link active" id="tab-detalles" data-toggle="pill"
                                         href="#pill-detalles" role="tab">
                                         <i class="fas fa-info-circle mr-1"></i> Detalles
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item" role="presentation">
                                     <a class="nav-link" id="tab-proveedor" data-toggle="pill"
                                         href="#pill-proveedor" role="tab">
                                         <i class="fas fa-truck mr-1"></i> Proveedor
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item" role="presentation">
                                     <a class="nav-link" id="tab-producto" data-toggle="pill"
                                         href="#pill-producto" role="tab">
                                         <i class="fas fa-boxes mr-1"></i> Producto

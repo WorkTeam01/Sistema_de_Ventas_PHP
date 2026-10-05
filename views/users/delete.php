@@ -36,7 +36,7 @@
                                 <h2 class="card-title"><i class="fas fa-exclamation-triangle"></i> Confirmación de
                                     eliminación</h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección"><i
                                             class="fas fa-minus"></i></button>
                                 </div>
                             </div>
@@ -130,7 +130,7 @@
                         <div class="card-header">
                             <h2 class="card-title"><i class="fas fa-shield-alt"></i> Verificación</h2>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección"><i
                                         class="fas fa-minus"></i></button>
                             </div>
                         </div>

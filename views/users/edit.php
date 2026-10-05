@@ -38,7 +38,7 @@
                                     <span class="badge badge-secondary ml-1">ID #<?= $id_usuario ?></span>
                                 </h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -94,7 +94,7 @@
                             <div class="card-header">
                                 <h2 class="card-title"><i class="fas fa-lock mr-1"></i> Seguridad</h2>
                                 <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                 </div>
@@ -170,7 +170,7 @@
                         <div class="card-header">
                             <h2 class="card-title"><i class="fas fa-id-badge"></i> Resumen</h2>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </div>
@@ -198,7 +198,7 @@
                         <div class="card-header">
                             <h2 class="card-title"><i class="fas fa-lightbulb"></i> Recomendaciones</h2>
                             <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Colapsar sección">
                                     <i class="fas fa-minus"></i>
                                 </button>
                             </div>

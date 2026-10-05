@@ -59,25 +59,25 @@ if (isset($_SESSION['mensaje'])) {
             color: #343a40;
         }
         .error-description {
-            color: #6c757d;
+            color: #495057;
             margin-bottom: 2rem;
         }
     </style>
 </head>
 
 <body>
-    <div class="error-wrapper">
+    <main class="error-wrapper">
         <div>
-            <div class="error-code">403</div>
-            <p class="error-title">
-                <i class="fas fa-ban text-danger mr-2"></i>Acceso denegado
-            </p>
+            <div class="error-code" aria-hidden="true">403</div>
+            <h1 class="error-title">
+                <i class="fas fa-ban text-danger mr-2" aria-hidden="true"></i>Acceso denegado
+            </h1>
             <p class="error-description">No tienes permisos para acceder a esta página.</p>
             <a href="<?= BASE_URL ?>/" class="btn btn-danger btn-lg">
                 <i class="fas fa-home mr-1"></i> Volver al inicio
             </a>
         </div>
-    </div>
+    </main>
 
     <?php if ($mensaje): ?>
     <script>

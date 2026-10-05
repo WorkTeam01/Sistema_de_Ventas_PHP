@@ -484,7 +484,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary">
-                <h4 class="modal-title" id="modal-buscar_cliente-title"><i class="fas fa-users mr-1"></i> Búsqueda del cliente</h4>
+                <h2 class="modal-title h4" id="modal-buscar_cliente-title"><i class="fas fa-users mr-1"></i> Búsqueda del cliente</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -549,7 +549,7 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary">
-                <h4 class="modal-title" id="modal-buscar_producto-title"><i class="fas fa-box mr-1"></i> Búsqueda del producto</h4>
+                <h2 class="modal-title h4" id="modal-buscar_producto-title"><i class="fas fa-box mr-1"></i> Búsqueda del producto</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -648,11 +648,11 @@
 <!-- /Modal producto -->
 
 <!-- ===== Modal: Nuevo cliente ===== -->
-<div class="modal fade" id="modal-nuevo_cliente" tabindex="-1" role="dialog">
+<div class="modal fade" id="modal-nuevo_cliente" tabindex="-1" role="dialog" aria-labelledby="modal-nuevo_cliente-title">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-success">
-                <h5 class="modal-title"><i class="fas fa-user-plus mr-1"></i> Registrar nuevo cliente</h5>
+                <h2 class="modal-title h5" id="modal-nuevo_cliente-title"><i class="fas fa-user-plus mr-1"></i> Registrar nuevo cliente</h2>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                     <span aria-hidden="true">&times;</span>
                 </button>
