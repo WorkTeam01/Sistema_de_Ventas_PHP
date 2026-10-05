@@ -10,7 +10,7 @@ use App\Models\SaleReturn;
 class SaleReturnController extends Controller
 {
     /**
-     * Listado de devoluciones (FR-15, FR-17).
+     * Listado de devoluciones.
      */
     public function index(): void
     {
@@ -29,7 +29,7 @@ class SaleReturnController extends Controller
     }
 
     /**
-     * Formulario de creación de devolución (FR-1, FR-14, FR-15).
+     * Formulario de creación de devolución.
      *
      * Con ?sale_id=N carga la venta y muestra los ítems pendientes.
      * Sin sale_id muestra un selector de ventas con datos server-side.
@@ -86,7 +86,7 @@ class SaleReturnController extends Controller
     }
 
     /**
-     * Registra una devolución (FR-1, FR-2, FR-7, FR-8, FR-9).
+     * Registra una devolución.
      */
     public function store(): void
     {
@@ -173,7 +173,7 @@ class SaleReturnController extends Controller
     }
 
     /**
-     * Detalle de una devolución (FR-17, FR-15).
+     * Detalle de una devolución.
      *
      * @param int|null $id ID de la devolución.
      */
@@ -210,7 +210,7 @@ class SaleReturnController extends Controller
     }
 
     /**
-     * Verifica el scoping FR-15 sobre una venta.
+     * Verifica el scoping por vendedor sobre una venta.
      * Si el usuario no tiene view_sales_all y la venta no es suya → forbidden.
      * Si id_usuario de la venta es NULL → solo view_sales_all puede acceder.
      */

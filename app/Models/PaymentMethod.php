@@ -49,7 +49,7 @@ class PaymentMethod extends Model
 
     /**
      * Indica si el método está referenciado por al menos una línea de pago.
-     * Un método referenciado no se puede eliminar; solo desactivar (FR-2).
+     * Un método referenciado no se puede eliminar; solo desactivar.
      *
      * @param int|string $id ID del método de pago.
      * @return bool true si existe al menos una línea en tb_pagos.

@@ -174,7 +174,7 @@ class PaymentMethodController extends Controller
     }
 
     /**
-     * AJAX — Elimina un método de pago si no tiene líneas de pago (FR-2).
+     * AJAX — Elimina un método de pago si no tiene líneas de pago.
      * Un método referenciado solo se puede desactivar.
      */
     public function destroy(): void
