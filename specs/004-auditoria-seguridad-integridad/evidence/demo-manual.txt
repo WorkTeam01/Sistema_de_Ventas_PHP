@@ -1,0 +1,93 @@
+# Demo manual — spec 004 — 2026-10-05 16:50 — HEAD 37ab912
+Tablas nuevas presentes: ['tb_pos_reservas', 'tb_sesiones_recordadas', 'tb_intentos_auth']
+
+## 0. Preparación (productos DEMO004 con marcador propio y sesiones)
+Productos de prueba: P1 id=15 (stock 50), P2 id=16 (stock 0)
+OK   login admin@sistema.com
+OK   login vendedor@sistema.com
+OK   login 4ndres255@gmail.com
+OK   login comprador@sistema.com
+
+## 1. Doble envío de venta (dos pestañas del mismo vendedor, enviadas a la vez)
+OK   las dos pestañas comparten la reserva abierta del vendedor (nro_venta=41)
+OK   una sola venta con nro_venta=41 tras 2 envíos simultáneos (filas=1)
+OK   stock descontado una sola vez (50 -> 48)
+OK   una sola línea de pago
+   mensajes de los dos envíos: ['No tienes permisos para acceder a este recurso.', 'La venta se registró exitosamente.']
+FAIL ninguna pestaña recibe 'sin permisos': la segunda debe ser un reenvío idempotente (FR-6)
+OK   un tercer reenvío tardío tampoco duplica ni toca stock
+
+## 2. Doble envío de devolución (mismo formulario, dos envíos simultáneos)
+   campos del formulario: ['csrf_token', 'form_token', 'id_usuario_venta', 'id_venta', 'motivo', 'qty_15']
+OK   una sola devolución creada para la venta
+OK   stock repuesto una sola vez (48 -> 49)
+   mensajes: ['Devolución Nro 6 registrada (monto: Bs 10.00).', 'Esta devolución ya estaba registrada (Nro 6); no se repitió.']
+
+## 3. Dos vendedores abriendo el POS a la vez
+OK   números distintos: vendedor=43, vendedor2=44
+   tb_pos_reservas: [['43', '2', 'abierta'], ['44', '4', 'abierta']]
+OK   cada número es una reserva abierta de un usuario distinto
+
+## 4. Carrito ajeno rechazado
+OK   vendedor agrega al carrito de otro -> redirige a /errors/403
+OK   el carrito ajeno no cambió (1 línea)
+OK   quitar la línea ajena -> /errors/403; la línea sigue
+OK   cancelar el carrito ajeno -> /errors/403; sigue intacto
+
+## 5. Vuelto mayor al efectivo recibido rechazado
+OK   no se creó la venta (total 100, tarjeta 150 + efectivo 1)
+OK   el stock no cambió
+   mensaje: El vuelto no puede ser mayor al efectivo recibido.
+
+## 6. Compra revertida con stock ya vendido rechazada
+OK   compra registrada (id_compra=41); stock de P2 = 5
+OK   se vendieron 4 de las 5 unidades (stock = 1)
+OK   la compra NO se eliminó y el stock no quedó negativo
+   mensaje: No se puede eliminar la compra: el stock quedaría negativo (stock disponible: 1).
+
+## 7. Ficha de producto con stock de solo lectura
+OK   el campo Stock actual es readonly en la edición
+OK   POST con stock=999 no cambia stock ni id_usuario (['49', '1'] -> ['49', '1'])
+
+## 8. Perfil del vendedor (rol sin manage_users): cambio de email y de contraseña
+   check-email -> 200 true
+OK   email cambiado sin error (estado 200)
+OK   sin la contraseña actual el cambio se rechaza
+   mensaje: La contraseña actual no es correcta.
+OK   con una contraseña actual incorrecta tampoco cambia
+OK   con la actual correcta, el cambio se aplica
+   mensaje: Contraseña actualizada exitosamente.
+OK   login con el email y la contraseña nuevos
+OK   la contraseña anterior ya no sirve
+OK   estado restaurado: vendedor@sistema.com / vendedor123 vuelve a funcionar
+
+## 9. Dos dispositivos recordados conviven
+OK   dos filas en tb_sesiones_recordadas para el vendedor (filas=2)
+OK   cada dispositivo tiene su propio selector
+OK   sin sesión PHP, ambos dispositivos entran con su cookie y rotan el validador
+OK   el validador rotó en el dispositivo 1
+OK   tras cerrar sesión en el dispositivo 1, el 2 sigue recordado
+   filas restantes del vendedor: 1
+
+## 10. Restablecimiento sin enlace en pantalla (APP_DEBUG=true)
+   APP_DEBUG = ['APP_DEBUG=true']
+   solicitudes de reset previas de corridas anteriores de esta demo (cooldown de 5 min; vista previa): [['27', 'reset', '4ndres255@gmail.com', '2026-10-05 16:49:14'], ['63', 'reset', '4ndres255@gmail.com', '2026-10-05 16:50:18']]
+   existente: estado=200 ruta=/auth/forgot-password tiempo=0.034s mensaje='Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.' enlace_en_html=False
+   inexistente: estado=200 ruta=/auth/forgot-password tiempo=0.038s mensaje='Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.' enlace_en_html=False
+OK   el enlace no aparece en pantalla ni con APP_DEBUG=true
+OK   el mensaje es idéntico exista o no el correo
+OK   en la BD queda un hash de 64 hex (no el token): 27551fb1…
+
+## 11. Ráfaga paralela de 20 logins contra una cuenta
+OK   los 20 intentos quedaron registrados antes de verificar (filas nuevas=20)
+OK   los 20 fallos muestran el mismo mensaje: 'Correo o contraseña incorrectos, o demasiados intentos. Si olvidaste tu contraseña, usa la opción ¿Olvidaste tu contraseña?'
+OK   la contraseña CORRECTA también se rechaza durante el bloqueo (mismo mensaje)
+OK   el límite por IP (20) también rechaza a otra cuenta desde la misma IP durante la ventana
+   filas de prueba a limpiar (ids): 102 … 121 (20)
+   vista previa: [['20', 'comprador@sistema.com', 'comprador@sistema.com']]
+OK   tras limpiar esas 20 filas por id, el comprador vuelve a entrar
+OK   y el admin también (el bloqueo por IP se levanta al limpiar)
+
+## Resumen
+45 OK / 1 FAIL
+Datos de prueba conservados (marcador DEMO004): [['16', 'DEMO004-1791233437-P2', '1'], ['15', 'DEMO004-1791233437-P1', '49']]

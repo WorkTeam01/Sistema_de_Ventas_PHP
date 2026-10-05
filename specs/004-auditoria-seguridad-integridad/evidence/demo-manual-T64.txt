@@ -1,0 +1,61 @@
+# T64 — paso 1 de la demo (doble envío simultáneo desde dos pestañas) repetido 5 veces tras el arreglo, 2026-10-05 16:54, HEAD 37ab912 + cambios sin commitear
+=== corrida 1
+## 1. Doble envío de venta (dos pestañas del mismo vendedor, enviadas a la vez)
+OK   las dos pestañas comparten la reserva abierta del vendedor (nro_venta=46)
+OK   una sola venta con nro_venta=46 tras 2 envíos simultáneos (filas=1)
+OK   stock descontado una sola vez (50 -> 48)
+OK   una sola línea de pago
+   mensajes de los dos envíos: ['La venta se registró exitosamente.', 'La venta se registró exitosamente.']
+OK   ninguna pestaña recibe 'sin permisos': la segunda debe ser un reenvío idempotente (FR-6)
+OK   un tercer reenvío tardío tampoco duplica ni toca stock
+
+## Resumen (solo paso 1)
+10 OK / 0 FAIL
+=== corrida 2
+## 1. Doble envío de venta (dos pestañas del mismo vendedor, enviadas a la vez)
+OK   las dos pestañas comparten la reserva abierta del vendedor (nro_venta=47)
+OK   una sola venta con nro_venta=47 tras 2 envíos simultáneos (filas=1)
+OK   stock descontado una sola vez (50 -> 48)
+OK   una sola línea de pago
+   mensajes de los dos envíos: ['La venta se registró exitosamente.', 'La venta se registró exitosamente.']
+OK   ninguna pestaña recibe 'sin permisos': la segunda debe ser un reenvío idempotente (FR-6)
+OK   un tercer reenvío tardío tampoco duplica ni toca stock
+
+## Resumen (solo paso 1)
+10 OK / 0 FAIL
+=== corrida 3
+## 1. Doble envío de venta (dos pestañas del mismo vendedor, enviadas a la vez)
+OK   las dos pestañas comparten la reserva abierta del vendedor (nro_venta=48)
+OK   una sola venta con nro_venta=48 tras 2 envíos simultáneos (filas=1)
+OK   stock descontado una sola vez (50 -> 48)
+OK   una sola línea de pago
+   mensajes de los dos envíos: ['La venta se registró exitosamente.', 'La venta se registró exitosamente.']
+OK   ninguna pestaña recibe 'sin permisos': la segunda debe ser un reenvío idempotente (FR-6)
+OK   un tercer reenvío tardío tampoco duplica ni toca stock
+
+## Resumen (solo paso 1)
+10 OK / 0 FAIL
+=== corrida 4
+## 1. Doble envío de venta (dos pestañas del mismo vendedor, enviadas a la vez)
+OK   las dos pestañas comparten la reserva abierta del vendedor (nro_venta=49)
+OK   una sola venta con nro_venta=49 tras 2 envíos simultáneos (filas=1)
+OK   stock descontado una sola vez (50 -> 48)
+OK   una sola línea de pago
+   mensajes de los dos envíos: ['La venta se registró exitosamente.', 'La venta se registró exitosamente.']
+OK   ninguna pestaña recibe 'sin permisos': la segunda debe ser un reenvío idempotente (FR-6)
+OK   un tercer reenvío tardío tampoco duplica ni toca stock
+
+## Resumen (solo paso 1)
+10 OK / 0 FAIL
+=== corrida 5
+## 1. Doble envío de venta (dos pestañas del mismo vendedor, enviadas a la vez)
+OK   las dos pestañas comparten la reserva abierta del vendedor (nro_venta=50)
+OK   una sola venta con nro_venta=50 tras 2 envíos simultáneos (filas=1)
+OK   stock descontado una sola vez (50 -> 48)
+OK   una sola línea de pago
+   mensajes de los dos envíos: ['La venta se registró exitosamente.', 'La venta se registró exitosamente.']
+OK   ninguna pestaña recibe 'sin permisos': la segunda debe ser un reenvío idempotente (FR-6)
+OK   un tercer reenvío tardío tampoco duplica ni toca stock
+
+## Resumen (solo paso 1)
+10 OK / 0 FAIL

@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.18.3 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.19.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -59,7 +59,11 @@ Sistema_de_Ventas_PHP/
 │   │   ├── InvoicePdf.php
 │   │   ├── PurchaseReportPdf.php
 │   │   ├── ActivityLogRenderer.php  ← decodifica JSON del log y prepara filas para las vistas
-│   │   ├── ReportFilters.php        ← parseDateRange() — normaliza rango GET; default = mes actual
+│   │   ├── ReportFilters.php        ← parseDateRange() — normaliza rango GET (default = mes actual); parseTop() — 5/10/20/50, default 10
+│   │   ├── Money.php                ← toCents()/fromCents(): montos en céntimos (mitad hacia arriba, coma o punto)
+│   │   ├── MonthSeries.php          ← lastMonths(n): serie de meses consecutivos sin saltarse febrero
+│   │   ├── ImageUpload.php          ← validate(): código de error de subida, extensión, MIME real, 2 MB
+│   │   ├── AuthSettings.php         ← umbrales de login/reset/"recordarme" leídos de .env con default y rango
 │   │   └── ReportPdf.php            ← generate() estático — tabla TCPDF landscape con totalizadores y emisor
 │   ├── Services/             ← PSR-4, namespace App\Services
 │   │   └── EmailService.php  ← PHPMailer SMTP — sendResetLink()
@@ -73,6 +77,9 @@ Sistema_de_Ventas_PHP/
 │   │   ├── Purchase.php
 │   │   ├── Sale.php
 │   │   ├── CartItem.php
+│   │   ├── PosReservation.php       ← reserva del nro_venta del POS por usuario (openFor/isOpenFor/release)
+│   │   ├── AuthAttempt.php          ← intentos de login y de restablecimiento por correo e IP
+│   │   ├── RememberToken.php        ← sesiones "recordarme", una fila por dispositivo
 │   │   ├── ActivityLog.php
 │   │   ├── StockAdjustment.php
 │   │   ├── Report.php               ← queries agregadas: salesByPeriod, salesTotals, purchasesByPeriod, purchasesTotals, topProducts, clientsByPeriod, salesSummary
@@ -86,7 +93,7 @@ Sistema_de_Ventas_PHP/
 │   │   └── partials/
 │   │       └── _sidebar.php  ← Sidebar con control de rol
 │   ├── errors/               ← Páginas de error standalone (404, 403, 500)
-│   ├── auth/                 ← login.php, forgot-password.php, reset-password.php, show-reset-link.php
+│   ├── auth/                 ← login.php, forgot-password.php, reset-password.php
 │   ├── dashboard/
 │   ├── users/
 │   ├── roles/                ← index.php, permisos.php (asignación de permisos por rol)
@@ -133,6 +140,8 @@ El proyecto usa **dos sistemas de ruteo en paralelo**:
 
 Todos los módulos están migrados. No quedan módulos legacy.
 
+El parámetro `{id}` de una ruta solo admite dígitos (`/products/abc` responde 404); `{token}` es alfanumérico.
+
 > El detalle exacto de método + ruta + controller + middleware por endpoint vive en `routes/web.php` — es la fuente
 > de verdad; no se replica aquí para evitar desincronización. Los middlewares usan la sintaxis `can:permiso` (ver
 > slugs en §Autenticación).
@@ -144,7 +153,20 @@ Todos los módulos están migrados. No quedan módulos legacy.
 ```sql
 -- Tablas principales
 tb_usuarios
-(id_usuario, nombre, apellido, email, password, id_rol, fyh_creacion, fyh_actualizacion)
+(id_usuario, nombres, email [UNIQUE; se guarda normalizado a minúsculas], password_user, id_rol,
+    fyh_creacion, fyh_actualizacion)
+    -- Columnas OBSOLETAS, sin uso desde la 004 (se conservan para poder volver a 1.18.3; se eliminarán
+    --   en una migración posterior): login_intentos, login_bloqueado_hasta, remember_token, remember_token_expiry.
+    --   reset_token/reset_token_expiracion SÍ se usan, pero el token se guarda como hash SHA-256, nunca en claro.
+    tb_intentos_auth
+    (id_intento, tipo ['login'|'reset'], ip, correo, id_usuario [NULL si el correo no existe], fyh_creacion)
+    -- una fila por intento, registrada ANTES de verificar nada; los umbrales y la ventana salen de AuthSettings
+    tb_sesiones_recordadas
+    (id_sesion, id_usuario [FK CASCADE], selector UNIQUE, token_hash [SHA-256 del validador], fyh_expira,
+        ip, user_agent, fyh_creacion, fyh_ultimo_uso)
+    -- una fila por dispositivo; la cookie lleva `selector:validador`
+    tb_pos_reservas
+    (id_reserva [ES el nro_venta del POS], id_usuario [FK], fyh_creacion, fyh_liberacion [NULL = abierta])
     tb_roles
     (id_rol, rol, permisos_version, fyh_creacion, fyh_actualizacion)
     -- permisos_version se incrementa en Role::syncPermissions(); Auth::check() la compara contra
@@ -161,7 +183,7 @@ tb_almacen
 (id_almacen, nombre_almacen, descripcion, precio_compra, precio_venta,
     stock, imagen, id_categoria, fyh_creacion, fyh_actualizacion)
 tb_ventas
-    (id_venta, nro_venta, id_cliente [NULL → venta sin cliente, se muestra como "Consumidor final"], id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
+    (id_venta, nro_venta [UNIQUE uq_venta_nro; ya no hay FK hacia tb_carrito], id_cliente [NULL → venta sin cliente, se muestra como "Consumidor final"], id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
     -- id_usuario registra al vendedor; NULL en registros anteriores a v1.12.1
     -- id_cliente opcional desde 1.18.1: las lecturas usan LEFT JOIN y las salidas
     -- (listado, detalle, delete, dashboard, factura PDF, activity log, exports)
@@ -173,7 +195,7 @@ tb_ventas
         Sale::storeWithStock desde tb_almacen.precio_venta al finalizar la venta; NULL = carrito en curso])
     tb_devoluciones
     (id_devolucion, nro_devolucion UNIQUE, id_venta [FK → tb_ventas], id_usuario [FK NULL → tb_usuarios],
-        motivo, monto, fyh_creacion)
+        motivo, monto, token_formulario [CHAR(32) UNIQUE NULL: idempotencia del reenvío], fyh_creacion)
     tb_devolucion_items
     (id_detalle, id_devolucion [FK → tb_devoluciones CASCADE], id_producto [FK → tb_almacen],
         cantidad, precio_unitario)
@@ -186,9 +208,9 @@ tb_ventas
     (id_pago, id_venta [FK → tb_ventas CASCADE], id_metodo_pago [FK → tb_metodos_pago NO ACTION],
         monto, fyh_creacion)
     -- una línea por método por venta (UNIQUE venta+metodo); el vuelto NUNCA se persiste como línea,
-    -- se deriva con SalePayment::vueltoFor(suma_montos, total_pagado)
+    -- se deriva con SalePayment::vueltoFor(float $total, array $payments)
     tb_compras
-(id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion)
+(id_compra, id_producto, nro_compra [UNIQUE uq_compra_nro], fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion)
     tb_activity_log
 (id_log, id_usuario [FK NULL → ON DELETE SET NULL], usuario_nombre, accion, entidad, entidad_id,
     descripcion, datos_anteriores [JSON], datos_nuevos [JSON], ip_address, fyh_creacion)
@@ -263,10 +285,16 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 
 ### PHP — Seguridad
 
-- Passwords: `password_hash()` al guardar, `password_verify()` al validar; mínimo 6 caracteres validado server-side en todos los flujos (create, update, reset)
+- Passwords: `password_hash()` al guardar, `password_verify()` al validar; mínimo `User::MIN_PASSWORD_LENGTH` (8) caracteres validado server-side en alta, perfil, administrador y reset; el login no aplica el mínimo (las contraseñas anteriores siguen valiendo)
 - Inputs: `htmlspecialchars()` en outputs HTML, validación server-side obligatoria
 - CSRF: token en todos los formularios POST (`Auth::generateCsrfToken()` / `validateCsrfOrFail()`)
 - SQL: siempre placeholders `?` con `execute([$var])` — nunca interpolar en el string SQL; `$interval` y `$limit` siempre con cast `(int)` explícito antes de interpolación
+- Subidas de imágenes: `ImageUpload::validate()` comprueba el código de error, la extensión, el MIME real y 2 MB;
+  `public/uploads/products/.htaccess` impide ejecutar PHP en ese directorio y debe estar versionado. **En un servidor
+  que ignore `.htaccess` (Nginx, por ejemplo) hay que replicar la regla** (denegar `*.php` allí y desactivar el motor).
+- Stock: solo escriben `tb_almacen.stock` `Sale`, `SaleReturn`, `Purchase`, `StockAdjustment` y
+  `Product::createProduct` (lo vigila `StockWritesAuditTest`); la ficha de producto lo muestra solo lectura y se
+  cambia desde Inventario. Los cambios sobre un producto existente son relativos (`stock = stock ± ?`), nunca un valor leído antes.
 - Stock: el decremento en `Sale::storeWithStock()` usa `AND stock >= ?` y verifica `rowCount() === 0` para rollback — nunca produce stock negativo
 - Totales: `Sale::storeWithStock()` congela `precio_unitario` por línea (desde `tb_almacen.precio_venta`) y calcula `total_pagado` como `SUM(cantidad * precio_unitario)` de `tb_carrito`, todo dentro de la transacción — ignorar siempre el valor del POST
 - Guards en destroy: `isReferenced()` y verificación de auto-eliminación siempre server-side en `UserController::destroy()` — la verificación cliente-side (AJAX) es solo UX
@@ -335,42 +363,69 @@ Auth::logout()          // limpia sesión, BD y cookie
   destino es superusuario o cuando el usuario/rol afectado ya lo es. Usar este helper en cualquier flujo que asigne
   roles o permisos — gatear el CRUD no gatea la escalada.
 
+**Sesión y CSRF:**
+
+- La cookie de sesión es `HttpOnly`, `SameSite=Lax` y `Secure` cuando la petición es HTTPS (también tras un
+  proxy que envía `X-Forwarded-Proto: https`). `Auth::login()` regenera el id de sesión y el token CSRF.
+
 **Timeout de sesión:**
 
 - Controlado por `SESSION_LIFETIME` en `.env` (minutos de inactividad). Default: `60`.
 - `Auth::check()` compara `$_SESSION['last_activity']` con `time()` y llama a `logout()` si expiró.
 
+**Umbrales de autenticación (`.env`, leídos por `App\Helpers\AuthSettings`):** un valor ausente, no entero o
+fuera de rango se ignora y se usa el default. Los 7 ajustables:
+
+| Variable                 | Default | Rango  | Significado                                         |
+| ------------------------ | ------- | ------ | --------------------------------------------------- |
+| `LOGIN_MAX_PER_EMAIL`    | 5       | 1–50   | intentos de login por correo dentro de la ventana   |
+| `LOGIN_MAX_PER_IP`       | 20      | 1–500  | intentos de login por IP dentro de la ventana       |
+| `LOGIN_WINDOW_MINUTES`   | 15      | 1–1440 | ventana de conteo de intentos                       |
+| `RESET_TOKEN_MINUTES`    | 60      | 5–1440 | vigencia del enlace de restablecimiento             |
+| `RESET_COOLDOWN_MINUTES` | 5       | 1–60   | espera entre solicitudes de reset del mismo usuario |
+| `RESET_MAX_PER_IP_HOUR`  | 5       | 1–100  | solicitudes de reset por IP y hora                  |
+| `REMEMBER_LIFETIME`      | 14      | 1–90   | días de vigencia de "recordarme"                    |
+
 **"Recordarme":**
 
-- Cookie `remember_token` = `"{id_usuario}:{plain_token}"` — httponly, samesite=Strict, 14 días.
-- BD almacena `hash('sha256', $plain)` en `remember_token` + fecha de expiración en `remember_token_expiry`.
-- Lifetime configurable con `REMEMBER_LIFETIME` en `.env` (días). Default: `14`.
+- Cookie `remember_token` = `"{selector}:{validador}"` — httponly, samesite=Strict, vigencia `REMEMBER_LIFETIME` días.
+- Una fila por dispositivo en `tb_sesiones_recordadas`; la BD guarda solo `hash('sha256', $validador)`.
 - `AuthMiddleware` intenta `Auth::loginWithCookie()` antes de redirigir a `/auth`.
-- El token rota en cada auto-login para mitigar robo de cookie.
-- Columnas en `tb_usuarios`: `remember_token VARCHAR(64) NULL`, `remember_token_expiry DATETIME NULL`.
-- `User::storeRememberToken()` / `findByRememberToken()` / `clearRememberToken()`.
+- `RememberToken::consume()` rota el validador solo de esa fila; un token inválido no modifica ninguna fila y
+  únicamente borra la cookie del cliente. Un cambio de IP se registra en el log de actividad sin rechazar el acceso.
+- `logout()` revoca solo el dispositivo actual. Cambiar una contraseña (`User::updatePassword()`, `updateUser()` con
+  contraseña, restablecimiento) llama a `RememberToken::revokeAllFor()` y cierra todos los dispositivos.
+- Las columnas `remember_token*` de `tb_usuarios` están obsoletas y sin uso.
 
 **Flujo de restablecimiento de contraseña:**
 
-- Token: `bin2hex(random_bytes(32))` — 64 caracteres hex, expiración 1 hora.
-- Columnas en `tb_usuarios`: `reset_token VARCHAR(255) NULL`, `reset_token_expiracion DATETIME NULL`.
-- `User::storeResetToken()` / `findByResetToken()` / `clearResetToken()` — gestión del token.
-- `App\Services\EmailService::sendResetLink()` — envío vía PHPMailer + Gmail SMTP.
-- `APP_DEBUG=true` en `.env` → muestra el link en pantalla + envía email (modo desarrollo).
-- `APP_DEBUG=false` → solo envía email con mensaje genérico (modo producción).
+- Token: `bin2hex(random_bytes(32))`; en `tb_usuarios.reset_token` se guarda su hash SHA-256 (`User::storeResetToken()` /
+  `findByResetToken()` / `clearResetToken()`), con vigencia `RESET_TOKEN_MINUTES`.
+- **El enlace nunca se muestra en pantalla**, ni con `APP_DEBUG=true` ni con `APP_ENV=local`. Con `APP_DEBUG=true`
+  solo se escribe en `error_log` (para desarrollo sin SMTP); la vista `show-reset-link.php` ya no existe.
+- La respuesta es la misma exista o no el correo. El envío SMTP se hace después de cerrar la respuesta
+  (`Controller::redirectThenRun()`), para que el tiempo de respuesta no delate si el correo está registrado.
+- Límites con `AuthAttempt::resetThrottled()`: espera `RESET_COOLDOWN_MINUTES` por usuario y `RESET_MAX_PER_IP_HOUR`
+  por IP; las solicitudes sobre el límite se ignoran en silencio.
+- `App\Services\EmailService::sendResetLink()` — PHPMailer + Gmail SMTP; escapa los datos en el HTML del correo y
+  el plazo mostrado sale de `AuthSettings::resetTokenMinutes()`.
+- Cambiar la propia contraseña desde el perfil exige la contraseña actual (`User::verifyCurrentPassword()`);
+  un administrador cambia la de otro usuario sin pedirla.
 
 **Rate limiting en login:**
 
-- 5 intentos fallidos consecutivos → cuenta bloqueada 15 minutos.
-- Columnas en `tb_usuarios`: `login_intentos TINYINT UNSIGNED DEFAULT 0`, `login_bloqueado_hasta DATETIME NULL`.
-- `User::recordFailedLogin(int $id)` — incrementa contador y activa bloqueo al llegar a 5 (timestamp calculado en PHP, no `NOW() + INTERVAL`, para compatibilidad con SQLite en tests).
-- `User::isLocked(array $user): bool` — compara `login_bloqueado_hasta` con `time()`.
-- `User::clearLoginAttempts(int $id)` — resetea contador y timestamp al login exitoso.
-- `User::clearExpiredLock(array $user): bool` — si el bloqueo ya venció, limpia contador y timestamp; lo llama
-  `AuthController::store()` **antes** de `isLocked()`. Sin esto, un contador que queda en 5 re-bloquea la cuenta con
-  el primer fallo posterior.
-- `AuthController::store()` verifica bloqueo **antes** de `password_verify()` — sin revelar intentos restantes.
-- Mensaje de bloqueo dirige al usuario a "¿Olvidaste tu contraseña?" como salida de emergencia.
+- `AuthController::store()` registra cada intento en `tb_intentos_auth` **antes** de verificar nada
+  (`AuthAttempt::register()`) y cuenta solo los intentos con id menor o igual al propio (`isBlocked()`): en una
+  ráfaga paralela solo los primeros por id llegan a verificar la contraseña. El reloj es el de la BD.
+- Más de `LOGIN_MAX_PER_EMAIL` intentos por correo o `LOGIN_MAX_PER_IP` por IP dentro de `LOGIN_WINDOW_MINUTES`
+  bloquean sin verificar la contraseña. Un correo inexistente cuenta igual.
+- Correo inexistente, contraseña incorrecta y bloqueo muestran el mismo mensaje, con salida a «¿Olvidaste tu
+  contraseña?»; para los correos inexistentes se verifica contra un hash ficticio (`User::passwordMatches()`).
+- Un login correcto borra los intentos de ese correo (`AuthAttempt::clear()`).
+- **Limitación conocida:** quien conozca un correo puede bloquear su login durante la ventana enviando intentos
+  fallidos; la salida del usuario legítimo es «¿Olvidaste tu contraseña?». Se aceptó a cambio de no filtrar qué
+  correos existen.
+- Las columnas `login_intentos` y `login_bloqueado_hasta` están obsoletas y sin uso.
 
 **Toasts en vistas de auth:**
 
@@ -398,6 +453,11 @@ Auth::logout()          // limpia sesión, BD y cookie
 - **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays pasados a `renderWithLayout()` que el layout inyecta en
   `<head>` y antes de `</body>` respectivamente; las rutas son relativas a `BASE_URL` (e.g.
   `/js/modules/products/products-index.js`)
+- **Accesibilidad (axe-core en claro y oscuro, incluidos tabs y modales):** el título de un modal es
+  `<h2 class="modal-title h5">` (nunca `h4`/`h5` sueltos: rompen `heading-order`); todo botón o enlace de solo icono
+  lleva `aria-label` (también el de colapsar `btn-tool`); cada `<label>` apunta a su campo con `for`/`id`; los `<li>`
+  de las pestañas llevan `role="presentation"`. Al auditar con axe, desactivar las transiciones CSS antes de
+  alternar `body.dark-mode`, o lee colores a medio animar.
 - **Cache-busting**: los layouts anexan `?v=<?= APP_VERSION ?>` a todos los assets propios (CSS/JS de `core/` y
   cada entrada de `$pageStyles` / `$pageScripts`). Tras un fix de CSS/JS, subir `APP_VERSION` en `.env` para forzar
   la recarga en navegadores de usuarios. Los vendors (`lib/`, `plugins/`) no llevan query string.
@@ -420,9 +480,11 @@ Auth::logout()          // limpia sesión, BD y cookie
   colapsable "Datos del cliente" con alerta de advertencia por defecto (sin cliente) y campos ocultos hasta
   selección; botones "Nuevo cliente" (modal inline) y "Buscar cliente" (modal tabla); estado del cliente
   persiste en `sessionStorage('pos_client')` para sobrevivir recargas por operaciones de carrito;
-  `$_SESSION['pos_nro_venta']` persiste el número de venta activo en el POS — se asigna al entrar a `create()` y
-  se limpia en `store()` (venta finalizada) y `cancel()` (venta cancelada); previene colisión de nro_venta entre
-  vendedores concurrentes junto con `Sale::nextNumber()` que considera `MAX(tb_ventas UNION tb_carrito)`
+  el número de venta activo lo reserva `PosReservation::openFor()` (una reserva abierta por vendedor; su id
+  autoincremental ES el `nro_venta`, así dos vendedores nunca coinciden) y no se guarda en sesión; el carrito solo
+  lo opera su dueño (`CartItem` devuelve `forbidden`) y una venta ya cobrada no admite más cambios;
+  `Sale::storeWithStock()` es idempotente: reenviar el mismo cobro devuelve la venta original (`replayed`) sin tocar
+  stock y libera la reserva al cobrar
 - Layout de páginas de detalle (`show`): dos columnas — `col-md-4 col-lg-3` izquierda con imagen, nombre, código,
   categoría y acciones (editar, volver, PDF si aplica); `col-md-8 col-lg-9` derecha con tarjetas de métricas
   (`info-box`) y tabla/sección de datos; aplicado en `products/show.php`, `purchases/show.php` y `sales/show.php`
@@ -497,7 +559,7 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 Un único job `test`, matrix PHP 8.2/8.3, que corre en cada push a `master` y cada PR:
 
 - Ejecuta `vendor/bin/phpunit` (suites `Unit` + `Integration` en un solo proceso). La suite completa
-  tarda ~5 s (375 tests); no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
+  son 865 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
   runner, no los tests, así que filtrar salía más caro que correr todo.
 - `concurrency` con `cancel-in-progress` descarta runs obsoletos cuando llegan pushes seguidos.
 - Levanta el servicio `mariadb:10.11` para los tests `*MariaDbTest.php`; el resto corre contra SQLite.
@@ -594,4 +656,4 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 
 ---
 
-_Última actualización: 2026-10-02 — 1.18.3. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-10-05 — 1.19.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

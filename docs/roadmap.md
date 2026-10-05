@@ -40,6 +40,16 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
     cuenta/rol, scoping de reportes, códigos de producto, rate limit, stock y
     precios negativos, histórico de ajustes, vendedor en factura, exports,
     literales, filtros de fecha) y 10 derivados a spec. → CHANGELOG 1.18.2
+20. **Auditoría de seguridad e integridad (los 10 hallazgos derivados + endurecimiento)** —
+    reserva del `nro_venta` del POS por usuario (`tb_pos_reservas`) y carrito solo
+    del dueño, cobro y devolución idempotentes, `UNIQUE` en `nro_venta`/`nro_compra`
+    sin la FK invertida, montos en céntimos y vuelto acotado al efectivo, stock sin
+    escrituras pisadas (ajustes relativos, compras revertibles solo con stock),
+    devoluciones con tope y líneas repetidas, login con intentos en BD y
+    "recordarme" por dispositivo, reset sin enlace en pantalla, migraciones
+    reejecutables compatibles con MySQL 8.4 y actualización verificada desde 1.18.3;
+    pasada final de accesibilidad (axe-core, claro y oscuro) sobre las vistas tocadas.
+    → `specs/004-auditoria-seguridad-integridad/`
 
 ## Siguiente 🔜
 
@@ -48,15 +58,6 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 _No comprometido ni ordenado. Toda idea debe respetar `docs/constitution.md`,
 incluido el alcance del producto. Ordenadas por qué tan propias de un POS son._
 
-- **Correcciones de auditoría pendientes (10)** — número `004` reservado en
-  `specs/`, carpeta aún por redactar: doble submit + `nro_venta` con TOCTOU,
-  vuelto mayor al efectivo, IDOR en las rutas del carrito, `purgeOrphans()`
-  ajeno, FK invertida `tb_ventas → tb_carrito`, `StockAdjustment` sin lock,
-  `salesTotals()` con subconsulta no correlacionada, revertir compra con
-  potencial de stock negativo, pendiente de devolución con líneas repetidas y
-  validación de stock en el carrito. Detalle y dueños en la lista ClickUp de
-  auditoría; las reglas de dinero/stock que tocan hacen que el flujo sea SDD
-  completo, no fix directo.
 - **Arqueo / cuadre de caja** — abrir caja con fondo inicial, registrar
   entradas/salidas de efectivo, cerrar con conteo y diferencia, reporte Z.
   Depende de que los pagos estén normalizados por método. Es lo que distingue

@@ -1,0 +1,32 @@
+# T57 — 1.18.3 contra BD migrada 011-014 (1.18.3)
+Migraciones aplicadas: 3 tablas nuevas
+OK   login vendedor y listado de ventas (200)
+OK   POS abierto, nro_venta=30
+OK   nro_venta (30) mayor al máximo de ventas existente (29)
+OK   producto agregado al carrito
+OK   venta registrada: id_venta=30 total=90.00
+OK   stock descontado (101 -> 99)
+OK   pago guardado por 100.00 (efectivo recibido; el vuelto de 10.00 se deriva, no se persiste)
+OK   detalle de venta (200)
+OK   factura PDF (200)
+OK   devolución registrada por 45.00
+OK   stock repuesto (100)
+OK   GET / (200)
+OK   GET /sales (200)
+OK   GET /returns (200)
+OK   GET /products (200)
+OK   GET /purchases (200)
+OK   GET /clients (200)
+OK   GET /inventory (200)
+OK   GET /reports (200)
+OK   GET /reports/sales (200)
+OK   GET /reports/purchases (200)
+OK   GET /reports/top-products (200)
+OK   GET /reports/clients (200)
+OK   GET /activity-log (200)
+OK   GET /users (200)
+OK   GET /roles (200)
+OK   GET /permissions (200)
+--- errores PHP en el log del servidor (se excluye el aviso conocido de 1.18.3: $_GET['top'] sin parámetro, ReportController.php:120, no depende de la BD):
+OK   sin errores PHP
+Aviso conocido de 1.18.3 (no de la migración): PHP Warning: Undefined array key "top" en ReportController.php:120 al abrir /reports/top-products sin ?top=.

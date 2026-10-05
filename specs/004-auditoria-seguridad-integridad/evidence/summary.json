@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-05",
+  "tool": "axe-core 4.10.2",
+  "rules": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "best-practice"
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "states": [
+    "initial",
+    "each tab",
+    "each modal"
+  ],
+  "pages": [
+    "categories",
+    "clients",
+    "suppliers",
+    "roles",
+    "permissions",
+    "payment-methods",
+    "products (index/create/edit/show)",
+    "purchases (index/create/edit/show)",
+    "sales (index/create/show/delete)",
+    "returns (index/select-sale/create/show)",
+    "reports/sales",
+    "users (index/create/edit)",
+    "profile",
+    "errors/403"
+  ],
+  "violations": 0,
+  "notes": "/errors/403 es standalone (sin modo oscuro); se audita en claro. Hallazgos fuera de alcance, ya presentes antes: /reports (índice), /roles/permisos/{id}, /inventory, /users/delete/{id}, dashboard."
+}

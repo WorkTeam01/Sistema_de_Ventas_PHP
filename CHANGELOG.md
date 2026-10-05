@@ -7,6 +7,124 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.19.0] - 2026-10-05
+
+Auditoría de seguridad e integridad (spec 004): cierra los 10 hallazgos pendientes de
+la auditoría y endurece POS, devoluciones, stock, autenticación y migraciones.
+
+### Actualización desde 1.18.3 (leer antes de desplegar)
+
+Orden obligatorio; el esquema va **antes** que el código (con el código nuevo y sin las
+migraciones el sistema no arranca por tablas faltantes):
+
+1. Correr `database/preflight_004.sql` sobre la BD de la instalación
+   (`mysql -u USUARIO -p NOMBRE_BD < database/preflight_004.sql`; solo lee). Cero filas
+   significa que se puede migrar; si informa `nro_venta` o `nro_compra` repetidos, ventas
+   sin líneas o imágenes de más de 255 caracteres, resolverlos a mano primero (las
+   migraciones `012` y `014` abortan sin tocar nada ante esos datos).
+2. Respaldar la BD.
+3. Fuera del horario de ventas, aplicar las migraciones pendientes: `006`–`010` si aún
+   no se aplicaron (las `002`, `003` y `006` se reescribieron sin `ADD COLUMN IF NOT
+EXISTS`; si ya estaban aplicadas se omiten) y luego `011`–`014`, todas reejecutables.
+   Desplegar sin ventas en curso: un carrito abierto queda sin reserva y hay que volver a
+   agregar sus ítems.
+4. Desplegar el código y subir `APP_VERSION`. Si el servidor no es Apache, replicar la
+   regla de `public/uploads/products/.htaccess` (sin ejecución de PHP en ese directorio).
+
+Las migraciones no eliminan tablas, columnas ni filas de negocio; solo quitan la clave
+foránea `tb_ventas → tb_carrito` y anulan los tokens de restablecimiento y "recordarme"
+anteriores. **Vuelta atrás:** restaurar solo el código; el esquema migrado es compatible
+con 1.18.3 (verificado contra una BD migrada, `specs/004-…/evidence/`).
+
+Opcionales en `.env` (valores por defecto si faltan): `LOGIN_MAX_PER_EMAIL`,
+`LOGIN_MAX_PER_IP`, `LOGIN_WINDOW_MINUTES`, `RESET_TOKEN_MINUTES`,
+`RESET_COOLDOWN_MINUTES`, `RESET_MAX_PER_IP_HOUR`, `REMEMBER_LIFETIME`.
+
+### Cambios visibles para los usuarios
+
+- **Ficha de producto**: el stock se muestra como solo lectura y se cambia desde Inventario.
+- **Contraseñas**: cambiar la propia desde el perfil exige la contraseña actual; el mínimo
+  para contraseñas nuevas pasa de 6 a 8 caracteres (quien ya tiene una de 6 sigue
+  entrando).
+- **Restablecer contraseña**: el enlace nunca se muestra en pantalla (ni con
+  `APP_DEBUG=true`); llega solo por correo y el mensaje es el mismo exista o no el correo.
+- **"Recordarme"**: quien lo usaba deberá iniciar sesión una vez más; ahora cada
+  dispositivo tiene su propia sesión recordada.
+- **Botones por permiso**: Nuevo, Editar y Eliminar se ocultan cuando el rol no tiene el
+  permiso correspondiente.
+- **Límite de intentos de login**: tras superar los umbrales configurados el acceso se
+  bloquea temporalmente. Limitación conocida: quien conozca un correo puede bloquear su
+  login durante la ventana; la salida del usuario legítimo es «¿Olvidaste tu contraseña?».
+
+### Seguridad
+
+- **Carrito del POS ajeno (IDOR)**: agregar, quitar, cancelar o cobrar solo es posible
+  sobre una reserva abierta del propio usuario (`Controller::forbidden()` en otro caso);
+  una venta ya cobrada no admite más cambios.
+- **Sesión y CSRF**: la cookie de sesión es `HttpOnly`, `SameSite=Lax` y `Secure` con
+  HTTPS (también tras proxy); el token CSRF se regenera al iniciar sesión.
+- **Autenticación**: intentos de login y de restablecimiento registrados en BD antes de
+  verificar nada, de modo que una ráfaga paralela solo verifica los primeros; mismo mensaje
+  para correo inexistente, contraseña incorrecta y bloqueo; el token de restablecimiento
+  se guarda como hash SHA-256; cambiar una contraseña cierra todas las sesiones recordadas.
+- **Correo de restablecimiento**: se envía después de cerrar la respuesta, para que el
+  tiempo no delate si el correo existe; los datos del usuario se escapan en el HTML.
+- **Subida de imágenes**: validación del código de error, extensión, tipo MIME real y
+  2 MB; `.htaccess` versionado que impide ejecutar PHP en `public/uploads/products/`.
+- **Errores**: un fallo de conexión a la BD muestra la página 500 sin datos de conexión;
+  los parámetros `{id}` no numéricos responden 404.
+
+### Corregido
+
+- **Doble envío y número de venta duplicado**: cada vendedor reserva su `nro_venta`
+  (`tb_pos_reservas`, reemplaza a `Sale::nextNumber()` y a `$_SESSION['pos_nro_venta']`);
+  reenviar el mismo cobro (también desde dos pestañas a la vez) devuelve la venta original
+  sin tocar stock ni precios.
+- **Vuelto mayor al efectivo recibido** y total cero o por encima del máximo de la columna:
+  se rechazan; los montos se normalizan en céntimos (`Money`).
+- **Devoluciones**: el pendiente suma todas las líneas repetidas de un producto, el monto
+  acumulado no supera lo cobrado, el reenvío del formulario no la duplica (token) y dos
+  devoluciones simultáneas no exceden lo pendiente.
+- **Stock**: los ajustes son relativos y con piso en 0 (ya no pisan ventas concurrentes);
+  eliminar o editar una compra cuyo stock ya se vendió se rechaza en vez de dejar stock
+  negativo; el alta de producto registra "Stock inicial"; un producto con ajustes o
+  devoluciones no se puede eliminar; eliminar una venta con devoluciones se rechaza.
+- **Reportes y dashboard**: el reporte de ventas descuenta las devoluciones imputadas al
+  período (con fila de períodos anteriores) y el ticket promedio sale del neto; la serie
+  de 6 meses ya no se salta febrero desde un día 31.
+- **Productos más vendidos sin `?top=`**: la tabla salía vacía (`LIMIT 0`) y PHP emitía un
+  aviso; ahora el valor por defecto es 10.
+- **Enlaces rotos** a rutas inexistentes (`/categories/create`, `/suppliers/create` y el
+  `/dashboard` de devoluciones) y assets de auth y errores sin versionar con `APP_VERSION`.
+- **Factura y detalle de venta**: muestran una fila de ajuste por precios históricos solo
+  cuando el total pagado difiere de la suma de líneas.
+
+### Cambiado
+
+- Accesibilidad (axe-core en claro y oscuro, incluidas tabs y modales): `aria-label` en los botones de colapsar y en las acciones con icono de Compras y Devoluciones, etiquetas asociadas en los formularios de Compras y Perfil, tabs con `role="presentation"`, títulos de modal y de detalle en orden de encabezados, página 403 con `<main>` y `<h1>`, y contraste de pestañas y `btn-outline-primary` en ambos temas.
+- **Esquema** (migraciones `011`–`014`, reejecutables): tabla `tb_pos_reservas`;
+  `UNIQUE` en `tb_ventas.nro_venta` y `tb_compras.nro_compra` y fuera la FK invertida
+  `tb_ventas → tb_carrito`; tablas `tb_intentos_auth` y `tb_sesiones_recordadas` y columna
+  `tb_devoluciones.token_formulario`; `tb_almacen.imagen` a `VARCHAR(255)`. Las columnas
+  `login_intentos`, `login_bloqueado_hasta` y `remember_token*` de `tb_usuarios` quedan
+  sin uso (se eliminarán en una migración posterior para no romper la vuelta atrás).
+- **Compatibilidad con MySQL 8.4**: sin `ADD COLUMN IF NOT EXISTS` ni `TEXT` con valor por
+  defecto literal.
+- **Registro de actividad** de la edición de compras, clientes, proveedores y productos y
+  de la eliminación de productos.
+- **Layout**: ya no invoca `Auth::`; `BASE_URL` llega a JavaScript con `json_encode`.
+- **Tests y CI**: las claves foráneas están activas en el fixture SQLite; en CI la falta de
+  MariaDB hace fallar la suite en vez de saltarla; los umbrales de autenticación se leen de
+  `.env` (`AuthSettings`).
+
+### Agregado
+
+- `database/preflight_004.sql` (comprobación previa de solo lectura).
+- Tests de actualización desde 1.18.3 (`MigrationsUpgradeMariaDbTest`) y del preflight; la
+  suite pasa de 375 a más de 860 tests.
+- Skill `code-review` adaptada a este proyecto y documentación (`AGENTS.md`, `CLAUDE.md`)
+  sincronizada con el código.
+
 ## [1.18.3] - 2026-10-02
 
 ### Corregido

@@ -69,11 +69,14 @@ Usuarios de prueba que crea el seeder:
 
 Ver `.env.example` para el listado completo. Claves relevantes:
 
-- `APP_DEBUG=true` activa modo desarrollo: muestra el link de restablecimiento en
-  pantalla además de enviarlo por email. Usar `false` en producción.
+- `APP_DEBUG=true` solo escribe el enlace de restablecimiento en el log de errores de PHP
+  (`error_log`) además de enviarlo por email; **nunca** se muestra en pantalla. Usar `false` en producción.
 - `MAIL_PASSWORD` debe ser una **Contraseña de Aplicación** de Google.
 - `APP_CURRENCY_SYMBOL` — símbolo de moneda (default `Bs.`).
-- `SESSION_LIFETIME` / `REMEMBER_LIFETIME` — minutos de inactividad / días de "recordarme".
+- `SESSION_LIFETIME` / `REMEMBER_LIFETIME` — minutos de inactividad (default 60) / días de "recordarme" (default 14).
+- `LOGIN_MAX_PER_EMAIL`, `LOGIN_MAX_PER_IP`, `LOGIN_WINDOW_MINUTES`, `RESET_TOKEN_MINUTES`,
+  `RESET_COOLDOWN_MINUTES`, `RESET_MAX_PER_IP_HOUR` — umbrales de login y restablecimiento (opcionales; un valor
+  fuera de rango se ignora). Detalle y rangos en [AGENTS.md](AGENTS.md) § Autenticación.
 
 `public/index.php` carga `.env` vía phpdotenv y expone `BASE_PATH`, `BASE_URL`,
 `$pdo`, `$Año`, `$fechaHora`.
@@ -107,9 +110,8 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV o Xdebug)
 
 - `git-commit` (`.claude/skills/`) — usar **siempre** para commitear; nunca `git commit` directo.
   Commits atómicos por categoría lógica.
-- `code-review` (`.claude/skills/`) — revisión antes de merge. ⚠️ Su checklist
-  todavía arrastra referencias de otro repo (`SistemaReservasHospital`, ramas
-  `feature/rfXX`, `develop`); adaptarlo a este proyecto es tarea pendiente.
+- `code-review` (`.claude/skills/`) — revisión antes de merge a `master`; su checklist
+  sale de `docs/constitution.md` y de las prohibiciones de `AGENTS.md`.
 
 ## Flujo SDD
 
@@ -121,4 +123,4 @@ Features nuevas siguen Spec-Driven Development (`/sdd:constitution`, `/sdd:spec`
 
 ---
 
-_Última actualización: 2026-10-02 — 1.18.3_
+_Última actualización: 2026-10-05 — 1.19.0_

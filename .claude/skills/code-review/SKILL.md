@@ -1,138 +1,140 @@
 ---
 name: code-review
-description: 'Review PHP MVC code before merging a branch in SistemaReservasHospital. Use when the user asks to review code, check a PR, validate a feature before merge, or mentions "code review", "revisar código", "antes del merge", or "PR". Triggers automatically when a feature branch is ready to merge to develop.'
+description: 'Revisa código PHP MVC de Sistema de Ventas PHP antes de integrarlo a master. Usar cuando el usuario pida revisar código, un PR o validar una feature antes del merge, o mencione "code review", "revisar código", "antes del merge" o "PR".'
 license: MIT
 allowed-tools: Bash, Read
 ---
 
-# Code Review — SistemaReservasHospital
+# Code Review — Sistema de Ventas PHP
 
-## Overview
+## Qué cubre
 
-Structured code review process for SistemaReservasHospital before any branch merge to develop. Covers security,
-conventions, logic, and the project's specific patterns that are easy to miss.
+Revisión estructurada de un cambio antes de integrarlo a `master` (única rama del proyecto). El checklist sale de
+`docs/constitution.md` (principios no negociables) y de las prohibiciones de `AGENTS.md`; ante duda, esos dos
+archivos mandan sobre esta lista.
 
-## How to Run the Review
+## Cómo correrla
 
 ```bash
-# See all changed files in the branch
-git diff dev --name-only
-
-# Full diff against dev
-git diff dev
-
-# Check for any staged but uncommitted changes
-git status
+git status                       # cambios sin commitear
+git diff master --name-only      # archivos de la rama
+git diff master                  # diff completo
+composer test                    # la suite debe estar en verde
 ```
 
-Review each changed file against the checklist below. Group findings by severity before reporting.
+Revisar cada archivo contra el checklist y agrupar los hallazgos por severidad antes de reportar.
 
 ---
 
-## Review Checklist
+## Checklist
 
-### 1. Security — block merge if any fail
+### 1. Seguridad y datos — bloquea el merge
 
-- [ ] No SQL concatenation — all queries use PDO prepared statements
-- [ ] No plain-text passwords — `password_hash()` on save, `password_verify()` on check
-- [ ] Output is escaped — `htmlspecialchars()` on all user-generated output
-- [ ] No secrets in code — `.env`, `.mcp.json`, passwords, tokens not committed
-- [ ] Middleware called — every controller method starts with `Middleware::auth()`, `Middleware::admin()`, or
-  `Middleware::guest()` as appropriate
-- [ ] No DELETE SQL — soft deletes only via `is_active = 0`
-- [ ] CSRF token present on all POST forms
+- [ ] SQL siempre con placeholders `?` y `execute([...])`; nada de variables interpoladas (`$interval`/`$limit`
+      solo con cast `(int)`)
+- [ ] Borrado **físico** protegido por `isReferenced()` antes del `DELETE`; nunca borrado lógico con `is_active`
+- [ ] Montos, totales y stock calculados desde la BD dentro de la transacción, nunca desde el `$_POST`; las
+      operaciones irreversibles usan el snapshot de BD, no el POST
+- [ ] El stock solo se escribe en `Sale`, `SaleReturn`, `Purchase`, `StockAdjustment` y `Product::createProduct`
+      (lo vigila `StockWritesAuditTest`)
+- [ ] CSRF (`Auth::generateCsrfToken()` / `validateCsrfOrFail()`) en todo formulario o petición POST
+- [ ] Contraseñas con `password_hash()` / `password_verify()`; mínimo de 8 caracteres en las nuevas
+- [ ] Salidas HTML escapadas con `htmlspecialchars()`; datos a JS con `json_encode()`, nunca interpolados
+- [ ] Sin secretos en el diff (`.env`, `.env.testing`, credenciales, tokens)
 
----
+### 2. Autorización — bloquea el merge
 
-### 2. MVC Conventions — block merge if any fail
+- [ ] Todo endpoint no público declara `['auth', 'can:permiso']` en `routes/web.php`
+- [ ] Con permisos `*_all` (`view_sales_all`, `view_purchases_all`), el filtro por dueño se aplica al listado **y** a
+      `show`/`edit`/`update`/`destroy`; el rechazo usa `Controller::forbidden()`
+- [ ] Quien puede crear/editar usuarios o asignar permisos no puede otorgarse `is_superadmin`
+      (`blocksSuperadminEscalation()` / `Role::grantsSuperadmin()`)
+- [ ] Borrar un recurso inexistente es un no-op exitoso; solo "existe y es ajeno" se rechaza
+- [ ] Vistas y sidebar usan `$can[...]` entregado por el controlador, nunca `Auth::` ni los proxies de rol
+      `$isAdmin`/`$isSeller`/`$isBuyer` para permisos granulares
 
-- [ ] No invented controller methods — only these are valid: `index()`, `showCreate()`, `store()`, `showEdit()`,
-  `update()`, `destroy()`, `toggle()`, `show()`, `checkName()`
-- [ ] No separate status methods — `complete()`, `cancel()`, `confirm()` as standalone methods are forbidden.
-  `toggle()` handles active/inactive state changes:
-- [ ] Business logic in Model, not Controller — controllers orchestrate, models contain the logic. If a method is
-  longer than ~30 lines in a controller, it probably belongs in the model.
-- [ ] DataTables loaded from PHP — no AJAX data source on initial page load. Filters via GET parameters
-  server-side, not JavaScript-side filtering:
-- [ ] Correct layout — all views use `renderWithLayout()` through the base Controller. No standalone HTML files
-  that bypass the main layout.
+### 3. Convenciones MVC — bloquea el merge
 
----
+- [ ] Métodos de controlador solo los estándar (`index`, `create`, `store`, `edit`, `update`, `destroy`) y los
+      auxiliares ya documentados en `AGENTS.md`; nada de `toggle`, `activate`, `complete`
+- [ ] Fat model, thin controller, dumb view: la lógica de negocio vive en el modelo; la vista no hace cálculos
+      (`foreach` con `+=`)
+- [ ] Vistas con `renderWithLayout()`, breadcrumb (`<section class="content-header">`) y assets propios por
+      `$pageStyles` / `$pageScripts`
+- [ ] Moneda con `APP_CURRENCY_SYMBOL`; sin `"Bs."` fijo ni una constante llamada `CURRENCY_SYMBOL`
+- [ ] Identificadores nuevos en inglés; textos al usuario en español; sin renombrar identificadores históricos
+- [ ] No se tocan `public/templates/`, `public/css/lib/` ni `public/js/lib/`
 
-### 3. Logic & Quality — flag as warning, discuss before merge
+### 4. Frontend — advertencia, se discute antes del merge
 
-- [ ] Dual validation — every form has both frontend (jQuery) and backend (PHP) validation. Frontend alone is
-  never sufficient.
-- [ ] Status badge colors consistent across all views:
-- [ ] SweetAlert2 used — no native `alert()` or `confirm()` anywhere in JS. Destructive actions always show a
-  confirmation dialog before proceeding.
-- [ ] Edge cases covered — check the acceptance criteria of the RF and verify that the implementation handles the
-  non-happy-path scenarios:
-    - What happens if the record doesn't exist?
-    - What happens if the user doesn't have permission?
-    - What happens with empty or malformed inputs?
-- [ ] RF dependencies respected — if the feature touches availability logic, verify RF15 (doctor schedules) is
-  integrated before RF05 validation changes. `Appointment::checkAvailability()` should be reused, not duplicated.
-- [ ] No duplicate code — if the same logic appears in two places, it belongs in a shared Model method.
+- [ ] Sin `alert()`, `Swal.fire` ni `onclick` inline en vistas: usar `AlertUtils` / `ToastUtils`
+- [ ] Eliminaciones con el patrón del módulo (página dedicada, formulario oculto `#formEliminar` o modal + AJAX)
+- [ ] DataTables con datos cargados desde PHP, sin fuente AJAX en la carga inicial
+- [ ] Validación doble: jQuery Validate en el cliente **y** validación en PHP
+- [ ] Assets propios con `?v=<?= APP_VERSION ?>`; si cambió JS/CSS core, `APP_VERSION` subió
+- [ ] Si toca UI: axe-core sin violaciones en modo claro y oscuro (incluye modales y estados vacíos)
 
----
+### 5. Tests y esquema — bloquea el merge
 
-### 4. Git & Branch — block merge if any fail
+- [ ] `composer test` en verde, sin tests saltados por falta de MariaDB
+- [ ] Lógica nueva de modelo/helper con su test (no se testean Controllers, Middleware, Vistas ni Router)
+- [ ] Tests que comparan fechas contra la BD usan expresiones SQL (`NOW() - INTERVAL …`), no `date()` de PHP
+- [ ] Cambios en `database/schema.sql` reflejados en `tests/fixtures/schema.sqlite.sql` y, si hace falta, en una
+      migración reejecutable bajo `database/migrations/`
 
-- [ ] Branch name follows `feature/rfXX-descripcion` convention
-- [ ] Commits follow Conventional Commits with correct scope:
-  `feat(appointments): add edit form with availability check (RF10)`
-- [ ] No commits to `main`/`develop` directly — all changes via PR
-- [ ] No `.env` or `.mcp.json` in the diff
+### 6. Calidad y comentarios — advertencia
 
----
+- [ ] Casos límite cubiertos: registro inexistente, usuario sin permiso, entradas vacías o malformadas, doble envío
+- [ ] Sin lógica duplicada que debería ser un método compartido del modelo
+- [ ] Comentarios pocos, en español y sobre el porqué; sin narrar el código ni citar specs, tareas o tickets
+      (`FR-…`, `spec 00X`)
 
-## Output Format
+### 7. Git — bloquea el merge
 
-Always structure the review response in this exact format:
-
-```
-## Code Review — [branch name] ([RF ID])
-
-### ✅ What's good
-- [At least 2 specific things done well]
-
-### ⚠️ Observations (non-blocking)
-- [Improvements that would be nice but don't block merge]
-
-### 🚨 Must fix before merge
-- [File:line] — [Problem description]
-  [Code showing the issue]
-  Fix: [Code showing the correct approach]
-```
-
-If there are no blocking issues, end with:
-
-```
-### Verdict: ✅ Approved — ready to merge to develop
-```
-
-If there are blocking issues, end with:
-
-```
-### Verdict: 🚨 Changes required — do not merge until fixed
-```
+- [ ] Commits Conventional Commits de una línea (tipo y scope en inglés, descripción en español), hechos con la
+      skill `git-commit`, sin co-autor
+- [ ] Commits atómicos por área lógica, sin mezclar limpieza de comentarios con cambios de código
+- [ ] Tags de versión sin prefijo `v` (`1.18.3`)
+- [ ] Nada de `.env` en el diff
 
 ---
 
-## Quick Reference — Most Common Issues
+## Formato de salida
 
-These are the issues found most frequently in this project. Check these first:
+```
+## Code Review — [rama o PR]
 
-| # | File type  | Issue                                                              | Severity   |
-|---|------------|--------------------------------------------------------------------|------------|
-| 1 | Controller | Status method created separately (`complete()`, `cancel()`, `activate()`) | 🚨 Block |
-| 2 | Controller | Missing `Middleware::` call at method start                        | 🚨 Block   |
-| 3 | Model      | SQL built with string concatenation                                | 🚨 Block   |
-| 4 | View       | User output not escaped with `htmlspecialchars()`                  | 🚨 Block   |
-| 5 | JS         | DataTables using AJAX data source instead of PHP data              | 🚨 Block   |
-| 6 | JS         | Native `alert()` or `confirm()` instead of SweetAlert2             | ⚠️ Warning |
-| 7 | View       | Badge color doesn't match status convention                        | ⚠️ Warning |
-| 8 | Controller | Business logic that belongs in the Model                           | ⚠️ Warning |
-| 9 | Any        | Frontend validation without matching backend validation            | ⚠️ Warning |
-| 10 | Git       | Commit messages not following Conventional Commits                 | ⚠️ Warning |
+### ✅ Lo bueno
+- [Al menos 2 cosas concretas bien hechas]
+
+### ⚠️ Observaciones (no bloquean)
+- [Mejoras deseables]
+
+### 🚨 Corregir antes del merge
+- [archivo:línea] — [problema]
+  Fix: [enfoque correcto]
+```
+
+Cerrar con una de estas dos líneas:
+
+```
+### Veredicto: ✅ Aprobado — listo para integrar a master
+### Veredicto: 🚨 Cambios requeridos — no integrar hasta corregir
+```
+
+---
+
+## Hallazgos más frecuentes (revisar primero)
+
+| #   | Dónde      | Problema                                                               | Severidad      |
+| --- | ---------- | ---------------------------------------------------------------------- | -------------- |
+| 1   | Modelo     | SQL armado con concatenación                                           | 🚨 Bloquea     |
+| 2   | Controller | Detalle/edición/borrado sin el filtro de dueño que sí tiene el listado | 🚨 Bloquea     |
+| 3   | Ruta       | Endpoint sin `can:permiso` o formulario POST sin CSRF                  | 🚨 Bloquea     |
+| 4   | Modelo     | Total o stock tomado del POST en vez de la BD                          | 🚨 Bloquea     |
+| 5   | Vista      | `Auth::` o cálculos en la vista; salida sin escapar                    | 🚨 Bloquea     |
+| 6   | Modelo     | `DELETE` sin `isReferenced()` o borrado lógico                         | 🚨 Bloquea     |
+| 7   | JS         | `alert()`, `Swal.fire` inline o `onclick` en la vista                  | ⚠️ Advertencia |
+| 8   | Tests      | Fecha límite calculada en PHP y comparada con `NOW()` de la BD         | ⚠️ Advertencia |
+| 9   | Assets     | JS/CSS propio sin `?v=APP_VERSION` o `APP_VERSION` sin subir           | ⚠️ Advertencia |
+| 10  | Git        | Commit multilínea, uno por fix o mezclando comentarios con código      | ⚠️ Advertencia |
