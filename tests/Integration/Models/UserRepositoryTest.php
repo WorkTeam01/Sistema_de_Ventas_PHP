@@ -171,6 +171,18 @@ final class UserRepositoryTest extends TestCase
         $this->assertFalse($this->user->isReferenced($id));
     }
 
+    public function test_delete_succeeds_for_user_who_opened_the_pos_and_keeps_the_reservation(): void
+    {
+        $id = $this->createUser();
+        $this->pdo->exec("INSERT INTO tb_pos_reservas (id_usuario) VALUES ($id)");
+
+        $this->assertFalse($this->user->isReferenced($id));
+        $this->user->delete($id);
+
+        $this->assertNull($this->pdo->query('SELECT id_usuario FROM tb_pos_reservas')->fetchColumn());
+        $this->assertSame(1, (int)$this->pdo->query('SELECT COUNT(*) FROM tb_pos_reservas')->fetchColumn());
+    }
+
     public function test_isReferenced_true_when_user_has_products(): void
     {
         $id = $this->createUser();

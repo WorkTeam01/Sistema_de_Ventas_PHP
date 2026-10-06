@@ -228,10 +228,10 @@ CREATE TABLE IF NOT EXISTS tb_rol_permiso (
 
 CREATE TABLE IF NOT EXISTS tb_pos_reservas (
     id_reserva      INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_usuario      INTEGER NOT NULL,
+    id_usuario      INTEGER DEFAULT NULL,
     fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_liberacion  TEXT    DEFAULT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_reserva_usuario

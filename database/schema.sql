@@ -304,12 +304,12 @@ CREATE TABLE IF NOT EXISTS `tb_rol_permiso` (
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `tb_pos_reservas` (
   `id_reserva`     int(11)  NOT NULL AUTO_INCREMENT,
-  `id_usuario`     int(11)  NOT NULL,
+  `id_usuario`     int(11)  DEFAULT NULL,
   `fyh_creacion`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fyh_liberacion` datetime DEFAULT NULL,
   PRIMARY KEY (`id_reserva`),
   KEY `idx_reserva_usuario` (`id_usuario`, `fyh_liberacion`),
-  CONSTRAINT `fk_reserva_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`)
+  CONSTRAINT `fk_reserva_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -319,7 +319,7 @@ CREATE TABLE IF NOT EXISTS `tb_intentos_auth` (
   `id_intento`   int(11)      NOT NULL AUTO_INCREMENT,
   `tipo`         varchar(10)  NOT NULL,
   `ip`           varchar(45)  NOT NULL,
-  `correo`       varchar(150) NOT NULL,
+  `correo`       varchar(250) NOT NULL,
   `id_usuario`   int(11)      DEFAULT NULL,
   `fyh_creacion` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_intento`),
