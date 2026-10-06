@@ -159,14 +159,17 @@ tb_usuarios
     --   en una migración posterior): login_intentos, login_bloqueado_hasta, remember_token, remember_token_expiry.
     --   reset_token/reset_token_expiracion SÍ se usan, pero el token se guarda como hash SHA-256, nunca en claro.
     tb_intentos_auth
-    (id_intento, tipo ['login'|'reset'], ip, correo, id_usuario [NULL si el correo no existe], fyh_creacion)
+    (id_intento, tipo ['login'|'reset'], ip, correo [VARCHAR(250), igual que tb_usuarios.email], id_usuario [NULL si el correo no existe], fyh_creacion)
     -- una fila por intento, registrada ANTES de verificar nada; los umbrales y la ventana salen de AuthSettings
     tb_sesiones_recordadas
     (id_sesion, id_usuario [FK CASCADE], selector UNIQUE, token_hash [SHA-256 del validador], fyh_expira,
         ip, user_agent, fyh_creacion, fyh_ultimo_uso)
     -- una fila por dispositivo; la cookie lleva `selector:validador`
     tb_pos_reservas
-    (id_reserva [ES el nro_venta del POS], id_usuario [FK], fyh_creacion, fyh_liberacion [NULL = abierta])
+    (id_reserva [ES el nro_venta del POS], id_usuario [FK NULL → ON DELETE SET NULL], fyh_creacion, fyh_liberacion [NULL = abierta])
+    -- las filas nunca se borran (la secuencia no debe retroceder): borrar al usuario solo anula id_usuario.
+    --   Tras volver temporalmente a 1.18.3 (numera con MAX+1 e ignora esta tabla) hay que reejecutar 011
+    --   para subir la secuencia por encima de las ventas hechas con esa versión
     tb_roles
     (id_rol, rol, permisos_version, fyh_creacion, fyh_actualizacion)
     -- permisos_version se incrementa en Role::syncPermissions(); Auth::check() la compara contra

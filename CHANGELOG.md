@@ -34,7 +34,9 @@ EXISTS`; si ya estaban aplicadas se omiten) y luego `011`–`014`, todas reejecu
 Las migraciones no eliminan tablas, columnas ni filas de negocio; solo quitan la clave
 foránea `tb_ventas → tb_carrito` y anulan los tokens de restablecimiento y "recordarme"
 anteriores. **Vuelta atrás:** restaurar solo el código; el esquema migrado es compatible
-con 1.18.3 (verificado contra una BD migrada, `specs/004-…/evidence/`).
+con 1.18.3 (verificado contra una BD migrada, `specs/004-…/evidence/`). Si luego se vuelve a
+1.19.0, reejecutar `011` antes de abrir el POS: 1.18.3 no conoce `tb_pos_reservas` y la
+migración vuelve a subir la secuencia por encima de las ventas que haya registrado.
 
 Opcionales en `.env` (valores por defecto si faltan): `LOGIN_MAX_PER_EMAIL`,
 `LOGIN_MAX_PER_IP`, `LOGIN_WINDOW_MINUTES`, `RESET_TOKEN_MINUTES`,
