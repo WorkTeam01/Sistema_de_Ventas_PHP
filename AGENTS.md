@@ -557,6 +557,8 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 
 `Database::set(PDO $pdo)` sobrescribe el singleton para inyectar SQLite en tests. `Database::reset()` lo limpia. `getInstance()` queda intacto para producción.
 
+**Todo test que resetee el singleton debe dejar SQLite inyectado al terminar** (`Database::set(...)`, nunca solo `Database::reset()`): con `executionOrder="random"`, los tests Unit que hacen `new Model()` y corren después intentan conectar a MySQL. Localmente pasa porque el `.env` apunta a una BD real; en CI no existe y fallan. Para reproducir el escenario de CI, correr `vendor/bin/phpunit --testsuite Unit` sin `.env` ni `.env.testing`.
+
 ### CI (`.github/workflows/tests.yml`)
 
 Un único job `test`, matrix PHP 8.2/8.3, que corre en cada push a `master` y cada PR:
