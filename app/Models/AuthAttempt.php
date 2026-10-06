@@ -17,8 +17,17 @@ class AuthAttempt extends Model
     /** Los intentos más viejos que esto (o que la ventana de login, si es mayor) ya no influyen y se purgan. */
     private const MIN_PURGE_MINUTES = 1440;
 
+    /** Longitud de tb_intentos_auth.correo (igual a tb_usuarios.email). */
+    private const EMAIL_MAX_LENGTH = 250;
+
     protected string $table      = 'tb_intentos_auth';
     protected string $primaryKey = 'id_intento';
+
+    /** Un correo más largo que la columna no puede existir; se recorta igual al registrar y al contar. */
+    private static function emailKey(string $correo): string
+    {
+        return mb_substr(User::normalizeEmail($correo), 0, self::EMAIL_MAX_LENGTH);
+    }
 
     /**
      * Registra un intento y devuelve su id. $userId es null si el correo no existe.
@@ -32,7 +41,7 @@ class AuthAttempt extends Model
 
         $this->db->prepare(
             'INSERT INTO tb_intentos_auth (tipo, ip, correo, id_usuario) VALUES (?, ?, ?, ?)'
-        )->execute([$tipo, $ip, User::normalizeEmail($correo), $userId]);
+        )->execute([$tipo, $ip, self::emailKey($correo), $userId]);
 
         return (int)$this->db->lastInsertId();
     }
@@ -48,7 +57,7 @@ class AuthAttempt extends Model
         $byEmail = $this->query(
             "SELECT COUNT(*) AS total FROM tb_intentos_auth
              WHERE tipo = ? AND correo = ? AND id_intento <= ? AND $window",
-            [$tipo, User::normalizeEmail($correo), $idIntento]
+            [$tipo, self::emailKey($correo), $idIntento]
         );
         if ((int)$byEmail[0]['total'] > AuthSettings::loginMaxPerEmail()) {
             return true;
@@ -114,6 +123,6 @@ class AuthAttempt extends Model
     public function clear(string $tipo, string $correo): void
     {
         $this->db->prepare('DELETE FROM tb_intentos_auth WHERE tipo = ? AND correo = ?')
-            ->execute([$tipo, User::normalizeEmail($correo)]);
+            ->execute([$tipo, self::emailKey($correo)]);
     }
 }

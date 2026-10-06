@@ -99,6 +99,16 @@ final class AuthAttemptMariaDbTest extends TestCase
         $this->assertTrue($this->attempts->isBlocked('login', $id, '1.1.1.3', ' a@b.com'));
     }
 
+    public function test_email_longer_than_the_column_is_registered_and_counted(): void
+    {
+        $long = str_repeat('a', 300) . '@test.com';
+
+        $this->registerMany(5, '1.1.1.1', $long);
+        $id = $this->attempts->register('login', '1.1.1.2', $long, null);
+
+        $this->assertTrue($this->attempts->isBlocked('login', $id, '1.1.1.2', $long));
+    }
+
     public function test_burst_of_ten_lets_only_the_first_five_by_id_through(): void
     {
         $ids = [];
@@ -108,7 +118,7 @@ final class AuthAttemptMariaDbTest extends TestCase
 
         $allowed = array_filter(
             $ids,
-            fn (int $id) => !$this->attempts->isBlocked('login', $id, '2.2.2.2', 'victima@b.com')
+            fn(int $id) => !$this->attempts->isBlocked('login', $id, '2.2.2.2', 'victima@b.com')
         );
 
         $this->assertSame(array_slice($ids, 0, 5), array_values($allowed));

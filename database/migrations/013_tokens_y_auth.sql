@@ -37,13 +37,16 @@ CREATE TABLE IF NOT EXISTS `tb_intentos_auth` (
   `id_intento`   int(11)      NOT NULL AUTO_INCREMENT,
   `tipo`         varchar(10)  NOT NULL,
   `ip`           varchar(45)  NOT NULL,
-  `correo`       varchar(150) NOT NULL,
+  `correo`       varchar(250) NOT NULL,
   `id_usuario`   int(11)      DEFAULT NULL,
   `fyh_creacion` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_intento`),
   KEY `idx_intento_correo` (`tipo`, `correo`, `fyh_creacion`),
   KEY `idx_intento_ip` (`tipo`, `ip`, `fyh_creacion`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Misma longitud que tb_usuarios.email; una tabla creada con 150 se ensancha aquí.
+ALTER TABLE `tb_intentos_auth` MODIFY `correo` varchar(250) NOT NULL;
 
 CREATE TABLE IF NOT EXISTS `tb_sesiones_recordadas` (
   `id_sesion`      int(11)      NOT NULL AUTO_INCREMENT,

@@ -54,6 +54,18 @@ final class AuthTokensMigrationMariaDbTest extends TestCase
         return $v !== false && (int)$v === 0;
     }
 
+    public function testMigrationWidensEmailColumnOfAnExistingAttemptsTable(): void
+    {
+        $this->pdo->exec('ALTER TABLE tb_intentos_auth MODIFY correo varchar(150) NOT NULL');
+
+        $this->runMigration();
+
+        $this->assertSame(250, (int)$this->pdo->query(
+            "SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tb_intentos_auth' AND COLUMN_NAME = 'correo'"
+        )->fetchColumn());
+    }
+
     public function testSchemaSqlDeclaresTheNewStructures(): void
     {
         $this->assertTrue($this->exists('tb_intentos_auth'));
