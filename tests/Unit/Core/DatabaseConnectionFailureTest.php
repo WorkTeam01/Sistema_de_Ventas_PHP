@@ -41,7 +41,12 @@ class DatabaseConnectionFailureTest extends TestCase
         }
         ini_set('error_log', $this->previousLog === false ? '' : $this->previousLog);
         @unlink($this->logFile);
-        Database::reset();
+        // Reinyectar SQLite: dejar el singleton vacío haría que los tests Unit posteriores
+        // (orden aleatorio) intenten conectar a un MySQL que en CI no existe.
+        Database::set(new \PDO('sqlite::memory:', null, null, [
+            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+        ]));
     }
 
     public function test_failed_connection_throws_generic_exception_without_credentials(): void
