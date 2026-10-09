@@ -364,7 +364,7 @@ class SaleReturn extends Model
         );
         $stmt->execute([
             $user['id_usuario'] ?? null,
-            trim(($user['nombres'] ?? '') . ' ' . ($user['apellidos'] ?? '')),
+            $user['nombres'] ?? '',
             $id,
             'Devolución registrada para la venta ' . $nroVenta,
             json_encode([

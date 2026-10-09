@@ -34,7 +34,7 @@ class ActivityLog extends Model
             $log = new self();
             $log->create([
                 'id_usuario'       => $user['id_usuario'] ?? null,
-                'usuario_nombre'   => trim(($user['nombres'] ?? '') . ' ' . ($user['apellidos'] ?? '')),
+                'usuario_nombre'   => $user['nombres'] ?? '',
                 'accion'           => $action,
                 'entidad'          => $entity,
                 'entidad_id'       => $entityId,

@@ -83,7 +83,7 @@ class StockAdjustment extends Model
 
         $user           = Auth::user();
         $id_usuario     = $user['id_usuario'] ?? null;
-        $usuario_nombre = trim(($user['nombres'] ?? '') . ' ' . ($user['apellidos'] ?? ''));
+        $usuario_nombre = $user['nombres'] ?? '';
 
         $this->create([
             'id_producto'     => $idProducto,

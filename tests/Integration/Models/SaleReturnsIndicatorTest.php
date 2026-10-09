@@ -8,7 +8,7 @@ use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * V8 — Indicador de devoluciones (FR-22): allWithDetails() expone
+ * Indicador de devoluciones: allWithDetails() expone
  *       tiene_devoluciones = 1 solo para ventas devueltas.
  *       Fechas literales en SQLite.
  */
@@ -59,7 +59,7 @@ final class SaleReturnsIndicatorTest extends TestCase
         $this->pdo->exec("UPDATE tb_devoluciones SET nro_devolucion = {$idDevolucion} WHERE id_devolucion = {$idDevolucion}");
     }
 
-    // ── V8 — Indicador (FR-22) ──────────────────────────────────────────────
+    // ── Indicador de devoluciones ──────────────────────────────────────────────
 
     public function test_allWithDetails_shows_return_indicator_only_for_returned_sales(): void
     {
@@ -107,7 +107,7 @@ final class SaleReturnsIndicatorTest extends TestCase
         $rows = $this->sale->allWithDetails();
         $venta = reset($rows);
 
-        // total_pagado sigue siendo el original (FR-4)
+        // total_pagado sigue siendo el original
         $this->assertEqualsWithDelta(200.00, (float)$venta['total_pagado'], 0.01);
         $this->assertSame('1', (string)$venta['tiene_devoluciones']);
     }

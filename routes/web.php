@@ -21,14 +21,7 @@ use App\Core\Router;
 /**
  * Rutas de la aplicación
  *
- * Módulos migrados a MVC: auth y users.
  * Las rutas aquí registradas se resuelven desde public/index.php.
- *
- * Ejemplo (descomentar cuando se migre un módulo):
- *
- * $router->get('/almacen',         'App\Controllers\AlmacenController@index');
- * $router->get('/almacen/create',  'App\Controllers\AlmacenController@create');
- * $router->post('/almacen/store',  'App\Controllers\AlmacenController@store');
  */
 
 $router = new Router();

@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `tb_pagos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ------------------------------------------------------------
--- 2. Métodos sembrados (FR-4)
+-- 2. Métodos sembrados
 -- ------------------------------------------------------------
 INSERT INTO `tb_metodos_pago` (`nombre`, `tipo`)
 SELECT 'Efectivo', 'efectivo'
@@ -68,7 +68,7 @@ WHERE NOT EXISTS (
 );
 
 -- ------------------------------------------------------------
--- 3. Permiso manage_payment_methods (FR-16)
+-- 3. Permiso manage_payment_methods
 -- ------------------------------------------------------------
 INSERT INTO `tb_permisos` (`clave`, `descripcion`, `modulo`)
 SELECT 'manage_payment_methods', 'Gestionar métodos de pago', 'ventas'
@@ -90,7 +90,7 @@ WHERE r.rol = 'Administrador'
   );
 
 -- ------------------------------------------------------------
--- 4. Backfill idempotente (FR-15, OPCIONAL)
+-- 4. Backfill idempotente (OPCIONAL)
 --    Crea una línea Efectivo con monto = total para toda venta
 --    sin líneas de pago. Re-ejecutar no duplica: el WHERE NOT
 --    EXISTS salta ventas que ya tienen pagos. Ventas ya pagadas

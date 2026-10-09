@@ -153,7 +153,7 @@ final class PaymentMethodRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // isReferenced — bloqueo de eliminación (FR-2)
+    // isReferenced — bloqueo de eliminación
     // -------------------------------------------------------------------------
 
     public function test_isReferenced_is_false_when_method_has_no_payments(): void

@@ -7,7 +7,7 @@ use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * V7 — Neto de reportes (FR-21): salesByPeriod, salesTotals, salesSummary,
+ * Neto de reportes: salesByPeriod, salesTotals, salesSummary,
  *       topProducts, clientsByPeriod descuentan devoluciones imputadas al período.
  *       Fechas literales en SQLite (sin CURDATE/YEAR/MONTH).
  */

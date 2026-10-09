@@ -150,7 +150,7 @@ final class SalePaymentRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // storeWithStock — matriz de cobro (FR-6 a FR-11)
+    // storeWithStock — matriz de cobro
     // -------------------------------------------------------------------------
 
     public function test_storeWithStock_exact_payment_ok_without_vuelto(): void
@@ -547,7 +547,7 @@ final class SalePaymentRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // findWithDetails — adjunta payments/vuelto (FR-12, FR-14)
+    // findWithDetails — adjunta payments/vuelto
     // -------------------------------------------------------------------------
 
     public function test_findWithDetails_returns_empty_payments_and_zero_vuelto_for_historical_sale(): void
@@ -588,7 +588,7 @@ final class SalePaymentRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // Backfill idempotente (FR-15)
+    // Backfill idempotente
     // -------------------------------------------------------------------------
 
     /** Extrae el INSERT…SELECT de backfill de la migración 008 (fuente única). */

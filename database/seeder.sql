@@ -316,7 +316,7 @@ INSERT INTO `tb_ventas` (`id_venta`, `nro_venta`, `id_cliente`, `id_usuario`, `t
 (28, 28, 4, 2, 3195.00, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 9 DAY), '14:40:00')),  -- Teclado(195) + 2xMonitor(3000)
 (29, 29, 5, 2,  680.00, TIMESTAMP(DATE_SUB(CURDATE(), INTERVAL 3 DAY), '16:25:00'));  -- 2xJeans(260) + Taladro(420)
 
--- Precio histórico por línea de venta (spec 002).
+-- Precio histórico por línea de venta.
 UPDATE `tb_carrito` SET `precio_unitario` = CASE `id_producto`
     WHEN 1 THEN 3200.00
     WHEN 2 THEN 45.00

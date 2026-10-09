@@ -10,8 +10,7 @@ use App\Helpers\MonthSeries;
  * Modelo para la tabla tb_ventas.
  *
  * Las operaciones de escritura son transaccionales porque afectan tb_almacen (stock)
- * y tb_carrito. El orden de eliminación es crítico: tb_ventas (hija) antes de tb_carrito
- * (referenciada), debido a la FK tb_ventas.nro_venta → tb_carrito.nro_venta.
+ * y tb_carrito. tb_ventas.nro_venta es UNIQUE y no tiene FK hacia tb_carrito.
  */
 class Sale extends Model
 {
@@ -331,15 +330,6 @@ class Sale extends Model
         ];
     }
 
-    /**
-     * Elimina una venta revirtiendo el stock y borrando registros en el orden correcto:
-     * 1. Revertir stock (UPDATE tb_almacen)
-     * 2. DELETE tb_ventas (tabla hija: tb_ventas.nro_venta REFERENCES tb_carrito.nro_venta)
-     * 3. DELETE tb_carrito (tabla referenciada)
-     *
-     * @param int $id ID de la venta a eliminar.
-     * @return bool true si la transacción se completó, false si hubo error.
-     */
     /** Suma de ventas del mes actual. Filtra por usuario si se indica $userId. */
     public function totalCurrentMonth(?int $userId = null): float
     {
@@ -565,10 +555,7 @@ class Sale extends Model
                 $revertStock->execute([$item['cantidad'], $item['id_producto']]);
             }
 
-            // DELETE tb_ventas PRIMERO (es la tabla hija)
             $db->prepare("DELETE FROM tb_ventas WHERE id_venta = ?")->execute([$id]);
-
-            // DELETE tb_carrito DESPUÉS (es la referenciada)
             $db->prepare("DELETE FROM tb_carrito WHERE nro_venta = ?")->execute([$nroVenta]);
 
             $db->commit();
