@@ -22,6 +22,9 @@ class Auth
     public static function startSession(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
+            // El gc de PHP borra los datos de sesión a los 1440 s por defecto: sin esto la
+            // inactividad real sería menor que SESSION_LIFETIME.
+            ini_set('session.gc_maxlifetime', (string)max(1440, (int)($_ENV['SESSION_LIFETIME'] ?? 60) * 60));
             session_set_cookie_params([
                 'httponly' => true,
                 'samesite' => 'Lax',
@@ -50,8 +53,10 @@ class Auth
 
         $lifetime = (int)($_ENV['SESSION_LIFETIME'] ?? 60) * 60;
 
+        // La inactividad solo cierra la sesión de PHP: no revoca el dispositivo recordado,
+        // para que AuthMiddleware pueda reabrirla con la cookie "recordarme".
         if (isset($_SESSION['last_activity']) && time() - $_SESSION['last_activity'] > $lifetime) {
-            self::logout();
+            self::destroySession();
             return false;
         }
 
@@ -60,6 +65,15 @@ class Auth
         $identity = self::fetchSessionIdentity((string)$_SESSION['sesion_email']);
 
         if ($identity === null) {
+            self::logout();
+            return false;
+        }
+
+        // Cambiar o restablecer la contraseña cierra las demás sesiones abiertas de la cuenta.
+        // Una sesión anterior a este control no trae huella: se adopta la actual.
+        if (!isset($_SESSION['pw_fp'])) {
+            $_SESSION['pw_fp'] = $identity['pw_fp'];
+        } elseif (!hash_equals((string)$_SESSION['pw_fp'], (string)$identity['pw_fp'])) {
             self::logout();
             return false;
         }
@@ -78,7 +92,7 @@ class Auth
     /**
      * Rol real y versión de permisos de la cuenta en sesión.
      *
-     * @return array{id_rol:int, permisos_version:int}|null null si la cuenta ya
+     * @return array{id_rol:int, permisos_version:int, pw_fp:string}|null null si la cuenta ya
      *      no existe; en fallo de BD devuelve la identidad guardada en sesión
      *      para no invalidarla por un error transitorio.
      */
@@ -87,7 +101,7 @@ class Auth
         try {
             $pdo  = Database::getInstance()->getConnection();
             $stmt = $pdo->prepare(
-                "SELECT u.id_rol, r.permisos_version
+                "SELECT u.id_rol, r.permisos_version, u.password_user
                  FROM tb_usuarios u
                  INNER JOIN tb_roles r ON r.id_rol = u.id_rol
                  WHERE u.email = ?
@@ -95,12 +109,40 @@ class Auth
             );
             $stmt->execute([$email]);
             $identity = $stmt->fetch(\PDO::FETCH_ASSOC);
-            return $identity ?: null;
+            if (!$identity) {
+                return null;
+            }
+            $identity['pw_fp'] = self::passwordFingerprint((string)$identity['password_user']);
+            unset($identity['password_user']);
+            return $identity;
         } catch (\PDOException $e) {
             return [
                 'id_rol'           => (int)($_SESSION['id_rol'] ?? 0),
                 'permisos_version' => (int)($_SESSION['permisos_version'] ?? -1),
+                'pw_fp'            => (string)($_SESSION['pw_fp'] ?? ''),
             ];
+        }
+    }
+
+    private static function passwordFingerprint(string $passwordHash): string
+    {
+        return hash('sha256', $passwordHash);
+    }
+
+    /**
+     * Vuelve a registrar la huella de contraseña de la sesión actual. Llamar tras cambiar la
+     * contraseña propia, para que esa sesión no se cierre junto con las demás.
+     */
+    public static function syncPasswordFingerprint(): void
+    {
+        self::startSession();
+        $email = (string)($_SESSION['sesion_email'] ?? '');
+        if ($email === '') {
+            return;
+        }
+        $identity = self::fetchSessionIdentity($email);
+        if ($identity !== null) {
+            $_SESSION['pw_fp'] = $identity['pw_fp'];
         }
     }
 
@@ -230,6 +272,7 @@ class Auth
         if ($fullUser) {
             self::loadPermissions((int) $fullUser['id_rol']);
         }
+        self::syncPasswordFingerprint();
 
         if ($remember && !empty($user['id_usuario'])) {
             $issued = (new RememberToken())->issue((int)$user['id_usuario'], self::clientIp(), self::clientAgent());
@@ -302,8 +345,15 @@ class Auth
             (new RememberToken())->revoke($selector);
         }
 
-        self::$cachedUser = null;
         self::clearRememberCookie();
+        self::destroySession();
+    }
+
+    /** Vacía y destruye la sesión de PHP sin tocar los dispositivos "recordarme". */
+    private static function destroySession(): void
+    {
+        self::startSession();
+        self::$cachedUser = null;
         $_SESSION = [];
 
         if (isset($_COOKIE[session_name()])) {
@@ -374,6 +424,47 @@ class Auth
         }
 
         return $_SESSION['csrf_token'];
+    }
+
+    /** Máximo de tokens de formulario pendientes por ámbito (pestañas abiertas a la vez). */
+    private const FORM_TOKEN_LIMIT = 20;
+
+    /**
+     * Emite un token de un solo uso para un formulario que no debe procesarse dos veces
+     * (doble clic, dos pestañas). Cada render emite el suyo, así varias pestañas abiertas
+     * siguen siendo válidas. PHP serializa las peticiones de una misma sesión, por lo que dos
+     * envíos simultáneos con el mismo token no pueden consumirlo a la vez.
+     */
+    public static function issueFormToken(string $scope): string
+    {
+        self::startSession();
+
+        $token = bin2hex(random_bytes(16));
+        $pending = $_SESSION['form_tokens'][$scope] ?? [];
+        $pending[] = $token;
+        $_SESSION['form_tokens'][$scope] = array_slice($pending, -self::FORM_TOKEN_LIMIT);
+
+        return $token;
+    }
+
+    /**
+     * Consume un token emitido con issueFormToken(). Devuelve false si ya se usó, venció la
+     * sesión o nunca se emitió.
+     */
+    public static function consumeFormToken(string $scope, string $token): bool
+    {
+        self::startSession();
+
+        $pending = $_SESSION['form_tokens'][$scope] ?? [];
+        $index = array_search($token, $pending, true);
+        if ($token === '' || $index === false) {
+            return false;
+        }
+
+        unset($pending[$index]);
+        $_SESSION['form_tokens'][$scope] = array_values($pending);
+
+        return true;
     }
 
     /**

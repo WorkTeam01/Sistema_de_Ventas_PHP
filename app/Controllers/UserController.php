@@ -495,6 +495,7 @@ class UserController extends Controller
         }
 
         if ($userModel->updatePassword($id_usuario, $password_user)) {
+            Auth::syncPasswordFingerprint();
             $this->flash('Contraseña actualizada exitosamente.', 'success');
             $this->redirect(BASE_URL . '/profile?tab=password');
         }

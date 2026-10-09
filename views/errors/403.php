@@ -1,7 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+\App\Core\Auth::startSession();
 
 $mensaje = '';
 $icono = 'error';
