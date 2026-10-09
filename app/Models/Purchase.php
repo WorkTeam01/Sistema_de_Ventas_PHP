@@ -129,15 +129,27 @@ class Purchase extends Model
      * con stock negativo se revierte todo.
      *
      * @param array $data Datos nuevos de la compra (incluye id_compra).
-     * @param int $oldProductId ID del producto antes de la edición.
-     * @param int $oldCantidad Cantidad antes de la edición.
-     * @return array{ok: bool, error: ?string, available: ?int} error: 'stock_insufficient' | 'generic'.
+     * Producto y cantidad previos se releen con la fila bloqueada: dos ediciones simultáneas
+     * parten del mismo valor y el delta de stock se calcularía dos veces.
+     *
+     * @param int $oldProductId ID del producto antes de la edición (referencial; manda la fila bloqueada).
+     * @param int $oldCantidad Cantidad antes de la edición (referencial; manda la fila bloqueada).
+     * @return array{ok: bool, error: ?string, available: ?int} error: 'stock_insufficient' | 'not_found' | 'generic'.
      */
     public function updateWithStock(array $data, int $oldProductId, int $oldCantidad): array
     {
         $db = $this->db;
         try {
             $db->beginTransaction();
+
+            $current = $this->lockPurchase((int)$data['id_compra']);
+            if ($current === null) {
+                $db->rollBack();
+                return ['ok' => false, 'error' => 'not_found', 'available' => null];
+            }
+            $oldProductId = (int)$current['id_producto'];
+            $oldCantidad = (int)$current['cantidad'];
+
             $db->prepare(
                 "UPDATE tb_compras
                  SET id_producto=?, nro_compra=?, fecha_compra=?, id_proveedor=?,
@@ -174,6 +186,22 @@ class Purchase extends Model
             }
             return ['ok' => false, 'error' => 'generic', 'available' => null];
         }
+    }
+
+    /**
+     * Lee id_producto y cantidad de la compra bloqueando la fila hasta el fin de la transacción
+     * (SQLite no admite FOR UPDATE: su transacción ya serializa).
+     *
+     * @return array{id_producto: mixed, cantidad: mixed}|null
+     */
+    private function lockPurchase(int $id): ?array
+    {
+        $lock = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite' ? '' : ' FOR UPDATE';
+        $stmt = $this->db->prepare("SELECT id_producto, cantidad FROM tb_compras WHERE id_compra = ?" . $lock);
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return $row ?: null;
     }
 
     /**
@@ -261,21 +289,27 @@ class Purchase extends Model
     /**
      * Elimina una compra y revierte el stock del producto en una transacción.
      *
+     * Borrar una compra que ya no existe es un no-op exitoso (`already`): no toca el stock,
+     * así un doble envío no lo descuenta dos veces.
+     *
      * @param int $id ID de la compra.
-     * @param int $idProducto ID del producto afectado.
-     * @param int $cantidad Cantidad a revertir del stock.
-     * @return array{ok: bool, error: ?string, available: ?int} error: 'stock_insufficient' | 'generic'.
+     * @return array{ok: bool, error: ?string, available: ?int, already?: bool} error: 'stock_insufficient' | 'generic'.
      */
-    public function destroyWithStock(int $id, int $idProducto, int $cantidad): array
+    public function destroyWithStock(int $id): array
     {
         $db = $this->db;
         try {
             $db->beginTransaction();
-            $db->prepare(
-                "DELETE FROM tb_compras WHERE id_compra = ?"
-            )->execute([$id]);
 
-            $failure = $this->applyStockDelta($idProducto, -$cantidad);
+            $current = $this->lockPurchase($id);
+            if ($current === null) {
+                $db->rollBack();
+                return ['ok' => true, 'error' => null, 'available' => null, 'already' => true];
+            }
+
+            $db->prepare("DELETE FROM tb_compras WHERE id_compra = ?")->execute([$id]);
+
+            $failure = $this->applyStockDelta((int)$current['id_producto'], -(int)$current['cantidad']);
             if ($failure !== null) {
                 $db->rollBack();
                 return $failure;

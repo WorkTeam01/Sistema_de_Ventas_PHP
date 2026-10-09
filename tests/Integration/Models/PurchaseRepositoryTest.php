@@ -224,13 +224,38 @@ final class PurchaseRepositoryTest extends TestCase
     {
         $this->storePurchase(10);
 
-        $result = $this->purchase->destroyWithStock(1, 1, 10);
+        $result = $this->purchase->destroyWithStock(1);
 
         $this->assertTrue($result['ok']);
         $this->assertSame(0, $this->purchase->count());
 
         $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
         $this->assertSame(50, (int)$row['stock']);
+    }
+
+    public function test_destroyWithStock_twice_reverts_stock_only_once(): void
+    {
+        $this->storePurchase(10);
+
+        $this->purchase->destroyWithStock(1);
+        $second = $this->purchase->destroyWithStock(1);
+
+        $this->assertTrue($second['ok']);
+        $this->assertTrue($second['already']);
+        $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
+        $this->assertSame(50, (int)$row['stock']);
+    }
+
+    public function test_updateWithStock_uses_the_stored_quantity_not_the_stale_snapshot(): void
+    {
+        $this->storePurchase(10);
+
+        // El snapshot dice 4, pero la fila vale 10: el delta debe salir de 10.
+        $result = $this->purchase->updateWithStock($this->purchaseData(['cantidad' => 12]), 1, 4);
+
+        $this->assertTrue($result['ok']);
+        $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
+        $this->assertSame(62, (int)$row['stock']);
     }
 
     // -------------------------------------------------------------------------
@@ -356,7 +381,7 @@ final class PurchaseRepositoryTest extends TestCase
         $this->storePurchase(10);
         $this->pdo->exec("UPDATE tb_almacen SET stock = 3 WHERE id_producto = 1");
 
-        $result = $this->purchase->destroyWithStock(1, 1, 10);
+        $result = $this->purchase->destroyWithStock(1);
 
         $this->assertFalse($result['ok']);
         $this->assertSame('stock_insufficient', $result['error']);

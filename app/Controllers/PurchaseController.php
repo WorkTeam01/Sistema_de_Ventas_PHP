@@ -373,10 +373,10 @@ class PurchaseController extends Controller
             $this->forbidden('No tienes permiso para eliminar esta compra.');
         }
 
-        $result = $purchaseModel->destroyWithStock($id_compra, (int)$snapshot['id_producto'], (int)$snapshot['cantidad']);
+        $result = $purchaseModel->destroyWithStock($id_compra);
 
         if ($result['ok']) {
-            if ($snapshot) {
+            if (empty($result['already'])) {
                 ActivityLog::record(
                     'delete',
                     'purchase',
