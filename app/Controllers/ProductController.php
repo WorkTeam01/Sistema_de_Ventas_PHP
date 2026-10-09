@@ -193,6 +193,7 @@ class ProductController extends Controller
                 'stock' => $product['stock'],
                 'stock_minimo' => $product['stock_minimo'],
                 'stock_maximo' => $product['stock_maximo'],
+                'stockStatus' => Product::stockLevel((int)$product['stock'], (int)$product['stock_minimo'], (int)$product['stock_maximo']),
                 'precio_compra' => $product['precio_compra'],
                 'precio_venta' => $product['precio_venta'],
                 'fecha_ingreso' => $product['fecha_ingreso'],
@@ -377,6 +378,9 @@ class ProductController extends Controller
                     ['precio_venta' => $precio_venta,           'precio_compra' => $precio_compra]
                 );
             }
+            if ($imagen !== $actual['imagen']) {
+                $this->removeUnusedImage($productModel, (string)$actual['imagen']);
+            }
             $this->flash('El producto se actualizó exitosamente.', 'success');
             $this->redirect(BASE_URL . '/products');
             return;
@@ -502,6 +506,9 @@ class ProductController extends Controller
                     ]
                 );
             }
+            if ($snapshot) {
+                $this->removeUnusedImage($productModel, (string)$snapshot['imagen']);
+            }
             $this->flash('El producto se eliminó exitosamente.', 'success');
             $this->redirect(BASE_URL . '/products');
             return;
@@ -509,6 +516,23 @@ class ProductController extends Controller
 
         $this->flash('Error al eliminar el producto.', 'error');
         $this->redirect(BASE_URL . '/products');
+    }
+
+    /**
+     * Borra del disco la imagen de un producto que ya nadie referencia.
+     * Ignora la imagen por defecto y cualquier nombre que no sea un archivo plano del directorio de productos.
+     */
+    private function removeUnusedImage(Product $productModel, string $filename): void
+    {
+        if ($filename === '' || $filename === 'producto_default.png' || $filename !== basename($filename)) {
+            return;
+        }
+
+        $inUse = $productModel->query("SELECT 1 FROM tb_almacen WHERE imagen = ? LIMIT 1", [$filename]);
+        $path = dirname(__DIR__, 2) . '/public/uploads/products/' . $filename;
+        if (empty($inUse) && is_file($path)) {
+            @unlink($path);
+        }
     }
 
     /**

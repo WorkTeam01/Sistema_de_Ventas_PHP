@@ -63,7 +63,7 @@ class ReportController extends Controller
         $totals = $report->salesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
         $totals['devoluciones_periodos_anteriores'] = $report->returnsOutsideListed($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
 
-        $export = trim($_GET['export'] ?? '');
+        $export = $this->exportFormat();
         if ($export !== '') {
             $this->exportSales($export, $filters, $rows, $totals);
             return;
@@ -92,7 +92,7 @@ class ReportController extends Controller
         $rows   = $report->purchasesByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
         $totals = $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $userId);
 
-        $export = trim($_GET['export'] ?? '');
+        $export = $this->exportFormat();
         if ($export !== '') {
             $this->exportPurchases($export, $filters, $rows, $totals);
             return;
@@ -124,7 +124,7 @@ class ReportController extends Controller
         $rows       = $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], $top, $orden, $categoria, $this->scopeUserId('view_sales_all'));
         $categories = (new Category())->all();
 
-        $export = trim($_GET['export'] ?? '');
+        $export = $this->exportFormat();
         if ($export !== '') {
             $this->exportTopProducts($export, $filters, $rows);
             return;
@@ -154,7 +154,7 @@ class ReportController extends Controller
 
         $rows = $report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all'));
 
-        $export = trim($_GET['export'] ?? '');
+        $export = $this->exportFormat();
         if ($export !== '') {
             $this->exportClients($export, $filters, $rows);
             return;
@@ -175,6 +175,14 @@ class ReportController extends Controller
     }
 
     // ── Export helpers ────────────────────────────────────────────────────────
+
+    /** Formato pedido en `?export=`; cualquier valor fuera de la lista se ignora y se muestra la página. */
+    private function exportFormat(): string
+    {
+        $format = strtolower(trim((string)($_GET['export'] ?? '')));
+
+        return in_array($format, ['pdf', 'csv', 'excel'], true) ? $format : '';
+    }
 
     private function exportSales(string $format, array $filters, array $rows, array $totals): void
     {
@@ -325,13 +333,13 @@ class ReportController extends Controller
 
     /**
      * Escapa el prefijo de fórmula de celdas que Excel/Sheets interpretaría
-     * al abrir el CSV (=, +, @ o menos seguido de texto).
+     * al abrir el CSV (=, +, @, tabulación, retorno de carro o menos seguido de texto).
      */
     private function csvCell(mixed $value): string
     {
         $text = (string) $value;
 
-        if ($text !== '' && preg_match('/^[=+@]|^-[^\d.]/', $text) === 1) {
+        if ($text !== '' && preg_match('/^[=+@\t\r]|^-[^\d.]/', $text) === 1) {
             return "'" . $text;
         }
 

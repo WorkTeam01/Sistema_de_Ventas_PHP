@@ -11,6 +11,23 @@ use App\Core\Model;
  */
 class Product extends Model
 {
+    /**
+     * Clasifica el stock frente a su mínimo y máximo.
+     *
+     * @return array{level: string, pct: float} level: 'low' | 'high' | 'ok'; pct: porcentaje del máximo (tope 100).
+     */
+    public static function stockLevel(int $stock, int $min, int $max): array
+    {
+        if ($stock < $min) {
+            return ['level' => 'low', 'pct' => $max > 0 ? min(round($stock / $max * 100, 1), 100.0) : 0.0];
+        }
+        if ($max > 0 && $stock > $max) {
+            return ['level' => 'high', 'pct' => 100.0];
+        }
+
+        return ['level' => 'ok', 'pct' => $max > 0 ? min(round($stock / $max * 100, 1), 100.0) : 0.0];
+    }
+
     protected string $table = 'tb_almacen';
     public const MAX_PRICE = 9999999.99;
     public const MAX_STOCK = 1000000;

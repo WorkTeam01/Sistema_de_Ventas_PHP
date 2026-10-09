@@ -32,6 +32,9 @@ $clientsActive = str_starts_with($_currentPath, '/clients');
 // — Módulo Ventas —
 $salesActive = str_starts_with($_currentPath, '/sales');
 
+// — Módulo Devoluciones —
+$returnsActive = str_starts_with($_currentPath, '/returns');
+
 // — Módulo Métodos de pago —
 $paymentMethodsActive = str_starts_with($_currentPath, '/payment-methods');
 
@@ -45,9 +48,12 @@ $inventoryActive = str_starts_with($_currentPath, '/inventory');
 $reportsActive = str_starts_with($_currentPath, '/reports');
 
 $can      = $can ?? [];
-$isAdmin  = $can['is_superadmin'] ?? false;
-$isSeller = ($can['view_sales'] ?? false) && !$isAdmin;
-$isBuyer  = ($can['view_purchases'] ?? false) && !$isAdmin && !$isSeller;
+$has = fn(string $slug) => (bool)($can[$slug] ?? false);
+
+$showAdminSection     = $has('manage_users') || $has('manage_roles') || $has('view_activity_log');
+$showInventorySection = $has('view_categories') || $has('view_products') || $has('manage_inventory');
+$showPurchasesSection = $has('view_suppliers') || $has('view_purchases');
+$showSalesSection     = $has('view_clients') || $has('view_sales') || $has('manage_payment_methods');
 
 $link = fn(bool $on) => $on ? ' active' : '';
 ?>
@@ -74,58 +80,70 @@ $link = fn(bool $on) => $on ? ' active' : '';
                     </a>
                 </li>
 
-                <?php if ($isAdmin): ?>
+                <?php if ($showAdminSection): ?>
                     <!-- SECCIÓN: Administración -->
                     <li class="nav-header">ADMINISTRACIÓN</li>
 
+                    <?php if ($has('manage_users')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/users" class="nav-link<?= $link($usersActive) ?>">
                             <i class="nav-icon fas fa-users"></i>
                             <p>Usuarios</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
+                    <?php if ($has('manage_roles')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/roles" class="nav-link<?= $link($rolesActive) ?>">
                             <i class="nav-icon fas fa-address-card"></i>
                             <p>Roles</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
+                    <?php if ($has('manage_roles')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/permissions" class="nav-link<?= $link($permissionsActive) ?>">
                             <i class="nav-icon fas fa-key"></i>
                             <p>Permisos</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
+                    <?php if ($has('view_activity_log')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/activity-log" class="nav-link<?= $link($activityLogActive) ?>">
                             <i class="nav-icon fas fa-history"></i>
                             <p>Auditoría</p>
                         </a>
                     </li>
+                    <?php endif; ?>
                 <?php endif; ?>
 
-                <?php if ($isAdmin || $isBuyer || $isSeller): ?>
+                <?php if ($showInventorySection): ?>
                     <!-- SECCIÓN: Inventario -->
                     <li class="nav-header">INVENTARIO</li>
 
+                    <?php if ($has('view_categories')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/categories" class="nav-link<?= $link($categoriesActive) ?>">
                             <i class="nav-icon fas fa-tags"></i>
                             <p>Categorías</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
+                    <?php if ($has('view_products')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/products" class="nav-link<?= $link($productsActive) ?>">
                             <i class="nav-icon fas fa-boxes"></i>
                             <p>Almacén</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
-                    <?php if ($isAdmin): ?>
+                    <?php if ($has('manage_inventory')): ?>
                         <li class="nav-item">
                             <a href="<?= BASE_URL ?>/inventory" class="nav-link<?= $link($inventoryActive) ?>">
                                 <i class="nav-icon fas fa-warehouse"></i>
@@ -176,44 +194,61 @@ $link = fn(bool $on) => $on ? ' active' : '';
                     <?php endif; ?>
                 <?php endif; ?>
 
-                <?php if ($isAdmin || $isBuyer): ?>
+                <?php if ($showPurchasesSection): ?>
                     <!-- SECCIÓN: Compras -->
                     <li class="nav-header">COMPRAS</li>
 
+                    <?php if ($has('view_suppliers')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/suppliers" class="nav-link<?= $link($suppliersActive) ?>">
                             <i class="nav-icon fas fa-truck"></i>
                             <p>Proveedores</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
+                    <?php if ($has('view_purchases')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/purchases" class="nav-link<?= $link($purchasesActive) ?>">
                             <i class="nav-icon fas fa-shopping-cart"></i>
                             <p>Compras</p>
                         </a>
                     </li>
+                    <?php endif; ?>
                 <?php endif; ?>
 
-                <?php if ($isAdmin || $isSeller): ?>
+                <?php if ($showSalesSection): ?>
                     <!-- SECCIÓN: Ventas -->
                     <li class="nav-header">VENTAS</li>
 
+                    <?php if ($has('view_clients')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/clients" class="nav-link<?= $link($clientsActive) ?>">
                             <i class="nav-icon fas fa-user-tag"></i>
                             <p>Clientes</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
+                    <?php if ($has('view_sales')): ?>
                     <li class="nav-item">
                         <a href="<?= BASE_URL ?>/sales" class="nav-link<?= $link($salesActive) ?>">
                             <i class="nav-icon fas fa-shopping-basket"></i>
                             <p>Ventas</p>
                         </a>
                     </li>
+                    <?php endif; ?>
 
-                    <?php if ($can['manage_payment_methods'] ?? false): ?>
+                    <?php if ($has('view_sales')): ?>
+                        <li class="nav-item">
+                            <a href="<?= BASE_URL ?>/returns" class="nav-link<?= $link($returnsActive) ?>">
+                                <i class="nav-icon fas fa-undo"></i>
+                                <p>Devoluciones</p>
+                            </a>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if ($has('manage_payment_methods')): ?>
                         <li class="nav-item">
                             <a href="<?= BASE_URL ?>/payment-methods" class="nav-link<?= $link($paymentMethodsActive) ?>">
                                 <i class="nav-icon fas fa-credit-card"></i>

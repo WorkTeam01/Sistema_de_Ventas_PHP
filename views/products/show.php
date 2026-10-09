@@ -79,16 +79,8 @@
                             $s = (int)$stock;
                             $sn = (int)$stock_minimo;
                             $sx = (int)$stock_maximo;
-                            if ($s < $sn) {
-                                $stockColor = 'bg-danger';
-                                $stockLabel = 'Stock actual (bajo mínimo)';
-                            } elseif ($sx > 0 && $s > $sx) {
-                                $stockColor = 'bg-primary';
-                                $stockLabel = 'Stock actual (sobre máximo)';
-                            } else {
-                                $stockColor = 'bg-info';
-                                $stockLabel = 'Stock actual';
-                            }
+                            $stockColor = ['low' => 'bg-danger', 'high' => 'bg-primary', 'ok' => 'bg-info'][$stockStatus['level']];
+                            $stockLabel = ['low' => 'Stock actual (bajo mínimo)', 'high' => 'Stock actual (sobre máximo)', 'ok' => 'Stock actual'][$stockStatus['level']];
                             ?>
                             <div class="info-box shadow-sm">
                                 <span class="info-box-icon <?= $stockColor ?>"><i class="fas fa-boxes"></i></span>
@@ -152,18 +144,9 @@
                                 <!-- Tab: Nivel de stock -->
                                 <div class="tab-pane fade" id="pill-stock" role="tabpanel">
                                     <?php
-                                    $pct = ($sx > 0) ? min(round(($s / $sx) * 100, 1), 100) : 0;
-                                    if ($s < $sn) {
-                                        $barColor   = 'bg-danger';
-                                        $barLabel   = 'bajo mínimo';
-                                    } elseif ($sx > 0 && $s > $sx) {
-                                        $barColor   = 'bg-primary';
-                                        $barLabel   = 'sobre máximo';
-                                        $pct        = 100;
-                                    } else {
-                                        $barColor   = 'bg-success';
-                                        $barLabel   = 'normal';
-                                    }
+                                    $pct      = $stockStatus['pct'];
+                                    $barColor = ['low' => 'bg-danger', 'high' => 'bg-primary', 'ok' => 'bg-success'][$stockStatus['level']];
+                                    $barLabel = ['low' => 'bajo mínimo', 'high' => 'sobre máximo', 'ok' => 'normal'][$stockStatus['level']];
                                     ?>
                                     <dl class="row mb-3">
                                         <dt class="col-sm-4 text-muted">Stock mínimo</dt>
@@ -174,9 +157,9 @@
 
                                         <dt class="col-sm-4 text-muted">Stock actual</dt>
                                         <dd class="col-sm-8">
-                                            <?php if ($s < $sn): ?>
+                                            <?php if ($stockStatus['level'] === 'low'): ?>
                                                 <span class="badge badge-danger"><i class="fas fa-exclamation-triangle mr-1"></i><?= $s ?> uds. — bajo mínimo</span>
-                                            <?php elseif ($sx > 0 && $s > $sx): ?>
+                                            <?php elseif ($stockStatus['level'] === 'high'): ?>
                                                 <span class="badge badge-primary"><i class="fas fa-arrow-up mr-1"></i><?= $s ?> uds. — sobre máximo</span>
                                             <?php else: ?>
                                                 <span class="badge badge-success"><i class="fas fa-check mr-1"></i><?= $s ?> uds.</span>
