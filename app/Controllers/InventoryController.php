@@ -32,6 +32,7 @@ class InventoryController extends Controller
                         'ultimosAjustes' => $ultimosAjustes,
                         'todosProductos' => $todosProductos,
                         'csrf_token'     => Auth::generateCsrfToken(),
+                        'adjustment_token' => Auth::issueFormToken('stock_adjustment'),
                         'pageScripts'    => ['/js/modules/inventory/inventory.js'],
                     ]
                 ),
@@ -65,6 +66,7 @@ class InventoryController extends Controller
                     'todosProductos' => $todosProductos,
                     'filtros'        => $filtros,
                     'csrf_token'     => Auth::generateCsrfToken(),
+                    'adjustment_token' => Auth::issueFormToken('stock_adjustment'),
                     'pageScripts'    => ['/js/modules/inventory/inventory.js'],
                 ]
             ),
@@ -118,6 +120,13 @@ class InventoryController extends Controller
         $producto = (new Product())->find($id_producto);
         if (!$producto) {
             $this->flash('El producto seleccionado no existe.', 'error');
+            $this->redirect(BASE_URL . '/inventory?tab=ajustes');
+            return;
+        }
+
+        // Se consume justo antes de escribir: un doble envío o un reenvío del formulario no repite el ajuste.
+        if (!Auth::consumeFormToken('stock_adjustment', (string)($_POST['form_token'] ?? ''))) {
+            $this->flash('Este ajuste ya fue registrado o el formulario venció. Revisa el historial antes de repetirlo.', 'warning');
             $this->redirect(BASE_URL . '/inventory?tab=ajustes');
             return;
         }

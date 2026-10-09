@@ -66,6 +66,8 @@
             <form id="formAjusteStock" method="POST" action="<?= BASE_URL ?>/inventory/adjustments">
                 <input type="hidden" name="csrf_token"
                     value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="form_token"
+                    value="<?= htmlspecialchars($adjustment_token, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="modal-body">
                     <?php include __DIR__ . '/partials/adjustment-form.php'; ?>
                 </div>
