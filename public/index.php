@@ -18,6 +18,15 @@ define('APP_CURRENCY_SYMBOL', $_ENV['APP_CURRENCY_SYMBOL'] ?? 'Bs.');
 // Zona horaria
 date_default_timezone_set($_ENV['APP_TIMEZONE']);
 
+// Una excepción sin capturar no debe depender de display_errors: se registra y se responde la página 500.
+set_exception_handler(static function (Throwable $e): void {
+    error_log('Excepción no capturada: ' . $e);
+    if (!headers_sent()) {
+        http_response_code(500);
+    }
+    require BASE_PATH . '/views/errors/500.php';
+});
+
 // Cabeceras de seguridad (defensa en profundidad)
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');

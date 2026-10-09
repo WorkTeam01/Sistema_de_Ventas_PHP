@@ -34,6 +34,17 @@ class Database
     }
 
     /**
+     * Desplazamiento UTC de la zona horaria de PHP (APP_TIMEZONE) en formato '+HH:MM', ya entrecomillado.
+     * Se fija en la sesión de MySQL para que NOW(), CURDATE() y los DEFAULT CURRENT_TIMESTAMP usen el
+     * mismo reloj que date() de PHP en vez del de la zona del servidor de BD. Se usa el desplazamiento
+     * y no el nombre porque este último exige que el servidor tenga cargadas las tablas de zonas.
+     */
+    private function quotedUtcOffset(): string
+    {
+        return "'" . (new \DateTimeImmutable('now'))->format('P') . "'";
+    }
+
+    /**
      * Crea la conexión PDO con charset utf8mb4, modo de error por excepción
      * y fetch mode asociativo. Si la conexión falla lanza una RuntimeException genérica.
      */
@@ -50,7 +61,7 @@ class Database
             $this->connection = new PDO($dsn, $user, $pass, [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4, time_zone = " . $this->quotedUtcOffset(),
             ]);
         } catch (PDOException $e) {
             // El mensaje de PDO incluye host y usuario: solo va al log, nunca a la excepción.

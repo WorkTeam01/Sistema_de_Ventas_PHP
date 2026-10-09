@@ -154,8 +154,10 @@ class Controller
     }
 
     /**
-     * Lee y sanitiza input de GET y POST.
-     * Si $key es null devuelve todos los campos sanitizados.
+     * Lee input de GET y POST con trim aplicado a los strings.
+     * El escape HTML se hace al mostrar, nunca al guardar: escapar aquí duplicaba las entidades
+     * en cada edición y rompía las comparaciones de duplicados, PDF y CSV.
+     * Si $key es null devuelve todos los campos.
      *
      * @param string|null $key     Nombre del campo a leer.
      * @param mixed       $default Valor por defecto si el campo no existe.
@@ -173,7 +175,7 @@ class Controller
     }
 
     /**
-     * Aplica htmlspecialchars(trim()) recursivamente a strings.
+     * Aplica trim() recursivamente a strings.
      * Arrays son procesados elemento a elemento; otros tipos se devuelven sin cambios.
      *
      * @param mixed $data Dato o array a sanitizar.
@@ -192,7 +194,7 @@ class Controller
             return $data;
         }
 
-        return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+        return trim($data);
     }
 
     /**
