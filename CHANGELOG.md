@@ -7,6 +7,34 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.19.1] - 2026-10-09
+
+Ronda de correcciones posterior a la 1.19.0: doble envío en compras e inventario, texto guardado con escape HTML, sesiones tras cambiar la contraseña, zona horaria de la BD y menú lateral.
+
+### Actualización desde 1.19.0
+
+Tras desplegar el código, ejecutar **una sola vez** `database/migrations/015_decodificar_entidades_html.sql`. Si el servidor MySQL no está en la zona de `APP_TIMEZONE`, las filas anteriores conservan la hora del servidor.
+
+### Corregido
+
+- Inventario: el formulario de ajuste de stock lleva un token de un solo uso (`Auth::issueFormToken()`/`consumeFormToken()`); un doble clic o dos pestañas ya no registran el ajuste dos veces.
+- Compras: borrar o editar una compra relee la fila bloqueada dentro de la transacción; un doble envío ya no descuenta el stock dos veces y borrar una compra inexistente es un no-op exitoso.
+- Clientes, Proveedores, Categorías, Roles, Permisos y Métodos de pago guardaban el texto ya escapado (`O&#039;Brien`, `&amp;amp;` tras cada edición). `Controller::input()` solo hace `trim` y el escape se hace al mostrar. **Ejecutar `database/migrations/015_decodificar_entidades_html.sql` una sola vez tras desplegar.**
+- Cambiar o restablecer la contraseña cierra las demás sesiones abiertas de la cuenta.
+- La inactividad ya no revoca el dispositivo "recordarme"; el gc de sesiones de PHP respeta `SESSION_LIFETIME`.
+- Menú lateral: cada enlace usa su permiso real (antes dependía de proxies de rol) y se añade Devoluciones.
+- Reportes: `?export=` solo acepta `pdf|csv|excel` y el CSV neutraliza celdas que empiezan con tabulación o retorno de carro.
+- La conexión a la BD fija `time_zone` de la sesión al desplazamiento de `APP_TIMEZONE`: `NOW()`, `CURDATE()` y `fyh_creacion` dejan de depender de la zona del servidor MySQL. **Si el servidor MySQL no está en la zona de `APP_TIMEZONE`, las filas ya guardadas conservan su hora anterior** (ver AGENTS.md § Base de Datos).
+- La página 403 inicia la sesión con `Auth::startSession()` (cookie HttpOnly/SameSite/Secure).
+- Una excepción sin capturar se registra y responde la página 500.
+- Productos: se borra del disco la imagen anterior al reemplazarla o eliminar el producto, si ningún otro producto la usa.
+
+### Cambiado
+
+- La clasificación del stock de la ficha de producto sale de la vista (`Product::stockLevel()`).
+- Se quita `fakerphp/faker` de `require-dev` (no se usaba).
+- Comentarios con referencias a specs reescritos en términos del dominio; enlaces de comparación del pie del changelog y README al día.
+
 ## [1.19.0] - 2026-10-05
 
 Auditoría de seguridad e integridad (spec 004): cierra los 10 hallazgos pendientes de
@@ -1004,7 +1032,11 @@ Opcionales en `.env` (valores por defecto si faltan): `LOGIN_MAX_PER_EMAIL`,
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.1...HEAD
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.1...HEAD
+[1.19.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.0...1.19.1
+[1.19.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.3...1.19.0
+[1.18.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.2...1.18.3
+[1.18.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.1...1.18.2
 [1.18.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.0...1.18.1
 [1.18.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.17.0...1.18.0
 [1.17.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.16.6...1.17.0

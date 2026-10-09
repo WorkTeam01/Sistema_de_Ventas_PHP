@@ -68,7 +68,7 @@ _______________
 
 ## Plantilla 1 — Generar código nuevo (feature)
 
-Usar cuando: implementar un requerimiento nuevo del backlog (RF09, RF10...).
+Usar cuando: implementar un requerimiento nuevo del backlog. Si toca el esquema de BD, introduce un permiso nuevo o una regla de dinero/stock, usa el flujo SDD (`/sdd:spec` …) en vez de esta plantilla.
 
 ```
 [Rol]
@@ -169,7 +169,7 @@ Rama revisada: feature/[nombre]
 Requerimiento implementado: [nombre del requerimiento]
 
 [Tarea]
-Revisa el siguiente código antes del merge a dev.
+Revisa el siguiente código antes del merge a master.
 
 [pega el código o el diff del PR]
 
@@ -208,13 +208,16 @@ custom, diseño de base de datos y patrones de diseño.
 
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
-Estado actual: 1.19.0; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas (con venta sin cliente), devoluciones, métodos de pago (catálogo + cobro único/mixto).
+Estado actual: 1.19.1; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas (con venta sin cliente), devoluciones, métodos de pago (catálogo + cobro único/mixto).
 BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_categorias, tb_proveedores,
                  tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
                  tb_activity_log, tb_ajustes_stock, tb_devoluciones, tb_devolucion_items, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
                  con UI de gestión — catálogo + asignación por rol — desde v1.14.0).
                  Las devoluciones son parciales y acumulativas, reingresan stock de forma atómica,
                  usan el permiso `manage_returns` y descuentan la venta neta en dashboard/reportes.
+                 Formas de pago: tb_metodos_pago (catálogo) y tb_pagos (una línea por método y venta; el vuelto se deriva, no se guarda).
+                 Autenticación: tb_intentos_auth (rate limit en BD), tb_sesiones_recordadas ("recordarme" por dispositivo),
+                 tb_pos_reservas (reserva del nro_venta del POS por vendedor).
                  Scoping por usuario (`view_sales_all`/`view_purchases_all`): sin ese permiso, ventas/compras
                  (dashboard, listado y detalle) se filtran por id_usuario — patrón obligatorio para cualquier
                  módulo nuevo con datos "propios de cada usuario".
@@ -232,6 +235,9 @@ Opciones que estoy considerando:
 - La solución debe poder implementarla un dev junior sin romper lo que existe
 - Preservar isReferenced() para validación de borrados físicos
 - Considerar impacto en stock y auditoría si la decisión toca inventario o transacciones
+- Escrituras que no deben repetirse (borrar/editar compra, ajuste de stock, cobro, devolución): idempotentes — bloquear la fila con `FOR UPDATE` y releerla dentro de la transacción, o token de un solo uso (`Auth::issueFormToken()`/`consumeFormToken()`, o `token_formulario` UNIQUE si debe sobrevivir a la sesión)
+- `Controller::input()` solo hace `trim`: el escape HTML se hace al mostrar, nunca al guardar
+- Fechas: `APP_TIMEZONE` rige PHP y la sesión de MySQL; no calcular límites con `date()` para compararlos contra `NOW()` en SQL
 
 [Formato de salida]
 1. Recomendación directa (cuál opción y por qué en 3 líneas)
@@ -265,13 +271,13 @@ Stack: AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2, TCPDF, MySQ
 Módulo: reportes (nuevo módulo o extensión).
 
 BD relevante:
-- tb_usuarios (id_usuario, nombres, email, password, id_rol, login_intentos, login_bloqueado_hasta, remember_token, reset_token, fyh_creacion)
+- tb_usuarios (id_usuario, nombres, email, password_user, id_rol, reset_token [hash SHA-256], reset_token_expiracion, fyh_creacion)
 - tb_roles (id_rol, rol)
 - tb_almacen (id_producto, nombre, descripcion, precio_venta, precio_compra, stock, stock_minimo, stock_maximo, id_categoria, imagen, codigo)
 - tb_categorias (id_categoria, nombre_categoria)
 - tb_ventas (id_venta, nro_venta, id_cliente [NULL = "Consumidor final"], id_usuario [FK NULL], total_pagado, fyh_creacion)
   -- total_pagado calculado server-side; id_usuario registra al vendedor (desde v1.12.1)
-- tb_carrito (id_carrito, nro_venta, id_producto, cantidad)
+- tb_carrito (id_carrito, nro_venta, id_producto, cantidad, precio_unitario [NULL = carrito en curso])
 - tb_metodos_pago (id_metodo_pago, nombre, tipo [efectivo|no_efectivo], activo)
 - tb_pagos (id_pago, id_venta [FK], id_metodo_pago [FK], monto)
 - tb_compras (id_compra, id_producto, nro_compra, fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad)
@@ -368,5 +374,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.19.0 (2026-10-05)_
+_Última actualización: 1.19.1 (2026-10-09)_
 _Mantener sincronizado con AGENTS.md y CLAUDE.md al iniciar cada sesión._

@@ -48,27 +48,36 @@ feat: allow config to extend other configs
 BREAKING CHANGE: `extends` key behavior changed
 ```
 
-## Project Scopes (SistemaReservasHospital)
+## Project Scopes (Sistema de Ventas PHP)
 
-| Scope          | Area                    |
-| -------------- | ----------------------- |
-| `auth`         | Login, logout, sessions |
-| `patients`     | Patients module         |
-| `doctors`      | Doctors module          |
-| `appointments` | Appointments module     |
-| `schedules`    | Doctor schedules        |
-| `dashboard`    | KPIs and metrics        |
-| `profile`      | User profile            |
-| `specialties`  | Specialties             |
-| `db`           | Migrations and schema   |
-| `config`       | General configuration   |
+| Scope             | Area                                          |
+| ----------------- | --------------------------------------------- |
+| `auth`            | Login, logout, sesiones, "recordarme", reset  |
+| `users`           | Usuarios y perfil                             |
+| `roles`           | Roles                                         |
+| `permissions`     | Catálogo y asignación de permisos             |
+| `categories`      | Categorías                                    |
+| `suppliers`       | Proveedores                                   |
+| `clients`         | Clientes                                      |
+| `products`        | Productos                                     |
+| `purchases`       | Compras                                       |
+| `sales`           | Ventas y POS                                  |
+| `returns`         | Devoluciones                                  |
+| `payment-methods` | Formas de pago                                |
+| `inventory`       | Inventario y ajustes de stock                 |
+| `reports`         | Reportes                                      |
+| `activity-log`    | Registro de actividad                         |
+| `dashboard`       | KPIs y gráficos                               |
+| `core`            | Router, Controller, Auth, Database, layouts   |
+| `db`              | Migraciones y schema                          |
+| `tests`           | Infraestructura de tests                      |
+| `ci`              | Workflows de GitHub Actions                   |
 
 ## Project Git Rules
 
-- Branch naming: `feature/descripcion`
-- Never commit directly to `main` or `dev`
-- Reference the RF ID in the description when applicable:
-  `feat(schedules): add doctor availability config (RF15)`
+- Rama única `master`; tags de versión sin prefijo `v` (`1.19.0`).
+- Mensaje de una línea, tipo y scope en inglés, descripción en español; sin co-autor.
+- Se propone el mensaje y se espera el "confirmo" explícito antes de commitear.
 
 ## Workflow
 

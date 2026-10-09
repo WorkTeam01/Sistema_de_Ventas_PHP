@@ -50,6 +50,10 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
     reejecutables compatibles con MySQL 8.4 y actualización verificada desde 1.18.3;
     pasada final de accesibilidad (axe-core, claro y oscuro) sobre las vistas tocadas.
     → `specs/004-auditoria-seguridad-integridad/`
+21. **Ronda de correcciones 1.19.1** — compras y ajustes de inventario idempotentes ante doble
+    envío, texto guardado sin escape HTML (migración 015), sesiones cerradas al cambiar la
+    contraseña, `APP_TIMEZONE` aplicado a la sesión de MySQL, sidebar con permisos reales y
+    comentarios sin referencias a specs. Sin spec propia (sin cambios de esquema). → CHANGELOG 1.19.1
 
 ## Siguiente 🔜
 

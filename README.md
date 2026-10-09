@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.19.0-blue)
+![Versión](https://img.shields.io/badge/Versión-1.19.1-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -150,7 +150,7 @@ DB_NAME=sistemadeventas
 DB_USER=root
 DB_PASS=
 APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
-APP_TIMEZONE=America/La_Paz
+APP_TIMEZONE=America/La_Paz   # también se aplica como zona horaria de la sesión de MySQL
 APP_DEBUG=false
 SESSION_LIFETIME=60
 REMEMBER_LIFETIME=14
@@ -209,6 +209,11 @@ mysql -u root -p sistemadeventas < database/migrations/007_devoluciones.sql
 mysql -u root -p sistemadeventas < database/migrations/008_formas_de_pago.sql
 mysql -u root -p sistemadeventas < database/migrations/009_ventas_sin_cliente.sql
 mysql -u root -p sistemadeventas < database/migrations/010_quitar_referencia_detalle_pagos.sql
+mysql -u root -p sistemadeventas < database/migrations/011_pos_reservas.sql
+mysql -u root -p sistemadeventas < database/migrations/012_integridad_unicos.sql
+mysql -u root -p sistemadeventas < database/migrations/013_tokens_y_auth.sql
+mysql -u root -p sistemadeventas < database/migrations/014_portabilidad_mysql84.sql
+mysql -u root -p sistemadeventas < database/migrations/015_decodificar_entidades_html.sql
 ```
 
 **Windows** (desde `C:\xampp\mysql\bin\`):
@@ -224,10 +229,19 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\008_formas_de_pago.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\009_ventas_sin_cliente.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\010_quitar_referencia_detalle_pagos.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\011_pos_reservas.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\012_integridad_unicos.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\013_tokens_y_auth.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\014_portabilidad_mysql84.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\015_decodificar_entidades_html.sql
 ```
 
 > Si instalaste desde cero con la versión actual, la BD ya incluye todos los
 > cambios y no necesitas ejecutar estas migraciones.
+>
+> La `015` (decodifica las entidades HTML que guardaban versiones anteriores) se ejecuta
+> **una sola vez** y solo en bases que vienen de 1.19.0 o anteriores; a diferencia de las
+> demás no es reejecutable.
 
 ---
 

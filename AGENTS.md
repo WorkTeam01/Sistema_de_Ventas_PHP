@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.19.0 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.19.1 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`, borrado/edición de compras e inventario idempotentes ante doble envío, texto guardado sin escape HTML (se escapa al mostrar), cierre de las demás sesiones al cambiar la contraseña y zona horaria de `APP_TIMEZONE` aplicada también a la sesión de MySQL. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -51,6 +51,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── PurchaseController.php
 │   │   ├── SaleController.php
 │   │   ├── ActivityLogController.php
+│   │   ├── PaymentMethodController.php  ← catálogo de formas de pago (modal+AJAX)
+│   │   ├── SaleReturnController.php     ← devoluciones parciales de ventas
 │   │   ├── InventoryController.php
 │   │   ├── ReportController.php     ← index(), sales(), purchases(), topProducts(), clients(); export PDF/CSV/Excel
 │   │   └── PermissionController.php ← index(), store(), show() (JSON), update(), checkClave() — catálogo de permisos
@@ -82,6 +84,9 @@ Sistema_de_Ventas_PHP/
 │   │   ├── RememberToken.php        ← sesiones "recordarme", una fila por dispositivo
 │   │   ├── ActivityLog.php
 │   │   ├── StockAdjustment.php
+│   │   ├── SaleReturn.php           ← devoluciones: reingreso atómico de stock, idempotencia por token
+│   │   ├── PaymentMethod.php        ← catálogo tb_metodos_pago
+│   │   ├── SalePayment.php          ← líneas de pago de una venta, vuelto (vueltoFor)
 │   │   ├── Report.php               ← queries agregadas: salesByPeriod, salesTotals, purchasesByPeriod, purchasesTotals, topProducts, clientsByPeriod, salesSummary
 │   │   └── Permission.php           ← claveExists(), allGroupedByModulo(); Role.php agrega getAssignedPermissionIds()/syncPermissions()
 │   └── Middleware/           ← AuthMiddleware, GuestMiddleware, PermissionMiddleware
@@ -105,6 +110,7 @@ Sistema_de_Ventas_PHP/
 │   ├── purchases/
 │   ├── sales/
 │   ├── activity-log/         ← index.php, show.php; partial/_data-panel.php, _item-accordion.php
+│   ├── returns/               ← select-sale.php, create.php, index.php (devoluciones)
 │   ├── payment-methods/       ← index.php; partial/_modals.php (catálogo modal+AJAX)
 │   └── reports/               ← index.php, sales.php, purchases.php, top-products.php, clients.php; partial/_date_filter.php
 ├── routes/
@@ -150,6 +156,8 @@ El parámetro `{id}` de una ruta solo admite dígitos (`/products/abc` responde 
 
 ## Base de Datos
 
+`Database::connect()` fija `time_zone` de la sesión al desplazamiento UTC de `APP_TIMEZONE` (`+HH:MM`, no el nombre: no exige tablas de zonas en el servidor), así `NOW()`/`CURDATE()`/`fyh_creacion` usan el mismo reloj que `date()` de PHP. Al desplegar en un servidor MySQL cuya zona difiera de `APP_TIMEZONE`, las filas anteriores quedaron guardadas en la hora del servidor y se leerán desplazadas.
+
 ```sql
 -- Tablas principales
 tb_usuarios
@@ -177,14 +185,15 @@ tb_usuarios
     tb_categorias
     (id_categoria, nombre_categoria, fyh_creacion, fyh_actualizacion)
     tb_proveedores
-(id_proveedor, nombre_proveedor, nit_ci_proveedor, celular_proveedor,
-    email_proveedor, nombre_empresa, fyh_creacion, fyh_actualizacion)
+(id_proveedor, nombre_proveedor, celular, telefono [NULL], empresa, email [NULL], direccion,
+    fyh_creacion, fyh_actualizacion)
 tb_clientes
 (id_cliente, nombre_cliente, nit_ci_cliente, celular_cliente,
     email_cliente, fyh_creacion, fyh_actualizacion)
 tb_almacen
-(id_almacen, nombre_almacen, descripcion, precio_compra, precio_venta,
-    stock, imagen, id_categoria, fyh_creacion, fyh_actualizacion)
+(id_producto, codigo, nombre, descripcion, stock, stock_minimo [NULL], stock_maximo [NULL],
+    precio_compra, precio_venta, fecha_ingreso, imagen, id_usuario, id_categoria,
+    fyh_creacion, fyh_actualizacion)
 tb_ventas
     (id_venta, nro_venta [UNIQUE uq_venta_nro; ya no hay FK hacia tb_carrito], id_cliente [NULL → venta sin cliente, se muestra como "Consumidor final"], id_usuario [FK NULL → ON DELETE SET NULL], total_pagado, fyh_creacion, fyh_actualizacion)
     -- id_usuario registra al vendedor; NULL en registros anteriores a v1.12.1
@@ -213,10 +222,10 @@ tb_ventas
     -- una línea por método por venta (UNIQUE venta+metodo); el vuelto NUNCA se persiste como línea,
     -- se deriva con SalePayment::vueltoFor(float $total, array $payments)
     tb_compras
-(id_compra, id_producto, nro_compra [UNIQUE uq_compra_nro], fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion)
+(id_compra, id_producto, nro_compra [UNIQUE uq_compra_nro], fecha_compra, id_proveedor, comprobante, id_usuario, precio_compra, cantidad, fyh_creacion, fyh_actualizacion)
     tb_activity_log
 (id_log, id_usuario [FK NULL → ON DELETE SET NULL], usuario_nombre, accion, entidad, entidad_id,
-    descripcion, datos_anteriores [JSON], datos_nuevos [JSON], ip_address, fyh_creacion)
+    descripcion, datos_anteriores [text con JSON], datos_nuevos [text con JSON], ip_address, fyh_creacion)
     -- acciones registradas: 'create', 'update', 'delete', 'price_change', 'role_change', 'permission_change',
     --   'stock_adjustment', 'export', 'login', 'login_failed', 'logout'
     -- entidades: 'sale', 'purchase', 'product', 'user', 'client', 'supplier', 'category', 'role', 'permission',
@@ -289,7 +298,7 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 ### PHP — Seguridad
 
 - Passwords: `password_hash()` al guardar, `password_verify()` al validar; mínimo `User::MIN_PASSWORD_LENGTH` (8) caracteres validado server-side en alta, perfil, administrador y reset; el login no aplica el mínimo (las contraseñas anteriores siguen valiendo)
-- Inputs: `htmlspecialchars()` en outputs HTML, validación server-side obligatoria
+- Inputs: `htmlspecialchars()` en outputs HTML, validación server-side obligatoria; `Controller::input()` solo hace `trim` (el escape se hace al mostrar, nunca al guardar)
 - CSRF: token en todos los formularios POST (`Auth::generateCsrfToken()` / `validateCsrfOrFail()`)
 - SQL: siempre placeholders `?` con `execute([$var])` — nunca interpolar en el string SQL; `$interval` y `$limit` siempre con cast `(int)` explícito antes de interpolación
 - Subidas de imágenes: `ImageUpload::validate()` comprueba el código de error, la extensión, el MIME real y 2 MB;
@@ -298,6 +307,7 @@ UPDATE CURRENT_TIMESTAMP ← queda NULL al crear
 - Stock: solo escriben `tb_almacen.stock` `Sale`, `SaleReturn`, `Purchase`, `StockAdjustment` y
   `Product::createProduct` (lo vigila `StockWritesAuditTest`); la ficha de producto lo muestra solo lectura y se
   cambia desde Inventario. Los cambios sobre un producto existente son relativos (`stock = stock ± ?`), nunca un valor leído antes.
+- Formularios que no deben procesarse dos veces y no tienen un identificador natural (ajuste de stock): token de un solo uso en sesión, `Auth::issueFormToken($scope)` al renderizar y `Auth::consumeFormToken($scope, $token)` justo antes de escribir; PHP serializa las peticiones de una misma sesión, así que no hay carrera. Si la idempotencia debe sobrevivir a la sesión, usar `token_formulario` UNIQUE como en devoluciones.
 - Stock: el decremento en `Sale::storeWithStock()` usa `AND stock >= ?` y verifica `rowCount() === 0` para rollback — nunca produce stock negativo
 - Totales: `Sale::storeWithStock()` congela `precio_unitario` por línea (desde `tb_almacen.precio_venta`) y calcula `total_pagado` como `SUM(cantidad * precio_unitario)` de `tb_carrito`, todo dentro de la transacción — ignorar siempre el valor del POST
 - Guards en destroy: `isReferenced()` y verificación de auto-eliminación siempre server-side en `UserController::destroy()` — la verificación cliente-side (AJAX) es solo UX
@@ -374,7 +384,12 @@ Auth::logout()          // limpia sesión, BD y cookie
 **Timeout de sesión:**
 
 - Controlado por `SESSION_LIFETIME` en `.env` (minutos de inactividad). Default: `60`.
-- `Auth::check()` compara `$_SESSION['last_activity']` con `time()` y llama a `logout()` si expiró.
+- `Auth::check()` compara `$_SESSION['last_activity']` con `time()`; si expiró destruye solo la sesión de PHP (no revoca el
+  dispositivo "recordarme", que `AuthMiddleware` reabre con la cookie). `Auth::startSession()` sube `session.gc_maxlifetime` para
+  que el gc de PHP no borre la sesión antes del timeout.
+- `$_SESSION['pw_fp']` guarda la huella SHA-256 del hash de contraseña; `Auth::check()` cierra la sesión si ya no coincide, así
+  cambiar o restablecer la contraseña cierra las demás sesiones abiertas. Quien cambia su propia contraseña llama a
+  `Auth::syncPasswordFingerprint()` para conservar la suya.
 
 **Umbrales de autenticación (`.env`, leídos por `App\Helpers\AuthSettings`):** un valor ausente, no entero o
 fuera de rango se ignora y se usa el default. Los 7 ajustables:
@@ -442,16 +457,17 @@ fuera de rango se ignora y se usa el default. Los 7 ajustables:
 - jQuery para DOM y eventos
 - **DataTables** sin AJAX: datos cargados desde PHP en la vista, sin filtros server-side
 - **SweetAlert2** para confirmaciones de eliminación. Dos patrones según el módulo:
-  - **Patrón página dedicada** (products): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
+  - **Patrón página dedicada** (products, sales, users): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
     `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con
     formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
-  - **Patrón formulario inline** (purchases, sales, users): formulario oculto `#formEliminar` en `index.php`
+  - **Patrón formulario inline** (purchases): formulario oculto `#formEliminar` en `index.php`
     con CSRF + campos hidden del ID; confirmación con `AlertUtils.confirm()` + `ToastUtils.loadingWithMinTime()` →
     `form.submit()`; el JS vive en un archivo separado bajo `public/js/modules/[modulo]/`
 - Anti-FOUC del sidebar/tema: script inline en `layouts/header.php`, preferencias en `localStorage`
-- **Patrón modal + AJAX** (roles, categories, suppliers, clients): CRUD completo en `index.php` via modales Bootstrap;
-  endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`/`checkNitCi`/`checkEmail`); eliminación con
-  `AlertUtils.confirm()` + AJAX (sin CSRF, `isReferenced()` retorna JSON error); jQuery Validate con regla `remote` para
+- **Patrón modal + AJAX** (roles, categories, suppliers, clients, payment-methods): CRUD completo en `index.php` via modales Bootstrap;
+  endpoints JSON en el controlador (`store`, `show`, `update`, `checkNombre`/`checkNitCi`/`checkEmail`); eliminación (clientes,
+  proveedores y métodos de pago; roles y categorías no tienen ruta de borrado) con `AlertUtils.confirm()` + AJAX, validando CSRF
+  con `validateCsrfOrFailJson` (`isReferenced()` retorna JSON error); jQuery Validate con regla `remote` para
   validación de duplicados en tiempo real; `ToastUtils.loadingWithMinTime()` durante operaciones asíncronas
 - **Assets por vista** (`$pageStyles` / `$pageScripts`): arrays pasados a `renderWithLayout()` que el layout inyecta en
   `<head>` y antes de `</body>` respectivamente; las rutas son relativas a `BASE_URL` (e.g.
@@ -564,7 +580,7 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 Un único job `test`, matrix PHP 8.2/8.3, que corre en cada push a `master` y cada PR:
 
 - Ejecuta `vendor/bin/phpunit` (suites `Unit` + `Integration` en un solo proceso). La suite completa
-  son 865 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
+  son 878 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
   runner, no los tests, así que filtrar salía más caro que correr todo.
 - `concurrency` con `cancel-in-progress` descarta runs obsoletos cuando llegan pushes seguidos.
 - Levanta el servicio `mariadb:10.11` para los tests `*MariaDbTest.php`; el resto corre contra SQLite.
@@ -661,4 +677,17 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 
 ---
 
-_Última actualización: 2026-10-05 — 1.19.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-10-09 — 1.19.1. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+
+### Lecciones de frontend (Bootstrap / DataTables)
+
+- Un `<button>` dentro de un `.input-group` (flex `align-items:stretch`) no se encoge igual que un `<div>` hermano. Envuélvelo en un `<div>` tipo `.input-group-text` y resetea el botón (`all:unset; display:flex; align-items:center; justify-content:center; width:100%; height:100%`). Para el área táctil de 44px no pongas `min-height`/`min-width` en la caja visible: usa un `::before` absoluto con `width/height: max(100%, 44px)`.
+- No parches una regla de un selector base compartido (`.form-control`, `.btn`) para un síntoma local. Compara `getComputedStyle` con un hermano que sí se vea bien y acota el fix al selector del elemento roto.
+- Los tooltips de Bootstrap se pierden al paginar/ordenar/buscar en DataTables (las filas se reemplazan). Inicializa en un handler delegado `$(document).on('draw.dt', …)` **sin** `tooltip('dispose')` previo, comprobando `!$(this).data('bs.tooltip')`; sube la versión de cache-busting tras cambiar JS core.
+- Una plantilla HTML oculta con la misma clase que los items clonados rompe cualquier selector global por esa clase (conteos, guards): escopa los selectores al contenedor real (`'#contenedor .item'`).
+- Al versionar assets con query string (`?v=filemtime`), barre todos los `<script>`/`<link>` propios, incluidos los escritos a mano fuera de un loop; "el archivo existe pero el navegador no ve el helper" es caché del tag sin versionar.
+
+### Lecciones de tests
+
+- Un fixture/trait que haga `DROP`/`CREATE` sobre un recurso de nombre fijo (BD, archivo) debe sufijarlo con un identificador por proceso (`getmypid()`) si los tests corren en paralelo (paratest).
+- Un test que resetea un singleton/global compartido (conexión de BD, config) debe restaurar el doble de test en `tearDown`, no dejarlo en `null`: con orden aleatorio, los tests siguientes intentarían conectar al recurso real. "Pasa en local" no prueba nada si local tiene el recurso real; para reproducir CI corre sin `.env`/`.env.testing` y con `--order-by=default`.
