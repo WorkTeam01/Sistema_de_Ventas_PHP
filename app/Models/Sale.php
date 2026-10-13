@@ -520,7 +520,9 @@ class Sale extends Model
      * devoluciones: el bloqueo de la fila de la venta serializa el borrado con el registro de una
      * devolución concurrente, así no quedan devoluciones huérfanas.
      *
-     * @return array{ok: bool, error: ?string} error: not_found|has_returns|generic
+     * Borrar una venta que ya no existe es un no-op exitoso (`already`): un doble envío no repone el stock dos veces.
+     *
+     * @return array{ok: bool, error: ?string, already?: bool} error: has_returns|generic
      */
     public function destroyWithStock(int $id): array
     {
@@ -534,7 +536,7 @@ class Sale extends Model
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if (!$row) {
                 $db->rollBack();
-                return ['ok' => false, 'error' => 'not_found'];
+                return ['ok' => true, 'error' => null, 'already' => true];
             }
             $nroVenta = (int)$row['nro_venta'];
 

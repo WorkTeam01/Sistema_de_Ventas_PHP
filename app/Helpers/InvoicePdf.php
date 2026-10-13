@@ -180,7 +180,7 @@ class InvoicePdf
     <tr>
         <td style="text-align: center">' . $contador . '</td>
         <td>' . htmlspecialchars($item['nombre'], ENT_QUOTES, 'UTF-8') . '</td>
-        <td>' . htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') . '</td>
+        <td>' . htmlspecialchars($item['descripcion'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>
         <td style="text-align: center">' . $cantidad . '</td>
         <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($precioUnitario, 2) . '</td>
         <td style="text-align: center">' . APP_CURRENCY_SYMBOL . ' ' . number_format($subTotal, 2) . '</td>

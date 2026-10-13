@@ -377,11 +377,11 @@ final class SaleRepositoryTest extends TestCase
         $this->assertSame(50, (int)$row['stock']);
     }
 
-    public function test_destroyWithStock_returns_not_found_for_nonexistent_id(): void
+    public function test_destroyWithStock_is_a_successful_noop_for_nonexistent_id(): void
     {
         $result = $this->sale->destroyWithStock(999);
 
-        $this->assertSame(['ok' => false, 'error' => 'not_found'], $result);
+        $this->assertSame(['ok' => true, 'error' => null, 'already' => true], $result);
     }
 
     public function test_destroyWithStock_rejects_a_sale_with_returns_and_changes_nothing(): void
