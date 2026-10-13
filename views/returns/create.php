@@ -94,10 +94,10 @@
                             <div class="card-body">
                                 <textarea name="motivo" id="motivo" class="form-control" rows="3"
                                     placeholder="Describa el motivo de la devolución (mínimo 10 caracteres)..." required
-                                    minlength="10"
+                                    minlength="10" maxlength="255"
                                     aria-label="Motivo de la devolución" aria-describedby="motivoHelp"></textarea>
                                 <small id="motivoHelp" class="form-text text-muted">
-                                    <span id="motivoCount">0</span>/400 caracteres (mínimo 10)
+                                    <span id="motivoCount">0</span>/255 caracteres (mínimo 10)
                                 </small>
                             </div>
                         </div>

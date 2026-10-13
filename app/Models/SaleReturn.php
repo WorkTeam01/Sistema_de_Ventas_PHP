@@ -46,7 +46,8 @@ class SaleReturn extends Model
 
         $return = $rows[0];
         $return['items'] = $this->query(
-            "SELECT i.*, a.nombre AS nombre_producto, a.codigo
+            "SELECT i.*, i.cantidad * i.precio_unitario AS subtotal,
+                    a.nombre AS nombre_producto, a.codigo
              FROM tb_devolucion_items i
              LEFT JOIN tb_almacen a ON a.id_producto = i.id_producto
              WHERE i.id_devolucion = ?
@@ -60,9 +61,10 @@ class SaleReturn extends Model
     public function byVenta(int $idVenta): array
     {
         return $this->query(
-            "SELECT d.*, v.nro_venta AS nro_venta_venta
+            "SELECT d.*, v.nro_venta AS nro_venta_venta, u.nombres AS usuario_nombre
              FROM tb_devoluciones d
              INNER JOIN tb_ventas v ON v.id_venta = d.id_venta
+             LEFT JOIN tb_usuarios u ON u.id_usuario = d.id_usuario
              WHERE d.id_venta = ?
              ORDER BY d.id_devolucion DESC",
             [$idVenta]

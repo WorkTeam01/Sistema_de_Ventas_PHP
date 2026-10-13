@@ -102,7 +102,7 @@
                                                     <?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$item['precio_unitario'], 2) ?>
                                                 </td>
                                                 <td class="text-right">
-                                                    <?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$item['cantidad'] * (float)$item['precio_unitario'], 2) ?>
+                                                    <?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$item['subtotal'], 2) ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

@@ -113,6 +113,12 @@ class SaleReturnController extends Controller
             return;
         }
 
+        if (mb_strlen($motivo) > 255) {
+            $this->flash('El motivo no puede superar los 255 caracteres.', 'error');
+            $this->redirect(BASE_URL . '/returns/create?sale_id=' . $idVenta);
+            return;
+        }
+
         $saleModel = new Sale();
         $sale = $saleModel->findWithDetails($idVenta);
 
