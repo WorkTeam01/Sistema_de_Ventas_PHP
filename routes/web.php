@@ -124,7 +124,7 @@ $router->post('/sales/cart/remove', [SaleController::class, 'removeFromCart'], [
 $router->post('/sales/cancel',      [SaleController::class, 'cancel'],         ['auth', 'can:manage_sales']);
 $router->post('/sales',             [SaleController::class, 'store'],          ['auth', 'can:manage_sales']);
 $router->get('/sales/show/{id}',    [SaleController::class, 'show'],           ['auth', 'can:view_sales']);
-$router->get('/sales/delete/{id}',  [SaleController::class, 'confirmDelete'],  ['auth', 'can:manage_sales']);
+$router->get('/sales/delete/{id}',  [SaleController::class, 'delete'],         ['auth', 'can:manage_sales']);
 $router->get('/sales/invoice/{id}', [SaleController::class, 'invoice'],        ['auth', 'can:view_sales']);
 $router->post('/sales/delete',      [SaleController::class, 'destroy'],        ['auth', 'can:manage_sales']);
 
@@ -159,6 +159,16 @@ $router->get('/reports/clients',      [ReportController::class, 'clients'],     
 
 // Error pages
 $router->get('/errors/403', function () {
+    \App\Core\Auth::startSession();
+
+    $mensaje = '';
+    $icono = 'error';
+    if (isset($_SESSION['mensaje'])) {
+        $mensaje = $_SESSION['mensaje'];
+        $icono = $_SESSION['icono'] ?? 'error';
+        unset($_SESSION['mensaje'], $_SESSION['icono']);
+    }
+
     require_once __DIR__ . '/../views/errors/403.php';
 });
 

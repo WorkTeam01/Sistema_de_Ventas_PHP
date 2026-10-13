@@ -326,7 +326,7 @@ class SaleController extends Controller
      *
      * @param int|null $id ID de la venta.
      */
-    public function confirmDelete(?int $id = null): void
+    public function delete(?int $id = null): void
     {
         $id = $id ?? (int)($_GET['id'] ?? 0);
 

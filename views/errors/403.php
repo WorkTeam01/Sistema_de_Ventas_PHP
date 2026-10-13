@@ -1,14 +1,3 @@
-<?php
-\App\Core\Auth::startSession();
-
-$mensaje = '';
-$icono = 'error';
-if (isset($_SESSION['mensaje'])) {
-    $mensaje = $_SESSION['mensaje'];
-    $icono = $_SESSION['icono'] ?? 'error';
-    unset($_SESSION['mensaje'], $_SESSION['icono']);
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 

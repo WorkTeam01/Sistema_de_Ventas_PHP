@@ -28,6 +28,30 @@ class Product extends Model
         return ['level' => 'ok', 'pct' => $max > 0 ? min(round($stock / $max * 100, 1), 100.0) : 0.0];
     }
 
+    /**
+     * Añade a cada fila de inventario lo que la barra de nivel necesita: porcentaje del cupo ideal,
+     * clase de color y texto de stock. Sin máximo definido el cupo es el doble del mínimo (o 100).
+     *
+     * @param  array $rows Filas de inventoryList().
+     * @return array Las mismas filas con stock_pct, stock_bar_class, stock_text y stock_is_low.
+     */
+    public function withStockBars(array $rows): array
+    {
+        return array_map(static function (array $p): array {
+            $stock  = (int)$p['stock'];
+            $min    = (int)$p['stock_minimo'];
+            $hasMax = isset($p['stock_maximo']);
+            $max    = $hasMax ? (int)$p['stock_maximo'] : ($min * 2 ?: 100);
+
+            $p['stock_pct']       = $max > 0 ? min(round(($stock / $max) * 100), 100) : 0;
+            $p['stock_is_low']    = $stock <= $min;
+            $p['stock_bar_class'] = $stock <= $min ? 'bg-danger' : ($stock <= (int)($min * 1.5) ? 'bg-warning' : 'bg-success');
+            $p['stock_text']      = $hasMax ? $stock . '/' . (int)$p['stock_maximo'] : (string)$stock;
+
+            return $p;
+        }, $rows);
+    }
+
     protected string $table = 'tb_almacen';
     public const MAX_PRICE = 9999999.99;
     public const MAX_STOCK = 1000000;

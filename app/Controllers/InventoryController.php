@@ -18,7 +18,8 @@ class InventoryController extends Controller
         $activeTab = in_array($_GET['tab'] ?? '', $tabWhitelist, true) ? $_GET['tab'] : 'stock';
 
         if ($activeTab === 'stock') {
-            $productos      = (new Product())->inventoryList('todos');
+            $productModel   = new Product();
+            $productos      = $productModel->withStockBars($productModel->inventoryList('todos'));
             $ultimosAjustes = (new StockAdjustment())->history([], 10);
             $todosProductos = (new Product())->all();
 

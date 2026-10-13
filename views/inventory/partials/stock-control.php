@@ -106,40 +106,23 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                                     </td>
                                 </tr>
                             <?php else: ?>
-                                <?php foreach ($productos as $p):
-                                    $stockVal = (int)$p['stock'];
-                                    $minVal   = (int)$p['stock_minimo'];
-                                    $maxVal   = isset($p['stock_maximo']) && $p['stock_maximo'] !== null
-                                        ? (int)$p['stock_maximo']
-                                        : ($minVal * 2 ?: 100);
-                                    $pct      = $maxVal > 0 ? min(round(($stockVal / $maxVal) * 100), 100) : 0;
-                                    if ($stockVal <= $minVal) {
-                                        $barClass = 'bg-danger';
-                                    } elseif ($stockVal <= (int)($minVal * 1.5)) {
-                                        $barClass = 'bg-warning';
-                                    } else {
-                                        $barClass = 'bg-success';
-                                    }
-                                    $stockText = (isset($p['stock_maximo']) && $p['stock_maximo'] !== null)
-                                        ? $stockVal . '/' . (int)$p['stock_maximo']
-                                        : $stockVal;
-                                ?>
+                                <?php foreach ($productos as $p): ?>
                                     <tr>
                                         <td class="py-2">
                                             <strong><?= htmlspecialchars($p['nombre'], ENT_QUOTES, 'UTF-8') ?></strong><br>
                                             <small class="text-muted"><?= htmlspecialchars($p['codigo'], ENT_QUOTES, 'UTF-8') ?></small>
                                         </td>
-                                        <td class="text-center align-middle font-weight-bold <?= $stockVal <= $minVal ? 'text-danger' : '' ?>">
-                                            <?= $stockText ?>
-                                            <?php if ($stockVal <= 0): ?>
+                                        <td class="text-center align-middle font-weight-bold <?= $p['stock_is_low'] ? 'text-danger' : '' ?>">
+                                            <?= $p['stock_text'] ?>
+                                            <?php if ((int)$p['stock'] <= 0): ?>
                                                 <span class="badge badge-danger d-block mt-1">Agotado</span>
                                             <?php endif; ?>
                                         </td>
                                         <td class="align-middle d-none d-sm-table-cell" style="width: 40%;">
                                             <div class="progress progress-xs mb-0" style="min-width: 60px;"
                                                 data-toggle="tooltip"
-                                                title="<?= $pct ?>% del cupo ideal">
-                                                <div class="progress-bar <?= $barClass ?>" style="width: <?= $pct ?>%"></div>
+                                                title="<?= $p['stock_pct'] ?>% del cupo ideal">
+                                                <div class="progress-bar <?= $p['stock_bar_class'] ?>" style="width: <?= $p['stock_pct'] ?>%"></div>
                                             </div>
                                         </td>
                                     </tr>
