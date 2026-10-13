@@ -32,10 +32,18 @@ class ReportController extends Controller
         $filters = ReportFilters::parseDateRange([]);
         $report  = new Report();
 
-        $salesSummary     = $report->salesSummary($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all'));
+        $salesSummary     = Auth::can('view_sales_report') ? $report->salesSummary($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all')) : null;
         $purchaseSummary  = Auth::can('view_purchases_report') ? $report->purchasesTotals($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_purchases_all')) : null;
         $topProductos     = Auth::can('view_top_products_report') ? $report->topProducts($filters['fecha_desde'], $filters['fecha_hasta'], 5, 'cantidad', 0, $this->scopeUserId('view_sales_all')) : [];
-        $clientesActivos  = Auth::can('view_clients_report') ? count($report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all'))) : 0;
+        $clientesActivos  = Auth::can('view_clients_report') ? count($report->clientsByPeriod($filters['fecha_desde'], $filters['fecha_hasta'], $this->scopeUserId('view_sales_all'))) : null;
+
+        // Ingresos y egresos solo se restan si ambos cubren el mismo alcance (todos los registros o
+        // solo los propios); si no, el margen mezclaría universos distintos.
+        $margen = null;
+        if ($salesSummary !== null && $purchaseSummary !== null
+            && Auth::can('view_sales_all') === Auth::can('view_purchases_all')) {
+            $margen = (float)$salesSummary['total_ingresos'] - (float)$purchaseSummary['total_egresos'];
+        }
 
         $this->renderWithLayout(
             'views/reports/index.php',
@@ -45,6 +53,7 @@ class ReportController extends Controller
                 'purchaseSummary' => $purchaseSummary,
                 'topProductos'    => $topProductos,
                 'clientesActivos' => $clientesActivos,
+                'margen'          => $margen,
                 'pageStyles'      => ['/css/modules/reports/reports.css'],
             ]),
             true,
@@ -333,13 +342,14 @@ class ReportController extends Controller
 
     /**
      * Escapa el prefijo de fórmula de celdas que Excel/Sheets interpretaría
-     * al abrir el CSV (=, +, @, tabulación, retorno de carro o menos seguido de texto).
+     * al abrir el CSV: cualquier celda que empiece por =, +, -, @, tabulación o retorno de carro
+     * y no sea un número (un `-1+cmd|...` empieza por dígito tras el signo, pero no es numérico).
      */
     private function csvCell(mixed $value): string
     {
         $text = (string) $value;
 
-        if ($text !== '' && preg_match('/^[=+@\t\r]|^-[^\d.]/', $text) === 1) {
+        if ($text !== '' && preg_match('/^[=+\-@\t\r]/', $text) === 1 && !is_numeric($text)) {
             return "'" . $text;
         }
 

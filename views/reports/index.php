@@ -84,6 +84,7 @@
             </div>
 
             <!-- Resumen del mes actual -->
+            <?php if ($salesSummary !== null || $purchaseSummary !== null || $clientesActivos !== null || $can['view_top_products_report']): ?>
             <?php
             $mesLabel = date('F Y');
             $localeMonths = [
@@ -114,6 +115,7 @@
                         <div class="card-body">
                             <div class="row">
 
+                                <?php if ($salesSummary !== null): ?>
                                 <!-- Ventas del mes -->
                                 <div class="col-sm-6 col-lg-3">
                                     <div class="info-box mb-3">
@@ -132,7 +134,9 @@
                                     </div>
                                 </div>
 
-                                <?php if ($can['view_purchases_report']): ?>
+                                <?php endif; ?>
+
+                                <?php if ($purchaseSummary !== null): ?>
                                     <!-- Compras del mes -->
                                     <div class="col-sm-6 col-lg-3">
                                         <div class="info-box mb-3">
@@ -149,6 +153,9 @@
                                         </div>
                                     </div>
 
+                                <?php endif; ?>
+
+                                <?php if ($clientesActivos !== null): ?>
                                     <!-- Clientes activos -->
                                     <div class="col-sm-6 col-lg-3">
                                         <div class="info-box mb-3">
@@ -163,11 +170,11 @@
                                         </div>
                                     </div>
 
+                                <?php endif; ?>
+
+                                <?php if ($margen !== null): ?>
                                     <!-- Margen bruto -->
-                                    <?php
-                                    $margen = (float)$salesSummary['total_ingresos'] - (float)$purchaseSummary['total_egresos'];
-                                    $margenClass = $margen >= 0 ? 'bg-primary' : 'bg-warning';
-                                    ?>
+                                    <?php $margenClass = $margen >= 0 ? 'bg-primary' : 'bg-warning'; ?>
                                     <div class="col-sm-6 col-lg-3">
                                         <div class="info-box mb-3">
                                             <span class="info-box-icon <?= $margenClass ?> elevation-1">
@@ -186,7 +193,7 @@
 
                             </div>
 
-                            <?php if ($can['view_purchases_report'] && !empty($topProductos)): ?>
+                            <?php if ($can['view_top_products_report'] && !empty($topProductos)): ?>
                                 <hr>
                                 <h6 class="text-muted mb-2">
                                     <i class="fas fa-trophy mr-1 text-warning"></i> Top 5 productos más vendidos del mes
@@ -230,7 +237,7 @@
                                         <i class="fas fa-trophy mr-1"></i> Ver reporte completo
                                     </a>
                                 </div>
-                            <?php elseif ($can['view_purchases_report']): ?>
+                            <?php elseif ($can['view_top_products_report']): ?>
                                 <p class="text-muted text-center mb-0 mt-2">
                                     <i class="fas fa-info-circle mr-1"></i> Sin ventas registradas en este mes.
                                 </p>
@@ -240,6 +247,7 @@
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
         </div>
     </section>
