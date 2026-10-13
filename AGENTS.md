@@ -11,13 +11,13 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.19.1 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`, borrado/edición de compras e inventario idempotentes ante doble envío, texto guardado sin escape HTML (se escapa al mostrar), cierre de las demás sesiones al cambiar la contraseña y zona horaria de `APP_TIMEZONE` aplicada también a la sesión de MySQL. Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
+**Estado actual:** 1.19.2 — migración MVC completada (sin módulos legacy pendientes), RBAC granular con gestión de permisos vía UI, dashboard y módulos de ventas/compras scopeados por permisos reales y por usuario (`view_sales_all`/`view_purchases_all`, sin proxies de rol hardcodeados), devoluciones de ventas parciales con reingreso atómico de stock y venta neta en dashboard/reportes, formas de pago + pago mixto (catálogo `tb_metodos_pago`, líneas `tb_pagos`, vuelto, desglose en detalle/PDF, backfill idempotente), audit log con cobertura completa y KPIs, hardening de seguridad (cabeceras HTTP, detección de HTTPS tras proxy, saneo de HTML en SweetAlert2, prevención de IDOR en compras, guards anti escalada de privilegios en usuarios/roles y revalidación de cuenta y rol en cada petición), eliminación de `Swal.fire`/`onclick` inline en vistas, hardening de accesibilidad/UX en el flujo de autenticación y en los módulos de ventas/POS, Productos, Compras, Registro de actividad, Categorías, Clientes, Inventario, Permisos, Roles y Proveedores (auditorías de Clientes y Ventas cerradas con fixes globales de contraste WCAG AA en modo claro y oscuro y orden de encabezados en toda la app; paleta contextual de AdminLTE —badges, alerts, `btn-info`, cabeceras de modal `bg-*`, Select2 oscuro— corregida app-wide y verificada con axe-core en ambos temas), cache-busting de assets propios vía `APP_VERSION`, moneda configurable vía `.env`, borrado/edición de compras e inventario idempotentes ante doble envío, texto guardado sin escape HTML (se escapa al mostrar), cierre de las demás sesiones al cambiar la contraseña y zona horaria de `APP_TIMEZONE` aplicada también a la sesión de MySQL, exportaciones CSV a prueba de fórmulas, portada de reportes con permisos propios por bloque, guard del último rol superadmin, seeder de producción y guía de despliegue (`docs/despliegue.md`). Historial completo de versiones en [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
 ## Stack Tecnológico
 
-- **Backend:** PHP 8.x (sin framework — MVC custom con PSR-4 via Composer)
+- **Backend:** PHP 8.2+ (sin framework — MVC custom con PSR-4 via Composer)
 - **Frontend:** AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2
 - **Base de datos:** MySQL / MariaDB (PDO)
 - **PDF:** TCPDF (`tecnickcom/tcpdf` vía Composer)
@@ -131,7 +131,8 @@ Sistema_de_Ventas_PHP/
 │   └── templates/            ← AdminLTE fuente completa (no modificar)
 └── database/
     ├── schema.sql
-    └── seeder.sql
+    ├── seeder.sql            ← desarrollo: catálogo + datos demo + usuarios de prueba
+    └── seeder_produccion.sql ← solo catálogo (roles, permisos, métodos de pago); al cambiar el catálogo en seeder.sql, replicarlo aquí
 ```
 
 ---
@@ -146,7 +147,7 @@ El proyecto usa **dos sistemas de ruteo en paralelo**:
 
 Todos los módulos están migrados. No quedan módulos legacy.
 
-El parámetro `{id}` de una ruta solo admite dígitos (`/products/abc` responde 404); `{token}` es alfanumérico.
+El parámetro `{id}` de una ruta solo admite dígitos (`/products/abc` responde 404); `{token}` admite alfanuméricos, `-` y `_`.
 
 > El detalle exacto de método + ruta + controller + middleware por endpoint vive en `routes/web.php` — es la fuente
 > de verdad; no se replica aquí para evitar desincronización. Los middlewares usan la sintaxis `can:permiso` (ver
@@ -229,7 +230,7 @@ tb_ventas
     -- acciones registradas: 'create', 'update', 'delete', 'price_change', 'role_change', 'permission_change',
     --   'stock_adjustment', 'export', 'login', 'login_failed', 'logout'
     -- entidades: 'sale', 'purchase', 'product', 'user', 'client', 'supplier', 'category', 'role', 'permission',
-    --   'report', 'auth', 'sale_return'
+    --   'report', 'auth', 'sale_return', 'payment_method'
     -- KPIs agregados (total, usuarios distintos, eliminaciones, cambios sensibles) vía ActivityLog::kpis(),
     --   calculados por COUNT/GROUP BY sobre el rango filtrado, no sobre la página ya paginada
     -- usuario_nombre desnormalizado para persistir incluso si el usuario es eliminado
@@ -344,7 +345,7 @@ Auth::logout()          // limpia sesión, BD y cookie
 - **Scoping de datos por usuario (`*_all`):** `view_sales_all` y `view_purchases_all` distinguen "ver todos los
   registros" de "ver solo los propios". Sin el permiso `_all`, los métodos de listado/agregado filtran por
   `id_usuario` (ver `Sale`/`Purchase`/`Product::getTopSelling()`, que aceptan `?int $userId` opcional). Patrón usado
-  en `DashboardController` (KPIs y gráficos), `SaleController::index/show/edit/destroy` y
+  en `DashboardController` (KPIs y gráficos), `SaleController::index/show/destroy` y
   `PurchaseController::index/show/edit/update/report/destroy` (todos con el chequeo
   `!Auth::can('view_*_all') && (int)$registro['id_usuario'] !== (int)Auth::user()['id_usuario']` antes de
   mostrar/modificar). Solo Administrador tiene ambos `_all` por defecto — un rol nuevo sin ellos automáticamente ve
@@ -355,6 +356,9 @@ Auth::logout()          // limpia sesión, BD y cookie
   `/errors/403` (mismo mecanismo de toast que `PermissionMiddleware` usa para rutas sin permiso). Usarlo en vez de
   `flash()` + `redirect()` al listado, así "este registro no es tuyo" se ve igual que "no tienes acceso a esta
   ruta" en toda la app.
+- **Portada de reportes (`/reports`):** cada bloque del resumen se carga y se muestra con su propio permiso
+  (`view_sales_report`, `view_purchases_report`, `view_clients_report`, `view_top_products_report`), no con
+  `view_reports`; el margen solo se calcula si ventas y compras cubren el mismo alcance (`*_all`).
 - **El sidebar (`views/layouts/partials/_sidebar.php`) debe gatear cada enlace con su permiso real vía `$can[...]`,
   nunca con los proxies de rol `$isAdmin`/`$isSeller`/`$isBuyer`.** Esos proxies solo aproximan "tiene view_sales" /
   "tiene view_purchases" — usarlos para secciones con permisos más granulares (ej. Reportes, gateado antes por
@@ -374,7 +378,8 @@ Auth::logout()          // limpia sesión, BD y cookie
   (`manage_roles`) **no** incluye poder otorgarse `is_superadmin`. `UserController::blocksSuperadminEscalation()` y
   `Role::grantsSuperadmin()` + el guard de `RoleController::syncPermisos()` exigen `Auth::isAdmin()` cuando el rol
   destino es superusuario o cuando el usuario/rol afectado ya lo es. Usar este helper en cualquier flujo que asigne
-  roles o permisos — gatear el CRUD no gatea la escalada.
+  roles o permisos — gatear el CRUD no gatea la escalada. Además, `Role::isLastSuperadminRole()` impide quitar
+  `is_superadmin` al único rol que lo otorga: los guards anteriores impedirían volver a concedérselo desde la UI.
 
 **Sesión y CSRF:**
 
@@ -457,9 +462,10 @@ fuera de rango se ignora y se usa el default. Los 7 ajustables:
 - jQuery para DOM y eventos
 - **DataTables** sin AJAX: datos cargados desde PHP en la vista, sin filtros server-side
 - **SweetAlert2** para confirmaciones de eliminación. Dos patrones según el módulo:
-  - **Patrón página dedicada** (products, sales, users): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
+  - **Patrón página dedicada** (products, users): botón llama `confirmarEliminar(id, nombre)` → verificación AJAX
     `GET /[modulo]/check/{id}` → si no referenciado redirige a `/[modulo]/delete/{id}` (página de confirmación con
-    formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2
+    formulario oculto `#formEliminar` + CSRF); si referenciado muestra detalle de bloqueo vía SweetAlert2.
+    `sales` va directo a `/sales/delete/{id}` (sin `check`): `Sale::destroyWithStock()` rechaza con devoluciones
   - **Patrón formulario inline** (purchases): formulario oculto `#formEliminar` en `index.php`
     con CSRF + campos hidden del ID; confirmación con `AlertUtils.confirm()` + `ToastUtils.loadingWithMinTime()` →
     `form.submit()`; el JS vive en un archivo separado bajo `public/js/modules/[modulo]/`
@@ -490,7 +496,7 @@ fuera de rango se ignora y se usa el default. Los 7 ajustables:
   `NumberToWords::convert()` (recibe `$currencyLabel` opcional, cae a la constante). **No hardcodear `"Bs."`** en
   código nuevo. **No usar el nombre `CURRENCY_SYMBOL`** — colisiona con una constante nativa de PHP (extensión intl).
 - **Sin lógica de negocio en las vistas**: cálculos (totales, subtotales, sumas, agregaciones) se resuelven en el
-  Controller o el Model y se pasan ya calculados a la vista (ej. `Sale::computeInvoiceTotals()`, `Sale::withSubtotals()`).
+  Controller o el Model y se pasan ya calculados a la vista (ej. `Sale::computeInvoiceTotals()`, `Sale::withSubtotals()`, `Product::withStockBars()`).
   Las vistas solo formatean/muestran valores recibidos — no hacen `foreach` acumulando `+=` sobre `$items`/`$rows`.
 - Layout de páginas de listado: full width, DataTables con export (PDF/Excel/CSV/Imprimir)
 - Layout de formularios CRUD: col-md-8 (form) + col-md-4 (tarjeta informativa)
@@ -580,7 +586,7 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 Un único job `test`, matrix PHP 8.2/8.3, que corre en cada push a `master` y cada PR:
 
 - Ejecuta `vendor/bin/phpunit` (suites `Unit` + `Integration` en un solo proceso). La suite completa
-  son 878 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
+  son 880 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
   runner, no los tests, así que filtrar salía más caro que correr todo.
 - `concurrency` con `cancel-in-progress` descarta runs obsoletos cuando llegan pushes seguidos.
 - Levanta el servicio `mariadb:10.11` para los tests `*MariaDbTest.php`; el resto corre contra SQLite.
@@ -675,19 +681,13 @@ Una feature no se cierra hasta que existen los cuatro archivos.
 - **NO** acceder a `Auth::` directamente en vistas — calcular datos en el controlador y pasarlos via
   `renderWithLayout()`
 
----
-
-_Última actualización: 2026-10-09 — 1.19.1. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
-
 ### Lecciones de frontend (Bootstrap / DataTables)
 
 - Un `<button>` dentro de un `.input-group` (flex `align-items:stretch`) no se encoge igual que un `<div>` hermano. Envuélvelo en un `<div>` tipo `.input-group-text` y resetea el botón (`all:unset; display:flex; align-items:center; justify-content:center; width:100%; height:100%`). Para el área táctil de 44px no pongas `min-height`/`min-width` en la caja visible: usa un `::before` absoluto con `width/height: max(100%, 44px)`.
 - No parches una regla de un selector base compartido (`.form-control`, `.btn`) para un síntoma local. Compara `getComputedStyle` con un hermano que sí se vea bien y acota el fix al selector del elemento roto.
 - Los tooltips de Bootstrap se pierden al paginar/ordenar/buscar en DataTables (las filas se reemplazan). Inicializa en un handler delegado `$(document).on('draw.dt', …)` **sin** `tooltip('dispose')` previo, comprobando `!$(this).data('bs.tooltip')`; sube la versión de cache-busting tras cambiar JS core.
 - Una plantilla HTML oculta con la misma clase que los items clonados rompe cualquier selector global por esa clase (conteos, guards): escopa los selectores al contenedor real (`'#contenedor .item'`).
-- Al versionar assets con query string (`?v=filemtime`), barre todos los `<script>`/`<link>` propios, incluidos los escritos a mano fuera de un loop; "el archivo existe pero el navegador no ve el helper" es caché del tag sin versionar.
 
-### Lecciones de tests
+---
 
-- Un fixture/trait que haga `DROP`/`CREATE` sobre un recurso de nombre fijo (BD, archivo) debe sufijarlo con un identificador por proceso (`getmypid()`) si los tests corren en paralelo (paratest).
-- Un test que resetea un singleton/global compartido (conexión de BD, config) debe restaurar el doble de test en `tearDown`, no dejarlo en `null`: con orden aleatorio, los tests siguientes intentarían conectar al recurso real. "Pasa en local" no prueba nada si local tiene el recurso real; para reproducir CI corre sin `.env`/`.env.testing` y con `--order-by=default`.
+_Última actualización: 2026-10-13 — 1.19.2. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

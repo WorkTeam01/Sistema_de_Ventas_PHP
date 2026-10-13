@@ -4,8 +4,8 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.19.1-blue)
-![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
+![Versión](https://img.shields.io/badge/Versión-1.19.2-blue)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-4-7952B3?logo=bootstrap&logoColor=white)
@@ -69,7 +69,7 @@ Historial de compras a proveedores, con actualización automática de stock al r
 
 | Capa              | Tecnología                                                                     |
 | ----------------- | ------------------------------------------------------------------------------ |
-| **Backend**       | PHP 8.x — MVC custom con PSR-4 vía Composer (sin framework)                    |
+| **Backend**       | PHP 8.2+ — MVC custom con PSR-4 vía Composer (sin framework)                   |
 | **Base de datos** | MySQL 5.7+ / MariaDB 10.4+ con PDO y prepared statements                       |
 | **Frontend**      | AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2                   |
 | **PDF**           | TCPDF (`tecnickcom/tcpdf`) — facturas y reportes                               |
@@ -80,7 +80,7 @@ Historial de compras a proveedores, con actualización automática de stock al r
 
 ## Requisitos
 
-- PHP 8.x con extensiones `pdo_mysql`, `gd`, `mbstring`, `json`
+- PHP 8.2 o superior con extensiones `pdo_mysql`, `gd`, `mbstring`, `fileinfo`, `json`
 - MySQL 5.7+ / MariaDB 10.4+
 - Apache 2.4+ (incluido en XAMPP)
 - Composer
@@ -134,7 +134,8 @@ El seeder crea los siguientes usuarios de prueba:
 | Vendedor      | vendedor@sistema.com  | vendedor123  |
 | Comprador     | comprador@sistema.com | comprador123 |
 
-> Cambiar estas contraseñas antes de usar en producción.
+> Solo para desarrollo. Para producción usa `database/seeder_produccion.sql` (sin datos demo ni usuarios) y
+> sigue [docs/despliegue.md](docs/despliegue.md).
 
 ### 4. Configurar variables de entorno
 
@@ -307,6 +308,7 @@ CI con GitHub Actions en PHP 8.2 y 8.3. Ver [AGENTS.md](AGENTS.md#testing) para 
 | [CLAUDE.md](CLAUDE.md)                       | Instrucciones operacionales locales (XAMPP, BD, rutas)         |
 | [PROMPTS.md](PROMPTS.md)                     | Plantillas de prompts para agentes IA                          |
 | [CONTRIBUTING.md](CONTRIBUTING.md)           | Flujo de contribución: PRs, commits, testing                   |
+| [docs/despliegue.md](docs/despliegue.md)     | Guía de despliegue en producción (hosting, Nginx, `.env`, BD)  |
 | [CHANGELOG.md](CHANGELOG.md)                 | Historial de versiones                                         |
 
 > Lee [AGENTS.md](AGENTS.md) antes de contribuir — es la fuente de verdad del proyecto.

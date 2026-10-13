@@ -7,12 +7,13 @@ colaboración.
 
 Lee estos archivos de referencia según tu rol:
 
-| Archivo                      | Propósito                                            | Para quién                  |
-| ---------------------------- | ---------------------------------------------------- | --------------------------- |
-| [AGENTS.md](AGENTS.md)       | Arquitectura global, stack tecnológico, convenciones | **Todos los colaboradores** |
-| [CLAUDE.md](CLAUDE.md)       | Instrucciones operacionales locales (XAMPP, BD)      | Desarrolladores locales     |
-| [PROMPTS.md](PROMPTS.md)     | Plantillas de prompts efectivos con agentes IA       | Equipo de desarrollo        |
-| [CHANGELOG.md](CHANGELOG.md) | Historial de cambios y versiones                     | Todos                       |
+| Archivo                                  | Propósito                                             | Para quién                  |
+| ---------------------------------------- | ----------------------------------------------------- | --------------------------- |
+| [AGENTS.md](AGENTS.md)                   | Arquitectura global, stack tecnológico, convenciones  | **Todos los colaboradores** |
+| [CLAUDE.md](CLAUDE.md)                   | Instrucciones operacionales locales (XAMPP, BD)       | Desarrolladores locales     |
+| [PROMPTS.md](PROMPTS.md)                 | Plantillas de prompts efectivos con agentes IA        | Equipo de desarrollo        |
+| [docs/despliegue.md](docs/despliegue.md) | Despliegue en producción (hosting, Nginx, `.env`, BD) | Quien publique el sistema   |
+| [CHANGELOG.md](CHANGELOG.md)             | Historial de cambios y versiones                      | Todos                       |
 
 > **Requisito crítico:** No se aceptarán PRs sin haber leído AGENTS.md. Es la fuente de verdad del proyecto.
 
@@ -60,7 +61,7 @@ Sigue la arquitectura MVC descrita en [AGENTS.md](AGENTS.md):
 Para nuevo módulo [nombre]:
 ├── app/Controllers/[Nombre]Controller.php
 ├── app/Models/[Nombre].php
-├── app/Middleware/PermissionMiddleware.php (existente — registrar permiso nuevo en tb_permisos + seeder)
+├── app/Middleware/PermissionMiddleware.php (existente — registrar el permiso nuevo en una migración y en `seeder.sql` y `seeder_produccion.sql`)
 ├── views/[modulo]/
 │   ├── index.php
 │   ├── create.php
@@ -82,11 +83,14 @@ Para nuevo módulo [nombre]:
 - **Modelos:** Extender de `App\Core\Model`; implementar `isReferenced()` si hay FKs
 - **Vistas:** Usar `renderWithLayout()` desde controlador; no variable `Auth::` directo
 - **JavaScript:** Usar `json_encode()` para pasar datos PHP → JS; nunca comillas simples
-- **Seguridad:** `htmlspecialchars()` en outputs HTML; `password_hash()` para contraseñas; mínimo 6 caracteres en todos los flujos de contraseña
+- **Seguridad:** `htmlspecialchars()` en outputs HTML; `password_hash()` para contraseñas; mínimo `User::MIN_PASSWORD_LENGTH` (8) caracteres en alta, perfil, administrador y reset; `Controller::input()` solo hace `trim` y el escape se hace al mostrar, nunca al guardar
 - **Totales:** Calcular siempre server-side desde la BD — nunca confiar en totales del POST
 - **Operaciones críticas:** Usar datos del snapshot de BD (no del POST) para revertir stock u otras operaciones irreversibles
 - **Guards en destroy:** `isReferenced()` y auto-eliminación del propio usuario siempre server-side — el check cliente (AJAX) es solo UX
-- **Stock:** Decrementos con `AND stock >= ?` + verificación de `rowCount()` para prevenir valores negativos
+- **Stock:** Decrementos con `AND stock >= ?` + verificación de `rowCount()` para prevenir valores negativos. Solo `Sale`, `SaleReturn`, `Purchase`, `StockAdjustment` y `Product::createProduct` escriben `tb_almacen.stock`, siempre con cambios relativos (`stock = stock ± ?`)
+- **Borrados y doble envío:** borrar algo que ya no existe es un no-op exitoso, no un error; en borrados AJAX captura `PDOException` entre `isReferenced()` y el `DELETE` (una FK creada en ese intervalo) y responde JSON, no un 500
+- **Salidas:** en JS escapa con `escapeHtml()` todo dato de usuario que vaya a `title`/`html` de SweetAlert2; las exportaciones CSV/Excel neutralizan las celdas que empiezan por `=`, `+`, `-`, `@`, tabulación o retorno de carro y no son numéricas
+- **Cálculos:** totales, subtotales y porcentajes se resuelven en el Controller o el Model y llegan ya calculados a la vista
 - **Datos propios de cada usuario:** si el módulo tiene un permiso `view_*_all` (ver `view_sales_all`/`view_purchases_all`),
   filtrar por `id_usuario` en el listado **y** bloquear `show`/`edit`/`update`/`destroy` con el mismo chequeo
   (`!Auth::can('view_*_all') && $registro['id_usuario'] !== Auth::user()['id_usuario']`) — filtrar solo el listado
@@ -131,6 +135,7 @@ Si agregas lógica de negocio nueva en un modelo (validación, normalización, c
   registros ajenos ni por listado ni por URL directa (`/modulo/show/{id}` de otro usuario)
 - ✅ Anti-escalada: con `manage_users` o `manage_roles` sin `is_superadmin`, intentar crearse/editarse
   Administrador o autoasignarse `is_superadmin` → debe rechazarlo
+- ✅ Borrado repetido: enviar dos veces la misma eliminación no debe dar error ni repetir efectos (stock)
 - ✅ Autenticación: login normal, "Recordarme", logout limpia cookie y BD
 - ✅ Edge cases: campos null, strings largos, caracteres especiales
 
@@ -276,5 +281,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-10-09 — 1.19.1_
+_Última actualización: 2026-10-13 — 1.19.2_
 _Sigue las prácticas de AGENTS.md y CLAUDE.md — son la fuente de verdad._

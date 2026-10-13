@@ -101,6 +101,8 @@ Descripción: [describe qué debe hacer]
 - CSRF token obligatorio en todos los formularios POST
 - Nunca concatenar variables en SQL — usar placeholders ? con execute([$var])
 - No inventar métodos que no existan en el patrón CRUD del proyecto
+- Cálculos (totales, subtotales, porcentajes) en el Controller o el Model, nunca en la vista
+- Si agregas un permiso: migración + `seeder.sql` + `seeder_produccion.sql` (mismo catálogo en ambos)
 
 [Formato de salida]
 Devuelve en este orden:
@@ -185,6 +187,9 @@ Evalúa específicamente:
 - Notificaciones: AlertUtils/ToastUtils usados correctamente (no Swal.fire() directo)
 - DataTables: sin AJAX — datos desde PHP, filtros server-side
 - Subida de archivos: validación de extensión whitelist, MIME type real, tamaño máximo 2MB
+- XSS en JS: datos de usuario en `title`/`html` de SweetAlert2 pasan por `escapeHtml()`
+- Exportaciones CSV/Excel: celdas que empiezan por `=`, `+`, `-`, `@`, tabulación o retorno de carro (y no son numéricas) neutralizadas
+- Borrados: repetirlos es un no-op exitoso; en AJAX, una FK que salta tras `isReferenced()` responde JSON, no 500
 - Casos edge que podrían fallar en producción
 
 [Formato de salida]
@@ -208,7 +213,7 @@ custom, diseño de base de datos y patrones de diseño.
 
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
-Estado actual: 1.19.1; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas (con venta sin cliente), devoluciones, métodos de pago (catálogo + cobro único/mixto).
+Estado actual: 1.19.2; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas (con venta sin cliente), devoluciones, métodos de pago (catálogo + cobro único/mixto).
 BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_categorias, tb_proveedores,
                  tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
                  tb_activity_log, tb_ajustes_stock, tb_devoluciones, tb_devolucion_items, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
@@ -237,6 +242,8 @@ Opciones que estoy considerando:
 - Considerar impacto en stock y auditoría si la decisión toca inventario o transacciones
 - Escrituras que no deben repetirse (borrar/editar compra, ajuste de stock, cobro, devolución): idempotentes — bloquear la fila con `FOR UPDATE` y releerla dentro de la transacción, o token de un solo uso (`Auth::issueFormToken()`/`consumeFormToken()`, o `token_formulario` UNIQUE si debe sobrevivir a la sesión)
 - `Controller::input()` solo hace `trim`: el escape HTML se hace al mostrar, nunca al guardar
+- Borrar algo que ya no existe es un no-op exitoso, no un 403 ni un error
+- Despliegue: `docs/despliegue.md`; producción usa `seeder_produccion.sql` (solo catálogo), nunca `seeder.sql`
 - Fechas: `APP_TIMEZONE` rige PHP y la sesión de MySQL; no calcular límites con `date()` para compararlos contra `NOW()` en SQL
 
 [Formato de salida]
@@ -334,7 +341,7 @@ Actúa como desarrollador PHP Senior especializado en testing con PHPUnit 11
 y SQLite in-memory para proyectos MVC custom.
 
 [Contexto]
-Proyecto: Sistema de Ventas — PHP MVC custom, PHP 8.x, Composer/PSR-4.
+Proyecto: Sistema de Ventas — PHP MVC custom, PHP 8.2+, Composer/PSR-4.
 Testing: PHPUnit 11.x con dos suites: Unit (lógica pura) e Integration (SQLite in-memory;
 tests `*MariaDbTest` corren contra MariaDB real para funciones de fecha del motor).
 Singleton PDO resuelto con Database::set(PDO) en tests/bootstrap.php y trait RefreshDatabase.
@@ -364,6 +371,7 @@ Casos edge a incluir:
 - No testear SQL exacto — probar comportamiento observable (valores retornados, tipos, nulls)
 - No testear métodos con NOW() en SQLite (findByResetToken, findByRememberToken)
 - Clase final, métodos snake_case: test_nombreMetodo_condicion()
+- Si el test resetea el singleton (`Database::reset()`), debe dejar SQLite inyectado al terminar (`Database::set(...)`)
 - Si hay dependencias FK, semillarlas en seedDependencies() o directamente con $this->pdo->exec()
 
 [Formato de salida]
@@ -374,5 +382,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 1.19.1 (2026-10-09)_
+_Última actualización: 2026-10-13 — 1.19.2_
 _Mantener sincronizado con AGENTS.md y CLAUDE.md al iniciar cada sesión._

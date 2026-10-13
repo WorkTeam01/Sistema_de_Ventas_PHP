@@ -7,6 +7,39 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.19.2] - 2026-10-13
+
+Ronda de correcciones y despliegue posterior a la 1.19.1, a partir de una auditoría de solo lectura. Sin cambios de esquema ni migraciones nuevas.
+
+### Actualización desde 1.19.1
+
+No hay migraciones. Tras desplegar el código: `composer install --no-dev` (cambió `composer.lock`) y subir `APP_VERSION` a `1.19.2` en `.env` para que los navegadores recarguen el JS corregido.
+
+### Añadido
+
+- `database/seeder_produccion.sql`: solo el catálogo que la app necesita (3 roles, 27 permisos, permisos por rol y 4 métodos de pago), sin datos demo ni usuarios. `seeder.sql` queda solo para desarrollo.
+- `docs/despliegue.md`: guía de despliegue (hosting, docroot en `public/`, Nginx, `.env` de producción, primer administrador, permisos, checklist, backups y actualización).
+- `Role::isLastSuperadminRole()` y `Product::withStockBars()`.
+- `composer.json` declara `php >=8.2` y las extensiones `fileinfo`, `mbstring` y `pdo_mysql`; el workflow de CI instala `fileinfo`.
+
+### Corregido
+
+- `public/.htaccess` ya no fija `RewriteBase` de XAMPP: las rutas funcionan igual en la raíz de un dominio y en un subdirectorio.
+- Reportes: el CSV/Excel neutraliza toda celda que empiece por `=`, `+`, `-`, `@`, tabulación o retorno de carro y no sea numérica (antes dejaba pasar `-1+cmd|...`).
+- Reportes: cada bloque de la portada se gatea con su propio permiso (`view_sales_report`, `view_purchases_report`, `view_clients_report`, `view_top_products_report`); el margen se calcula en el controller y solo si ventas y compras cubren el mismo alcance.
+- El saludo de bienvenida escapa el nombre del usuario (XSS guardado vía `SweetAlert2`).
+- Devoluciones: el motivo se limita a 255 caracteres (servidor y formulario); el detalle de la venta muestra el usuario que registró cada devolución.
+- Ventas: borrar una venta que ya no existe es un no-op exitoso; la factura PDF tolera productos sin descripción.
+- Clientes, Proveedores y Métodos de pago responden JSON si una clave foránea frena el borrado por una carrera.
+- Roles: no se puede quitar `is_superadmin` al único rol que lo otorga.
+
+### Cambiado
+
+- `SaleController::confirmDelete()` pasa a `delete()` (la ruta `GET /sales/delete/{id}` no cambia).
+- Cálculos fuera de las vistas: subtotal de los ítems de una devolución (`SaleReturn::findWithDetails()`) y barra de nivel del inventario (`Product::withStockBars()`).
+- `/errors/403`: la lectura del mensaje flash pasa de la vista a la ruta, y la vista deja de llamar a `Auth::`.
+- README y `AGENTS.md` indican PHP 8.2+; se depuran las lecciones obsoletas de `AGENTS.md`.
+
 ## [1.19.1] - 2026-10-09
 
 Ronda de correcciones posterior a la 1.19.0: doble envío en compras e inventario, texto guardado con escape HTML, sesiones tras cambiar la contraseña, zona horaria de la BD y menú lateral.
@@ -1032,7 +1065,8 @@ Opcionales en `.env` (valores por defecto si faltan): `LOGIN_MAX_PER_EMAIL`,
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.1...HEAD
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.2...HEAD
+[1.19.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.1...1.19.2
 [1.19.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.0...1.19.1
 [1.19.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.3...1.19.0
 [1.18.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.2...1.18.3

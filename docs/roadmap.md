@@ -54,6 +54,10 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
     envío, texto guardado sin escape HTML (migración 015), sesiones cerradas al cambiar la
     contraseña, `APP_TIMEZONE` aplicado a la sesión de MySQL, sidebar con permisos reales y
     comentarios sin referencias a specs. Sin spec propia (sin cambios de esquema). → CHANGELOG 1.19.1
+22. **Ronda de correcciones y despliegue 1.19.2** — auditoría de solo lectura: exportación
+    CSV a prueba de fórmulas, XSS del saludo, portada de reportes con permisos propios, guard del
+    último superadmin, borrados idempotentes/JSON; seeder de producción, `RewriteBase` portable y
+    `docs/despliegue.md`. Sin spec propia (sin cambios de esquema). → CHANGELOG 1.19.2
 
 ## Siguiente 🔜
 

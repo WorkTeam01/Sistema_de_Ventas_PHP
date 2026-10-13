@@ -57,7 +57,10 @@ mysql -u root -p sistemadeventas < database/seeder.sql
 **Windows** (desde `C:\xampp\mysql\bin\`): mismos comandos con rutas absolutas a
 `database\schema.sql` y `database\seeder.sql`.
 
-Usuarios de prueba que crea el seeder:
+Para producción no uses `seeder.sql`: carga `database/seeder_produccion.sql` (solo catálogo, sin usuarios) y
+sigue [docs/despliegue.md](docs/despliegue.md).
+
+Usuarios de prueba que crea el seeder de desarrollo:
 
 - `admin@sistema.com` / `admin123`
 - `vendedor@sistema.com` / `vendedor123`
@@ -123,4 +126,4 @@ Features nuevas siguen Spec-Driven Development (`/sdd:constitution`, `/sdd:spec`
 
 ---
 
-_Última actualización: 2026-10-09 — 1.19.1_
+_Última actualización: 2026-10-13 — 1.19.2_
