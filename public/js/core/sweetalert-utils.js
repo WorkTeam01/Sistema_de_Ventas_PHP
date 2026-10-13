@@ -294,7 +294,7 @@ const AlertUtils = {
         const greeting = this._getGreeting();
 
         Swal.fire({
-            title: `${greeting}, ${userName}!`,
+            title: `${greeting}, ${escapeHtml(userName)}!`,
             html: `<p>Es un placer verte de nuevo</p>
                    <p class="text-muted mb-0"><small>${new Date().toLocaleDateString('es-ES', {
                 weekday: 'long',
