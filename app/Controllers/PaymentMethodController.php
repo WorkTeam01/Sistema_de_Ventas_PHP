@@ -198,7 +198,14 @@ class PaymentMethodController extends Controller
 
         $snapshot = $methodModel->find($id);
 
-        if ($methodModel->delete($id)) {
+        try {
+            $deleted = $methodModel->delete($id);
+        } catch (\PDOException $e) {
+            // Una referencia creada entre isReferenced() y el DELETE la frena la clave foránea
+            $this->json(['success' => false, 'message' => 'No se puede eliminar: el método tiene pagos registrados. Desactívalo en su lugar.']);
+        }
+
+        if ($deleted) {
             if ($snapshot) {
                 ActivityLog::record(
                     'delete',

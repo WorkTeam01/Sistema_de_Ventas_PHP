@@ -229,6 +229,14 @@ class RoleController extends Controller
             ]);
         }
 
+        if ($roleModel->isLastSuperadminRole($id)
+            && !in_array('is_superadmin', $permissionModel->findClavesByIds($permisos), true)) {
+            $this->json([
+                'success' => false,
+                'message' => 'Este es el único rol con permiso de superusuario; no se le puede quitar.',
+            ]);
+        }
+
         if (!$roleModel->syncPermissions($id, $permisos)) {
             $this->json(['success' => false, 'message' => 'Error al actualizar los permisos del rol.']);
         }

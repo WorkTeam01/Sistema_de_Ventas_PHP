@@ -209,7 +209,14 @@ class ClientController extends Controller
 
         $snapshot = $clientModel->find($id);
 
-        if ($clientModel->delete($id)) {
+        try {
+            $deleted = $clientModel->delete($id);
+        } catch (\PDOException $e) {
+            // Una referencia creada entre isReferenced() y el DELETE la frena la clave foránea
+            $this->json(['success' => false, 'message' => 'No se puede eliminar el cliente porque tiene ventas registradas.']);
+        }
+
+        if ($deleted) {
             if ($snapshot) {
                 ActivityLog::record(
                     'delete', 'client', $id,

@@ -210,6 +210,36 @@ final class RoleRepositoryTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // isLastSuperadminRole
+    // -------------------------------------------------------------------------
+
+    public function test_isLastSuperadminRole_is_true_only_while_no_other_role_grants_it(): void
+    {
+        $superadmin = $this->createPermission('is_superadmin');
+        $first  = $this->createRole('Dueño');
+        $second = $this->createRole('Socio');
+        $this->role->syncPermissions($first, [$superadmin]);
+
+        $this->assertTrue($this->role->isLastSuperadminRole($first));
+
+        $this->role->syncPermissions($second, [$superadmin]);
+
+        $this->assertFalse($this->role->isLastSuperadminRole($first));
+        $this->assertFalse($this->role->isLastSuperadminRole($second));
+    }
+
+    public function test_isLastSuperadminRole_is_false_for_a_role_without_is_superadmin(): void
+    {
+        $superadmin = $this->createPermission('is_superadmin');
+        $owner    = $this->createRole('Dueño');
+        $operator = $this->createRole('Operador');
+        $this->role->syncPermissions($owner, [$superadmin]);
+
+        $this->assertFalse($this->role->isLastSuperadminRole($operator));
+        $this->assertFalse($this->role->isLastSuperadminRole(9999));
+    }
+
+    // -------------------------------------------------------------------------
     // grantsSuperadmin
     // -------------------------------------------------------------------------
 
