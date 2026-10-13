@@ -4,7 +4,7 @@
     "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
     "This file is @generated automatically"
   ],
-  "content-hash": "64c0ee3bf26e3eca6f62a83dc4a3f23f",
+  "content-hash": "5d74f1f0b0b675e29ea974cc2aaf20e4",
   "packages": [
     {
       "name": "graham-campbell/result-type",
@@ -559,12 +559,12 @@
       "version": "v5.6.3",
       "source": {
         "type": "git",
-        "url": "https://github.com/vlucas/phpdotenv.git",
+        "url": "https://github.com/phpdotenv/phpdotenv.git",
         "reference": "955e7815d677a3eaa7075231212f2110983adecc"
       },
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/955e7815d677a3eaa7075231212f2110983adecc",
+        "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/955e7815d677a3eaa7075231212f2110983adecc",
         "reference": "955e7815d677a3eaa7075231212f2110983adecc",
         "shasum": ""
       },
@@ -2410,7 +2410,12 @@
   "stability-flags": {},
   "prefer-stable": false,
   "prefer-lowest": false,
-  "platform": {},
+  "platform": {
+    "php": ">=8.2",
+    "ext-fileinfo": "*",
+    "ext-mbstring": "*",
+    "ext-pdo_mysql": "*"
+  },
   "platform-dev": {},
   "plugin-api-version": "2.9.0"
 }
