@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.19.2-blue)
+![Versión](https://img.shields.io/badge/Versión-1.19.3-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -135,7 +135,7 @@ El seeder crea los siguientes usuarios de prueba:
 | Comprador     | comprador@sistema.com | comprador123 |
 
 > Solo para desarrollo. Para producción usa `database/seeder_produccion.sql` (sin datos demo ni usuarios) y
-> sigue [docs/despliegue.md](docs/despliegue.md).
+> sigue [docs/guides/despliegue.md](docs/guides/despliegue.md).
 
 ### 4. Configurar variables de entorno
 
@@ -294,22 +294,26 @@ composer test:integration # Integration — SQLite in-memory
 composer test:coverage    # con reporte de cobertura (requiere PCOV)
 ```
 
-CI con GitHub Actions en PHP 8.2 y 8.3. Ver [AGENTS.md](AGENTS.md#testing) para convenciones de testing.
+CI con GitHub Actions en PHP 8.2 y 8.3. Ver [docs/guides/testing.md](docs/guides/testing.md) para convenciones de testing.
 
 ---
 
 ## Documentación para Desarrolladores
 
-| Archivo                                      | Propósito                                                      |
-| -------------------------------------------- | -------------------------------------------------------------- |
-| [AGENTS.md](AGENTS.md)                       | Arquitectura MVC, stack, convenciones de código, prohibiciones |
-| [docs/constitution.md](docs/constitution.md) | Principios no negociables del proyecto (SDD)                   |
-| [docs/roadmap.md](docs/roadmap.md)           | Hecho / en curso / backlog de features (SDD)                   |
-| [CLAUDE.md](CLAUDE.md)                       | Instrucciones operacionales locales (XAMPP, BD, rutas)         |
-| [PROMPTS.md](PROMPTS.md)                     | Plantillas de prompts para agentes IA                          |
-| [CONTRIBUTING.md](CONTRIBUTING.md)           | Flujo de contribución: PRs, commits, testing                   |
-| [docs/despliegue.md](docs/despliegue.md)     | Guía de despliegue en producción (hosting, Nginx, `.env`, BD)  |
-| [CHANGELOG.md](CHANGELOG.md)                 | Historial de versiones                                         |
+| Archivo                                                                                                                                                              | Propósito                                                        |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [AGENTS.md](AGENTS.md)                                                                                                                                               | Arquitectura MVC, stack, convenciones de código, prohibiciones   |
+| [docs/constitution.md](docs/constitution.md)                                                                                                                         | Principios no negociables del proyecto (SDD)                     |
+| [docs/roadmap.md](docs/roadmap.md)                                                                                                                                   | Hecho / en curso / backlog de features (SDD)                     |
+| [docs/guides/desarrollo.md](docs/guides/desarrollo.md)                                                                                                               | Puesta en marcha local: XAMPP, BD, `.env`, permisos de archivos  |
+| [docs/guides/arquitectura.md](docs/guides/arquitectura.md) · [docs/schema.md](docs/schema.md)                                                                        | Árbol de archivos, enrutamiento y esquema de BD                  |
+| [docs/guides/autenticacion.md](docs/guides/autenticacion.md) · [docs/guides/frontend.md](docs/guides/frontend.md) · [docs/guides/testing.md](docs/guides/testing.md) | Detalle de permisos y sesión, frontend y testing                 |
+| [docs/app-flow.md](docs/app-flow.md) · [docs/ux-brief.md](docs/ux-brief.md)                                                                                          | Recorridos de usuario y criterios de UX (derivados de las specs) |
+| [CLAUDE.md](CLAUDE.md)                                                                                                                                               | Instrucciones de Claude Code (skills y flujo SDD)                |
+| [PROMPTS.md](PROMPTS.md)                                                                                                                                             | Plantillas de prompts para agentes IA                            |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                                                                                                                                   | Flujo de contribución: PRs, commits, testing                     |
+| [docs/guides/despliegue.md](docs/guides/despliegue.md)                                                                                                               | Guía de despliegue en producción (hosting, Nginx, `.env`, BD)    |
+| [CHANGELOG.md](CHANGELOG.md)                                                                                                                                         | Historial de versiones                                           |
 
 > Lee [AGENTS.md](AGENTS.md) antes de contribuir — es la fuente de verdad del proyecto.
 

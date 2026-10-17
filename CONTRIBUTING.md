@@ -7,13 +7,13 @@ colaboración.
 
 Lee estos archivos de referencia según tu rol:
 
-| Archivo                                  | Propósito                                             | Para quién                  |
-| ---------------------------------------- | ----------------------------------------------------- | --------------------------- |
-| [AGENTS.md](AGENTS.md)                   | Arquitectura global, stack tecnológico, convenciones  | **Todos los colaboradores** |
-| [CLAUDE.md](CLAUDE.md)                   | Instrucciones operacionales locales (XAMPP, BD)       | Desarrolladores locales     |
-| [PROMPTS.md](PROMPTS.md)                 | Plantillas de prompts efectivos con agentes IA        | Equipo de desarrollo        |
-| [docs/despliegue.md](docs/despliegue.md) | Despliegue en producción (hosting, Nginx, `.env`, BD) | Quien publique el sistema   |
-| [CHANGELOG.md](CHANGELOG.md)             | Historial de cambios y versiones                      | Todos                       |
+| Archivo                                                | Propósito                                             | Para quién                  |
+| ------------------------------------------------------ | ----------------------------------------------------- | --------------------------- |
+| [AGENTS.md](AGENTS.md)                                 | Arquitectura global, stack tecnológico, convenciones  | **Todos los colaboradores** |
+| [docs/guides/desarrollo.md](docs/guides/desarrollo.md) | Puesta en marcha local (XAMPP, BD, `.env`)            | Desarrolladores locales     |
+| [PROMPTS.md](PROMPTS.md)                               | Plantillas de prompts efectivos con agentes IA        | Equipo de desarrollo        |
+| [docs/guides/despliegue.md](docs/guides/despliegue.md) | Despliegue en producción (hosting, Nginx, `.env`, BD) | Quien publique el sistema   |
+| [CHANGELOG.md](CHANGELOG.md)                           | Historial de cambios y versiones                      | Todos                       |
 
 > **Requisito crítico:** No se aceptarán PRs sin haber leído AGENTS.md. Es la fuente de verdad del proyecto.
 
@@ -281,5 +281,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-10-13 — 1.19.2_
+_Última actualización: 2026-10-17 — 1.19.3_
 _Sigue las prácticas de AGENTS.md y CLAUDE.md — son la fuente de verdad._

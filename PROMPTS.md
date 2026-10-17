@@ -2,7 +2,7 @@
 
 > Plantillas de prompts para el equipo. Úsalas como base — adapta los bloques
 > `[Tarea]` y `[Contexto]` a lo que necesites en cada sesión.
-> **Requisito:** Carga [AGENTS.md](AGENTS.md) (arquitectura, convenciones, stack) al inicio de cada sesión. [CLAUDE.md](CLAUDE.md) es opcional para contexto local.
+> **Requisito:** Carga [AGENTS.md](AGENTS.md) (arquitectura, convenciones, stack) al inicio de cada sesión. [CLAUDE.md](CLAUDE.md) y [docs/guides/desarrollo.md](docs/guides/desarrollo.md) son opcionales para contexto local.
 
 ---
 
@@ -24,7 +24,7 @@ Cada plantilla sigue la estructura de 5 ejes del prompt profesional:
 **Reglas de uso del equipo:**
 
 - **Carga el AGENTS.md primero** (contexto persistente para cualquier agente) — contiene arquitectura, stack, convenciones globales, prohibiciones
-- **CLAUDE.md es opcional** (desarrollo local) — contiene instrucciones operacionales de XAMPP/BD, no convenciones de código
+- **CLAUDE.md es opcional** — solo skills y flujo SDD de Claude Code; el arranque local (XAMPP/BD/`.env`) está en `docs/guides/desarrollo.md`
 - **Un prompt por subtarea.** Pedir "el módulo completo" en un solo prompt produce resultados genéricos.
 - **Si el output no encaja**, no corrijas manualmente primero — ajusta `[Restricciones]` y repite.
 - **El spec antes que el código.** Define qué debe hacer antes de pedir que lo implemente.
@@ -34,7 +34,7 @@ Cada plantilla sigue la estructura de 5 ejes del prompt profesional:
 
 ## Plantilla base (copia esto y rellena)
 
-> **Antes de usar:** Asegúrate de consultar [AGENTS.md](AGENTS.md) (arquitectura global y convenciones). [CLAUDE.md](CLAUDE.md) opcional para desarrollo local.
+> **Antes de usar:** Asegúrate de consultar [AGENTS.md](AGENTS.md) (arquitectura global y convenciones). [CLAUDE.md](CLAUDE.md) y [docs/guides/desarrollo.md](docs/guides/desarrollo.md) opcionales para desarrollo local.
 
 ```
 [Rol]
@@ -213,7 +213,7 @@ custom, diseño de base de datos y patrones de diseño.
 
 [Contexto]
 Proyecto: Sistema de Ventas — PHP MVC custom (sin framework).
-Estado actual: 1.19.2; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas (con venta sin cliente), devoluciones, métodos de pago (catálogo + cobro único/mixto).
+Estado actual: 1.19.3; módulos: usuarios, roles, categorías, proveedores, clientes, productos, compras, ventas (con venta sin cliente), devoluciones, métodos de pago (catálogo + cobro único/mixto).
 BD implementada: tb_usuarios, tb_roles (+ permisos_version desde v1.14.0), tb_categorias, tb_proveedores,
                  tb_clientes, tb_almacen, tb_compras, tb_ventas (+ id_usuario FK desde v1.12.1), tb_carrito,
                  tb_activity_log, tb_ajustes_stock, tb_devoluciones, tb_devolucion_items, tb_permisos, tb_rol_permiso (RBAC granular desde v1.13.0,
@@ -243,7 +243,7 @@ Opciones que estoy considerando:
 - Escrituras que no deben repetirse (borrar/editar compra, ajuste de stock, cobro, devolución): idempotentes — bloquear la fila con `FOR UPDATE` y releerla dentro de la transacción, o token de un solo uso (`Auth::issueFormToken()`/`consumeFormToken()`, o `token_formulario` UNIQUE si debe sobrevivir a la sesión)
 - `Controller::input()` solo hace `trim`: el escape HTML se hace al mostrar, nunca al guardar
 - Borrar algo que ya no existe es un no-op exitoso, no un 403 ni un error
-- Despliegue: `docs/despliegue.md`; producción usa `seeder_produccion.sql` (solo catálogo), nunca `seeder.sql`
+- Despliegue: `docs/guides/despliegue.md`; producción usa `seeder_produccion.sql` (solo catálogo), nunca `seeder.sql`
 - Fechas: `APP_TIMEZONE` rige PHP y la sesión de MySQL; no calcular límites con `date()` para compararlos contra `NOW()` en SQL
 
 [Formato de salida]
@@ -382,5 +382,5 @@ Casos edge a incluir:
 
 ---
 
-_Última actualización: 2026-10-13 — 1.19.2_
+_Última actualización: 2026-10-17 — 1.19.3_
 _Mantener sincronizado con AGENTS.md y CLAUDE.md al iniciar cada sesión._
