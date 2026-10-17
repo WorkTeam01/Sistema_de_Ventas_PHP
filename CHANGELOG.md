@@ -7,6 +7,29 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.19.3] - 2026-10-17
+
+Reorganización de la documentación y cierre del formato SDD. Sin cambios de código, esquema ni migraciones.
+
+### Actualización desde 1.19.2
+
+No hay migraciones ni cambios de código: no hace falta `composer install`. `APP_VERSION` sube a `1.19.3` en `.env.example`; en `.env` es opcional, porque ningún CSS/JS cambió.
+
+### Añadido
+
+- `docs/schema.md`, `docs/app-flow.md` y `docs/ux-brief.md`: documentos derivados de las specs 001–004 y la constitución con `/sdd:docs` (sdd-toolkit 0.6.1). `schema.md` describe las 20 tablas; `app-flow.md` recoge los recorridos, caminos alternativos, estados de error y pantallas; `ux-brief.md` conserva `TODO: provide` donde ningún artefacto da la respuesta (experiencia de los usuarios, dispositivos, objetivos, marca).
+- `docs/guides/`: guías de `arquitectura`, `autenticacion`, `frontend`, `testing` y `desarrollo`, con el contenido que estaba en `AGENTS.md` y `CLAUDE.md`.
+
+### Cambiado
+
+- `AGENTS.md` pasa de 608 a 249 líneas y `CLAUDE.md` de 129 a 20: conservan las reglas operativas y enlazan el detalle en `docs/guides/`. Nueva tabla «Documentación» en `AGENTS.md`.
+- `.env.example` declara `APP_VERSION=1.19.3`.
+- `docs/despliegue.md` pasa a `docs/guides/despliegue.md` (`docs/screenshots/` no cambia de lugar). `README.md`, `CONTRIBUTING.md`, `PROMPTS.md` y `docs/roadmap.md` apuntan a las rutas nuevas.
+- El bloque de tablas de `AGENTS.md` se sustituye por un enlace a `docs/schema.md` más los invariantes que el esquema no deja ver.
+- Las `validation.md` de las specs 001–004 usan `## Verdict`, `**Spec fulfilled.**` y `**Date:**`, el formato que el toolkit lee para dar una feature por cerrada.
+
+---
+
 ## [1.19.2] - 2026-10-13
 
 Ronda de correcciones y despliegue posterior a la 1.19.1, a partir de una auditoría de solo lectura. Sin cambios de esquema ni migraciones nuevas.
@@ -18,7 +41,7 @@ No hay migraciones. Tras desplegar el código: `composer install --no-dev` (camb
 ### Añadido
 
 - `database/seeder_produccion.sql`: solo el catálogo que la app necesita (3 roles, 27 permisos, permisos por rol y 4 métodos de pago), sin datos demo ni usuarios. `seeder.sql` queda solo para desarrollo.
-- `docs/despliegue.md`: guía de despliegue (hosting, docroot en `public/`, Nginx, `.env` de producción, primer administrador, permisos, checklist, backups y actualización).
+- `docs/guides/despliegue.md`: guía de despliegue (hosting, docroot en `public/`, Nginx, `.env` de producción, primer administrador, permisos, checklist, backups y actualización).
 - `Role::isLastSuperadminRole()` y `Product::withStockBars()`.
 - `composer.json` declara `php >=8.2` y las extensiones `fileinfo`, `mbstring` y `pdo_mysql`; el workflow de CI instala `fileinfo`.
 
@@ -1065,7 +1088,8 @@ Opcionales en `.env` (valores por defecto si faltan): `LOGIN_MAX_PER_EMAIL`,
 - XSS almacenado por falta de `htmlspecialchars()` en varias vistas.
 - Contraseñas mostradas en texto plano en formularios de usuarios.
 
-[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.2...HEAD
+[Unreleased]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.3...HEAD
+[1.19.3]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.2...1.19.3
 [1.19.2]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.1...1.19.2
 [1.19.1]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.19.0...1.19.1
 [1.19.0]: https://github.com/WorkTeam01/Sistema_de_Ventas_PHP/compare/1.18.3...1.19.0

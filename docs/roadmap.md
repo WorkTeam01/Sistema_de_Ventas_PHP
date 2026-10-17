@@ -57,9 +57,19 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 22. **Ronda de correcciones y despliegue 1.19.2** — auditoría de solo lectura: exportación
     CSV a prueba de fórmulas, XSS del saludo, portada de reportes con permisos propios, guard del
     último superadmin, borrados idempotentes/JSON; seeder de producción, `RewriteBase` portable y
-    `docs/despliegue.md`. Sin spec propia (sin cambios de esquema). → CHANGELOG 1.19.2
+    `docs/guides/despliegue.md`. Sin spec propia (sin cambios de esquema). → CHANGELOG 1.19.2
+23. **Reorganización de la documentación 1.19.3** — `docs/schema.md`, `app-flow.md` y `ux-brief.md`
+    generados con `/sdd:docs`; guías en `docs/guides/`; `AGENTS.md` y `CLAUDE.md` reducidos.
+    Sin spec propia (solo documentación). → CHANGELOG 1.19.3
 
 ## Siguiente 🔜
+
+- **Hardening de la auditoría de seguridad (2026-10-17)** — 0 hallazgos confirmados y 2 pistas
+  `needs_validation`: `POST /profile/check-email` revela si un correo es cuenta (solo `auth`) y los CSV de
+  DataTables no neutralizan fórmulas como sí hace `ReportController::csvCell()`. Además: CSP/HSTS,
+  `Cache-Control: no-store` en PDF/CSV financieros, limpiar `reset_token` al cambiar la contraseña,
+  contraseña actual al cambiar el correo del perfil y `is_string` en parámetros de reportes. Fixes
+  de una línea sin spec.
 
 ## Backlog · ideas 💡
 
