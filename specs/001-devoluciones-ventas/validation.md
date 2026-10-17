@@ -1,5 +1,7 @@
 # Validación — Spec 001: Devoluciones de ventas
 
+**Date:** 2026-09-18
+
 Validación ejecutada el 2026-09-18 con `composer test`.
 
 | FR    | Resumen                                             | Evidencia / prueba                                                               | Veredicto |
@@ -34,9 +36,9 @@ Validación ejecutada el 2026-09-18 con `composer test`.
 - [x] `composer test` completo verde: 308 tests, 621 aserciones, 15 skips esperados.
 - [x] Las vistas nuevas siguen los patrones de layout, CSRF, DataTables y assets por módulo del proyecto.
 
-## Veredicto
+## Verdict
 
-**Spec cumplida.** La feature está implementada, documentada y validada; las
+**Spec fulfilled.** La feature está implementada, documentada y validada; las
 pruebas que dependen de MariaDB se mantienen como skips cuando el servicio no
 está disponible, conforme a la política del proyecto.
 

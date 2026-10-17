@@ -1,6 +1,6 @@
 # Validación — Spec 004: Auditoría de seguridad e integridad
 
-**Fecha:** 2026-10-05 · **Versión validada:** working tree sobre `37ab912` (1.18.3 + spec 004, con T64 y la pasada de axe sin commitear)
+**Date:** 2026-10-05 · **Versión validada:** working tree sobre `37ab912` (1.18.3 + spec 004, con T64 y la pasada de axe sin commitear)
 
 ## Verificación ejecutada
 
@@ -111,7 +111,9 @@ Sin test automatizado, con evidencia de otro tipo (la convención de la spec exc
 
 Resto de la demo (45 OK): doble envío de devolución (una sola, «ya estaba registrada»), dos vendedores con reservas distintas, carrito ajeno rechazado en agregar/quitar/cancelar, vuelto mayor al efectivo rechazado, compra no revertible con stock vendido, stock de solo lectura en la ficha, perfil del vendedor (email sin error, contraseña exigiendo la actual), dos dispositivos recordados, reset sin enlace en pantalla y ráfaga de 20 logins con el mismo mensaje (también rechaza la contraseña correcta y, por el límite por IP, a otra cuenta desde la misma IP).
 
-## Veredicto
+## Verdict
+
+**Spec fulfilled.**
 
 **Requisitos funcionales: 64 de 64 PASS, 0 FAIL, 0 NOT COVERED** (H-1 corregido con T64; la suite pasa de 862 a 865 tests).
 
