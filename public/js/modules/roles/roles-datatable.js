@@ -49,7 +49,7 @@ $(document).ready(function () {
                     });
 
                     doc.content.splice(2, 0, {
-                        text: 'Generado el: ' + new Date().toLocaleString('es-BO'),
+                        text: 'Generado el: ' + new Date().toLocaleString('es-CL'),
                         style: {
                             fontSize: 9,
                             alignment: 'right',
@@ -72,7 +72,7 @@ $(document).ready(function () {
                 extend: 'excel',
                 title: 'Roles - Sistema de Ventas',
                 messageTop: 'Registro de roles del sistema',
-                messageBottom: 'Documento generado el ' + new Date().toLocaleDateString('es-BO'),
+                messageBottom: 'Documento generado el ' + new Date().toLocaleDateString('es-CL'),
                 exportOptions: {columns: [0, 1]}
             }, {
                 extend: 'csv',
@@ -81,7 +81,7 @@ $(document).ready(function () {
                 extend: 'print',
                 text: 'Imprimir',
                 title: 'Roles - Sistema de Ventas',
-                messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                 exportOptions: {columns: [0, 1]},
                 customize: function (win) {
                     $(win.document.body).find('table')

@@ -1,0 +1,26 @@
+@media print {
+    body,
+    .content-wrapper {
+        background: #fff !important;
+    }
+
+    .main-header,
+    .main-sidebar,
+    .content-header,
+    .no-print,
+    .card-footer,
+    .history-section {
+        display: none !important;
+    }
+
+    .content-wrapper {
+        margin-left: 0 !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+}

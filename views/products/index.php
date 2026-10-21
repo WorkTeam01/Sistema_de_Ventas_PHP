@@ -81,11 +81,11 @@
                                             <td><?= htmlspecialchars($product['nombre'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td><?= htmlspecialchars($product['nombre_categoria'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <?php if ($stock_actual < $stock_minimo) : ?>
-                                                <td class="bg-danger text-center"><?= $stock_actual; ?></td>
+                                                <td class="bg-danger text-center"><?= $stock_actual . ' ' . htmlspecialchars($product['unidad_medida'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <?php elseif ($stock_maximo > 0 && $stock_actual > $stock_maximo) : ?>
-                                                <td class="bg-success text-center"><?= $stock_actual; ?></td>
+                                                <td class="bg-success text-center"><?= $stock_actual . ' ' . htmlspecialchars($product['unidad_medida'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <?php else : ?>
-                                                <td class="text-center"><?= $stock_actual; ?></td>
+                                                <td class="text-center"><?= $stock_actual . ' ' . htmlspecialchars($product['unidad_medida'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <?php endif; ?>
                                             <td class="text-right"><?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars($product['precio_venta'], ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="text-center">

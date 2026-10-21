@@ -36,10 +36,10 @@
 
 - Todas usan `renderWithLayout()` del Controller base (compone header + contenido + footer)
 - Constante `BASE_URL` disponible globalmente — usar para construir URLs en PHP y JS
-- Constante `APP_CURRENCY_SYMBOL` disponible globalmente (definida en `public/index.php` desde `.env`, default `"Bs."`) —
+- Constante `APP_CURRENCY_SYMBOL` disponible globalmente (definida en `public/index.php` desde `.env`, default `"CLP"`) —
   usar siempre esta constante para mostrar montos en vistas, PDFs (`InvoicePdf`, `PurchaseReportPdf`), controllers y
   `NumberToWords::convert()` (recibe `$currencyLabel` opcional, cae a la constante). **No hardcodear `"Bs."`** en
-  código nuevo. **No usar el nombre `CURRENCY_SYMBOL`** — colisiona con una constante nativa de PHP (extensión intl).
+  código nuevo. **No hardcodear `"Bs."`**; **no usar el nombre `CURRENCY_SYMBOL`**, que colisiona con una constante nativa de PHP (extensión intl).
 - **Sin lógica de negocio en las vistas**: cálculos (totales, subtotales, sumas, agregaciones) se resuelven en el
   Controller o el Model y se pasan ya calculados a la vista (ej. `Sale::computeInvoiceTotals()`, `Sale::withSubtotals()`, `Product::withStockBars()`).
   Las vistas solo formatean/muestran valores recibidos — no hacen `foreach` acumulando `+=` sobre `$items`/`$rows`.

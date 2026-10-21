@@ -61,6 +61,12 @@ final class SaleReturnTest extends TestCase
         $this->assertSame(9, (int)$this->pdo->query(
             'SELECT stock FROM tb_almacen WHERE id_producto = 1'
         )->fetchColumn());
+        $this->assertSame(
+            2,
+            (int)$this->pdo->query(
+                "SELECT cantidad FROM tb_movimientos_inventario WHERE tipo = 'Devolución'"
+            )->fetchColumn()
+        );
 
         $pending = $this->returns->pendingByVenta(1);
         $this->assertSame(3, (int)$pending[0]['pendiente']);

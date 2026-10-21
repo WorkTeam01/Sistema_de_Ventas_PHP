@@ -65,7 +65,7 @@
                                 <dt class="col-sm-4">Cliente</dt>
                                 <dd class="col-sm-8"><?= htmlspecialchars($return['nombre_cliente'] ?? '—', ENT_QUOTES, 'UTF-8') ?></dd>
 
-                                <dt class="col-sm-4">NIT/CI</dt>
+                                <dt class="col-sm-4">RUT</dt>
                                 <dd class="col-sm-8"><?= htmlspecialchars($return['nit_ci_cliente'] ?? '—', ENT_QUOTES, 'UTF-8') ?></dd>
 
                                 <dt class="col-sm-4">Total original</dt>

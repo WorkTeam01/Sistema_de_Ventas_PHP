@@ -13,6 +13,9 @@
 -- DELETE se ejecuta en orden hijo→padre porque MySQL no permite
 -- TRUNCATE sobre tablas referenciadas por claves foráneas.
 SET FOREIGN_KEY_CHECKS = 0;
+DELETE FROM `tb_documentos_comerciales_historial`;
+DELETE FROM `tb_documento_comercial_items`;
+DELETE FROM `tb_documentos_comerciales`;
 DELETE FROM `tb_devolucion_items`;
 DELETE FROM `tb_devoluciones`;
 DELETE FROM `tb_pagos`;
@@ -47,6 +50,9 @@ ALTER TABLE `tb_compras` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_almacen` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_permisos` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_usuarios` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_documentos_comerciales` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_documento_comercial_items` AUTO_INCREMENT = 1;
+ALTER TABLE `tb_documentos_comerciales_historial` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_clientes` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_proveedores` AUTO_INCREMENT = 1;
 ALTER TABLE `tb_categorias` AUTO_INCREMENT = 1;

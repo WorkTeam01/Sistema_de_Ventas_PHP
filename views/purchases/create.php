@@ -29,6 +29,15 @@
                 <input type="hidden" name="csrf_token"
                        value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
 
+                <?php if ($prefill_document_id > 0): ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Datos sugeridos desde la orden de compra
+                        <a href="<?= BASE_URL ?>/documents/show/<?= (int)$prefill_document_id ?>">OC-<?= str_pad((string)$prefill_document_id, 6, '0', STR_PAD_LEFT) ?></a>.
+                        Confirme la cantidad y el precio recibidos e ingrese el comprobante real del proveedor.
+                    </div>
+                <?php endif; ?>
+
                 <div class="row">
                     <!-- ============================================ -->
                     <!-- COLUMNA IZQUIERDA: Campos del formulario     -->
@@ -83,7 +92,8 @@
                                                         <i class="fas fa-list"></i>
                                                     </span>
                                                 </div>
-                                                <input type="text" id="comprobante" name="comprobante" class="form-control" required>
+                                                <input type="text" id="comprobante" name="comprobante" class="form-control"
+                                                       placeholder="Ej.: Factura 12345 o boleta 987" required>
                                             </div>
                                         </div>
                                     </div>
@@ -103,6 +113,10 @@
                                 </div>
                             </div>
                             <div class="card-body">
+                                <p class="text-muted">
+                                    Cada ingreso registra un producto. Si un comprobante incluye varios productos,
+                                    registre cada línea por separado y use el mismo folio del proveedor.
+                                </p>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -112,7 +126,7 @@
                                                         class="form-control select2 mr-2" required>
                                                     <option value="">Seleccionar producto...</option>
                                                     <?php
-                                                    $preselectedProducto = (int)($_GET['id_producto'] ?? 0);
+                                                    $preselectedProducto = (int)$prefill_product_id;
                                                     foreach ($products as $product) :
                                                     ?>
                                                         <option value="<?= $product['id_producto']; ?>"
@@ -137,7 +151,8 @@
                                                         class="form-control select2 mr-2" required>
                                                     <option value="">Seleccionar proveedor...</option>
                                                     <?php foreach ($suppliers as $supplier) : ?>
-                                                        <option value="<?= $supplier['id_proveedor']; ?>">
+                                                        <option value="<?= $supplier['id_proveedor']; ?>"
+                                                            <?= (int)$prefill_supplier_id === (int)$supplier['id_proveedor'] ? 'selected' : '' ?>>
                                                             <?= htmlspecialchars($supplier['nombre_proveedor'] . ' — ' . ($supplier['empresa'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -175,7 +190,8 @@
                                                     <span class="input-group-text"><?= htmlspecialchars(APP_CURRENCY_SYMBOL, ENT_QUOTES, 'UTF-8'); ?></span>
                                                 </div>
                                                 <input type="number" id="precio_compra" name="precio_compra"
-                                                       class="form-control" step="0.01" min="0" required>
+                                                       class="form-control" step="0.01" min="0"
+                                                       value="<?= htmlspecialchars((string)$prefill_price, ENT_QUOTES, 'UTF-8') ?>" required>
                                             </div>
                                         </div>
                                     </div>
@@ -188,7 +204,7 @@
                                                                 class="fas fa-sort-numeric-up-alt"></i></span>
                                                 </div>
                                                 <input type="number" id="cantidad" name="cantidad" class="form-control"
-                                                       min="1" required>
+                                                       min="1" value="<?= htmlspecialchars((string)$prefill_quantity, ENT_QUOTES, 'UTF-8') ?>" required>
                                             </div>
                                         </div>
                                     </div>

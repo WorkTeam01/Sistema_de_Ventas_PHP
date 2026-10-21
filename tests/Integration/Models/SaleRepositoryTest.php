@@ -86,6 +86,20 @@ final class SaleRepositoryTest extends TestCase
 
         $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
         $this->assertSame(45, (int)$row['stock']);
+        $movement = $this->pdo->query(
+            "SELECT cantidad, tipo, usuario_nombre FROM tb_movimientos_inventario WHERE id_producto = 1"
+        )->fetch();
+        $this->assertSame(-5, (int)$movement['cantidad']);
+        $this->assertSame('Venta', $movement['tipo']);
+        $this->assertSame('Vendedor', $movement['usuario_nombre']);
+    }
+
+    public function test_storeWithStock_allows_overselling_and_records_negative_stock(): void
+    {
+        $result = $this->storeSale(1, 60);
+
+        $this->assertTrue($result['ok']);
+        $this->assertSame(-10, $this->stockOf());
     }
 
     public function test_storeWithStock_returns_empty_cart_error_for_empty_cart(): void
@@ -375,6 +389,18 @@ final class SaleRepositoryTest extends TestCase
 
         $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
         $this->assertSame(50, (int)$row['stock']);
+        $this->assertSame(
+            2,
+            (int)$this->pdo->query(
+                "SELECT COUNT(*) FROM tb_movimientos_inventario WHERE id_producto = 1"
+            )->fetchColumn()
+        );
+        $this->assertSame(
+            0,
+            (int)$this->pdo->query(
+                "SELECT SUM(cantidad) FROM tb_movimientos_inventario WHERE id_producto = 1"
+            )->fetchColumn()
+        );
     }
 
     public function test_destroyWithStock_is_a_successful_noop_for_nonexistent_id(): void

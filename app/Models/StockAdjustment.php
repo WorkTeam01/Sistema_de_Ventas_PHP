@@ -96,6 +96,15 @@ class StockAdjustment extends Model
             'usuario_nombre'  => $usuario_nombre,
         ]);
 
+        (new InventoryMovement())->record(
+            $idProducto,
+            $delta,
+            $tipo === 'entrada' ? 'Ajuste de entrada' : 'Ajuste de salida',
+            $motivo,
+            $id_usuario !== null ? (int)$id_usuario : null,
+            (string)$usuario_nombre
+        );
+
         ActivityLog::record(
             'stock_adjustment',
             'product',
@@ -142,7 +151,8 @@ class StockAdjustment extends Model
         $limitClause = $limit > 0 ? "LIMIT {$limit}" : '';
 
         return $this->query(
-            "SELECT aj.*, al.nombre AS producto_nombre, al.codigo AS producto_codigo
+            "SELECT aj.*, al.nombre AS producto_nombre, al.codigo AS producto_codigo,
+                    al.unidad_medida
              FROM tb_ajustes_stock aj
              INNER JOIN tb_almacen al ON aj.id_producto = al.id_producto
              {$where}

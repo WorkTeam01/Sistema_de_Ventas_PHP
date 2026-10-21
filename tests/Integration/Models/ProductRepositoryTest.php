@@ -113,6 +113,11 @@ final class ProductRepositoryTest extends TestCase
         $this->assertSame(0, (int)$rows[0]['stock_anterior']);
         $this->assertSame(5, (int)$rows[0]['stock_posterior']);
         $this->assertSame('Stock inicial', $rows[0]['motivo']);
+        $movement = $this->pdo->query(
+            "SELECT cantidad, tipo FROM tb_movimientos_inventario WHERE id_producto = $id"
+        )->fetch();
+        $this->assertSame(5, (int)$movement['cantidad']);
+        $this->assertSame('Ajuste de entrada', $movement['tipo']);
     }
 
     public function test_createProduct_con_stock_cero_no_registra_ajuste(): void
@@ -194,6 +199,24 @@ final class ProductRepositoryTest extends TestCase
     public function test_validateData_skips_stock_when_absent(): void
     {
         $this->assertTrue($this->product->validateData(['precio_compra' => 5, 'precio_venta' => 8]));
+    }
+
+    public function test_validateData_accepts_supported_unit_and_rejects_unknown_unit(): void
+    {
+        $valid = $this->product->validateData([
+            'precio_compra' => 5,
+            'precio_venta' => 8,
+            'unidad_medida' => 'metro',
+        ]);
+        $invalid = $this->product->validateData([
+            'precio_compra' => 5,
+            'precio_venta' => 8,
+            'unidad_medida' => 'palet',
+        ]);
+
+        $this->assertTrue($valid);
+        $this->assertIsArray($invalid);
+        $this->assertArrayHasKey('unidad_medida', $invalid);
     }
 
     // -------------------------------------------------------------------------

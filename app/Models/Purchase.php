@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Core\Auth;
 use App\Core\Model;
 use App\Helpers\MonthSeries;
 
@@ -27,7 +28,7 @@ class Purchase extends Model
      */
     public function allWithDetails(?int $userId = null): array
     {
-        $sql = "SELECT co.*, al.codigo, al.nombre AS nombre_producto, al.imagen,
+        $sql = "SELECT co.*, al.codigo, al.nombre AS nombre_producto, al.unidad_medida, al.imagen,
                        pro.nombre_proveedor, us.email AS email_usuario
                 FROM tb_compras co
                 INNER JOIN tb_almacen al ON co.id_producto = al.id_producto
@@ -38,6 +39,7 @@ class Purchase extends Model
             $sql .= " WHERE co.id_usuario = ?";
             $params[] = $userId;
         }
+
         $sql .= " ORDER BY co.id_compra DESC";
         return $this->query($sql, $params);
     }
@@ -51,7 +53,7 @@ class Purchase extends Model
     public function findWithDetails(int $id): ?array
     {
         $rows = $this->query(
-            "SELECT co.*, al.codigo, al.nombre AS nombre_producto,
+            "SELECT co.*, al.codigo, al.nombre AS nombre_producto, al.unidad_medida,
                     al.imagen, al.stock, al.stock_minimo, al.stock_maximo,
                     al.precio_compra AS precio_compra_producto, al.precio_venta,
                     al.descripcion AS descripcion_producto,
@@ -112,6 +114,15 @@ class Purchase extends Model
             $db->prepare(
                 "UPDATE tb_almacen SET stock = stock + ? WHERE id_producto = ?"
             )->execute([$data['cantidad'], $data['id_producto']]);
+            (new InventoryMovement())->record(
+                (int)$data['id_producto'],
+                (int)$data['cantidad'],
+                'Compra',
+                (string)$data['comprobante'],
+                (int)$data['id_usuario'],
+                $this->userName((int)$data['id_usuario']),
+                (string)$data['fecha_compra'] . ' 00:00:00'
+            );
             $db->commit();
             return $idCompra;
         } catch (\Throwable $e) {
@@ -166,15 +177,25 @@ class Purchase extends Model
                 $data['id_compra'],
             ]);
 
-            $deltas = ($data['id_producto'] === $oldProductId)
-                ? [[$oldProductId, $data['cantidad'] - $oldCantidad]]
-                : [[$oldProductId, -$oldCantidad], [$data['id_producto'], $data['cantidad']]];
+            $newProductId = (int)$data['id_producto'];
+            $newQuantity = (int)$data['cantidad'];
+            $deltas = ($newProductId === $oldProductId)
+                ? [[$oldProductId, $newQuantity - $oldCantidad]]
+                : [[$oldProductId, -$oldCantidad], [$newProductId, $newQuantity]];
 
             foreach ($deltas as [$productId, $delta]) {
                 $failure = $this->applyStockDelta((int)$productId, (int)$delta);
                 if ($failure !== null) {
                     $db->rollBack();
                     return $failure;
+                }
+                if ($delta !== 0) {
+                    $this->recordCorrectionMovement(
+                        (int)$productId,
+                        (int)$delta,
+                        (int)$current['nro_compra'],
+                        $current
+                    );
                 }
             }
 
@@ -197,7 +218,9 @@ class Purchase extends Model
     private function lockPurchase(int $id): ?array
     {
         $lock = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite' ? '' : ' FOR UPDATE';
-        $stmt = $this->db->prepare("SELECT id_producto, cantidad FROM tb_compras WHERE id_compra = ?" . $lock);
+        $stmt = $this->db->prepare(
+            "SELECT id_producto, cantidad, nro_compra, id_usuario FROM tb_compras WHERE id_compra = ?" . $lock
+        );
         $stmt->execute([$id]);
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
@@ -314,6 +337,12 @@ class Purchase extends Model
                 $db->rollBack();
                 return $failure;
             }
+            $this->recordCorrectionMovement(
+                (int)$current['id_producto'],
+                -(int)$current['cantidad'],
+                (int)$current['nro_compra'],
+                $current
+            );
 
             $db->commit();
             return ['ok' => true, 'error' => null, 'available' => null];
@@ -391,5 +420,38 @@ class Purchase extends Model
         }
 
         return empty($errors) ? true : $errors;
+    }
+
+    private function recordCorrectionMovement(int $productId, int $quantity, int $purchaseNumber, array $purchase): void
+    {
+        $user = Auth::user();
+        $actorId = isset($user['id_usuario']) ? (int)$user['id_usuario'] : (int)($purchase['id_usuario'] ?? 0);
+        $userId = $actorId > 0 ? $actorId : null;
+        $userName = (string)($user['nombres'] ?? $this->userName($userId));
+
+        (new InventoryMovement())->record(
+            $productId,
+            $quantity,
+            'Corrección de compra',
+            'Compra Nro ' . $purchaseNumber,
+            $userId,
+            $userName
+        );
+    }
+
+    private function userName(?int $userId): string
+    {
+        if ($userId === null) {
+            return 'Usuario eliminado';
+        }
+
+        $user = Auth::user();
+        if ((int)($user['id_usuario'] ?? 0) === $userId && !empty($user['nombres'])) {
+            return (string)$user['nombres'];
+        }
+
+        $rows = $this->query('SELECT nombres FROM tb_usuarios WHERE id_usuario = ?', [$userId]);
+
+        return (string)($rows[0]['nombres'] ?? 'Usuario eliminado');
     }
 }

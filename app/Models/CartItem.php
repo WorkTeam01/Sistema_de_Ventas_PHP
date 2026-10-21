@@ -23,7 +23,7 @@ class CartItem extends Model
     public function getByNroVenta(int $nroVenta): array
     {
         return $this->query(
-            "SELECT car.*, al.nombre, al.descripcion, al.stock, al.imagen, al.codigo,
+            "SELECT car.*, al.nombre, al.descripcion, al.stock, al.unidad_medida, al.imagen, al.codigo,
                     COALESCE(car.precio_unitario, al.precio_venta) AS precio_venta
              FROM tb_carrito car
              INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
@@ -37,7 +37,7 @@ class CartItem extends Model
      * Agrega un producto al carrito de la reserva abierta del usuario. Si el producto ya está,
      * acumula la cantidad en esa línea y valida el stock contra el total resultante.
      *
-     * @return array{ok: bool, error: ?string} error: forbidden|finalized|invalid_qty|stock
+     * @return array{ok: bool, error: ?string} error: forbidden|finalized|invalid_qty|stock|stock_warning
      */
     public function addItem(int $nroVenta, int $idProducto, int $cantidad, int $userId): array
     {
@@ -54,9 +54,10 @@ class CartItem extends Model
             )[0];
             $inCart = (int)$lines['cantidad'];
 
-            if (empty($product) || (int)$product[0]['stock'] < $inCart + $cantidad) {
+            if (empty($product)) {
                 return ['ok' => false, 'error' => 'stock'];
             }
+            $stockWarning = (int)$product[0]['stock'] < $inCart + $cantidad;
 
             if ($inCart > 0) {
                 $this->db->prepare('UPDATE tb_carrito SET cantidad = cantidad + ? WHERE id_carrito = ?')
@@ -65,7 +66,7 @@ class CartItem extends Model
                 $this->create(['nro_venta' => $nroVenta, 'id_producto' => $idProducto, 'cantidad' => $cantidad]);
             }
 
-            return ['ok' => true, 'error' => null];
+            return ['ok' => true, 'error' => $stockWarning ? 'stock_warning' : null];
         });
     }
 

@@ -7,6 +7,28 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [Unreleased]
+
+### Actualización desde 1.19.3
+
+Instalaciones existentes: haz un respaldo, ejecuta `composer install`, aplica una sola vez las migraciones `016_documentos_comerciales.sql` y `017_libro_movimientos_inventario.sql` en ese orden, y cambia `APP_VERSION` a `1.20.1` en `.env`. Una instalación nueva usa el `schema.sql` actualizado y no debe ejecutar esas migraciones.
+
+### Añadido
+
+- Adaptación inicial para ferretería en Chile: unidades de medida, resumen de stock inicial/ingresos/salidas/stock actual y exportaciones CSV de inventario.
+- Cotizaciones y órdenes de compra internas multiítem, con estados, impresión y registro de versiones al corregir.
+- Clasificación interna de documentos de venta, advertencias de sobreventa y guía de operación LAN/respaldo USB.
+- Libro inmutable de movimientos de inventario para conservar compras, ventas, devoluciones, ajustes y correcciones de stock.
+- Pruebas de integración para documentos comerciales, informes de inventario, unidades y sobreventa.
+- Desde una orden de compra se puede abrir el ingreso de cada producto con proveedor, cantidad y precio sugeridos; el stock cambia solo al guardar el ingreso.
+
+### Aclaraciones
+
+- Las cantidades continúan siendo enteras. Boletas, facturas y guías son registros internos; no hay emisión ni integración SII.
+- Cada ingreso de compra registra un producto; para un comprobante con varios productos, se repite el ingreso por cada línea.
+- La migración del libro de inventario estima saldos iniciales faltantes y no puede reconstruir correcciones antiguas que no se registraron.
+- La suite se validó en SQLite y MariaDB 10.11, incluidas las migraciones y el bloqueo entre editores; el uso entre dos equipos en una LAN física aún requiere validación en el local.
+
 ## [1.19.3] - 2026-10-17
 
 Reorganización de la documentación y cierre del formato SDD. Sin cambios de código, esquema ni migraciones.

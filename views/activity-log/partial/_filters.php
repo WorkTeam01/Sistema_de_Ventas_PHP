@@ -60,7 +60,7 @@
                             <?php foreach ($entities as $e): ?>
                                 <option value="<?= htmlspecialchars($e['entidad'], ENT_QUOTES, 'UTF-8') ?>"
                                     <?= ($filters['entity'] === $e['entidad']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars(ucfirst($e['entidad']), ENT_QUOTES, 'UTF-8') ?>
+                                    <?= htmlspecialchars(\App\Helpers\ActivityLogRenderer::entityLabel($e['entidad']), ENT_QUOTES, 'UTF-8') ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

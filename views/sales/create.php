@@ -146,7 +146,7 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="form-group mb-2">
-                                                                <label for="cliente_nit" class="small text-muted mb-1">Nit / CI</label>
+                                                                <label for="cliente_nit" class="small text-muted mb-1">RUT</label>
                                                                 <input type="text" id="cliente_nit"
                                                                     class="form-control form-control-sm"
                                                                     autocomplete="off" readonly>
@@ -217,7 +217,7 @@
                                                             <td class="d-none d-md-table-cell">
                                                                 <?= htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') ?>
                                                             </td>
-                                                            <td class="text-center"><?= (int)$item['cantidad'] ?></td>
+                                                            <td class="text-center"><?= (int)$item['cantidad'] ?> <?= htmlspecialchars($item['unidad_medida'], ENT_QUOTES, 'UTF-8') ?></td>
                                                             <td class="text-center">
                                                                 <?= APP_CURRENCY_SYMBOL ?> <?= number_format((float)$item['precio_venta'], 2) ?>
                                                             </td>
@@ -292,6 +292,24 @@
                                         <?php else : ?>
                                             <div class="row justify-content-center">
                                                 <div class="col-md-8">
+
+                                                    <div class="form-group">
+                                                        <label for="tipo_documento">Tipo de documento interno</label>
+                                                        <select id="tipo_documento" name="tipo_documento" class="form-control" required>
+                                                            <option value="boleta">Boleta — registro interno</option>
+                                                            <option value="factura">Factura — registro interno</option>
+                                                            <option value="guia">Guía de despacho — registro interno</option>
+                                                            <option value="credito">Crédito — registro interno</option>
+                                                            <option value="otro">Otro documento — registro interno</option>
+                                                        </select>
+                                                        <small class="form-text text-muted">
+                                                            Esta clasificación es interna. El cobro exige pago completo; “Crédito” no crea cuentas por cobrar.
+                                                            Ninguna opción emite ni envía documentos al SII.
+                                                        </small>
+                                                        <small class="form-text text-warning">
+                                                            No emite un DTE ni transmite información al SII. La emisión tributaria requiere una integración externa validada.
+                                                        </small>
+                                                    </div>
 
                                                     <div class="form-group">
                                                         <label for="total_a_cancelar_display" class="text-muted small mb-1">Monto a cancelar</label>
@@ -498,7 +516,7 @@
                                 <th class="text-center">#</th>
                                 <th class="text-center">Seleccionar</th>
                                 <th class="text-center">Nombre del cliente</th>
-                                <th class="text-center">Nit / CI</th>
+                                <th class="text-center">RUT / identificación</th>
                                 <th class="text-center">Celular</th>
                                 <th class="text-center">Correo</th>
                             </tr>
@@ -594,7 +612,7 @@
                                             width="50" class="rounded" alt="" loading="lazy">
                                     </td>
                                     <td><?= htmlspecialchars($product['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
-                                    <td class="text-center"><?= (int)$product['stock'] ?></td>
+                                    <td class="text-center"><?= (int)$product['stock'] ?> <?= htmlspecialchars($product['unidad_medida'], ENT_QUOTES, 'UTF-8') ?></td>
                                     <td class="text-center">
                                         <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars($product['precio_venta'], ENT_QUOTES, 'UTF-8') ?>
                                     </td>
@@ -671,9 +689,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="nc_nit_ci">NIT/CI <span class="text-danger">*</span></label>
+                                <label for="nc_nit_ci">RUT <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="nc_nit_ci" name="nit_ci_cliente"
-                                    maxlength="50" placeholder="Número de NIT o CI">
+                                    maxlength="50" placeholder="RUT del cliente">
                             </div>
                         </div>
                     </div>

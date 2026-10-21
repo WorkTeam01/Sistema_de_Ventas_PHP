@@ -38,8 +38,8 @@
                             </h2>
                             <div class="card-tools">
                                 <a href="<?= BASE_URL ?>/sales/invoice/<?= (int)$id_venta ?>" target="_blank"
-                                    class="btn btn-success btn-sm" aria-label="Imprimir factura">
-                                    <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Imprimir factura</span>
+                                    class="btn btn-success btn-sm" aria-label="Imprimir comprobante interno">
+                                    <i class="fas fa-print" aria-hidden="true"></i><span class="d-none d-sm-inline ml-1"> Imprimir comprobante interno</span>
                                 </a>
                                 <?php if ($can['manage_sales']): ?>
                                 <a href="<?= BASE_URL ?>/sales/delete/<?= (int)$id_venta ?>"
@@ -70,6 +70,9 @@
                                 <dt class="col-sm-5 text-muted">N° Venta</dt>
                                 <dd class="col-sm-7"><?= htmlspecialchars($nro_venta, ENT_QUOTES, 'UTF-8') ?></dd>
 
+                                <dt class="col-sm-5 text-muted">Documento interno</dt>
+                                <dd class="col-sm-7"><?= htmlspecialchars($tipo_documento_label, ENT_QUOTES, 'UTF-8') ?></dd>
+
                                 <dt class="col-sm-5 text-muted">Total pagado</dt>
                                 <dd class="col-sm-7">
                                     <span class="badge badge-warning px-2 py-1" style="font-size:.85rem;">
@@ -98,7 +101,7 @@
                                 <dt class="col-sm-4 text-muted">Nombre</dt>
                                 <dd class="col-sm-8"><?= htmlspecialchars($nombre_cliente ?? 'Consumidor final', ENT_QUOTES, 'UTF-8') ?></dd>
 
-                                <dt class="col-sm-4 text-muted">NIT/CI</dt>
+                                <dt class="col-sm-4 text-muted">RUT / identificación</dt>
                                 <dd class="col-sm-8"><?= htmlspecialchars($nit_ci_cliente ?? '—', ENT_QUOTES, 'UTF-8') ?></dd>
 
                                 <dt class="col-sm-4 text-muted">Celular</dt>
@@ -155,7 +158,7 @@
                                                         <small class="text-muted"><?= htmlspecialchars($item['codigo'], ENT_QUOTES, 'UTF-8') ?></small>
                                                     </td>
                                                     <td class="align-middle text-muted small d-none d-md-table-cell"><?= htmlspecialchars($item['descripcion'], ENT_QUOTES, 'UTF-8') ?></td>
-                                                    <td class="text-center align-middle"><?= (int)$item['cantidad'] ?></td>
+                                                    <td class="text-center align-middle"><?= (int)$item['cantidad'] ?> <?= htmlspecialchars($item['unidad_medida'], ENT_QUOTES, 'UTF-8') ?></td>
                                                     <td class="text-center align-middle d-none d-md-table-cell">
                                                         <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$item['precio_venta'], 2), ENT_QUOTES, 'UTF-8') ?></td>
                                                     <td class="text-center align-middle">

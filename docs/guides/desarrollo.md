@@ -69,7 +69,7 @@ Ver `.env.example` para el listado completo. Claves relevantes:
 - `APP_DEBUG=true` solo escribe el enlace de restablecimiento en el log de errores de PHP
   (`error_log`) además de enviarlo por email; **nunca** se muestra en pantalla. Usar `false` en producción.
 - `MAIL_PASSWORD` debe ser una **Contraseña de Aplicación** de Google.
-- `APP_CURRENCY_SYMBOL` — símbolo de moneda (default `Bs.`).
+- `APP_CURRENCY_SYMBOL` — etiqueta de moneda (Chile: `CLP`).
 - `SESSION_LIFETIME` / `REMEMBER_LIFETIME` — minutos de inactividad (default 60) / días de "recordarme" (default 14).
 - `LOGIN_MAX_PER_EMAIL`, `LOGIN_MAX_PER_IP`, `LOGIN_WINDOW_MINUTES`, `RESET_TOKEN_MINUTES`,
   `RESET_COOLDOWN_MINUTES`, `RESET_MAX_PER_IP_HOUR` — umbrales de login y restablecimiento (opcionales; un valor

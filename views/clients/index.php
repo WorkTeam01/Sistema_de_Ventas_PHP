@@ -48,7 +48,7 @@
                                 <tr>
                                     <th class="text-center">Nro</th>
                                     <th class="text-center">Nombre</th>
-                                    <th class="text-center">NIT/CI</th>
+                                    <th class="text-center">RUT</th>
                                     <th class="text-center">Celular</th>
                                     <th class="text-center">Correo</th>
                                     <?php if ($can['manage_clients']): ?>
@@ -127,9 +127,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="create_nit_ci_cliente">NIT/CI <span class="text-danger">*</span></label>
+                                <label for="create_nit_ci_cliente">RUT <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="create_nit_ci_cliente" name="nit_ci_cliente"
-                                       maxlength="50" placeholder="Número de NIT o CI" required>
+                                       maxlength="50" placeholder="RUT del cliente" required>
                             </div>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="edit_nit_ci_cliente">NIT/CI <span class="text-danger">*</span></label>
+                                <label for="edit_nit_ci_cliente">RUT <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="edit_nit_ci_cliente" name="nit_ci_cliente"
                                        maxlength="50" required>
                             </div>

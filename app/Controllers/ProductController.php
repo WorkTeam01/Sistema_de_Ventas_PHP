@@ -40,6 +40,7 @@ class ProductController extends Controller
             $this->sessionData(),
             [
                 'next_code' => $productModel->nextCode(),
+                'units' => Product::UNITS,
                 'categories' => $categoryModel->all(),
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'csrf_token' => Auth::generateCsrfToken(),
@@ -59,6 +60,7 @@ class ProductController extends Controller
         $nombre = trim($_POST['nombre'] ?? '');
         $id_categoria = (int)($_POST['id_categoria'] ?? 0);
         $descripcion = trim($_POST['descripcion'] ?? '');
+        $unidadMedida = trim($_POST['unidad_medida'] ?? '');
         $stock = $_POST['stock'] ?? '';
         $stock_minimo = $_POST['stock_minimo'] ?? null;
         $stock_maximo = $_POST['stock_maximo'] ?? null;
@@ -74,6 +76,7 @@ class ProductController extends Controller
 
         $validation = (new Product())->validateData([
             'stock' => $stock,
+            'unidad_medida' => $unidadMedida,
             'precio_compra' => $precio_compra,
             'precio_venta' => $precio_venta,
         ]);
@@ -123,6 +126,7 @@ class ProductController extends Controller
         $newId = $productModel->createProduct([
             'codigo' => $codigo,
             'nombre' => $nombre,
+            'unidad_medida' => $unidadMedida,
             'descripcion' => $descripcion,
             'stock' => $stock,
             'stock_minimo' => $stock_minimo,
@@ -145,6 +149,7 @@ class ProductController extends Controller
                 [
                     'codigo' => $codigo,
                     'nombre' => $nombre,
+                    'unidad_medida' => $unidadMedida,
                     'stock' => $stock,
                     'precio_compra' => $precio_compra,
                     'precio_venta' => $precio_venta,
@@ -189,6 +194,7 @@ class ProductController extends Controller
                 'id_producto' => (int)$product['id_producto'],
                 'codigo' => $product['codigo'],
                 'nombre' => $product['nombre'],
+                'unidad_medida' => $product['unidad_medida'],
                 'descripcion' => $product['descripcion'],
                 'stock' => $product['stock'],
                 'stock_minimo' => $product['stock_minimo'],
@@ -237,6 +243,7 @@ class ProductController extends Controller
                 'id_producto' => (int)$product['id_producto'],
                 'codigo' => $product['codigo'],
                 'nombre' => $product['nombre'],
+                'unidad_medida' => $product['unidad_medida'],
                 'descripcion' => $product['descripcion'],
                 'stock' => $product['stock'],
                 'stock_minimo' => $product['stock_minimo'],
@@ -247,6 +254,7 @@ class ProductController extends Controller
                 'imagen' => $product['imagen'],
                 'id_categoria' => (int)$product['id_categoria'],
                 'categories' => $categoryModel->all(),
+                'units' => Product::UNITS,
                 'email_sesion' => Auth::user()['email'] ?? '',
                 'csrf_token' => Auth::generateCsrfToken(),
                 'pageStyles' => ['/css/modules/products/create.css'],
@@ -266,6 +274,7 @@ class ProductController extends Controller
         $nombre = trim($_POST['nombre'] ?? '');
         $id_categoria = (int)($_POST['id_categoria'] ?? 0);
         $descripcion = trim($_POST['descripcion'] ?? '');
+        $unidadMedida = trim($_POST['unidad_medida'] ?? '');
         $stock_minimo = $_POST['stock_minimo'] ?? null;
         $stock_maximo = $_POST['stock_maximo'] ?? null;
         $precio_compra = $_POST['precio_compra'] ?? '';
@@ -279,6 +288,7 @@ class ProductController extends Controller
         }
 
         $validation = (new Product())->validateData([
+            'unidad_medida' => $unidadMedida,
             'precio_compra' => $precio_compra,
             'precio_venta' => $precio_venta,
         ]);
@@ -328,6 +338,7 @@ class ProductController extends Controller
 
         if ($productModel->updateProduct($id_producto, [
             'nombre' => $nombre,
+            'unidad_medida' => $unidadMedida,
             'descripcion' => $descripcion,
             'stock_minimo' => $stock_minimo,
             'stock_maximo' => $stock_maximo,
@@ -340,6 +351,7 @@ class ProductController extends Controller
             if ($actual) {
                 $before = [
                     'nombre'        => $actual['nombre'],
+                    'unidad_medida' => $actual['unidad_medida'],
                     'descripcion'   => $actual['descripcion'] ?: null,
                     'stock_minimo'  => $actual['stock_minimo'] !== null ? (int)$actual['stock_minimo'] : null,
                     'stock_maximo'  => $actual['stock_maximo'] !== null ? (int)$actual['stock_maximo'] : null,
@@ -349,6 +361,7 @@ class ProductController extends Controller
                 ];
                 $after = [
                     'nombre'        => $nombre,
+                    'unidad_medida' => $unidadMedida,
                     'descripcion'   => $descripcion !== '' ? $descripcion : null,
                     'stock_minimo'  => $stock_minimo !== '' && $stock_minimo !== null ? (int)$stock_minimo : null,
                     'stock_maximo'  => $stock_maximo !== '' && $stock_maximo !== null ? (int)$stock_maximo : null,

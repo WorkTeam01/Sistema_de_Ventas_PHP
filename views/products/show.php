@@ -86,7 +86,7 @@
                                 <span class="info-box-icon <?= $stockColor ?>"><i class="fas fa-boxes"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text"><?= $stockLabel ?></span>
-                                    <span class="info-box-number"><?= $s ?> uds.</span>
+                                    <span class="info-box-number"><?= $s ?> <?= htmlspecialchars($unidad_medida, ENT_QUOTES, 'UTF-8'); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -122,6 +122,9 @@
                                         <dt class="col-sm-4 text-muted">Nombre</dt>
                                         <dd class="col-sm-8"><?= htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?></dd>
 
+                                        <dt class="col-sm-4 text-muted">Unidad de medida</dt>
+                                        <dd class="col-sm-8"><?= htmlspecialchars($unidad_medida, ENT_QUOTES, 'UTF-8'); ?></dd>
+
                                         <dt class="col-sm-4 text-muted">Categoría</dt>
                                         <dd class="col-sm-8">
                                             <span class="badge badge-info"><?= htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8'); ?></span>
@@ -150,10 +153,10 @@
                                     ?>
                                     <dl class="row mb-3">
                                         <dt class="col-sm-4 text-muted">Stock mínimo</dt>
-                                        <dd class="col-sm-8"><?= $sn ?> uds.</dd>
+                                        <dd class="col-sm-8"><?= $sn ?> <?= htmlspecialchars($unidad_medida, ENT_QUOTES, 'UTF-8'); ?></dd>
 
                                         <dt class="col-sm-4 text-muted">Stock máximo</dt>
-                                        <dd class="col-sm-8"><?= $sx > 0 ? $sx . ' uds.' : '—'; ?></dd>
+                                        <dd class="col-sm-8"><?= $sx > 0 ? $sx . ' ' . htmlspecialchars($unidad_medida, ENT_QUOTES, 'UTF-8') : '—'; ?></dd>
 
                                         <dt class="col-sm-4 text-muted">Stock actual</dt>
                                         <dd class="col-sm-8">

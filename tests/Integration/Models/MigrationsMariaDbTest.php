@@ -30,11 +30,15 @@ final class MigrationsMariaDbTest extends TestCase
     {
         $this->pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
         foreach ([
+            'tb_documentos_comerciales_historial', 'tb_documento_comercial_items',
+            'tb_documentos_comerciales', 'tb_movimientos_inventario',
             'tb_rol_permiso', 'tb_permisos', 'tb_devolucion_items', 'tb_devoluciones', 'tb_pagos',
             'tb_metodos_pago', 'tb_pos_reservas', 'tb_intentos_auth', 'tb_sesiones_recordadas',
         ] as $table) {
             $this->pdo->exec("DROP TABLE IF EXISTS `{$table}`");
         }
+        $this->pdo->exec('ALTER TABLE tb_ventas DROP COLUMN tipo_documento');
+        $this->pdo->exec('ALTER TABLE tb_almacen DROP COLUMN unidad_medida');
         $this->pdo->exec('ALTER TABLE tb_ventas DROP FOREIGN KEY tb_ventas_ibfk_3');
         $this->pdo->exec('ALTER TABLE tb_ventas DROP COLUMN id_usuario');
         $this->pdo->exec('ALTER TABLE tb_ventas DROP INDEX uq_venta_nro');

@@ -256,7 +256,7 @@ class ReportController extends Controller
 
     private function exportClients(string $format, array $filters, array $rows): void
     {
-        $headers = ['Cliente', 'NIT/CI', 'Email', 'N° Compras', 'Monto Acumulado (' . APP_CURRENCY_SYMBOL . ')', 'Última Compra'];
+        $headers = ['Cliente', 'RUT', 'Email', 'N° Compras', 'Monto Acumulado (' . APP_CURRENCY_SYMBOL . ')', 'Última Compra'];
         $data = array_map(fn($r) => [
             $r['cliente'],
             $r['nit_ci'],

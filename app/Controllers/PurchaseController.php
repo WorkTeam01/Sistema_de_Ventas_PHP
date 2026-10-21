@@ -39,11 +39,25 @@ class PurchaseController extends Controller
         $purchaseModel = new Purchase();
         $productModel = new Product();
         $supplierModel = new Supplier();
+        $prefillProductId = filter_var($_GET['id_producto'] ?? null, FILTER_VALIDATE_INT);
+        $prefillSupplierId = filter_var($_GET['id_proveedor'] ?? null, FILTER_VALIDATE_INT);
+        $prefillQuantity = filter_var($_GET['cantidad'] ?? null, FILTER_VALIDATE_INT);
+        $prefillPrice = $_GET['precio_compra'] ?? null;
+        $prefillPrice = is_string($prefillPrice) && is_numeric($prefillPrice)
+            && is_finite((float)$prefillPrice) && (float)$prefillPrice >= 0
+            ? number_format((float)$prefillPrice, 2, '.', '')
+            : '';
+        $prefillDocumentId = filter_var($_GET['origen_oc'] ?? null, FILTER_VALIDATE_INT);
 
         $this->renderWithLayout('views/purchases/create.php', array_merge(
             $this->sessionData(),
             [
                 'next_number' => $purchaseModel->nextNumber(),
+                'prefill_product_id' => $prefillProductId !== false && $prefillProductId > 0 ? $prefillProductId : 0,
+                'prefill_supplier_id' => $prefillSupplierId !== false && $prefillSupplierId > 0 ? $prefillSupplierId : 0,
+                'prefill_quantity' => $prefillQuantity !== false && $prefillQuantity > 0 ? $prefillQuantity : '',
+                'prefill_price' => $prefillPrice,
+                'prefill_document_id' => $prefillDocumentId !== false && $prefillDocumentId > 0 ? $prefillDocumentId : 0,
                 'products' => $productModel->all(),
                 'suppliers' => $supplierModel->all(),
                 'email_sesion' => Auth::user()['email'] ?? '',
@@ -157,6 +171,7 @@ class PurchaseController extends Controller
                 'id_producto' => (int)$purchase['id_producto'],
                 'codigo' => $purchase['codigo'],
                 'nombre_producto' => $purchase['nombre_producto'],
+                'unidad_medida' => $purchase['unidad_medida'],
                 'descripcion_producto' => $purchase['descripcion_producto'],
                 'imagen' => $purchase['imagen'],
                 'stock' => $purchase['stock'],

@@ -1,4 +1,7 @@
 {
+  "name": "workteam01/sistema-de-ventas-php",
+  "description": "Sistema web de gestión de ventas, compras e inventario para pequeñas y medianas empresas.",
+  "license": "MIT",
   "require": {
     "php": ">=8.2",
     "ext-fileinfo": "*",

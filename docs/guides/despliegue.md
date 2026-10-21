@@ -22,7 +22,7 @@ Solo el artefacto de producción, sin `docs/`, `specs/`, `tests/`, `.github/` ni
 (`.gitattributes` ya los marca con `export-ignore`):
 
 ```bash
-git archive --format=tar.gz -o sistema.tar.gz 1.19.3   # tag sin prefijo v
+git archive --format=tar.gz -o sistema.tar.gz 1.20.0   # tag sin prefijo v
 ```
 
 En el servidor: `composer install --no-dev --optimize-autoloader`. No subas `vendor/` de desarrollo ni `.env`.
@@ -75,8 +75,8 @@ Usa un correo en minúsculas y una contraseña de al menos 8 caracteres. Luego c
 usuarios de Vendedor y Comprador.
 
 **Migraciones:** una instalación nueva con `schema.sql` ya las incluye; no las ejecutes. Al actualizar,
-aplica en orden solo las posteriores a tu versión (lista y reglas en el README, § Actualización). La `015`
-se ejecuta una sola vez.
+aplica en orden solo las posteriores a tu versión (lista y reglas en el README, § Actualización). Las
+migraciones `015`, `016` y `017` se ejecutan una sola vez.
 
 ## 5. `.env` de producción
 
@@ -88,8 +88,9 @@ DB_NAME=sistemadeventas
 DB_USER=usuario_propio
 DB_PASS=contraseña_fuerte
 APP_URL=https://tudominio.com        # sin /public si el docroot ya es public/
-APP_TIMEZONE=America/La_Paz
-APP_VERSION=1.19.3                    # súbela en cada despliegue: invalida la caché de CSS/JS
+APP_TIMEZONE=America/Santiago
+APP_CURRENCY_SYMBOL=CLP
+APP_VERSION=1.20.1                    # súbela en cada despliegue: invalida la caché de CSS/JS
 APP_DEBUG=false
 ```
 

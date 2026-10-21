@@ -69,7 +69,7 @@ trait RefreshMariaDatabase
 
         try {
             $pdo = new PDO(
-                "mysql:host={$host};port={$port}",
+                "mysql:host={$host};port={$port};charset=utf8mb4",
                 $user,
                 $pass,
                 [

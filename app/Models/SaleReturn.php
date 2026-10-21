@@ -250,6 +250,14 @@ class SaleReturn extends Model
                     $line['precio_unitario'],
                 ]);
                 $restoreStock->execute([$line['cantidad'], $line['id_producto']]);
+                (new InventoryMovement())->record(
+                    (int)$line['id_producto'],
+                    (int)$line['cantidad'],
+                    'Devolución',
+                    'Devolución Nro ' . $id,
+                    isset($user['id_usuario']) ? (int)$user['id_usuario'] : null,
+                    (string)($user['nombres'] ?? '')
+                );
             }
 
             $db->prepare(
