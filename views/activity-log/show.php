@@ -56,7 +56,7 @@
                                 </tr>
                                 <tr>
                                     <th class="bg-light">Entidad</th>
-                                    <td><?= htmlspecialchars(ucfirst($entidad), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars(\App\Helpers\ActivityLogRenderer::entityLabel($entidad), ENT_QUOTES, 'UTF-8') ?></td>
                                 </tr>
                                 <tr>
                                     <th class="bg-light">ID Entidad</th>

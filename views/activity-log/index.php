@@ -74,7 +74,7 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <?= htmlspecialchars(ucfirst($log['entidad']), ENT_QUOTES, 'UTF-8') ?>
+                                                <?= htmlspecialchars(\App\Helpers\ActivityLogRenderer::entityLabel($log['entidad']), ENT_QUOTES, 'UTF-8') ?>
                                             </td>
                                             <td class="text-center">
                                                 <?= $log['entidad_id'] !== null ? (int)$log['entidad_id'] : '—' ?>

@@ -11,6 +11,26 @@ use App\Core\Model;
  */
 class Product extends Model
 {
+    public const UNITS = [
+        'unidad' => 'Unidad',
+        'metro' => 'Metro',
+        'centimetro' => 'Centímetro',
+        'milimetro' => 'Milímetro',
+        'm2' => 'Metro cuadrado',
+        'm3' => 'Metro cúbico',
+        'kilo' => 'Kilogramo',
+        'litro' => 'Litro',
+        'rollo' => 'Rollo',
+        'barra' => 'Barra',
+        'plancha' => 'Plancha',
+        'paquete' => 'Paquete',
+        'pulgada' => 'Pulgada',
+        'caja' => 'Caja',
+        'par' => 'Par',
+        'saco' => 'Saco',
+        'set' => 'Set',
+    ];
+
     /**
      * Clasifica el stock frente a su mínimo y máximo.
      *
@@ -19,13 +39,13 @@ class Product extends Model
     public static function stockLevel(int $stock, int $min, int $max): array
     {
         if ($stock < $min) {
-            return ['level' => 'low', 'pct' => $max > 0 ? min(round($stock / $max * 100, 1), 100.0) : 0.0];
+            return ['level' => 'low', 'pct' => $max > 0 ? max(0.0, min(round($stock / $max * 100, 1), 100.0)) : 0.0];
         }
         if ($max > 0 && $stock > $max) {
             return ['level' => 'high', 'pct' => 100.0];
         }
 
-        return ['level' => 'ok', 'pct' => $max > 0 ? min(round($stock / $max * 100, 1), 100.0) : 0.0];
+        return ['level' => 'ok', 'pct' => $max > 0 ? max(0.0, min(round($stock / $max * 100, 1), 100.0)) : 0.0];
     }
 
     /**
@@ -43,7 +63,7 @@ class Product extends Model
             $hasMax = isset($p['stock_maximo']);
             $max    = $hasMax ? (int)$p['stock_maximo'] : ($min * 2 ?: 100);
 
-            $p['stock_pct']       = $max > 0 ? min(round(($stock / $max) * 100), 100) : 0;
+            $p['stock_pct']       = $max > 0 ? max(0, min(round(($stock / $max) * 100), 100)) : 0;
             $p['stock_is_low']    = $stock <= $min;
             $p['stock_bar_class'] = $stock <= $min ? 'bg-danger' : ($stock <= (int)($min * 1.5) ? 'bg-warning' : 'bg-success');
             $p['stock_text']      = $hasMax ? $stock . '/' . (int)$p['stock_maximo'] : (string)$stock;
@@ -119,7 +139,7 @@ class Product extends Model
     public function lowStockProducts(int $limit = 10): array
     {
         return $this->query(
-            "SELECT al.id_producto, al.codigo, al.nombre, al.stock,
+            "SELECT al.id_producto, al.codigo, al.nombre, al.unidad_medida, al.stock,
                     COALESCE(al.stock_minimo, 5) AS stock_minimo, al.imagen,
                     cat.nombre_categoria
              FROM tb_almacen al
@@ -229,6 +249,10 @@ class Product extends Model
             }
         }
 
+        if (array_key_exists('unidad_medida', $data) && !isset(self::UNITS[(string)$data['unidad_medida']])) {
+            $errors['unidad_medida'] = 'Seleccione una unidad de medida válida.';
+        }
+
         return empty($errors) ? true : $errors;
     }
 
@@ -252,6 +276,7 @@ class Product extends Model
             // Se inserta en 0 y el stock inicial entra como ajuste para que el historial lo explique.
             $id = $this->create([
                 'codigo' => $data['codigo'],
+                'unidad_medida' => $data['unidad_medida'] ?? 'unidad',
                 'nombre' => $data['nombre'],
                 'descripcion' => !empty($data['descripcion']) ? $data['descripcion'] : null,
                 'stock' => 0,
@@ -302,6 +327,7 @@ class Product extends Model
     {
         return $this->update($id, [
             'nombre' => $data['nombre'],
+            'unidad_medida' => $data['unidad_medida'] ?? 'unidad',
             'descripcion' => !empty($data['descripcion']) ? $data['descripcion'] : null,
             'stock_minimo' => $data['stock_minimo'] !== '' && $data['stock_minimo'] !== null ? (int)$data['stock_minimo'] : null,
             'stock_maximo' => $data['stock_maximo'] !== '' && $data['stock_maximo'] !== null ? (int)$data['stock_maximo'] : null,
@@ -322,14 +348,14 @@ class Product extends Model
     public function inventoryList(string $estado = 'todos'): array
     {
         $where = match ($estado) {
-            'agotado' => 'WHERE al.stock = 0',
+            'agotado' => 'WHERE al.stock <= 0',
             'bajo'    => 'WHERE al.stock > 0 AND al.stock <= COALESCE(al.stock_minimo, 5)',
             default   => '',
         };
 
         return $this->query(
-            "SELECT al.id_producto, al.codigo, al.nombre, al.stock,
-                    al.stock_minimo, al.stock_maximo, al.precio_compra,
+            "SELECT al.id_producto, al.codigo, al.nombre, al.unidad_medida, al.stock,
+                    COALESCE(al.stock_minimo, 5) AS stock_minimo, al.stock_maximo, al.precio_compra,
                     cat.nombre_categoria
              FROM tb_almacen al
              INNER JOIN tb_categorias cat ON al.id_categoria = cat.id_categoria
@@ -348,7 +374,7 @@ class Product extends Model
         $rows = $this->query(
             "SELECT
                COUNT(*) AS total,
-               SUM(CASE WHEN stock = 0 THEN 1 ELSE 0 END) AS agotados,
+               SUM(CASE WHEN stock <= 0 THEN 1 ELSE 0 END) AS agotados,
                SUM(CASE WHEN stock > 0 AND stock <= COALESCE(stock_minimo, 5) THEN 1 ELSE 0 END) AS bajo_minimo,
                SUM(stock * precio_compra) AS valor_total
              FROM tb_almacen"

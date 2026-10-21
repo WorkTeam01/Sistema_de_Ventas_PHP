@@ -30,7 +30,7 @@ $(function () {
                 }, {
                     extend: 'excel',
                     title: 'Reporte de Ventas - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
                 }, {
                     extend: 'csv',
@@ -39,7 +39,7 @@ $(function () {
                     extend: 'print',
                     text: 'Imprimir',
                     title: 'Reporte de Ventas - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
                     customize: function (win) {
                         $(win.document.body).find('table')
@@ -78,7 +78,7 @@ $(function () {
                 }, {
                     extend: 'excel',
                     title: 'Reporte de Compras - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4] }
                 }, {
                     extend: 'csv',
@@ -87,7 +87,7 @@ $(function () {
                     extend: 'print',
                     text: 'Imprimir',
                     title: 'Reporte de Compras - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4] },
                     customize: function (win) {
                         $(win.document.body).find('table')
@@ -130,7 +130,7 @@ $(function () {
                 }, {
                     extend: 'excel',
                     title: 'Top Productos más Vendidos - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4] }
                 }, {
                     extend: 'csv',
@@ -139,7 +139,7 @@ $(function () {
                     extend: 'print',
                     text: 'Imprimir',
                     title: 'Top Productos más Vendidos - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4] },
                     customize: function (win) {
                         $(win.document.body).find('table')
@@ -178,7 +178,7 @@ $(function () {
                 }, {
                     extend: 'excel',
                     title: 'Reporte de Clientes - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
                 }, {
                     extend: 'csv',
@@ -187,7 +187,7 @@ $(function () {
                     extend: 'print',
                     text: 'Imprimir',
                     title: 'Reporte de Clientes - Sistema de Ventas',
-                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-BO'),
+                    messageTop: 'Reporte generado el ' + new Date().toLocaleDateString('es-CL'),
                     exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
                     customize: function (win) {
                         $(win.document.body).find('table')

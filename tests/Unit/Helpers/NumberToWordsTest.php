@@ -11,7 +11,7 @@ final class NumberToWordsTest extends TestCase
     {
         $result = NumberToWords::convert(0);
         $this->assertStringContainsString('CERO', $result);
-        $this->assertStringContainsString('00/100 Bs.', $result);
+        $this->assertStringContainsString('00/100 CLP', $result);
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('singleDigitProvider')]
@@ -19,7 +19,7 @@ final class NumberToWordsTest extends TestCase
     {
         $result = NumberToWords::convert($number);
         $this->assertStringContainsString($expected, $result);
-        $this->assertStringContainsString('Bs.', $result);
+        $this->assertStringContainsString('CLP', $result);
     }
 
     public static function singleDigitProvider(): array
@@ -91,41 +91,40 @@ final class NumberToWordsTest extends TestCase
     public function test_converts_decimals(): void
     {
         $result = NumberToWords::convert(1.50);
-        $this->assertStringContainsString('50/100 Bs.', $result);
+        $this->assertStringContainsString('50/100 CLP', $result);
     }
 
     public function test_decimals_with_cents(): void
     {
         $result = NumberToWords::convert(10.75);
-        $this->assertStringContainsString('75/100 Bs.', $result);
+        $this->assertStringContainsString('75/100 CLP', $result);
     }
 
     public function test_handles_large_numbers(): void
     {
         $result = NumberToWords::convert(123456.78);
-        $this->assertStringContainsString('78/100 Bs.', $result);
+        $this->assertStringContainsString('78/100 CLP', $result);
         $this->assertStringContainsString('MIL', $result);
     }
 
-    public function test_output_always_ends_with_bs(): void
+    public function test_output_always_ends_with_currency_label(): void
     {
         foreach ([0, 1, 50, 100, 1000, 99999] as $n) {
-            $this->assertStringEndsWith('Bs.', NumberToWords::convert($n));
+            $this->assertStringEndsWith('CLP', NumberToWords::convert($n));
         }
     }
 
-    public function test_output_contains_bs_suffix(): void
+    public function test_output_contains_chilean_currency_suffix(): void
     {
-        // El sufijo monetario siempre termina en "Bs." (con 's' minúscula por convención boliviana)
         $result = NumberToWords::convert(42);
-        $this->assertStringEndsWith('Bs.', $result);
+        $this->assertStringEndsWith('CLP', $result);
         $this->assertStringContainsString('CON', $result);
     }
 
     public function test_round_millions_do_not_emit_a_stray_de(): void
     {
-        $this->assertSame('UN MILLON CON 00/100 Bs.', NumberToWords::convert(1000000));
-        $this->assertSame('DOS MILLONES CON 00/100 Bs.', NumberToWords::convert(2000000));
+        $this->assertSame('UN MILLON CON 00/100 CLP', NumberToWords::convert(1000000));
+        $this->assertSame('DOS MILLONES CON 00/100 CLP', NumberToWords::convert(2000000));
     }
 
     public function test_twenties_series_is_joined_but_magnitudes_stay_separate(): void

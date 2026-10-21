@@ -41,10 +41,10 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                                             <small class="text-muted"><?= htmlspecialchars($p['codigo'], ENT_QUOTES, 'UTF-8') ?></small>
                                         </td>
                                         <td class="text-center align-middle font-weight-bold text-danger">
-                                            <?= (int)$p['stock'] ?>
+                                            <?= (int)$p['stock'] ?> <?= htmlspecialchars($p['unidad_medida'], ENT_QUOTES, 'UTF-8') ?>
                                         </td>
                                         <td class="text-center align-middle text-muted d-none d-sm-table-cell">
-                                            <?= (int)$p['stock_minimo'] ?>
+                                            <?= (int)$p['stock_minimo'] ?> <?= htmlspecialchars($p['unidad_medida'], ENT_QUOTES, 'UTF-8') ?>
                                         </td>
                                         <td class="text-center align-middle d-none d-md-table-cell">
                                             <?php if ((int)$p['stock'] <= 0): ?>
@@ -53,7 +53,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                                                 </span>
                                             <?php else: ?>
                                                 <span class="badge badge-warning">
-                                                    Quedan <?= (int)$p['stock'] ?>
+                                                    Quedan <?= (int)$p['stock'] ?> <?= htmlspecialchars($p['unidad_medida'], ENT_QUOTES, 'UTF-8') ?>
                                                 </span>
                                             <?php endif; ?>
                                         </td>
@@ -191,7 +191,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center font-weight-bold <?= $aj['tipo'] === 'entrada' ? 'text-success' : 'text-danger' ?>">
-                                            <?= $aj['tipo'] === 'entrada' ? '+' : '-' ?><?= (int)$aj['cantidad'] ?>
+                                            <?= $aj['tipo'] === 'entrada' ? '+' : '-' ?><?= (int)$aj['cantidad'] ?> <?= htmlspecialchars($aj['unidad_medida'] ?? 'unidad', ENT_QUOTES, 'UTF-8') ?>
                                         </td>
                                         <td class="d-none d-md-table-cell text-muted">
                                             <small><?= htmlspecialchars($aj['motivo'], ENT_QUOTES, 'UTF-8') ?></small>

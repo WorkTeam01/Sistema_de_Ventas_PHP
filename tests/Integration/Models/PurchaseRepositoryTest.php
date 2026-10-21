@@ -82,6 +82,33 @@ final class PurchaseRepositoryTest extends TestCase
 
         $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
         $this->assertSame(60, (int)$row['stock']);
+        $movement = $this->pdo->query(
+            "SELECT cantidad, tipo FROM tb_movimientos_inventario WHERE id_producto = 1"
+        )->fetch();
+        $this->assertSame(10, (int)$movement['cantidad']);
+        $this->assertSame('Compra', $movement['tipo']);
+    }
+
+    public function test_storeWithStock_rolls_back_stock_and_purchase_when_movement_fails(): void
+    {
+        $this->pdo->exec(
+            "CREATE TRIGGER reject_inventory_movement
+             BEFORE INSERT ON tb_movimientos_inventario
+             BEGIN
+                 SELECT RAISE(ABORT, 'No se pudo escribir el movimiento');
+             END"
+        );
+
+        $this->assertFalse($this->storePurchase(10));
+        $this->assertSame(
+            50,
+            (int)$this->pdo->query('SELECT stock FROM tb_almacen WHERE id_producto = 1')->fetchColumn()
+        );
+        $this->assertSame(0, $this->purchase->count());
+        $this->assertSame(
+            0,
+            (int)$this->pdo->query('SELECT COUNT(*) FROM tb_movimientos_inventario')->fetchColumn()
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -107,6 +134,11 @@ final class PurchaseRepositoryTest extends TestCase
         $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
         // Stock inicial 50 + 10 (store) + diff(20-10) = 70
         $this->assertSame(70, (int)$row['stock']);
+        $correction = $this->pdo->query(
+            "SELECT cantidad, tipo FROM tb_movimientos_inventario
+             WHERE tipo = 'Corrección de compra'"
+        )->fetch();
+        $this->assertSame(10, (int)$correction['cantidad']);
     }
 
     // -------------------------------------------------------------------------
@@ -138,6 +170,20 @@ final class PurchaseRepositoryTest extends TestCase
         $this->assertSame(50, (int)$rowA['stock']);
         // Producto B: 30 + 5 = 35
         $this->assertSame(35, (int)$rowB['stock']);
+        $this->assertSame(
+            -10,
+            (int)$this->pdo->query(
+                "SELECT cantidad FROM tb_movimientos_inventario
+                 WHERE id_producto = 1 AND tipo = 'Corrección de compra'"
+            )->fetchColumn()
+        );
+        $this->assertSame(
+            5,
+            (int)$this->pdo->query(
+                "SELECT cantidad FROM tb_movimientos_inventario
+                 WHERE id_producto = 2 AND tipo = 'Corrección de compra'"
+            )->fetchColumn()
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -231,6 +277,13 @@ final class PurchaseRepositoryTest extends TestCase
 
         $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = 1")->fetch();
         $this->assertSame(50, (int)$row['stock']);
+        $this->assertSame(
+            -10,
+            (int)$this->pdo->query(
+                "SELECT cantidad FROM tb_movimientos_inventario
+                 WHERE tipo = 'Corrección de compra'"
+            )->fetchColumn()
+        );
     }
 
     public function test_destroyWithStock_twice_reverts_stock_only_once(): void

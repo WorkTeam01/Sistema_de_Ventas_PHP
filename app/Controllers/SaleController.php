@@ -112,6 +112,8 @@ class SaleController extends Controller
         }
         if (!$result['ok']) {
             $this->flash('Stock insuficiente para la cantidad solicitada.', 'warning');
+        } elseif ($result['error'] === 'stock_warning') {
+            $this->flash('Atención: la cantidad solicitada supera el stock disponible. Se agregó al carrito y el saldo quedará negativo si confirma la venta.', 'warning');
         }
 
         $this->redirect(BASE_URL . '/sales/create');
@@ -181,6 +183,7 @@ class SaleController extends Controller
         $result = $saleModel->storeWithStock([
             'nro_venta'  => $nro_venta,
             'id_cliente' => $id_cliente > 0 ? $id_cliente : null,
+            'tipo_documento' => $this->saleDocumentType($_POST['tipo_documento'] ?? ''),
         ], $payments, (int)Auth::user()['id_usuario']);
 
         if (($result['error'] ?? null) === 'forbidden') {
@@ -188,7 +191,12 @@ class SaleController extends Controller
         }
 
         if ($result['ok'] && $result['replayed']) {
-            $this->flash($this->saleSuccessMessage($result), 'success');
+            $sale = $saleModel->findWithDetails((int)$result['id_venta']);
+            $stockWarning = (bool)array_filter(
+                $sale['items'] ?? [],
+                static fn(array $item): bool => (float)($item['stock'] ?? 0) < 0
+            );
+            $this->flash($this->saleSuccessMessage($result, $stockWarning), $stockWarning ? 'warning' : 'success');
             $this->redirect(BASE_URL . '/sales');
             return;
         }
@@ -196,6 +204,10 @@ class SaleController extends Controller
         if ($result['ok']) {
             $idVenta = (int)$result['id_venta'];
             $sale = $saleModel->findWithDetails($idVenta);
+            $stockWarning = (bool)array_filter(
+                $sale['items'] ?? [],
+                static fn(array $item): bool => (float)($item['stock'] ?? 0) < 0
+            );
             $totalPagado = (float)($sale['total_pagado'] ?? 0);
             $cliente = $id_cliente > 0 ? (new Client())->find($id_cliente) : null;
             ActivityLog::record(
@@ -210,7 +222,7 @@ class SaleController extends Controller
                     'total_pagado'   => $totalPagado,
                 ]
             );
-            $this->flash($this->saleSuccessMessage($result), 'success');
+            $this->flash($this->saleSuccessMessage($result, $stockWarning), $stockWarning ? 'warning' : 'success');
             $this->redirect(BASE_URL . '/sales');
             return;
         }
@@ -224,14 +236,24 @@ class SaleController extends Controller
      *
      * @param array $result Retorno de Sale::storeWithStock().
      */
-    private function saleSuccessMessage(array $result): string
+    private function saleSuccessMessage(array $result, bool $stockWarning = false): string
     {
         $mensaje = 'La venta se registró exitosamente.';
         if ((float)($result['vuelto'] ?? 0) > 0) {
             $mensaje .= ' Vuelto: ' . APP_CURRENCY_SYMBOL . ' ' . number_format((float)$result['vuelto'], 2);
         }
+        if ($stockWarning) {
+            $mensaje .= ' Atención: uno o más productos quedaron con stock negativo.';
+        }
 
         return $mensaje;
+    }
+
+    private function saleDocumentType(mixed $value): string
+    {
+        $allowed = ['boleta', 'factura', 'guia', 'credito', 'otro'];
+
+        return is_string($value) && in_array($value, $allowed, true) ? $value : '';
     }
 
     /**
@@ -255,6 +277,7 @@ class SaleController extends Controller
             'invalid_payment'    => 'Pago inválido: verifique los montos y los métodos seleccionados.',
             'exceso_sin_efectivo' => 'El exceso sobre el total solo se admite en efectivo.',
             'vuelto_excede_efectivo' => 'El vuelto no puede ser mayor al efectivo recibido.',
+            'invalid_document_type' => 'Seleccione un tipo de documento interno válido.',
             'total_cero'         => 'El total de la venta es cero: no se puede cobrar.',
             'total_excede'       => 'El total de la venta supera el máximo permitido (' . APP_CURRENCY_SYMBOL . ' 99,999,999.99).',
             'generic'            => 'Error al registrar la venta. Intente nuevamente.',
@@ -302,6 +325,8 @@ class SaleController extends Controller
             [
                 'id_venta' => (int)$sale['id_venta'],
                 'nro_venta' => $sale['nro_venta'],
+                'tipo_documento' => $sale['tipo_documento'],
+                'tipo_documento_label' => Sale::documentTypeLabel((string)$sale['tipo_documento']),
                 'total_pagado' => $sale['total_pagado'],
                 'fyh_creacion' => $sale['fyh_creacion'],
                 'fyh_actualizacion' => $sale['fyh_actualizacion'],
@@ -373,7 +398,7 @@ class SaleController extends Controller
     }
 
     /**
-     * Genera la factura PDF de una venta usando TCPDF.
+     * Genera el comprobante interno PDF de una venta usando TCPDF.
      * No usa renderWithLayout() — emite el PDF directamente inline vía InvoicePdf.
      *
      * @param int|null $id ID de la venta.
@@ -398,7 +423,7 @@ class SaleController extends Controller
         }
 
         if (!Auth::can('view_sales_all') && (int)$sale['id_usuario'] !== (int)Auth::user()['id_usuario']) {
-            $this->forbidden('No tienes permiso para ver esta factura.');
+            $this->forbidden('No tienes permiso para ver este comprobante.');
         }
 
         $totals = $saleModel->computeInvoiceTotals($sale['items'], (float)$sale['total_pagado']);

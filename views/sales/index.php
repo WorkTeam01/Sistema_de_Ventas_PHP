@@ -51,6 +51,7 @@
                                         <th class="text-center">Nro</th>
                                         <th class="text-center">N° Venta</th>
                                         <th class="text-center">Cliente</th>
+                                        <th class="text-center">Documento interno</th>
                                         <th class="text-center">Total Pagado</th>
                                         <th class="text-center">Fecha</th>
                                         <th class="text-center">Acciones</th>
@@ -71,6 +72,7 @@
                                                     <span class="badge badge-warning ml-1" style="font-size:.75rem;">Devuelto</span>
                                                 <?php endif; ?>
                                             </td>
+                                            <td class="text-center"><?= htmlspecialchars(\App\Models\Sale::documentTypeLabel((string)($sale['tipo_documento'] ?? 'boleta')), ENT_QUOTES, 'UTF-8') ?></td>
                                             <td class="text-right">
                                                 <?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars(number_format((float)$sale['total_pagado'], 2), ENT_QUOTES, 'UTF-8'); ?></td>
                                             <td class="text-center"><?= htmlspecialchars($sale['fyh_creacion'], ENT_QUOTES, 'UTF-8'); ?></td>
@@ -83,7 +85,7 @@
                                                     </a>
                                                     <a href="<?= BASE_URL ?>/sales/invoice/<?= $id_venta ?>"
                                                         class="btn btn-success btn-sm" data-toggle="tooltip"
-                                                        title="Ver factura" target="_blank" aria-label="Ver factura">
+                                                        title="Ver comprobante interno" target="_blank" aria-label="Ver comprobante interno">
                                                         <i class="fas fa-print" aria-hidden="true"></i>
                                                     </a>
                                                     <?php if ($can['manage_sales']): ?>

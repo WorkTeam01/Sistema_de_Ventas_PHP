@@ -2,9 +2,9 @@
 
 # Sistema de Ventas — PHP & MySQL
 
-Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
+Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre compras a proveedores, control de inventario, punto de venta con comprobantes PDF internos y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.19.3-blue)
+![Versión](https://img.shields.io/badge/Versión-1.20.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -27,7 +27,7 @@ Panel principal con KPIs del mes, flujo de ventas vs. compras, top productos y �
 
 ### Ventas
 
-Listado de ventas registradas, con acceso rápido al detalle, impresión de factura PDF y eliminación.
+Listado de ventas registradas, con acceso rápido al detalle, impresión de comprobantes internos PDF y eliminación.
 
 ![Ventas](docs/screenshots/screenshot-pos.png)
 
@@ -52,9 +52,10 @@ Historial de compras a proveedores, con actualización automática de stock al r
 | Módulo          | Descripción                                                                                                       |
 | --------------- | ----------------------------------------------------------------------------------------------------------------- |
 | **Almacén**     | Gestión de productos con stock, precios, imágenes y categorías                                                    |
-| **Ventas**      | POS wizard (Cliente → Carrito → Cobro), venta sin cliente ("Consumidor final"), cobro único/mixto y facturas PDF  |
+| **Ventas**      | POS (Cliente → Carrito → Cobro), venta sin cliente, pagos mixtos y comprobante PDF interno; alerta si la venta deja stock negativo |
 | **Compras**     | Registro de compras a proveedores con actualización automática de stock                                           |
-| **Inventario**  | Alertas de stock bajo, barras de progreso y ajustes manuales con historial                                        |
+| **Inventario**  | Unidades de medida, stock inicial, ingresos, salidas, saldo actual, alertas y descarga CSV de movimientos         |
+| **Documentos**  | Cotizaciones y órdenes de compra internas multiítem, con estados, impresión e historial de correcciones           |
 | **Reportes**    | Ventas, compras, top productos y clientes por período; export PDF / CSV / Excel                                   |
 | **Auditoría**   | Registro de operaciones sensibles (creación, edición, eliminación, login, exportaciones y más) con KPIs y filtros |
 | **Clientes**    | Base de datos de clientes con historial de compras                                                                |
@@ -62,6 +63,9 @@ Historial de compras a proveedores, con actualización automática de stock al r
 | **Usuarios**    | Administración de cuentas con roles y permisos granulares                                                         |
 | **Permisos**    | Catálogo de permisos y asignación por rol (RBAC) desde la UI, sin editar el seeder                                |
 | **Perfil**      | Edición de datos y cambio de contraseña para cualquier rol                                                        |
+
+> Las cantidades se registran como números enteros en esta entrega. La categoría «Crédito» del POS es solo informativa:
+> no crea cuentas por cobrar y requiere cobrar el total. Las opciones «Boleta» y «Factura» son registros internos, no DTE.
 
 ---
 
@@ -72,7 +76,7 @@ Historial de compras a proveedores, con actualización automática de stock al r
 | **Backend**       | PHP 8.2+ — MVC custom con PSR-4 vía Composer (sin framework)                   |
 | **Base de datos** | MySQL 5.7+ / MariaDB 10.4+ con PDO y prepared statements                       |
 | **Frontend**      | AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2                   |
-| **PDF**           | TCPDF (`tecnickcom/tcpdf`) — facturas y reportes                               |
+| **PDF**           | TCPDF (`tecnickcom/tcpdf`) — comprobantes internos y reportes                   |
 | **Email**         | PHPMailer (`phpmailer/phpmailer`) — SMTP Gmail con App Password                |
 | **Testing**       | PHPUnit 11.x — suites Unit e Integration (SQLite in-memory); CI GitHub Actions |
 
@@ -151,7 +155,8 @@ DB_NAME=sistemadeventas
 DB_USER=root
 DB_PASS=
 APP_URL=http://localhost/Sistema_de_Ventas_PHP/public
-APP_TIMEZONE=America/La_Paz   # también se aplica como zona horaria de la sesión de MySQL
+APP_TIMEZONE=America/Santiago   # también se aplica como zona horaria de la sesión de MySQL
+APP_CURRENCY_SYMBOL=CLP
 APP_DEBUG=false
 SESSION_LIFETIME=60
 REMEMBER_LIFETIME=14
@@ -170,6 +175,8 @@ MAIL_FROM_NAME="Sistema de Ventas"
 ```
 
 > `APP_URL` debe incluir `/public`. `MAIL_PASSWORD` debe ser una **Contraseña de Aplicación** de Google, no la contraseña de la cuenta.
+> La selección de moneda configura solo la presentación: los documentos de venta de esta versión son registros internos,
+> no boletas/facturas tributarias ni DTE enviados o validados por el SII.
 
 ### 5. Permisos de directorio (Linux / macOS)
 
@@ -187,6 +194,38 @@ chmod 755 public/uploads/products/
 
 Acceder en: `http://localhost/Sistema_de_Ventas_PHP/public/`
 
+### 7. Uso en una red local (dos personas)
+
+1. Deja XAMPP y la base de datos instalados en el PC que actuará como servidor. Reserva una dirección IP local
+   estable para ese equipo (por ejemplo, `192.168.1.20`) en el router.
+2. En `.env` del servidor configura `APP_URL=http://192.168.1.20/Sistema_de_Ventas_PHP/public`. Ambos equipos
+   deben estar en la misma red local y abrir esa dirección desde el navegador.
+3. En el Firewall de Windows permite Apache (puerto 80) solo en redes privadas. No abras el puerto de MySQL
+   (3306) a la red: la aplicación y la base de datos funcionan en el PC servidor; los otros equipos acceden
+   únicamente por el navegador.
+4. Crea una cuenta distinta para cada persona. No compartan el mismo usuario: así cada movimiento queda asociado
+   a quien lo registró.
+5. El sistema permite registrar ventas que superen el stock, pero avisa y deja el saldo negativo para facilitar
+   el registro de diferencias; revisa Inventario y corrige con un ajuste trazable.
+
+**Respaldo en el disco USB:** crea en el disco una carpeta, por ejemplo `F:\Respaldos\Ventas`. Cada día,
+con Apache y MySQL activos, ejecuta desde PowerShell (se solicitará la contraseña del usuario de BD):
+
+```powershell
+$fecha = Get-Date -Format 'yyyyMMdd-HHmm'
+& 'C:\xampp\mysql\bin\mysqldump.exe' --single-transaction -u respaldo -p sistemadeventas `
+  --result-file="F:\Respaldos\Ventas\sistemadeventas-$fecha.sql"
+Compress-Archive -Path 'C:\xampp\htdocs\Sistema_de_Ventas_PHP\public\uploads\products\*' `
+  -DestinationPath "F:\Respaldos\Ventas\productos-$fecha.zip" -Force
+```
+
+Usa un usuario de MySQL con permiso de lectura sobre la base y guarda los archivos fuera del PC servidor.
+Configura estas órdenes en el Programador de tareas si necesitas una copia automática. Comprueba periódicamente
+que los archivos se abren y prueba una restauración en una base separada antes de depender de la copia.
+Para restaurar, detén la aplicación, crea una base vacía y ejecuta desde `cmd.exe`:
+`C:\xampp\mysql\bin\mysql.exe -u usuario -p sistemadeventas < F:\Respaldos\Ventas\sistemadeventas-fecha.sql`.
+Restaura también el archivo ZIP correspondiente en `public\uploads\products`.
+
 ---
 
 ## Actualización
@@ -195,7 +234,7 @@ Si ya tienes una versión anterior del sistema instalada, aplica las migraciones
 pendientes sobre tu base de datos existente, en orden. Los archivos 003, 005,
 006, 007, 008 y 009 son repetibles sin efectos; 001, 002, 004 y 010 se ejecutan
 **una sola vez** (re-ejecutar una no-repetible daría error de duplicado o de
-columna inexistente).
+columna inexistente). Las migraciones 016 y 017 también se ejecutan una sola vez.
 
 **Linux / macOS:**
 
@@ -215,6 +254,8 @@ mysql -u root -p sistemadeventas < database/migrations/012_integridad_unicos.sql
 mysql -u root -p sistemadeventas < database/migrations/013_tokens_y_auth.sql
 mysql -u root -p sistemadeventas < database/migrations/014_portabilidad_mysql84.sql
 mysql -u root -p sistemadeventas < database/migrations/015_decodificar_entidades_html.sql
+mysql -u root -p sistemadeventas < database/migrations/016_documentos_comerciales.sql
+mysql -u root -p sistemadeventas < database/migrations/017_libro_movimientos_inventario.sql
 ```
 
 **Windows** (desde `C:\xampp\mysql\bin\`):
@@ -235,8 +276,16 @@ mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\databas
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\013_tokens_y_auth.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\014_portabilidad_mysql84.sql
 mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\015_decodificar_entidades_html.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\016_documentos_comerciales.sql
+mysql -u root -p sistemadeventas < C:\xampp\htdocs\Sistema_de_Ventas_PHP\database\migrations\017_libro_movimientos_inventario.sql
 ```
 
+> Ejecuta la migración `016_documentos_comerciales.sql` una sola vez para añadir unidades de medida y documentos
+> comerciales. No se ejecuta en instalaciones creadas desde cero con el esquema actualizado.
+> Ejecuta también `017_libro_movimientos_inventario.sql` una sola vez para crear el libro inmutable y respaldar las
+> correcciones futuras de compras, ventas, devoluciones y ajustes. La migración importa los movimientos existentes
+> y estima el saldo de apertura que falta para cuadrar el stock actual; no reconstruye cambios antiguos que no se
+> hubieran auditado.
 > Si instalaste desde cero con la versión actual, la BD ya incluye todos los
 > cambios y no necesitas ejecutar estas migraciones.
 >
@@ -269,14 +318,14 @@ esos permisos queda scopeado a sus propios registros sin tocar código.
 - **SQL Injection** — 100% PDO con prepared statements; enteros interpolados con cast `(int)` explícito
 - **CSRF** — token obligatorio en todos los formularios POST y endpoints AJAX
 - **XSS** — `htmlspecialchars()` en todos los outputs HTML
-- **Contraseñas** — `password_hash()` / `password_verify()` (BCRYPT); mínimo 6 caracteres en todos los flujos
+- **Contraseñas** — `password_hash()` / `password_verify()`; mínimo 8 caracteres en creación, cambio y restablecimiento
 - **Acceso a registros ajenos** — ventas y compras se filtran por `id_usuario` salvo permiso `*_all`; bloqueado
   también en `show`/`edit`/`update`/`destroy` para prevenir acceso por URL directa (IDOR), no solo en el listado
 - **Escalada de privilegios** — gestionar usuarios o asignar permisos no habilita a otorgarse `is_superadmin`: solo
   un superusuario puede hacerlo, y también para editar o eliminar a un usuario/rol superusuario
 - **Sesiones revalidadas en cada petición** — si la cuenta fue eliminada o su rol cambió, `Auth::check()` cierra la
   sesión o recarga los permisos desde BD, sin esperar al siguiente login
-- **Stock negativo** — decremento con `AND stock >= ?` dentro de transacción; rollback si `rowCount() === 0`
+- **Sobreventa** — se permite registrar una venta superior al stock, con advertencia al agregar y confirmar; el saldo negativo queda visible para su corrección trazable
 - **Totales** — calculados server-side desde la BD dentro de la transacción; el valor del POST se ignora
 - **Rate limiting** — 5 intentos fallidos bloquean la cuenta 15 minutos
 - **"Recordarme"** — cookie httponly/samesite=Strict con token SHA-256 rotado en cada auto-login

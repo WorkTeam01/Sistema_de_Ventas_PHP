@@ -70,6 +70,7 @@
                                         <option value="<?= (int)$p['id_producto'] ?>"
                                             <?= (int)($filtros['id_producto'] ?? 0) === (int)$p['id_producto'] ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($p['nombre'], ENT_QUOTES, 'UTF-8') ?>
+                                            (<?= htmlspecialchars($p['unidad_medida'] ?? 'unidad', ENT_QUOTES, 'UTF-8') ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -146,7 +147,7 @@
                                 </td>
                                 <td class="text-center"><?= $tipoBadge ?></td>
                                 <td class="text-center font-weight-bold">
-                                    <?= (int)$aj['cantidad'] ?>
+                                    <?= (int)$aj['cantidad'] ?> <?= htmlspecialchars($aj['unidad_medida'] ?? 'unidad', ENT_QUOTES, 'UTF-8') ?>
                                 </td>
                                 <td><?= htmlspecialchars($aj['motivo'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
                                 <td><?= htmlspecialchars($aj['usuario_nombre'] ?? 'Sistema', ENT_QUOTES, 'UTF-8') ?></td>

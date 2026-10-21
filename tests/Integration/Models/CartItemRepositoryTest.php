@@ -71,15 +71,15 @@ final class CartItemRepositoryTest extends TestCase
         $this->assertSame(5, $this->cartQuantity($nro));
     }
 
-    public function test_addItem_validates_stock_against_the_total_already_in_the_cart(): void
+    public function test_addItem_allows_exceeding_stock_and_returns_warning(): void
     {
         $nro = $this->openCart();
         $this->cartItem->addItem($nro, 1, 40, 1);
 
         $result = $this->cartItem->addItem($nro, 1, 20, 1);
 
-        $this->assertSame(['ok' => false, 'error' => 'stock'], $result);
-        $this->assertSame(40, $this->cartQuantity($nro), 'no se modifica el carrito');
+        $this->assertSame(['ok' => true, 'error' => 'stock_warning'], $result);
+        $this->assertSame(60, $this->cartQuantity($nro));
     }
 
     public function test_addItem_allows_reaching_exactly_the_stock(): void

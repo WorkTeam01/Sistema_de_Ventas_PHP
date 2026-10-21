@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS tb_clientes (
 CREATE TABLE IF NOT EXISTS tb_almacen (
     id_producto         INTEGER PRIMARY KEY AUTOINCREMENT,
     codigo              TEXT    NOT NULL UNIQUE,
+    unidad_medida       TEXT    NOT NULL DEFAULT 'unidad',
     nombre              TEXT    NOT NULL,
     descripcion         TEXT    DEFAULT NULL,
     stock               INTEGER NOT NULL,
@@ -108,6 +109,7 @@ CREATE TABLE IF NOT EXISTS tb_ventas (
     nro_venta           INTEGER NOT NULL,
     id_cliente          INTEGER DEFAULT NULL,
     id_usuario          INTEGER DEFAULT NULL,
+    tipo_documento      TEXT    NOT NULL DEFAULT 'boleta',
     total_pagado        NUMERIC NOT NULL,
     fyh_creacion        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fyh_actualizacion   TEXT    DEFAULT NULL,
@@ -203,6 +205,77 @@ CREATE TABLE IF NOT EXISTS tb_pagos (
     FOREIGN KEY (id_venta) REFERENCES tb_ventas (id_venta) ON DELETE CASCADE,
     FOREIGN KEY (id_metodo_pago) REFERENCES tb_metodos_pago (id_metodo_pago) ON DELETE NO ACTION
 );
+
+CREATE TABLE IF NOT EXISTS tb_documentos_comerciales (
+    id_documento       INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipo               TEXT    NOT NULL,
+    estado             TEXT    NOT NULL DEFAULT 'borrador',
+    fecha_documento    TEXT    NOT NULL,
+    fecha_vencimiento  TEXT    DEFAULT NULL,
+    id_cliente         INTEGER DEFAULT NULL,
+    id_proveedor       INTEGER DEFAULT NULL,
+    id_usuario         INTEGER DEFAULT NULL,
+    observaciones      TEXT    DEFAULT NULL,
+    total              NUMERIC NOT NULL DEFAULT 0.00,
+    fyh_creacion       TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fyh_actualizacion  TEXT    DEFAULT NULL,
+    CHECK (tipo IN ('cotizacion', 'orden_compra')),
+    FOREIGN KEY (id_cliente) REFERENCES tb_clientes (id_cliente),
+    FOREIGN KEY (id_proveedor) REFERENCES tb_proveedores (id_proveedor),
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS tb_documento_comercial_items (
+    id_item          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_documento     INTEGER NOT NULL,
+    id_producto      INTEGER NOT NULL,
+    codigo_producto  TEXT    NOT NULL,
+    nombre_producto  TEXT    NOT NULL,
+    unidad_medida    TEXT    NOT NULL DEFAULT 'unidad',
+    cantidad         INTEGER NOT NULL,
+    precio_unitario  NUMERIC NOT NULL,
+    subtotal         NUMERIC NOT NULL,
+    FOREIGN KEY (id_documento) REFERENCES tb_documentos_comerciales (id_documento) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES tb_almacen (id_producto)
+);
+
+CREATE TABLE IF NOT EXISTS tb_documentos_comerciales_historial (
+    id_historial      INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_documento      INTEGER NOT NULL,
+    id_usuario        INTEGER DEFAULT NULL,
+    usuario_nombre    TEXT    NOT NULL,
+    accion            TEXT    NOT NULL,
+    datos_anteriores  TEXT    DEFAULT NULL,
+    datos_nuevos      TEXT    NOT NULL,
+    fyh_creacion      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_documento) REFERENCES tb_documentos_comerciales (id_documento),
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS tb_movimientos_inventario (
+    id_movimiento   INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_producto     INTEGER NOT NULL,
+    codigo_producto TEXT    NOT NULL,
+    nombre_producto TEXT    NOT NULL,
+    unidad_medida   TEXT    NOT NULL DEFAULT 'unidad',
+    fecha           TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    cantidad        INTEGER NOT NULL,
+    tipo            TEXT    NOT NULL,
+    referencia      TEXT    DEFAULT NULL,
+    id_usuario      INTEGER DEFAULT NULL,
+    usuario_nombre  TEXT    NOT NULL,
+    fyh_creacion    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES tb_usuarios (id_usuario) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_movimiento_fecha_producto
+  ON tb_movimientos_inventario (fecha, id_producto);
+
+CREATE INDEX IF NOT EXISTS idx_movimiento_producto_fecha
+  ON tb_movimientos_inventario (id_producto, fecha);
+
+CREATE INDEX IF NOT EXISTS idx_doc_tipo_fecha
+  ON tb_documentos_comerciales (tipo, fecha_documento);
 
 CREATE INDEX IF NOT EXISTS idx_pago_venta
   ON tb_pagos (id_venta);

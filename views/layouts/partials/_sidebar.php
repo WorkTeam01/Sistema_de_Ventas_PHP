@@ -25,6 +25,7 @@ $suppliersActive = str_starts_with($_currentPath, '/suppliers');
 
 // — Módulo Compras —
 $purchasesActive = str_starts_with($_currentPath, '/purchases');
+$documentsActive = str_starts_with($_currentPath, '/documents');
 
 // — Módulo Clientes —
 $clientsActive = str_starts_with($_currentPath, '/clients');
@@ -215,6 +216,14 @@ $link = fn(bool $on) => $on ? ' active' : '';
                         </a>
                     </li>
                     <?php endif; ?>
+                    <?php if ($has('view_purchases')): ?>
+                    <li class="nav-item">
+                        <a href="<?= BASE_URL ?>/documents?tipo=orden_compra" class="nav-link<?= $link($documentsActive && ($_GET['tipo'] ?? '') === 'orden_compra') ?>">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>Órdenes de compra</p>
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 <?php endif; ?>
 
                 <?php if ($showSalesSection): ?>
@@ -235,6 +244,14 @@ $link = fn(bool $on) => $on ? ' active' : '';
                         <a href="<?= BASE_URL ?>/sales" class="nav-link<?= $link($salesActive) ?>">
                             <i class="nav-icon fas fa-shopping-basket"></i>
                             <p>Ventas</p>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                    <?php if ($has('view_sales')): ?>
+                    <li class="nav-item">
+                        <a href="<?= BASE_URL ?>/documents?tipo=cotizacion" class="nav-link<?= $link($documentsActive && ($_GET['tipo'] ?? '') === 'cotizacion') ?>">
+                            <i class="nav-icon fas fa-file-alt"></i>
+                            <p>Cotizaciones</p>
                         </a>
                     </li>
                     <?php endif; ?>

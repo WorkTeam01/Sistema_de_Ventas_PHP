@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 callbacks: {
                     label: function (item, chartData) {
                         var label = chartData.datasets[item.datasetIndex].label || '';
-                        var value = parseFloat(item.yLabel).toLocaleString('es-BO', {
+                        var value = parseFloat(item.yLabel).toLocaleString('es-CL', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                         });
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             var rev = top.revenues[idx];
                             var name = chartData.labels[idx];
                             return ' ' + name + ': ' + qty + ' uds — ' + topCurrency + ' ' +
-                                parseFloat(rev).toLocaleString('es-BO', { minimumFractionDigits: 2 });
+                                parseFloat(rev).toLocaleString('es-CL', { minimumFractionDigits: 2 });
                         },
                     },
                 },

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Product;
+use App\Models\InventoryReport;
 use App\Models\StockAdjustment;
 
 class InventoryController extends Controller
@@ -14,7 +15,7 @@ class InventoryController extends Controller
      */
     public function index(): void
     {
-        $tabWhitelist = ['stock', 'ajustes'];
+        $tabWhitelist = ['stock', 'ajustes', 'movimientos'];
         $activeTab = in_array($_GET['tab'] ?? '', $tabWhitelist, true) ? $_GET['tab'] : 'stock';
 
         if ($activeTab === 'stock') {
@@ -35,6 +36,40 @@ class InventoryController extends Controller
                         'csrf_token'     => Auth::generateCsrfToken(),
                         'adjustment_token' => Auth::issueFormToken('stock_adjustment'),
                         'pageScripts'    => ['/js/modules/inventory/inventory.js'],
+                    ]
+                ),
+                true,
+                ['datatable', 'select2']
+            );
+            return;
+        }
+
+        if ($activeTab === 'movimientos') {
+            $today = date('Y-m-d');
+            $filters = [
+                'desde' => $this->validDate($_GET['desde'] ?? '') ?? date('Y-m-01'),
+                'hasta' => $this->validDate($_GET['hasta'] ?? '') ?? $today,
+                'id_producto' => isset($_GET['id_producto']) && ctype_digit((string)$_GET['id_producto'])
+                    ? (int)$_GET['id_producto']
+                    : 0,
+            ];
+
+            if ($filters['desde'] > $filters['hasta']) {
+                $filters['desde'] = $filters['hasta'];
+            }
+
+            $report = new InventoryReport();
+            $this->renderWithLayout(
+                'views/inventory/index.php',
+                array_merge(
+                    $this->sessionData(),
+                    [
+                        'activeTab' => $activeTab,
+                        'filtros' => $filters,
+                        'resumenMovimientos' => $report->summary($filters),
+                        'movimientos' => $report->movements($filters),
+                        'todosProductos' => (new Product())->all(),
+                        'pageScripts' => ['/js/modules/inventory/inventory.js'],
                     ]
                 ),
                 true,
@@ -74,6 +109,110 @@ class InventoryController extends Controller
             true,
             ['datatable', 'select2']
         );
+    }
+
+    public function exportMovements(): void
+    {
+        $from = $this->validDate($_GET['desde'] ?? '') ?? date('Y-m-01');
+        $to = $this->validDate($_GET['hasta'] ?? '') ?? date('Y-m-d');
+        $productId = isset($_GET['id_producto']) && ctype_digit((string)$_GET['id_producto'])
+            ? (int)$_GET['id_producto']
+            : 0;
+
+        if ($from > $to) {
+            $this->flash('El período del informe no es válido.', 'error');
+            $this->redirect(BASE_URL . '/inventory?tab=movimientos');
+        }
+
+        $rows = (new InventoryReport())->movements([
+            'desde' => $from,
+            'hasta' => $to,
+            'id_producto' => $productId,
+        ]);
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="movimientos-inventario-' . $from . '-' . $to . '.csv"');
+        $output = fopen('php://output', 'wb');
+        if ($output === false) {
+            throw new \RuntimeException('No se pudo generar el archivo de movimientos.');
+        }
+        fwrite($output, "\xEF\xBB\xBF");
+        fputcsv($output, ['Fecha', 'Código', 'Producto', 'Unidad', 'Tipo', 'Cantidad', 'Referencia', 'Usuario'], ';', '"', '\\');
+        foreach ($rows as $row) {
+            $values = [
+                $row['fecha'],
+                $row['codigo'],
+                $row['producto'],
+                $row['unidad_medida'],
+                $row['tipo'],
+                $row['cantidad'],
+                $row['referencia'],
+                $row['usuario'],
+            ];
+            fputcsv($output, array_map([$this, 'csvSafeValue'], $values), ';', '"', '\\');
+        }
+        fclose($output);
+        exit;
+    }
+
+    public function exportSummary(): void
+    {
+        $from = $this->validDate($_GET['desde'] ?? '') ?? date('Y-m-01');
+        $to = $this->validDate($_GET['hasta'] ?? '') ?? date('Y-m-d');
+        $productId = isset($_GET['id_producto']) && ctype_digit((string)$_GET['id_producto'])
+            ? (int)$_GET['id_producto']
+            : 0;
+
+        if ($from > $to) {
+            $this->flash('El período del informe no es válido.', 'error');
+            $this->redirect(BASE_URL . '/inventory?tab=movimientos');
+        }
+
+        $rows = (new InventoryReport())->summary([
+            'desde' => $from,
+            'hasta' => $to,
+            'id_producto' => $productId,
+        ]);
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="resumen-inventario-' . $from . '-' . $to . '.csv"');
+        $output = fopen('php://output', 'wb');
+        if ($output === false) {
+            throw new \RuntimeException('No se pudo generar el resumen de inventario.');
+        }
+        fwrite($output, "\xEF\xBB\xBF");
+        fputcsv($output, ['Código', 'Producto', 'Unidad', 'Stock inicial', 'Ingresos', 'Salidas', 'Stock actual'], ';', '"', '\\');
+        foreach ($rows as $row) {
+            fputcsv($output, array_map([$this, 'csvSafeValue'], [
+                $row['codigo'],
+                $row['nombre'],
+                $row['unidad_medida'],
+                $row['stock_inicial'],
+                $row['ingresos'],
+                $row['salidas'],
+                $row['stock_actual'],
+            ]), ';', '"', '\\');
+        }
+        fclose($output);
+        exit;
+    }
+
+    private function validDate(mixed $value): ?string
+    {
+        if (!is_string($value) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return null;
+        }
+        $date = \DateTime::createFromFormat('!Y-m-d', $value);
+
+        return $date && $date->format('Y-m-d') === $value ? $value : null;
+    }
+
+    private function csvSafeValue(mixed $value): string
+    {
+        $value = (string)$value;
+
+        return $value !== '' && !is_numeric($value) && preg_match('/^[=+\-@\t\r]/', $value) === 1
+            ? "'" . $value
+            : $value;
     }
 
     /**

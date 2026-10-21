@@ -80,6 +80,12 @@ final class StockAdjustmentTest extends TestCase
         $this->assertSame(25, (int)$log['stock_posterior']);
         $this->assertSame('entrada', $log['tipo']);
         $this->assertSame(5, (int)$log['cantidad']);
+        $this->assertSame(
+            5,
+            (int)$this->pdo->query(
+                "SELECT cantidad FROM tb_movimientos_inventario WHERE id_producto = $id"
+            )->fetchColumn()
+        );
     }
 
     public function test_register_salida_decrementa_stock(): void
@@ -99,6 +105,12 @@ final class StockAdjustmentTest extends TestCase
         $this->assertSame(12, (int)$log['stock_posterior']);
         $this->assertSame('salida', $log['tipo']);
         $this->assertSame(8, (int)$log['cantidad']);
+        $this->assertSame(
+            -8,
+            (int)$this->pdo->query(
+                "SELECT cantidad FROM tb_movimientos_inventario WHERE id_producto = $id"
+            )->fetchColumn()
+        );
     }
 
     public function test_register_salida_rechaza_si_stock_insuficiente(): void

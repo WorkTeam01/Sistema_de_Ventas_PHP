@@ -34,11 +34,19 @@
                                         <i class="fas fa-balance-scale mr-1"></i> Ajustes de Stock
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link <?= $activeTab === 'movimientos' ? 'active' : '' ?>"
+                                        href="<?= BASE_URL ?>/inventory?tab=movimientos">
+                                        <i class="fas fa-exchange-alt mr-1"></i> Movimientos
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div class="card-body">
                             <?php if ($activeTab === 'stock'): ?>
                                 <?php include __DIR__ . '/partials/stock-control.php'; ?>
+                            <?php elseif ($activeTab === 'movimientos'): ?>
+                                <?php include __DIR__ . '/partials/movements.php'; ?>
                             <?php else: ?>
                                 <?php include __DIR__ . '/partials/adjustments.php'; ?>
                             <?php endif; ?>

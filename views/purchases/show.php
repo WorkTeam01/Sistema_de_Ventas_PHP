@@ -75,7 +75,7 @@
                                 <span class="info-box-icon bg-info"><i class="fas fa-cubes"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Cantidad comprada</span>
-                                    <span class="info-box-number"><?= htmlspecialchars($cantidad, ENT_QUOTES, 'UTF-8'); ?> uds.</span>
+                                    <span class="info-box-number"><?= htmlspecialchars($cantidad, ENT_QUOTES, 'UTF-8'); ?> <?= htmlspecialchars($unidad_medida, ENT_QUOTES, 'UTF-8'); ?></span>
                                 </div>
                             </div>
                         </div>
@@ -173,7 +173,7 @@
                                         <dd class="col-sm-8"><?= APP_CURRENCY_SYMBOL ?> <?= htmlspecialchars($precio_venta, ENT_QUOTES, 'UTF-8'); ?></dd>
 
                                         <dt class="col-sm-4 text-muted">Stock actual</dt>
-                                        <dd class="col-sm-8"><?= htmlspecialchars($stock, ENT_QUOTES, 'UTF-8'); ?> uds.</dd>
+                                        <dd class="col-sm-8"><?= htmlspecialchars($stock, ENT_QUOTES, 'UTF-8'); ?> <?= htmlspecialchars($unidad_medida, ENT_QUOTES, 'UTF-8'); ?></dd>
                                     </dl>
                                 </div>
 

@@ -83,7 +83,7 @@
                                 <thead>
                                     <tr>
                                         <th>Cliente</th>
-                                        <th>NIT/CI</th>
+                                        <th>RUT</th>
                                         <th>Email</th>
                                         <th class="text-right">N° Compras</th>
                                         <th class="text-right">Monto Acumulado (<?= APP_CURRENCY_SYMBOL ?>)</th>

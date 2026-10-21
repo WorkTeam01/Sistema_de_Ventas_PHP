@@ -20,7 +20,7 @@ class ActivityLogRenderer
         'descripcion'      => 'Descripción',
         // clients / suppliers
         'nombre_cliente'   => 'Cliente',
-        'nit_ci_cliente'   => 'NIT/CI',
+        'nit_ci_cliente'   => 'RUT',
         'email_cliente'    => 'Correo (cliente)',
         'nombre_proveedor' => 'Proveedor',
         'empresa'          => 'Empresa',
@@ -32,6 +32,16 @@ class ActivityLogRenderer
         'total_pagado'     => 'Total pagado',
         'fyh_creacion'     => 'Fecha/Hora',
         'items'            => 'Ítems',
+        'tipo'             => 'Tipo',
+        'estado'           => 'Estado',
+        'fecha_documento'  => 'Fecha del documento',
+        'fecha_vencimiento'=> 'Fecha de vencimiento',
+        'id_proveedor'     => 'ID del proveedor',
+        'id_cliente'       => 'ID del cliente',
+        'total'            => 'Total',
+        'observaciones'    => 'Observaciones',
+        'codigo_producto'  => 'Código del producto',
+        'unidad_medida'    => 'Unidad de medida',
         'motivo'           => 'Motivo',
         'monto_devuelto'   => 'Monto devuelto',
         'detalle'          => 'Detalle',
@@ -48,6 +58,27 @@ class ActivityLogRenderer
     public static function label(string $key): string
     {
         return self::$labels[$key] ?? ucwords(str_replace('_', ' ', $key));
+    }
+
+    public static function entityLabel(string $entity): string
+    {
+        return match ($entity) {
+            'sale' => 'Venta',
+            'purchase' => 'Compra',
+            'product' => 'Producto',
+            'user' => 'Usuario',
+            'client' => 'Cliente',
+            'supplier' => 'Proveedor',
+            'category' => 'Categoría',
+            'role' => 'Rol',
+            'permission' => 'Permiso',
+            'report' => 'Informe',
+            'auth' => 'Autenticación',
+            'sale_return' => 'Devolución',
+            'payment_method' => 'Método de pago',
+            'commercial_document' => 'Documento comercial',
+            default => ucfirst(str_replace('_', ' ', $entity)),
+        };
     }
 
     /**

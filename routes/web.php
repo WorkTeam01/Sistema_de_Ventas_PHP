@@ -16,6 +16,7 @@ use App\Controllers\SupplierController;
 use App\Controllers\UserController;
 use App\Controllers\SaleReturnController;
 use App\Controllers\PaymentMethodController;
+use App\Controllers\CommercialDocumentController;
 use App\Core\Router;
 
 /**
@@ -140,6 +141,8 @@ $router->get('/activity-log/show/{id}', [ActivityLogController::class, 'show'], 
 
 // Rutas del módulo inventario (solo Administrador)
 $router->get('/inventory',              [InventoryController::class, 'index'],           ['auth', 'can:manage_inventory']);
+$router->get('/inventory/export-movements', [InventoryController::class, 'exportMovements'], ['auth', 'can:manage_inventory']);
+$router->get('/inventory/export-summary', [InventoryController::class, 'exportSummary'], ['auth', 'can:manage_inventory']);
 $router->post('/inventory/adjustments', [InventoryController::class, 'storeAdjustment'], ['auth', 'can:manage_inventory']);
 
 // Rutas del módulo payment-methods (catálogo formas de pago) (MVC)
@@ -149,6 +152,14 @@ $router->get('/payment-methods/show/{id}',     [PaymentMethodController::class, 
 $router->post('/payment-methods/update/{id}',  [PaymentMethodController::class, 'update'],      ['auth', 'can:manage_payment_methods']);
 $router->post('/payment-methods/check-nombre', [PaymentMethodController::class, 'checkNombre'], ['auth', 'can:manage_payment_methods']);
 $router->post('/payment-methods/delete',       [PaymentMethodController::class, 'destroy'],     ['auth', 'can:manage_payment_methods']);
+
+// Cotizaciones y órdenes de compra (internos; no son DTE)
+$router->get('/documents',              [CommercialDocumentController::class, 'index'],  ['auth']);
+$router->get('/documents/create',       [CommercialDocumentController::class, 'create'], ['auth']);
+$router->post('/documents',             [CommercialDocumentController::class, 'store'],  ['auth']);
+$router->get('/documents/show/{id}',    [CommercialDocumentController::class, 'show'],   ['auth']);
+$router->get('/documents/edit/{id}',    [CommercialDocumentController::class, 'edit'],   ['auth']);
+$router->post('/documents/update',      [CommercialDocumentController::class, 'update'], ['auth']);
 
 // Rutas del módulo reportes
 $router->get('/reports',              [ReportController::class, 'index'],       ['auth', 'can:view_reports']);

@@ -51,7 +51,7 @@ class ClientController extends Controller
         }
 
         if ($clientModel->nitCiExists($nit_ci_cliente)) {
-            $this->json(['success' => false, 'message' => 'Ya existe un cliente con ese NIT/CI.']);
+            $this->json(['success' => false, 'message' => 'Ya existe un cliente con ese RUT.']);
         }
 
         if ($clientModel->emailExists($email_cliente)) {
@@ -151,7 +151,7 @@ class ClientController extends Controller
         }
 
         if ($clientModel->nitCiExists($nit_ci_cliente, $id)) {
-            $this->json(['success' => false, 'message' => 'Ya existe otro cliente con ese NIT/CI.']);
+            $this->json(['success' => false, 'message' => 'Ya existe otro cliente con ese RUT.']);
         }
 
         if ($clientModel->emailExists($email_cliente, $id)) {
@@ -220,7 +220,7 @@ class ClientController extends Controller
             if ($snapshot) {
                 ActivityLog::record(
                     'delete', 'client', $id,
-                    "Cliente '{$snapshot['nombre_cliente']}' (NIT/CI: {$snapshot['nit_ci_cliente']}) eliminado.",
+                    "Cliente '{$snapshot['nombre_cliente']}' (RUT: {$snapshot['nit_ci_cliente']}) eliminado.",
                     ['nombre_cliente' => $snapshot['nombre_cliente'], 'nit_ci_cliente' => $snapshot['nit_ci_cliente'], 'email_cliente' => $snapshot['email_cliente']]
                 );
             }
@@ -231,10 +231,10 @@ class ClientController extends Controller
     }
 
     /**
-     * Verifica si el NIT/CI ya existe (AJAX — jQuery Validate remote).
+     * Verifica si el RUT ya existe (AJAX — jQuery Validate remote).
      *
      * jQuery Validate espera:
-     * - true  → validación pasa (NIT/CI disponible)
+     * - true  → validación pasa (RUT disponible)
      * - string → validación falla (mensaje de error)
      */
     #[NoReturn]
@@ -257,7 +257,7 @@ class ClientController extends Controller
         $clientModel = new Client();
         $exists = $clientModel->nitCiExists($nit_ci, $id);
 
-        echo json_encode($exists ? 'Ya existe un cliente con este NIT/CI.' : true);
+        echo json_encode($exists ? 'Ya existe un cliente con este RUT.' : true);
         exit;
     }
 

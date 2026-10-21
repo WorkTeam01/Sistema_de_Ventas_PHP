@@ -4,6 +4,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Core\Database;
 
+if (!defined('APP_CURRENCY_SYMBOL')) {
+    define('APP_CURRENCY_SYMBOL', 'CLP');
+}
+
 // Carga opcional de .env.testing (credenciales de MariaDB para RefreshMariaDatabase).
 // Si no existe, los tests que la requieren se saltan solos (ver RefreshMariaDatabase).
 if (file_exists(__DIR__ . '/../.env.testing')) {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Core\Auth;
 use App\Core\Model;
 use App\Helpers\Money;
 use App\Helpers\MonthSeries;
@@ -19,6 +20,17 @@ class Sale extends Model
 
     protected string $table = 'tb_ventas';
     protected string $primaryKey = 'id_venta';
+
+    public static function documentTypeLabel(string $type): string
+    {
+        return match ($type) {
+            'boleta' => 'Boleta (registro interno)',
+            'factura' => 'Factura (registro interno)',
+            'guia' => 'Guía de despacho (registro interno)',
+            'credito' => 'Crédito (registro interno)',
+            default => 'Otro documento interno',
+        };
+    }
 
     /**
      * Retorna todas las ventas con datos del cliente, ordenadas por id_venta DESC.
@@ -69,7 +81,7 @@ class Sale extends Model
 
         $sale = $rows[0];
         $items = $this->query(
-            "SELECT car.*, al.nombre, al.descripcion, al.stock, al.imagen, al.codigo,
+            "SELECT car.*, al.nombre, al.descripcion, al.stock, al.unidad_medida, al.imagen, al.codigo,
                     COALESCE(car.precio_unitario, al.precio_venta) AS precio_venta
              FROM tb_carrito car
              INNER JOIN tb_almacen al ON car.id_producto = al.id_producto
@@ -89,7 +101,8 @@ class Sale extends Model
 
     /**
      * Inserta la cabecera de venta, sus líneas de pago y decrementa el stock,
-     * todo en una sola transacción (sin ventana donde la venta exista sin pagos).
+     * todo en una sola transacción. Las ventas pueden dejar existencias negativas;
+     * el POS advierte al usuario antes y después de confirmar el cobro.
      *
      * Idempotente: si el mismo usuario reenvía un nro_venta ya cobrado devuelve esa venta con
      * `replayed` sin tocar stock ni precios; si es de otro usuario, `forbidden`. Un cobro nuevo exige
@@ -117,6 +130,11 @@ class Sale extends Model
 
         try {
             $db->beginTransaction();
+            $documentType = (string)($data['tipo_documento'] ?? 'boleta');
+            if (!in_array($documentType, ['boleta', 'factura', 'guia', 'credito', 'otro'], true)) {
+                $db->rollBack();
+                return $fail('invalid_document_type');
+            }
 
             $existing = $this->findFinalized((int)$data['nro_venta']);
             if ($existing !== null) {
@@ -237,11 +255,13 @@ class Sale extends Model
                 : null;
             try {
                 $db->prepare(
-                    "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado) VALUES (?, ?, ?, ?)"
+                    "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, tipo_documento, total_pagado)
+                     VALUES (?, ?, ?, ?, ?)"
                 )->execute([
                     $data['nro_venta'],
                     $idCliente,
                     $userId,
+                    $documentType,
                     Money::fromCents($totalCents),
                 ]);
             } catch (\PDOException $e) {
@@ -264,20 +284,29 @@ class Sale extends Model
                 $insertPago->execute([$idVenta, $idMetodo, Money::fromCents($cents)]);
             }
 
-            // Decrementar stock de cada ítem — la cláusula AND stock >= ? previene stock negativo
+            // El negocio permite registrar ventas aunque excedan el stock disponible.
             $items = $db->prepare(
                 "SELECT id_producto, cantidad FROM tb_carrito WHERE nro_venta = ?"
             );
             $items->execute([$data['nro_venta']]);
             $updateStock = $db->prepare(
-                "UPDATE tb_almacen SET stock = stock - ? WHERE id_producto = ? AND stock >= ?"
+                "UPDATE tb_almacen SET stock = stock - ? WHERE id_producto = ?"
             );
             foreach ($items->fetchAll(\PDO::FETCH_ASSOC) as $item) {
-                $updateStock->execute([$item['cantidad'], $item['id_producto'], $item['cantidad']]);
+                $updateStock->execute([$item['cantidad'], $item['id_producto']]);
                 if ($updateStock->rowCount() === 0) {
                     $db->rollBack();
                     return $fail('generic');
                 }
+                $user = Auth::user();
+                $this->recordInventoryMovement(
+                    (int)$item['id_producto'],
+                    -(int)$item['cantidad'],
+                    'Venta',
+                    'Venta Nro ' . (int)$data['nro_venta'],
+                    $userId,
+                    (string)($user['nombres'] ?? '')
+                );
             }
 
             (new PosReservation())->release((int)$data['nro_venta']);
@@ -531,7 +560,7 @@ class Sale extends Model
             $db->beginTransaction();
 
             $lock = $db->getAttribute(\PDO::ATTR_DRIVER_NAME) === 'sqlite' ? '' : ' FOR UPDATE';
-            $stmt = $db->prepare("SELECT nro_venta FROM tb_ventas WHERE id_venta = ?" . $lock);
+            $stmt = $db->prepare("SELECT nro_venta, id_usuario FROM tb_ventas WHERE id_venta = ?" . $lock);
             $stmt->execute([$id]);
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if (!$row) {
@@ -550,11 +579,21 @@ class Sale extends Model
                 "SELECT id_producto, cantidad FROM tb_carrito WHERE nro_venta = ?"
             );
             $items->execute([$nroVenta]);
+            $user = Auth::user();
             $revertStock = $db->prepare(
                 "UPDATE tb_almacen SET stock = stock + ? WHERE id_producto = ?"
             );
             foreach ($items->fetchAll(\PDO::FETCH_ASSOC) as $item) {
                 $revertStock->execute([$item['cantidad'], $item['id_producto']]);
+                $userId = isset($user['id_usuario']) ? (int)$user['id_usuario'] : (int)($row['id_usuario'] ?? 0);
+                $this->recordInventoryMovement(
+                    (int)$item['id_producto'],
+                    (int)$item['cantidad'],
+                    'Anulación de venta',
+                    'Venta Nro ' . $nroVenta,
+                    $userId > 0 ? $userId : null,
+                    (string)($user['nombres'] ?? '')
+                );
             }
 
             $db->prepare("DELETE FROM tb_ventas WHERE id_venta = ?")->execute([$id]);
@@ -568,5 +607,16 @@ class Sale extends Model
             }
             return ['ok' => false, 'error' => 'generic'];
         }
+    }
+
+    private function recordInventoryMovement(
+        int $productId,
+        int $quantity,
+        string $type,
+        string $reference,
+        ?int $userId,
+        string $userName
+    ): void {
+        (new InventoryMovement())->record($productId, $quantity, $type, $reference, $userId, $userName);
     }
 }

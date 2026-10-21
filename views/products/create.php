@@ -135,19 +135,31 @@
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
+                                            <label for="unidad_medida">Unidad de medida <span class="text-danger">*</span></label>
+                                            <select id="unidad_medida" name="unidad_medida" class="form-control" required>
+                                                <?php foreach ($units as $unitValue => $unitLabel): ?>
+                                                    <option value="<?= htmlspecialchars($unitValue, ENT_QUOTES, 'UTF-8') ?>">
+                                                        <?= htmlspecialchars($unitLabel, ENT_QUOTES, 'UTF-8') ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
                                             <label for="stock_minimo">Stock mínimo</label>
                                             <input type="number" id="stock_minimo" name="stock_minimo"
                                                    class="form-control" min="0">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="stock_maximo">Stock máximo</label>
                                             <input type="number" id="stock_maximo" name="stock_maximo"
                                                    class="form-control" min="0">
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="fecha_ingreso">Fecha ingreso <span class="text-danger">*</span></label>
                                             <div class="input-group">

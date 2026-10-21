@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.19.3 — MVC completo, RBAC granular con gestión por UI, ventas/compras/dashboard scopeados por permiso y por usuario, devoluciones parciales, formas de pago + pago mixto, audit log, hardening de seguridad y accesibilidad (WCAG AA, claro y oscuro), moneda y zona horaria configurables por `.env`. Historial completo en [CHANGELOG.md](CHANGELOG.md); despliegue en [docs/guides/despliegue.md](docs/guides/despliegue.md).
+**Estado actual:** 1.20.0 — incluye adaptación inicial para ferretería en Chile: unidades de medida, historial de movimientos de stock, cotizaciones y órdenes de compra internas, exportaciones y guía de operación LAN. Los documentos tributarios siguen siendo internos; no hay integración con el SII. Historial completo en [CHANGELOG.md](CHANGELOG.md); despliegue en [docs/guides/despliegue.md](docs/guides/despliegue.md).
 
 ---
 
@@ -73,11 +73,13 @@ Invariantes que el esquema no deja ver:
 
 - `tb_roles.permisos_version` se incrementa en `Role::syncPermissions()`; `Auth::check()` la compara con `$_SESSION['permisos_version']` para invalidar la caché de permisos.
 - `tb_ventas.total_pagado` se calcula en el servidor como `SUM(cantidad * precio_unitario)` de `tb_carrito`, nunca del POST; `tb_carrito.precio_unitario` es NULL mientras el carrito está en curso. La venta neta de un período es ventas menos devoluciones imputadas a ese período.
+- `tb_movimientos_inventario` es el libro append-only de stock; las correcciones posteriores agregan movimientos compensatorios con usuario y fecha, nunca reescriben los anteriores. La migración 017 estima el saldo de apertura con los registros disponibles.
+- `tb_almacen.unidad_medida` permite identificar la unidad del producto; en esta entrega las cantidades se mantienen enteras. `tb_documentos_comerciales` guarda cotizaciones y órdenes de compra internas, sin modificar stock; no emite DTE ni se conecta al SII.
 - `tb_ventas.id_cliente` es opcional desde 1.18.1: las lecturas usan `LEFT JOIN` y las salidas (listado, detalle, delete, dashboard, factura PDF, activity log, exports) muestran "Consumidor final"/"—". `id_usuario` es NULL en ventas anteriores a 1.12.1.
 - `tb_pagos`: una línea por método por venta; el vuelto nunca se persiste, se deriva con `SalePayment::vueltoFor()`. Solo los métodos `efectivo` admiten exceso.
 - `tb_pos_reservas`: `id_reserva` ES el `nro_venta` del POS; las filas nunca se borran (la secuencia no debe retroceder). Tras volver temporalmente a 1.18.3 (numera con MAX+1 e ignora esta tabla) hay que reejecutar la migración 011.
 - `tb_usuarios`: `email` se guarda en minúsculas; `reset_token` guarda el hash SHA-256. Las columnas `login_intentos`, `login_bloqueado_hasta`, `remember_token` y `remember_token_expiry` están obsoletas (sin uso desde la migración 013; se conservan para poder volver a 1.18.3).
-- `tb_activity_log.usuario_nombre` y `tb_ajustes_stock.usuario_nombre` están desnormalizados para persistir si el usuario es eliminado. Acciones registradas: `create`, `update`, `delete`, `price_change`, `role_change`, `permission_change`, `stock_adjustment`, `export`, `login`, `login_failed`, `logout`. Entidades: `sale`, `purchase`, `product`, `user`, `client`, `supplier`, `category`, `role`, `permission`, `report`, `auth`, `sale_return`, `payment_method`. Los KPIs salen de `ActivityLog::kpis()` (COUNT/GROUP BY sobre el rango filtrado, no sobre la página).
+- `tb_activity_log.usuario_nombre` y `tb_ajustes_stock.usuario_nombre` están desnormalizados para persistir si el usuario es eliminado. Acciones registradas: `create`, `update`, `delete`, `price_change`, `role_change`, `permission_change`, `stock_adjustment`, `export`, `login`, `login_failed`, `logout`. Entidades: `sale`, `purchase`, `product`, `user`, `client`, `supplier`, `category`, `role`, `permission`, `report`, `auth`, `sale_return`, `payment_method`, `commercial_document`. Los KPIs salen de `ActivityLog::kpis()` (COUNT/GROUP BY sobre el rango filtrado, no sobre la página).
 - Roles sembrados: Administrador, Vendedor, Comprador.
 - Auditoría: `fyh_creacion` es `DEFAULT CURRENT_TIMESTAMP` (no insertar a mano); `fyh_actualizacion` es `ON UPDATE CURRENT_TIMESTAMP` y queda NULL al crear.
 
@@ -132,7 +134,7 @@ Invariantes que el esquema no deja ver:
   `Product::createProduct` (lo vigila `StockWritesAuditTest`); la ficha de producto lo muestra solo lectura y se
   cambia desde Inventario. Los cambios sobre un producto existente son relativos (`stock = stock ± ?`), nunca un valor leído antes.
 - Formularios que no deben procesarse dos veces y no tienen un identificador natural (ajuste de stock): token de un solo uso en sesión, `Auth::issueFormToken($scope)` al renderizar y `Auth::consumeFormToken($scope, $token)` justo antes de escribir; PHP serializa las peticiones de una misma sesión, así que no hay carrera. Si la idempotencia debe sobrevivir a la sesión, usar `token_formulario` UNIQUE como en devoluciones.
-- Stock: el decremento en `Sale::storeWithStock()` usa `AND stock >= ?` y verifica `rowCount() === 0` para rollback — nunca produce stock negativo
+- Stock: `Sale::storeWithStock()` decrementa de forma relativa dentro de la transacción y permite stock negativo según el requisito operativo; el POS advierte al agregar al carrito y al confirmar. Los ajustes manuales de salida continúan bloqueando saldos negativos.
 - Totales: `Sale::storeWithStock()` congela `precio_unitario` por línea (desde `tb_almacen.precio_venta`) y calcula `total_pagado` como `SUM(cantidad * precio_unitario)` de `tb_carrito`, todo dentro de la transacción — ignorar siempre el valor del POST
 - Guards en destroy: `isReferenced()` y verificación de auto-eliminación siempre server-side en `UserController::destroy()` — la verificación cliente-side (AJAX) es solo UX
 - Datos para operaciones críticas: usar siempre el snapshot de BD (ej: `$snapshot['id_producto']`, no `$_POST['id_producto']`) para revertir stock u otras operaciones irreversibles
@@ -248,4 +250,4 @@ Comandos: `/sdd:constitution` · `/sdd:spec` · `/sdd:clarify` · `/sdd:plan` ·
 
 ---
 
-_Última actualización: 2026-10-17 — 1.19.3. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-10-21 — 1.20.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

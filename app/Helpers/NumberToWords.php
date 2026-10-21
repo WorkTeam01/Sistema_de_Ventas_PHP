@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 /**
  * Convierte un número decimal a su representación en palabras en español.
- * Ejemplo: 1234.50 → "UN MIL DOSCIENTOS TREINTA Y CUATRO CON 50/100 Bs." (moneda configurable vía APP_CURRENCY_SYMBOL).
+ * Ejemplo: 1234.50 → "UN MIL DOSCIENTOS TREINTA Y CUATRO CON 50/100 CLP" (moneda configurable vía APP_CURRENCY_SYMBOL).
  */
 class NumberToWords
 {
@@ -52,12 +52,12 @@ class NumberToWords
      * Convierte un número a su literal en español.
      *
      * @param float $number Número a convertir.
-     * @param string|null $currencyLabel Etiqueta de moneda (por defecto, APP_CURRENCY_SYMBOL o "Bs.").
+     * @param string|null $currencyLabel Etiqueta de moneda (por defecto, APP_CURRENCY_SYMBOL o "CLP").
      * @return string Representación en palabras.
      */
     public static function convert(float $number, ?string $currencyLabel = null): string
     {
-        $currencyLabel ??= defined('APP_CURRENCY_SYMBOL') ? APP_CURRENCY_SYMBOL : 'Bs.';
+        $currencyLabel ??= defined('APP_CURRENCY_SYMBOL') ? APP_CURRENCY_SYMBOL : 'CLP';
         $xarray = self::$words;
 
         $xcifra     = number_format((float) $number, 2, '.', '');
