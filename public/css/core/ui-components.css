@@ -463,7 +463,7 @@ body.dark-mode .main-footer .text-decoration-none {
 /* AdminLTE usa los colores default de Bootstrap (#007bff / #6c757d) sobre el
    fondo #f4f6f9 del content-header, insuficientes para WCAG AA (4.5:1).
    Mismo criterio que el resto de esta sección: oscurecer sin cambiar el tono. */
-.breadcrumb-item > a {
+.breadcrumb-item>a {
     color: #0056b3;
 }
 
@@ -563,15 +563,18 @@ body.dark-mode .main-footer .text-decoration-none {
 }
 
 .modal-header.bg-primary {
-    background-color: #0056b3 !important; /* #fff → 6.38:1 */
+    background-color: #0056b3 !important;
+    /* #fff → 6.38:1 */
 }
 
 .modal-header.bg-success {
-    background-color: #1e7e34 !important; /* #fff → 5.14:1 */
+    background-color: #1e7e34 !important;
+    /* #fff → 5.14:1 */
 }
 
 .modal-header.bg-info {
-    background-color: #117a8b !important; /* #fff → 5.02:1 */
+    background-color: #117a8b !important;
+    /* #fff → 5.02:1 */
 }
 
 /* ============================================
@@ -586,7 +589,7 @@ body.dark-mode .main-footer .text-decoration-none {
    (#454d55) de AdminLTE dark. El `!important` replica el de
    `.text-primary`/`.text-info` para ganarle a esas reglas y a AdminLTE. */
 body.dark-mode .text-primary,
-body.dark-mode .breadcrumb-item > a,
+body.dark-mode .breadcrumb-item>a,
 body.dark-mode .page-link,
 body.dark-mode .card-primary.card-outline-tabs .nav-link {
     color: #9ec5fe !important;
@@ -727,7 +730,7 @@ body.dark-mode .alert-danger .alert-link {
    Solo en touch (pointer: coarse): con mouse, 44px descuadra los botones
    compactos de las tablas. */
 @media (pointer: coarse) {
-    .btn-group > .btn-sm {
+    .btn-group>.btn-sm {
         flex-shrink: 0;
         width: 44px;
         height: 44px;
@@ -758,8 +761,8 @@ body.dark-mode .alert-danger .alert-link {
    / `.sidebar-light-primary ...` (especificidad 0,4,0) — un selector con la misma
    especificidad pero sin el skin (0,3,0) no la supera. Se replica el prefijo de
    clase del skin para igualar especificidad y ganar por orden de carga. */
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
-.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active,
+.sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active {
     background-color: #0056b3;
 }
 
@@ -773,6 +776,7 @@ body.dark-mode .alert-danger .alert-link {
 [data-toggle="date-picker"] {
     cursor: pointer;
 }
+
 [data-toggle="date-picker"]:focus {
     outline: 2px solid #007bff;
     outline-offset: -2px;
@@ -807,12 +811,103 @@ body.dark-mode .alert-danger .alert-link {
    Afecta detalle/anulación de venta (código y descripción del ítem). */
 .table-striped tbody .text-muted,
 .table-striped tbody .small.text-muted,
-.table-striped tbody small.text-muted {
-    color: #5a6268;
+.table-striped tbody small.text-muted,
+table.dataTable tbody tr .text-muted {
+    color: #5a6268 !important;
 }
 
 body.dark-mode .table-striped tbody .text-muted,
 body.dark-mode .table-striped tbody .small.text-muted,
 body.dark-mode .table-striped tbody small.text-muted {
     color: #adb5bd;
+}
+
+/* ============================================
+   TEXTO DE ESTADO Y SECUNDARIO (a11y)
+   ============================================ */
+
+/* `.text-success` (#28a745) da 3.13:1 sobre blanco y `.text-secondary` /
+   `.text-sm` gris (#6c757d) 4.37:1 sobre #f7f7f7 — fallan WCAG AA. En oscuro
+   `.text-success` y `.text-danger` caen a 3.01:1 y 2.08:1 sobre #3f474e.
+   Afecta a Inventario (ajustes de stock y enlace "Ver todos"). */
+.text-success {
+    color: #1e7e34 !important;
+}
+
+a.text-secondary,
+.text-sm.text-secondary {
+    color: #5a6268 !important;
+}
+
+body.dark-mode .text-success {
+    color: #5dd879 !important;
+}
+
+body.dark-mode .text-danger {
+    color: #ffa3ab !important;
+}
+
+body.dark-mode a.text-secondary,
+body.dark-mode .text-sm.text-secondary {
+    color: #adb5bd !important;
+}
+
+/* `.btn-outline-warning` (#ffc107 sobre blanco) da 1.63:1. Texto y borde pasan
+   a #856404 (~6.8:1) en claro; al pasar el cursor recupera el relleno amarillo
+   con texto oscuro. */
+body:not(.dark-mode) .btn-outline-warning:not(:hover):not(:focus) {
+    color: #856404;
+    border-color: #856404;
+}
+
+body.dark-mode table.dataTable tbody tr .text-muted {
+    color: #adb5bd !important;
+}
+/* ============================================
+   DROPDOWNS DE DATATABLES BUTTONS (dark-mode)
+   ============================================ */
+
+/* Buttons pinta el contenedor `.dt-button-collection` en blanco y deja el
+   `.dropdown-menu` interior transparente; AdminLTE dark pone los ítems en
+   blanco, así que el menú "Reportes"/"Columnas" quedaba blanco sobre blanco. */
+body.dark-mode div.dt-button-collection {
+    background-color: #343a40;
+    border: 1px solid #6c757d;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .5);
+}
+
+body.dark-mode div.dt-button-collection .dropdown-item {
+    color: #f8f9fa;
+}
+
+body.dark-mode div.dt-button-collection .dropdown-item:hover,
+body.dark-mode div.dt-button-collection .dropdown-item:focus {
+    background-color: #495057;
+    color: #fff;
+}
+
+/* El azul activo de Bootstrap (#007bff) da 3.97:1 con texto blanco en ambos temas. */
+div.dt-button-collection .dropdown-item.active,
+div.dt-button-collection .dropdown-item:active {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+/* ============================================
+   AVISO "COPIAR" DE DATATABLES BUTTONS (dark-mode)
+   ============================================ */
+
+/* El aviso de "Copiar" (`.dt-button-info`) lleva fondo blanco propio y
+   AdminLTE dark le pone el texto en blanco: ilegible. */
+body.dark-mode div.dt-button-info {
+    background-color: #343a40;
+    border: 1px solid #6c757d;
+    color: #f8f9fa;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .5);
+}
+
+body.dark-mode div.dt-button-info h2 {
+    background-color: #3f474e;
+    border-bottom: 1px solid #6c757d;
+    color: #fff;
 }

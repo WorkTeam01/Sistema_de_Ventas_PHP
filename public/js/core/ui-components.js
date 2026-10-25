@@ -483,3 +483,40 @@ $(document).on('draw.dt', function () {
         console.error('Error al reinicializar tooltips en draw.dt:', e);
     }
 });
+
+// ============================================
+// Fix de accesibilidad: menú de DataTables Buttons
+// ============================================
+// Buttons declara `role="menu"` en el contenedor del desplegable
+// ("Reportes", "Columnas") pero deja sus ítems como enlaces sin rol, lo que
+// incumple aria-required-children. Los ítems se crean al abrir el menú, así
+// que se les asigna el rol en cuanto aparece el contenedor.
+if ($.fn.dataTable) {
+    new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            mutation.addedNodes.forEach(function (node) {
+                if (node.nodeType !== 1) return;
+                $(node).find('[role="menu"] > .dt-button').add($(node).filter('[role="menu"]').children('.dt-button'))
+                    .attr('role', 'menuitem');
+            });
+        });
+    }).observe(document.body, {childList: true, subtree: true});
+}
+
+// ============================================
+// Textos en español del aviso de "Copiar" de DataTables Buttons
+// ============================================
+// Se fusionan con el `language` de cada tabla (deep extend sobre los defaults).
+if ($.fn.dataTable) {
+    $.extend(true, $.fn.dataTable.defaults, {
+        language: {
+            buttons: {
+                copyTitle: 'Copiar al portapapeles',
+                copySuccess: {
+                    _: 'Se copiaron %d filas al portapapeles',
+                    1: 'Se copió 1 fila al portapapeles'
+                }
+            }
+        }
+    });
+}
