@@ -19,8 +19,8 @@ class ActivityLogController extends Controller
         header('Cache-Control: no-store');
 
         [$from, $to] = $this->resolveRange(
-            $_GET['desde'] ?? '',
-            $_GET['hasta'] ?? ''
+            $this->getString('desde'),
+            $this->getString('hasta')
         );
 
         $filters = [

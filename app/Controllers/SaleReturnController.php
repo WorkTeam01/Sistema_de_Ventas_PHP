@@ -93,7 +93,7 @@ class SaleReturnController extends Controller
         $this->validateCsrfOrFail();
 
         $idVenta = (int)($_POST['id_venta'] ?? 0);
-        $motivo = trim($_POST['motivo'] ?? '');
+        $motivo = $this->postString('motivo');
 
         if ($idVenta <= 0) {
             $this->flash('Venta inválida.', 'error');

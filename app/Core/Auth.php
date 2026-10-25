@@ -24,6 +24,7 @@ class Auth
         if (session_status() === PHP_SESSION_NONE) {
             // El gc de PHP borra los datos de sesión a los 1440 s por defecto: sin esto la
             // inactividad real sería menor que SESSION_LIFETIME.
+            ini_set('session.use_strict_mode', '1');
             ini_set('session.gc_maxlifetime', (string)max(1440, (int)($_ENV['SESSION_LIFETIME'] ?? 60) * 60));
             session_set_cookie_params([
                 'httponly' => true,
@@ -473,12 +474,13 @@ class Auth
      * @param string $token Token recibido desde el formulario.
      * @return bool True si el token es válido.
      */
-    public static function validateCsrfToken(string $token): bool
+    public static function validateCsrfToken(mixed $token): bool
     {
         self::startSession();
 
         return !empty($_SESSION['csrf_token'])
-            && !empty($token)
+            && is_string($token)
+            && $token !== ''
             && hash_equals($_SESSION['csrf_token'], $token);
     }
 }

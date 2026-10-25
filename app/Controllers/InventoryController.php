@@ -83,9 +83,9 @@ class InventoryController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $tipo       = $_POST['tipo'] ?? '';
+        $tipo       = $this->postString('tipo');
         $cantidad   = (int)($_POST['cantidad'] ?? 0);
-        $motivo     = trim($_POST['motivo'] ?? '');
+        $motivo     = $this->postString('motivo');
         $id_producto = (int)($_POST['id_producto'] ?? 0);
 
         if (!in_array($tipo, ['entrada', 'salida'], true)) {

@@ -14,8 +14,8 @@ class ReportFilters
      */
     public static function parseDateRange(array $get): array
     {
-        $desde = trim($get['fecha_desde'] ?? '');
-        $hasta = trim($get['fecha_hasta'] ?? '');
+        $desde = is_string($get['fecha_desde'] ?? null) ? trim($get['fecha_desde']) : '';
+        $hasta = is_string($get['fecha_hasta'] ?? null) ? trim($get['fecha_hasta']) : '';
 
         $desdeDate = self::parseDate($desde);
         $hastaDate = self::parseDate($hasta);

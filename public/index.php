@@ -2,6 +2,10 @@
 
 define('BASE_PATH', dirname(__DIR__));
 
+// Los errores nunca se muestran al cliente (rutas y SQL); van al log del servidor.
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 require_once BASE_PATH . '/vendor/autoload.php';
 
 use App\Core\Router;

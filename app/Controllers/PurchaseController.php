@@ -64,9 +64,9 @@ class PurchaseController extends Controller
         $data = [
             'id_producto' => $_POST['id_producto'] ?? '',
             'nro_compra' => $_POST['nro_compra'] ?? '',
-            'fecha_compra' => trim($_POST['fecha_compra'] ?? ''),
+            'fecha_compra' => $this->postString('fecha_compra'),
             'id_proveedor' => $_POST['id_proveedor'] ?? '',
-            'comprobante' => trim($_POST['comprobante'] ?? ''),
+            'comprobante' => $this->postString('comprobante'),
             'precio_compra' => $_POST['precio_compra'] ?? '',
             'cantidad' => $_POST['cantidad'] ?? '',
         ];
@@ -257,9 +257,9 @@ class PurchaseController extends Controller
             'id_compra' => $id_compra,
             'id_producto' => $_POST['id_producto'] ?? '',
             'nro_compra' => $_POST['nro_compra'] ?? '',
-            'fecha_compra' => trim($_POST['fecha_compra'] ?? ''),
+            'fecha_compra' => $this->postString('fecha_compra'),
             'id_proveedor' => $_POST['id_proveedor'] ?? '',
-            'comprobante' => trim($_POST['comprobante'] ?? ''),
+            'comprobante' => $this->postString('comprobante'),
             'precio_compra' => $_POST['precio_compra'] ?? '',
             'cantidad' => $_POST['cantidad'] ?? '',
         ];

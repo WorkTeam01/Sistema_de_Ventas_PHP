@@ -56,15 +56,15 @@ class ProductController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $nombre = trim($_POST['nombre'] ?? '');
+        $nombre = $this->postString('nombre');
         $id_categoria = (int)($_POST['id_categoria'] ?? 0);
-        $descripcion = trim($_POST['descripcion'] ?? '');
+        $descripcion = $this->postString('descripcion');
         $stock = $_POST['stock'] ?? '';
         $stock_minimo = $_POST['stock_minimo'] ?? null;
         $stock_maximo = $_POST['stock_maximo'] ?? null;
         $precio_compra = $_POST['precio_compra'] ?? '';
         $precio_venta = $_POST['precio_venta'] ?? '';
-        $fecha_ingreso = trim($_POST['fecha_ingreso'] ?? '');
+        $fecha_ingreso = $this->postString('fecha_ingreso');
 
         if ($nombre === '' || $id_categoria <= 0 || $stock === '' || $precio_compra === '' || $precio_venta === '' || $fecha_ingreso === '') {
             $this->flash('Los campos Nombre, Categoría, Stock, Precios y Fecha son obligatorios.', 'error');
@@ -263,14 +263,14 @@ class ProductController extends Controller
         $this->validateCsrfOrFail();
 
         $id_producto = (int)($_POST['id_producto'] ?? 0);
-        $nombre = trim($_POST['nombre'] ?? '');
+        $nombre = $this->postString('nombre');
         $id_categoria = (int)($_POST['id_categoria'] ?? 0);
-        $descripcion = trim($_POST['descripcion'] ?? '');
+        $descripcion = $this->postString('descripcion');
         $stock_minimo = $_POST['stock_minimo'] ?? null;
         $stock_maximo = $_POST['stock_maximo'] ?? null;
         $precio_compra = $_POST['precio_compra'] ?? '';
         $precio_venta = $_POST['precio_venta'] ?? '';
-        $fecha_ingreso = trim($_POST['fecha_ingreso'] ?? '');
+        $fecha_ingreso = $this->postString('fecha_ingreso');
 
         if ($id_producto <= 0 || $nombre === '' || $id_categoria <= 0 || $precio_compra === '' || $precio_venta === '' || $fecha_ingreso === '') {
             $this->flash('Datos inválidos para actualizar el producto.', 'error');

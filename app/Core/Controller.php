@@ -175,6 +175,32 @@ class Controller
     }
 
     /**
+     * Lee un campo de $_POST como string: un array (`campo[]=x`) o cualquier valor no
+     * escalar devuelve '' en vez de provocar un TypeError al llegar a funciones tipadas.
+     *
+     * @param bool $trim false para contraseñas, donde los espacios son significativos.
+     */
+    protected function postString(string $key, bool $trim = true): string
+    {
+        return $this->scalarString($_POST[$key] ?? null, $trim);
+    }
+
+    /** Igual que postString(), para $_GET. */
+    protected function getString(string $key, bool $trim = true): string
+    {
+        return $this->scalarString($_GET[$key] ?? null, $trim);
+    }
+
+    private function scalarString(mixed $value, bool $trim): string
+    {
+        if (!is_string($value)) {
+            return '';
+        }
+
+        return $trim ? trim($value) : $value;
+    }
+
+    /**
      * Aplica trim() recursivamente a strings.
      * Arrays son procesados elemento a elemento; otros tipos se devuelven sin cambios.
      *
