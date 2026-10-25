@@ -268,14 +268,16 @@ class User extends Model
     {
         $stmt = $this->db->prepare(
             "UPDATE $this->table
-             SET nombres = ?, email = ?,
-                 reset_token = CASE WHEN email <> ? THEN NULL ELSE reset_token END,
-                 reset_token_expiracion = CASE WHEN email <> ? THEN NULL ELSE reset_token_expiracion END
+             SET reset_token = CASE WHEN email <> ? THEN NULL ELSE reset_token END,
+                 reset_token_expiracion = CASE WHEN email <> ? THEN NULL ELSE reset_token_expiracion END,
+                 nombres = ?, email = ?
              WHERE $this->primaryKey = ?"
         );
         $normalized = self::normalizeEmail($email);
 
-        return $stmt->execute([$nombres, $normalized, $normalized, $normalized, $id]);
+        // MySQL evalúa las asignaciones de izquierda a derecha: las del token van antes de
+        // `email` para comparar contra el correo anterior (SQLite usa siempre el valor previo).
+        return $stmt->execute([$normalized, $normalized, $nombres, $normalized, $id]);
     }
 
     /**
@@ -367,14 +369,15 @@ class User extends Model
         if ($plainPassword === null) {
             $stmt = $this->db->prepare(
                 "UPDATE $this->table
-                 SET nombres = ?, email = ?, id_rol = ?,
-                     reset_token = CASE WHEN email <> ? THEN NULL ELSE reset_token END,
-                 reset_token_expiracion = CASE WHEN email <> ? THEN NULL ELSE reset_token_expiracion END
+                 SET reset_token = CASE WHEN email <> ? THEN NULL ELSE reset_token END,
+                     reset_token_expiracion = CASE WHEN email <> ? THEN NULL ELSE reset_token_expiracion END,
+                     nombres = ?, email = ?, id_rol = ?
                  WHERE $this->primaryKey = ?"
             );
             $normalized = self::normalizeEmail($email);
 
-            return $stmt->execute([$nombres, $normalized, $idRol, $normalized, $normalized, $id]);
+            // Las asignaciones del token van antes de `email`: ver updateProfileInfo().
+            return $stmt->execute([$normalized, $normalized, $nombres, $normalized, $idRol, $id]);
         }
 
         $stmt = $this->db->prepare(
