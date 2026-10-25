@@ -120,6 +120,13 @@ fuera de rango se ignora y se usa el default. Los 7 ajustables:
   el plazo mostrado sale de `AuthSettings::resetTokenMinutes()`.
 - Cambiar la propia contraseña desde el perfil exige la contraseña actual (`User::verifyCurrentPassword()`);
   un administrador cambia la de otro usuario sin pedirla.
+- Cambiar el **correo** desde el perfil también exige la contraseña actual (campo `password_current_email`, visible
+  solo si el correo cambia): una sesión robada no basta para apropiarse de la cuenta. No existe un endpoint para
+  consultar si un correo ya está registrado; la unicidad se valida al guardar.
+- `reset_token` se anula al cambiar la contraseña (`updatePassword()`, `updateUser()` con contraseña) y al cambiar
+  el correo (`updateProfileInfo()`, `updateUser()`): un enlace enviado al correo anterior deja de valer.
+- `UserController::update()` no deja cambiar el rol del único usuario cuyo rol concede `is_superadmin`
+  (`User::isLastSuperadminUser()`); `Role::isLastSuperadminRole()` protege el lado de los roles.
 
 **Rate limiting en login:**
 

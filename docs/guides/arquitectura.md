@@ -9,7 +9,7 @@ Sistema_de_Ventas_PHP/
 │   │   ├── Router.php        ← Enrutamiento centralizado (rutas MVC)
 │   │   ├── Database.php      ← Singleton PDO
 │   │   ├── Model.php         ← CRUD genérico base
-│   │   ├── Controller.php    ← renderWithLayout(), redirect(), flash(), validate()
+│   │   ├── Controller.php    ← renderWithLayout(), redirect(), flash(), validate(), postString()/getString()
 │   │   ├── Auth.php          ← Sesiones, CSRF, login/logout
 │   │   ├── Config.php        ← Wrapper .env
 │   │   └── Middleware.php    ← Interfaz handle(): bool
@@ -98,7 +98,7 @@ Sistema_de_Ventas_PHP/
 │   │   ├── lib/              ← Vendors CSS (adminlte/, fontawesome/, bootstrap/)
 │   │   └── plugins/          ← Plugins CSS (sweetalert2/, datatables/, select2/)
 │   ├── js/
-│   │   ├── core/             ← Utilitarios globales (sweetalert-utils.js, control_sidebar.js)
+│   │   ├── core/             ← Utilitarios globales (sweetalert-utils.js, ui-components.js, datatables-csv-safe.js, control_sidebar.js)
 │   │   ├── modules/          ← JS por módulo (auth/login.js, users/users-index.js, …)
 │   │   ├── lib/              ← Vendors JS (jquery/, bootstrap/, adminlte/)
 │   │   └── plugins/          ← Plugins JS (sweetalert2/)

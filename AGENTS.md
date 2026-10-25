@@ -11,7 +11,7 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.19.3 — MVC completo, RBAC granular con gestión por UI, ventas/compras/dashboard scopeados por permiso y por usuario, devoluciones parciales, formas de pago + pago mixto, audit log, hardening de seguridad y accesibilidad (WCAG AA, claro y oscuro), moneda y zona horaria configurables por `.env`. Historial completo en [CHANGELOG.md](CHANGELOG.md); despliegue en [docs/guides/despliegue.md](docs/guides/despliegue.md).
+**Estado actual:** 1.19.4 — MVC completo, RBAC granular con gestión por UI, ventas/compras/dashboard scopeados por permiso y por usuario, devoluciones parciales, formas de pago + pago mixto, audit log, hardening de seguridad y accesibilidad (WCAG AA, claro y oscuro), moneda y zona horaria configurables por `.env`. Historial completo en [CHANGELOG.md](CHANGELOG.md); despliegue en [docs/guides/despliegue.md](docs/guides/despliegue.md).
 
 ---
 
@@ -134,6 +134,10 @@ Invariantes que el esquema no deja ver:
 - Formularios que no deben procesarse dos veces y no tienen un identificador natural (ajuste de stock): token de un solo uso en sesión, `Auth::issueFormToken($scope)` al renderizar y `Auth::consumeFormToken($scope, $token)` justo antes de escribir; PHP serializa las peticiones de una misma sesión, así que no hay carrera. Si la idempotencia debe sobrevivir a la sesión, usar `token_formulario` UNIQUE como en devoluciones.
 - Stock: el decremento en `Sale::storeWithStock()` usa `AND stock >= ?` y verifica `rowCount() === 0` para rollback — nunca produce stock negativo
 - Totales: `Sale::storeWithStock()` congela `precio_unitario` por línea (desde `tb_almacen.precio_venta`) y calcula `total_pagado` como `SUM(cantidad * precio_unitario)` de `tb_carrito`, todo dentro de la transacción — ignorar siempre el valor del POST
+- Entradas: en controladores, los campos de texto se leen con `postString()`/`getString()` (devuelven `''` ante un array); un `trim($_POST['x'] ?? '')` revienta con `x[]=…` (TypeError → 500). Contraseñas: `postString('campo', false)`, sin `trim`.
+- Errores: `display_errors=0` y `log_errors=1` al inicio de `public/index.php`; nunca mostrar rutas ni SQL al cliente.
+- Exportación: el CSV de reportes (`ReportController::csvCell()`) y el de DataTables (`datatables-csv-safe.js`) neutralizan las celdas que empiezan por `= + - @`; no exportes texto de usuario sin pasar por ahí. Las descargas con datos financieros llevan `Cache-Control: private, no-store`.
+- Cuenta: cambiar el correo exige la contraseña actual y anula `reset_token`; no se debe exponer ningún endpoint que diga si un correo ya existe. `UserController::update()` no deja degradar al único superusuario (`User::isLastSuperadminUser()`).
 - Guards en destroy: `isReferenced()` y verificación de auto-eliminación siempre server-side en `UserController::destroy()` — la verificación cliente-side (AJAX) es solo UX
 - Datos para operaciones críticas: usar siempre el snapshot de BD (ej: `$snapshot['id_producto']`, no `$_POST['id_producto']`) para revertir stock u otras operaciones irreversibles
 
@@ -248,4 +252,4 @@ Comandos: `/sdd:constitution` · `/sdd:spec` · `/sdd:clarify` · `/sdd:plan` ·
 
 ---
 
-_Última actualización: 2026-10-17 — 1.19.3. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-10-25 — 1.19.4. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

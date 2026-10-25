@@ -7,6 +7,44 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.19.4] - 2026-10-25
+
+Ronda de accesibilidad y hardening de seguridad a partir de la auditoría del 2026-10-17 y de un análisis de solo lectura de los propios cambios. Sin cambios de esquema ni migraciones.
+
+### Actualización desde 1.19.3
+
+No hay migraciones. Tras desplegar el código: subir `APP_VERSION` a `1.19.4` en `.env`, porque cambian CSS y JS compartidos (`ui-components.css`, `ui-components.js`, `datatables-csv-safe.js`).
+
+### Añadido
+
+- `public/js/core/datatables-csv-safe.js`: las exportaciones CSV de DataTables neutralizan las celdas que empiezan por `=`, `+`, `-` o `@` (inyección de fórmulas), con el mismo criterio que `ReportController::csvCell()`; antes aplican el `stripData` de Buttons para no exportar HTML ni entidades.
+- `Controller::postString()` / `getString()`: leen un campo como string y devuelven `''` si llega un array.
+- `User::isLastSuperadminUser()` y guard en `UserController::update()`: no se puede cambiar el rol del único usuario que concede `is_superadmin`.
+- Perfil: cambiar el correo exige la contraseña actual (campo que solo aparece cuando el correo cambia).
+- `tests/Integration/Models/UserAccountSafetyTest.php` (6 tests); la suite pasa de 880 a 886.
+
+### Cambiado
+
+- **Accesibilidad (axe-core, claro y oscuro, 0 violaciones):**
+  - `/inventory`: las pestañas son navegación, no `tablist`; las tablas con scroll son regiones enfocables (`tabindex`, `role="region"`, `aria-label`).
+  - Contrastes: azul de enlace de las tarjetas de `/reports`, `.text-success`, `.text-danger`, `.text-secondary`/`.text-sm`, `.btn-outline-warning`, `.text-muted` en tablas DataTables y botón rojo del 403 en modo oscuro.
+  - `/reports`: el encabezado «Top 5 productos» pasa de `h6` a `h3.h6` (orden de encabezados).
+- **DataTables Buttons en modo oscuro:** los desplegables «Reportes»/«Columnas» y el aviso de «Copiar» tenían texto blanco sobre fondo blanco; ahora usan el fondo oscuro de AdminLTE. El ítem activo del menú de columnas sube a `#0056b3` (4.5:1) en ambos temas, los ítems del menú llevan `role="menuitem"` y el aviso de copiado sale en español.
+- Cambiar el correo (perfil o edición de usuario) invalida un enlace de restablecimiento pendiente; cambiar la contraseña limpia `reset_token` dentro del mismo `UPDATE`.
+- Los POST/GET con forma de array (`csrf_token[]`, `token[]`, `fecha_desde[]`, `motivo[]`, `email[]`…) ya no provocan un `TypeError` (500): `Auth::validateCsrfToken()` acepta `mixed` y los controladores leen con `postString()`/`getString()`.
+- El CSV de reportes se sirve con `Cache-Control: private, no-store`.
+- `display_errors=0` y `log_errors=1` se fijan al inicio de `public/index.php`; `session.use_strict_mode` se declara de forma explícita en `Auth::startSession()`.
+
+### Eliminado
+
+- `POST /profile/check-email` (`UserController::checkProfileEmail()`): revelaba a cualquier usuario autenticado si un correo ya era una cuenta. La unicidad se valida al guardar (`updateProfile()`).
+
+### Pendiente
+
+Ver `docs/roadmap.md` § Siguiente (`no-store` en PDF, CSP/HSTS, librerías JS, `PermissionMiddleware`, `utf8mb4`).
+
+---
+
 ## [1.19.3] - 2026-10-17
 
 Reorganización de la documentación y cierre del formato SDD. Sin cambios de código, esquema ni migraciones.

@@ -62,14 +62,25 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
     generados con `/sdd:docs`; guías en `docs/guides/`; `AGENTS.md` y `CLAUDE.md` reducidos.
     Sin spec propia (solo documentación). → CHANGELOG 1.19.3
 
+24. **Ronda a11y y hardening 1.19.4** — `/reports`, `/inventory` y `/errors/403` con 0 violaciones de
+    axe en claro y oscuro; desplegables y aviso de «Copiar» de DataTables Buttons legibles en oscuro;
+    CSV a prueba de fórmulas; se elimina `/profile/check-email`; contraseña actual para cambiar el correo;
+    guard del último superusuario por usuario; entradas con forma de array sin 500. Sin spec propia
+    (sin cambios de esquema). → CHANGELOG 1.19.4
+
 ## Siguiente 🔜
 
-- **Hardening de la auditoría de seguridad (2026-10-17)** — 0 hallazgos confirmados y 2 pistas
-  `needs_validation`: `POST /profile/check-email` revela si un correo es cuenta (solo `auth`) y los CSV de
-  DataTables no neutralizan fórmulas como sí hace `ReportController::csvCell()`. Además: CSP/HSTS,
-  `Cache-Control: no-store` en PDF/CSV financieros, limpiar `reset_token` al cambiar la contraseña,
-  contraseña actual al cambiar el correo del perfil y `is_string` en parámetros de reportes. Fixes
-  de una línea sin spec.
+- **Hardening pendiente de la auditoría (2026-10-17)** — lo aplicado en 1.19.4 queda en el CHANGELOG. Falta:
+  - `Cache-Control: no-store` en los PDF (TCPDF escribe sus propias cabeceras en `Output()`: hay que generar el
+    PDF en memoria y enviarlo con las cabeceras propias).
+  - CSP y HSTS; `Auth::isHttps()` confía en `X-Forwarded-Proto` de cualquier cliente; el límite de intentos usa
+    `REMOTE_ADDR`, que se colapsa tras un proxy.
+  - `PermissionMiddleware` repite `Auth::check()` (dos SELECT por petición): cachear el resultado por petición.
+  - Librerías JS antiguas (jQuery 3.6.0, DataTables 1.11.4, JSZip 3.7.1, Chart.js 2.9.4): cada subida exige smoke test.
+  - `Model::create/update` sin lista blanca de columnas; `StockWritesAuditTest` no detecta `Model::update(['stock' => …])`.
+  - `.select2-selection` sin `aria-expanded` (axe `aria-required-attr`, viene de la librería).
+- **Despliegue real** — `docs/guides/despliegue.md` solo se ha probado con BD vacía; falta un servidor real y
+  conocer la zona horaria del MySQL de producción.
 
 ## Backlog · ideas 💡
 

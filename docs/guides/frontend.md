@@ -27,7 +27,17 @@
   `<h2 class="modal-title h5">` (nunca `h4`/`h5` sueltos: rompen `heading-order`); todo botón o enlace de solo icono
   lleva `aria-label` (también el de colapsar `btn-tool`); cada `<label>` apunta a su campo con `for`/`id`; los `<li>`
   de las pestañas llevan `role="presentation"`. Al auditar con axe, desactivar las transiciones CSS antes de
-  alternar `body.dark-mode`, o lee colores a medio animar.
+  alternar `body.dark-mode`, o lee colores a medio animar. Alternar `dark-mode` a mano no replica el interruptor
+  real del panel (que además guarda `body_class`/`header_class` en `localStorage`, incluido `sidebar-collapse`): antes de
+  medir, `localStorage.clear()` y activar el modo oscuro desde el panel, o axe da falsos positivos (barra, enlaces del
+  sidebar sin nombre visible).
+- **DataTables Buttons:** el contenedor `.dt-button-collection` y el aviso `.dt-button-info` traen fondo blanco propio;
+  en oscuro hay que repintarlos (`ui-components.css`). Buttons copia la config de cada botón con un `extend`
+  superficial, así que un `exportOptions` definido en el botón base lo pisa el del módulo: para tocar la exportación
+  de todas las tablas se envuelve `action` (ver `datatables-csv-safe.js`). Un `format.body` propio sustituye al
+  `stripData` por defecto: hay que llamarlo dentro. Los textos del aviso de copiado se traducen una vez en
+  `ui-components.js` (defaults de DataTables). Las utilidades de Bootstrap como `.text-muted` llevan `!important`:
+  para sobrescribirlas, otro `!important` con mayor especificidad.
 - **Cache-busting**: los layouts anexan `?v=<?= APP_VERSION ?>` a todos los assets propios (CSS/JS de `core/` y
   cada entrada de `$pageStyles` / `$pageScripts`). Tras un fix de CSS/JS, subir `APP_VERSION` en `.env` para forzar
   la recarga en navegadores de usuarios. Los vendors (`lib/`, `plugins/`) no llevan query string.
