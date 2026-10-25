@@ -15,7 +15,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                 </div>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive" tabindex="0" role="region" aria-label="Productos con stock bajo">
                     <table class="table table-sm table-hover mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -89,7 +89,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                 </div>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;" tabindex="0" role="region" aria-label="Estado del inventario por producto">
                     <table class="table table-sm table-hover mb-0">
                         <thead class="bg-light" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
@@ -150,7 +150,7 @@ $alertas = array_filter($productos, fn($p) => (int)$p['stock'] <= (int)$p['stock
                 </div>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive" tabindex="0" role="region" aria-label="Últimos ajustes de stock">
                     <table class="table table-sm table-hover mb-0">
                         <thead class="bg-light border-bottom">
                             <tr>

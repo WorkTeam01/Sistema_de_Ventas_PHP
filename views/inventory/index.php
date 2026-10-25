@@ -21,7 +21,7 @@
                 <div class="col-12">
                     <div class="card card-primary card-outline card-outline-tabs">
                         <div class="card-header p-0 border-bottom-0">
-                            <ul class="nav nav-tabs" role="tablist">
+                            <ul class="nav nav-tabs">
                                 <li class="nav-item">
                                     <a class="nav-link <?= $activeTab === 'stock' ? 'active' : '' ?>"
                                         href="<?= BASE_URL ?>/inventory?tab=stock">

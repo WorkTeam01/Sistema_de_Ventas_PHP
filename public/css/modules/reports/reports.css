@@ -2,9 +2,15 @@
 .info-box-hover {
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+
+/* El azul de enlace (#007bff) da 3.97:1 sobre blanco; #0056b3 da 7:1. */
+body:not(.dark-mode) .info-box-hover .info-box-content {
+    color: #0056b3;
+}
+
 .info-box-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
 }
 
 /* ── Totalizadores ────────────────────────────────────────────── */

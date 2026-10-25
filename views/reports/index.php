@@ -195,9 +195,9 @@
 
                             <?php if ($can['view_top_products_report'] && !empty($topProductos)): ?>
                                 <hr>
-                                <h6 class="text-muted mb-2">
+                                <h3 class="h6 text-muted mb-2">
                                     <i class="fas fa-trophy mr-1 text-warning"></i> Top 5 productos más vendidos del mes
-                                </h6>
+                                </h3>
                                 <div class="table-responsive">
                                     <table class="table table-sm table-hover mb-0">
                                         <thead class="thead-light">

@@ -49,6 +49,10 @@
             color: #495057;
             margin-bottom: 2rem;
         }
+        body.dark-mode .btn-danger {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
     </style>
 </head>
 
