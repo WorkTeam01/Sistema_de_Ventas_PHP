@@ -281,5 +281,5 @@ Los colaboradores que mergeen features significativas serán agregados a `README
 
 ---
 
-_Última actualización: 2026-10-17 — 1.19.3_
+_Última actualización: 2026-10-25 — 1.19.4_
 _Sigue las prácticas de AGENTS.md y CLAUDE.md — son la fuente de verdad._

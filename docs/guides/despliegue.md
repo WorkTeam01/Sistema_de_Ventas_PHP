@@ -22,7 +22,7 @@ Solo el artefacto de producción, sin `docs/`, `specs/`, `tests/`, `.github/` ni
 (`.gitattributes` ya los marca con `export-ignore`):
 
 ```bash
-git archive --format=tar.gz -o sistema.tar.gz 1.19.3   # tag sin prefijo v
+git archive --format=tar.gz -o sistema.tar.gz 1.19.4   # tag sin prefijo v
 ```
 
 En el servidor: `composer install --no-dev --optimize-autoloader`. No subas `vendor/` de desarrollo ni `.env`.
@@ -89,7 +89,7 @@ DB_USER=usuario_propio
 DB_PASS=contraseña_fuerte
 APP_URL=https://tudominio.com        # sin /public si el docroot ya es public/
 APP_TIMEZONE=America/La_Paz
-APP_VERSION=1.19.3                    # súbela en cada despliegue: invalida la caché de CSS/JS
+APP_VERSION=1.19.4                    # súbela en cada despliegue: invalida la caché de CSS/JS
 APP_DEBUG=false
 ```
 
