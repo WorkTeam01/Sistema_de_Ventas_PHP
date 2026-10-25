@@ -38,6 +38,7 @@
     <script src="<?= BASE_URL ?>/js/plugins/pdfmake/pdfmake.min.js"></script>
     <script src="<?= BASE_URL ?>/js/plugins/pdfmake/vfs_fonts.js"></script>
     <script src="<?= BASE_URL ?>/js/plugins/datatables/buttons.html5.min.js"></script>
+    <script src="<?= BASE_URL ?>/js/core/datatables-csv-safe.js?v=<?= APP_VERSION ?>"></script>
     <script src="<?= BASE_URL ?>/js/plugins/datatables/buttons.print.min.js"></script>
     <script src="<?= BASE_URL ?>/js/plugins/datatables/buttons.colVis.min.js"></script>
 <?php endif; ?>

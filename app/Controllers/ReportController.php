@@ -321,7 +321,7 @@ class ReportController extends Controller
 
         header('Content-Type: ' . $contentType . '; charset=UTF-8');
         header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
-        header('Cache-Control: max-age=0');
+        header('Cache-Control: private, no-store');
 
         $out = fopen('php://output', 'w');
         // UTF-8 BOM for Excel compatibility
