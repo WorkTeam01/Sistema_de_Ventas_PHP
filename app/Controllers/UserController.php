@@ -79,11 +79,11 @@ class UserController extends Controller
     {
         $this->validateCsrfOrFail();
 
-        $nombres = trim($_POST['nombres'] ?? '');
-        $email = trim($_POST['email'] ?? '');
+        $nombres = $this->postString('nombres');
+        $email = $this->postString('email');
         $rol = (int)($_POST['rol'] ?? 0);
-        $password_user = $_POST['password_user'] ?? '';
-        $password_repeat = $_POST['password_repeat'] ?? '';
+        $password_user = $this->postString('password_user', false);
+        $password_repeat = $this->postString('password_repeat', false);
 
         if ($nombres === '' || $email === '' || $rol <= 0 || $password_user === '' || $password_repeat === '') {
             $this->flash('Todos los campos son obligatorios.', 'error');
@@ -179,11 +179,11 @@ class UserController extends Controller
         $this->validateCsrfOrFail();
 
         $id_usuario = (int)($_POST['id_usuario'] ?? 0);
-        $nombres = trim($_POST['nombres'] ?? '');
-        $email = trim($_POST['email'] ?? '');
+        $nombres = $this->postString('nombres');
+        $email = $this->postString('email');
         $rol = (int)($_POST['rol'] ?? 0);
-        $password_user = $_POST['password_user'] ?? '';
-        $password_repeat = $_POST['password_repeat'] ?? '';
+        $password_user = $this->postString('password_user', false);
+        $password_repeat = $this->postString('password_repeat', false);
 
         if ($id_usuario <= 0 || $nombres === '' || $email === '' || $rol <= 0) {
             $this->flash('Datos inválidos para actualizar el usuario.', 'error');
@@ -205,6 +205,16 @@ class UserController extends Controller
 
         if ($userModel->emailExists($email, $id_usuario)) {
             $this->flash('El correo electrónico ya está registrado por otro usuario.', 'error');
+            $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
+        }
+
+        if (
+            $usuarioActual
+            && (int)$usuarioActual['id_rol'] !== $rol
+            && !(new Role())->grantsSuperadmin($rol)
+            && $userModel->isLastSuperadminUser($id_usuario)
+        ) {
+            $this->flash('No se puede cambiar el rol: es el único superusuario del sistema.', 'error');
             $this->redirect(BASE_URL . '/users/edit/' . $id_usuario);
         }
 
@@ -283,7 +293,7 @@ class UserController extends Controller
      */
     public function checkEmail(): void
     {
-        $email = trim($_POST['email'] ?? '');
+        $email = $this->postString('email');
         $id = $_POST['id_usuario'] ?? null;
 
         if ($id === '' || $id === 'null') {
@@ -294,22 +304,6 @@ class UserController extends Controller
 
         $userModel = new User();
         if ($userModel->emailExists($email, $id)) {
-            echo json_encode('El correo electrónico ya está registrado en el sistema');
-        } else {
-            echo json_encode(true);
-        }
-    }
-
-    /**
-     * Verifica vía AJAX si un email está libre para el perfil propio (jquery.validate remote).
-     * Excluye siempre al usuario de la sesión, nunca un id enviado por el cliente.
-     */
-    public function checkProfileEmail(): void
-    {
-        $email = trim($_POST['email'] ?? '');
-
-        $userModel = new User();
-        if ($userModel->emailExists($email, (int)Auth::user()['id_usuario'])) {
             echo json_encode('El correo electrónico ya está registrado en el sistema');
         } else {
             echo json_encode(true);
@@ -407,7 +401,6 @@ class UserController extends Controller
                 'initSafe' => htmlspecialchars($initials, ENT_QUOTES, 'UTF-8'),
                 'fechaSafe' => htmlspecialchars($fechaRegistro, ENT_QUOTES, 'UTF-8'),
                 'csrfSafe' => htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'),
-                'checkUrl' => htmlspecialchars(BASE_URL . '/profile/check-email', ENT_QUOTES, 'UTF-8'),
                 'navPerfilClass' => $activeTab === 'perfil' ? 'active' : '',
                 'navPasswordClass' => $activeTab === 'password' ? 'active' : '',
                 'panePerfilClass' => $activeTab === 'perfil' ? 'show active' : '',
@@ -427,8 +420,8 @@ class UserController extends Controller
 
         $authUser = Auth::user();
         $id_usuario = (int)$authUser['id_usuario'];
-        $nombres = trim($_POST['nombres'] ?? '');
-        $email = trim($_POST['email'] ?? '');
+        $nombres = $this->postString('nombres');
+        $email = $this->postString('email');
 
         if ($nombres === '' || $email === '') {
             $this->flash('El nombre y el email son obligatorios.', 'error');
@@ -441,13 +434,22 @@ class UserController extends Controller
         }
 
         $userModel = new User();
+        $email = User::normalizeEmail($email);
+        $emailChanged = $email !== User::normalizeEmail((string)$authUser['email']);
+
+        // Una sesión robada no debe bastar para apropiarse de la cuenta cambiando el correo.
+        if ($emailChanged && !$userModel->verifyCurrentPassword($id_usuario, $this->postString('password_current_email', false))) {
+            $this->flash('La contraseña actual es incorrecta; el correo no se cambió.', 'error');
+            $this->redirect(BASE_URL . '/profile');
+        }
+
         if ($userModel->emailExists($email, $id_usuario)) {
             $this->flash('El correo electrónico ya está registrado por otro usuario.', 'error');
             $this->redirect(BASE_URL . '/profile');
         }
 
         if ($userModel->updateProfileInfo($id_usuario, $nombres, $email)) {
-            if ($email !== $authUser['email']) {
+            if ($emailChanged) {
                 Auth::startSession();
                 $_SESSION['sesion_email'] = $email;
             }
@@ -468,9 +470,9 @@ class UserController extends Controller
 
         $authUser = Auth::user();
         $id_usuario = (int)$authUser['id_usuario'];
-        $password_current = $_POST['password_current'] ?? '';
-        $password_user = $_POST['password_user'] ?? '';
-        $password_repeat = $_POST['password_repeat'] ?? '';
+        $password_current = $this->postString('password_current', false);
+        $password_user = $this->postString('password_user', false);
+        $password_repeat = $this->postString('password_repeat', false);
 
         if ($password_user === '') {
             $this->flash('La nueva contraseña es obligatoria.', 'error');

@@ -1,33 +1,43 @@
 $(function () {
     const $formInfo = $('#form-info');
     const $formPassword = $('#form-password');
-    const checkEmailUrl = $formInfo.data('check-email-url');
+
+    // La contraseña actual solo se pide cuando el correo cambia.
+    const $email = $('#email');
+    const $emailPasswordGroup = $('#email-password-group');
+    $email.on('input', function () {
+        const changed = $email.val().trim().toLowerCase() !== String($email.data('original')).toLowerCase();
+        $emailPasswordGroup.toggleClass('d-none', !changed);
+    });
 
     // ── Validación: Editar perfil ────────────────────────────────────────────
     $formInfo.validate({
         rules: {
+            password_current_email: {
+                required: function () {
+                    return !$emailPasswordGroup.hasClass('d-none');
+                }
+            },
             nombres: {
                 required: true,
                 minlength: 2
             },
             email: {
                 required: true,
-                email: true,
-                remote: {
-                    url: checkEmailUrl,
-                    type: 'post'
-                }
+                email: true
             }
         },
         messages: {
+            password_current_email: {
+                required: 'Ingresa tu contraseña actual para cambiar el correo.'
+            },
             nombres: {
                 required: 'El nombre es obligatorio.',
                 minlength: 'El nombre debe tener al menos 2 caracteres.'
             },
             email: {
                 required: 'El email es obligatorio.',
-                email: 'Ingresa un correo electrónico válido.',
-                remote: 'El correo electrónico ya está registrado por otro usuario.'
+                email: 'Ingresa un correo electrónico válido.'
             }
         },
         errorElement: 'span',

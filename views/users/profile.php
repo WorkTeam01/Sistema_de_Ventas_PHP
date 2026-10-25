@@ -95,7 +95,6 @@
                                     <form id="form-info"
                                         action="<?= BASE_URL ?>/profile/update"
                                         method="POST"
-                                        data-check-email-url="<?= $checkUrl ?>"
                                         data-user-id="<?= $id_usuario ?>">
 
                                         <input type="hidden" name="csrf_token" value="<?= $csrfSafe ?>">
@@ -127,8 +126,25 @@
                                                     name="email"
                                                     class="form-control"
                                                     value="<?= $emailSafe ?>"
+                                                    data-original="<?= $emailSafe ?>"
                                                     autocomplete="off">
                                             </div>
+                                        </div>
+
+                                        <div class="form-group d-none" id="email-password-group">
+                                            <label for="password_current_email">Contraseña actual</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                </div>
+                                                <input type="password"
+                                                    id="password_current_email"
+                                                    name="password_current_email"
+                                                    class="form-control"
+                                                    aria-describedby="password_current_email_help"
+                                                    autocomplete="current-password">
+                                            </div>
+                                            <small id="password_current_email_help" class="form-text text-muted">Necesaria para cambiar el correo electrónico.</small>
                                         </div>
 
                                         <div class="form-group mb-0">

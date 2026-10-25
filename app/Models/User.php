@@ -213,6 +213,27 @@ class User extends Model
     }
 
     /**
+     * Indica si el usuario es el único cuyo rol concede `is_superadmin`: quitarle ese rol
+     * dejaría el sistema sin nadie que gestione roles y permisos.
+     *
+     * @param int $id ID del usuario.
+     */
+    public function isLastSuperadminUser(int $id): bool
+    {
+        $rows = $this->query(
+            "SELECT u.id_usuario
+             FROM tb_usuarios u
+             INNER JOIN tb_rol_permiso rp ON rp.id_rol = u.id_rol
+             INNER JOIN tb_permisos p ON p.id_permiso = rp.id_permiso
+             WHERE p.clave = 'is_superadmin'",
+            []
+        );
+        $ids = array_map('intval', array_column($rows, 'id_usuario'));
+
+        return $ids === [$id];
+    }
+
+    /**
      * Devuelve un desglose de cuántos registros tiene el usuario en cada tabla referenciada.
      *
      * @param int $id ID del usuario.
@@ -247,10 +268,14 @@ class User extends Model
     {
         $stmt = $this->db->prepare(
             "UPDATE $this->table
-             SET nombres = ?, email = ?
+             SET nombres = ?, email = ?,
+                 reset_token = CASE WHEN email <> ? THEN NULL ELSE reset_token END,
+                 reset_token_expiracion = CASE WHEN email <> ? THEN NULL ELSE reset_token_expiracion END
              WHERE $this->primaryKey = ?"
         );
-        return $stmt->execute([$nombres, self::normalizeEmail($email), $id]);
+        $normalized = self::normalizeEmail($email);
+
+        return $stmt->execute([$nombres, $normalized, $normalized, $normalized, $id]);
     }
 
     /**
@@ -264,7 +289,7 @@ class User extends Model
     {
         $stmt = $this->db->prepare(
             "UPDATE $this->table
-             SET password_user = ?
+             SET password_user = ?, reset_token = NULL, reset_token_expiracion = NULL
              WHERE $this->primaryKey = ?"
         );
         $updated = $stmt->execute([password_hash($plainPassword, PASSWORD_DEFAULT), $id]);
@@ -342,16 +367,20 @@ class User extends Model
         if ($plainPassword === null) {
             $stmt = $this->db->prepare(
                 "UPDATE $this->table
-                 SET nombres = ?, email = ?, id_rol = ?
+                 SET nombres = ?, email = ?, id_rol = ?,
+                     reset_token = CASE WHEN email <> ? THEN NULL ELSE reset_token END,
+                 reset_token_expiracion = CASE WHEN email <> ? THEN NULL ELSE reset_token_expiracion END
                  WHERE $this->primaryKey = ?"
             );
+            $normalized = self::normalizeEmail($email);
 
-            return $stmt->execute([$nombres, self::normalizeEmail($email), $idRol, $id]);
+            return $stmt->execute([$nombres, $normalized, $idRol, $normalized, $normalized, $id]);
         }
 
         $stmt = $this->db->prepare(
             "UPDATE $this->table
-             SET nombres = ?, email = ?, id_rol = ?, password_user = ?
+             SET nombres = ?, email = ?, id_rol = ?, password_user = ?,
+                 reset_token = NULL, reset_token_expiracion = NULL
              WHERE $this->primaryKey = ?"
         );
 

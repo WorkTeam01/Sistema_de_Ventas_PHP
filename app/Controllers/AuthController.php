@@ -38,8 +38,8 @@ class AuthController extends Controller
 
         $this->validateCsrfOrFail();
 
-        $email = trim($_POST['email'] ?? '');
-        $password_user = $_POST['password_user'] ?? '';
+        $email = $this->postString('email');
+        $password_user = $this->postString('password_user', false);
         $remember = isset($_POST['remember']) && $_POST['remember'] === '1';
 
         $email    = User::normalizeEmail($email);
@@ -102,7 +102,7 @@ class AuthController extends Controller
         Auth::startSession();
         $this->validateCsrfOrFail();
 
-        $email = User::normalizeEmail($_POST['email'] ?? '');
+        $email = User::normalizeEmail($this->postString('email'));
 
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->flash('Ingresa un correo electrónico válido.', 'error');
@@ -170,9 +170,9 @@ class AuthController extends Controller
         Auth::startSession();
         $this->validateCsrfOrFail();
 
-        $token = $_POST['token'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $passwordConfirm = $_POST['password_confirm'] ?? '';
+        $token = $this->postString('token', false);
+        $password = $this->postString('password', false);
+        $passwordConfirm = $this->postString('password_confirm', false);
 
         if (empty($token) || !User::validatePassword($password)) {
             $this->flash('La contraseña debe tener al menos ' . User::MIN_PASSWORD_LENGTH . ' caracteres.', 'error');
@@ -193,7 +193,6 @@ class AuthController extends Controller
         }
 
         $userModel->updatePassword((int)$usuario['id_usuario'], $password);
-        $userModel->clearResetToken((int)$usuario['id_usuario']);
 
         $this->flash('Contraseña actualizada correctamente. Ya puedes iniciar sesión.', 'success');
         $this->redirect(BASE_URL . '/auth');
