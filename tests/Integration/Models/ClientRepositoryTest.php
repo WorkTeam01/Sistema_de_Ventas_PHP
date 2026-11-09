@@ -166,4 +166,25 @@ final class ClientRepositoryTest extends TestCase
     }
 
     // countNewThisMonth usa CURDATE() — ver ClientRepositoryMariaDbTest.
+
+    public function test_update_accepts_client_columns_and_rejects_other_columns(): void
+    {
+        $id = $this->createClient();
+
+        $this->assertTrue($this->client->update($id, ['nombre_cliente' => 'Renombrado']));
+        $this->assertSame('Renombrado', $this->pdo->query("SELECT nombre_cliente FROM tb_clientes WHERE id_cliente = $id")->fetchColumn());
+
+        try {
+            $this->client->update($id, ['id_cliente' => 88]);
+            $this->fail('update aceptó id_cliente');
+        } catch (\InvalidArgumentException) {
+            $this->assertSame(1, (int) $this->pdo->query('SELECT COUNT(*) FROM tb_clientes WHERE id_cliente = ' . $id)->fetchColumn());
+        }
+    }
+
+    public function test_create_rejects_columns_outside_the_list(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->client->create(['nombre_cliente' => 'X', 'nit_ci_cliente' => '1', 'celular_cliente' => '7', 'email_cliente' => 'x@example.com', 'fyh_creacion' => '2020-01-01']);
+    }
 }

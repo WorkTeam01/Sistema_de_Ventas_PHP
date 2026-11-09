@@ -23,6 +23,10 @@ class AuthAttempt extends Model
     protected string $table      = 'tb_intentos_auth';
     protected string $primaryKey = 'id_intento';
 
+    /** Sus filas las escribe SQL propio dentro de transacciones: ninguna columna se escribe por create()/update(). */
+    protected array $createColumns = [];
+    protected array $updateColumns = [];
+
     /** Un correo más largo que la columna no puede existir; se recorta igual al registrar y al contar. */
     private static function emailKey(string $correo): string
     {

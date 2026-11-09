@@ -16,6 +16,11 @@ class User extends Model
     protected string $table = 'tb_usuarios';
     protected string $primaryKey = 'id_usuario';
 
+    protected array $createColumns = ['nombres', 'email', 'id_rol', 'password_user'];
+
+    /** Los tokens de restablecimiento y sesión, el contador de intentos y `id_usuario` no se escriben por aquí. */
+    protected array $updateColumns = ['nombres', 'email', 'id_rol', 'password_user'];
+
     public const MIN_PASSWORD_LENGTH = 8;
 
     /**

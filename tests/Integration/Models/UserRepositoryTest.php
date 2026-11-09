@@ -210,4 +210,27 @@ final class UserRepositoryTest extends TestCase
 
         $this->assertTrue($this->user->isReferenced($id));
     }
+
+    public function test_update_accepts_profile_columns_and_rejects_token_and_lockout_columns(): void
+    {
+        $id = $this->createUser();
+
+        $this->assertTrue($this->user->update($id, ['nombres' => 'Renombrado']));
+        $this->assertSame('Renombrado', $this->pdo->query("SELECT nombres FROM tb_usuarios WHERE id_usuario = $id")->fetchColumn());
+
+        foreach (['reset_token' => 'abc', 'remember_token' => 'x', 'id_usuario' => 99] as $column => $value) {
+            try {
+                $this->user->update($id, [$column => $value]);
+                $this->fail("update aceptó {$column}");
+            } catch (\InvalidArgumentException) {
+            }
+        }
+        $this->assertNull($this->pdo->query("SELECT reset_token FROM tb_usuarios WHERE id_usuario = $id")->fetchColumn() ?: null);
+    }
+
+    public function test_create_rejects_columns_outside_the_list(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->user->create(['nombres' => 'X', 'email' => 'x@example.com', 'id_rol' => 1, 'password_user' => 'h', 'reset_token' => 'abc']);
+    }
 }

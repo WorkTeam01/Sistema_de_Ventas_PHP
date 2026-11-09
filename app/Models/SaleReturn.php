@@ -11,6 +11,10 @@ class SaleReturn extends Model
     protected string $table = 'tb_devoluciones';
     protected string $primaryKey = 'id_devolucion';
 
+    /** Sus filas las escribe SQL propio dentro de transacciones: ninguna columna se escribe por create()/update(). */
+    protected array $createColumns = [];
+    protected array $updateColumns = [];
+
     public function pendingByVenta(int $idVenta): array
     {
         $sale = $this->query(

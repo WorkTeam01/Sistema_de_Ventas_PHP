@@ -13,6 +13,19 @@ class StockAdjustment extends Model
     protected string $table = 'tb_ajustes_stock';
     protected string $primaryKey = 'id_ajuste';
 
+    /** El historial es de solo inserción. */
+    protected array $createColumns = [
+        'id_producto',
+        'tipo',
+        'cantidad',
+        'stock_anterior',
+        'stock_posterior',
+        'motivo',
+        'id_usuario',
+        'usuario_nombre',
+    ];
+    protected array $updateColumns = [];
+
     /**
      * Registra un ajuste de stock en su propia transacción atómica.
      *
@@ -40,6 +53,10 @@ class StockAdjustment extends Model
         } catch (\Throwable $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
+            }
+            // Una columna fuera de la lista es un error de programación: no se disfraza de error interno.
+            if ($e instanceof \InvalidArgumentException) {
+                throw $e;
             }
             return ['ok' => false, 'error' => 'Error interno al registrar el ajuste'];
         }

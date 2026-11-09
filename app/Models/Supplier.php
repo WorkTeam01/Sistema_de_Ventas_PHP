@@ -14,6 +14,9 @@ class Supplier extends Model
     protected string $table = 'tb_proveedores';
     protected string $primaryKey = 'id_proveedor';
 
+    protected array $createColumns = ['nombre_proveedor', 'empresa', 'celular', 'telefono', 'email', 'direccion'];
+    protected array $updateColumns = ['nombre_proveedor', 'empresa', 'celular', 'telefono', 'email', 'direccion'];
+
     /**
      * Verifica si el nombre de empresa ya existe en la base de datos.
      *

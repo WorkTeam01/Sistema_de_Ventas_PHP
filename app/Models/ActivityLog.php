@@ -10,9 +10,23 @@ class ActivityLog extends Model
     protected string $table = 'tb_activity_log';
     protected string $primaryKey = 'id_log';
 
+    /** El log es de solo inserción. */
+    protected array $createColumns = [
+        'id_usuario',
+        'usuario_nombre',
+        'accion',
+        'entidad',
+        'entidad_id',
+        'descripcion',
+        'datos_anteriores',
+        'datos_nuevos',
+        'ip_address',
+    ];
+    protected array $updateColumns = [];
+
     /**
      * Registra una operación sensible en el log de auditoría.
-     * Nunca lanza excepciones: si el log falla, la operación principal no se interrumpe.
+     * Si el log falla, la operación principal no se interrumpe (salvo una columna no permitida).
      *
      * @param string     $action      Verbo: 'delete', 'price_change', 'role_change', 'update', 'stock_adjustment'
      * @param string     $entity      Entidad: 'sale', 'purchase', 'product', 'user', 'client', 'supplier'
@@ -31,7 +45,7 @@ class ActivityLog extends Model
     ): void {
         try {
             $user = Auth::user();
-            $log = new self();
+            $log = new static();
             $log->create([
                 'id_usuario'       => $user['id_usuario'] ?? null,
                 'usuario_nombre'   => $user['nombres'] ?? '',
@@ -44,6 +58,10 @@ class ActivityLog extends Model
                 'ip_address'       => $_SERVER['REMOTE_ADDR'] ?? null,
             ]);
         } catch (\Throwable $e) {
+            // Un fallo de BD no interrumpe la operación; una columna fuera de la lista es un error de programación.
+            if ($e instanceof \InvalidArgumentException) {
+                throw $e;
+            }
             error_log('[ActivityLog] fallo al registrar: ' . $e->getMessage());
         }
     }

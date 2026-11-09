@@ -58,6 +58,35 @@ class Product extends Model
 
     protected string $primaryKey = 'id_producto';
 
+    /** `stock` solo se escribe aquí, en 0; después cambia únicamente por ajustes, compras, ventas y devoluciones. */
+    protected array $createColumns = [
+        'codigo',
+        'nombre',
+        'descripcion',
+        'stock',
+        'stock_minimo',
+        'stock_maximo',
+        'precio_compra',
+        'precio_venta',
+        'fecha_ingreso',
+        'imagen',
+        'id_usuario',
+        'id_categoria',
+    ];
+
+    /** Sin `codigo` (inmutable), `stock` ni `id_usuario` (queda el registrador original). */
+    protected array $updateColumns = [
+        'nombre',
+        'descripcion',
+        'stock_minimo',
+        'stock_maximo',
+        'precio_compra',
+        'precio_venta',
+        'fecha_ingreso',
+        'imagen',
+        'id_categoria',
+    ];
+
     /**
      * Retorna todos los productos con nombre de categoría y email del usuario registrador.
      *
@@ -280,6 +309,10 @@ class Product extends Model
         } catch (\Throwable $e) {
             if ($ownsTransaction && $this->db->inTransaction()) {
                 $this->db->rollBack();
+            }
+            // Una columna fuera de la lista es un error de programación: no se disfraza de "false".
+            if ($e instanceof \InvalidArgumentException) {
+                throw $e;
             }
             if (!$ownsTransaction) {
                 throw $e;

@@ -279,4 +279,18 @@ final class CartItemRepositoryTest extends TestCase
         $this->assertTrue($this->pdo->inTransaction());
         $this->pdo->rollBack();
     }
+
+    public function test_create_rejects_the_frozen_price_and_update_is_closed(): void
+    {
+        $model = new \App\Models\CartItem();
+
+        try {
+            $model->create(['nro_venta' => 1, 'id_producto' => 1, 'cantidad' => 1, 'precio_unitario' => 0.01]);
+            $this->fail('create aceptó precio_unitario');
+        } catch (\InvalidArgumentException) {
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        $model->update(1, ['cantidad' => 9]);
+    }
 }

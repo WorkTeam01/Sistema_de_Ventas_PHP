@@ -423,4 +423,70 @@ final class ProductRepositoryTest extends TestCase
         $this->assertSame(2, (int)$result[0]['cantidad_vendida']);
         $this->assertEqualsWithDelta(20.00, (float)$result[0]['ingresos'], 0.001);
     }
+
+    private function insertedProductId(): int
+    {
+        return (int) $this->product->createProduct($this->productData(['stock' => 0]));
+    }
+
+    public function test_create_product_still_inserts_with_zero_stock_and_delegates_the_initial_stock(): void
+    {
+        $id = (int) $this->product->createProduct($this->productData(['stock' => 7]));
+
+        $row = $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $id")->fetch();
+        $this->assertSame(7, (int) $row['stock']);
+        $this->assertSame(1, (int) $this->pdo->query("SELECT COUNT(*) FROM tb_ajustes_stock WHERE id_producto = $id")->fetchColumn());
+    }
+
+    public function test_update_rejects_stock_without_touching_the_row(): void
+    {
+        $id = $this->insertedProductId();
+
+        try {
+            $this->product->update($id, ['stock' => 5]);
+            $this->fail('Se esperaba InvalidArgumentException');
+        } catch (\InvalidArgumentException) {
+            $this->assertSame(0, (int) $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $id")->fetchColumn());
+        }
+    }
+
+    public function test_update_rejects_the_registering_user_and_the_code(): void
+    {
+        $id = $this->insertedProductId();
+
+        foreach (['id_usuario' => 2, 'codigo' => 'P-99999'] as $column => $value) {
+            try {
+                $this->product->update($id, [$column => $value]);
+                $this->fail("update aceptó {$column}");
+            } catch (\InvalidArgumentException) {
+            }
+        }
+
+        $row = $this->pdo->query("SELECT codigo, id_usuario FROM tb_almacen WHERE id_producto = $id")->fetch();
+        $this->assertSame('P-00001', $row['codigo']);
+        $this->assertSame(1, (int) $row['id_usuario']);
+    }
+
+    public function test_update_product_still_changes_the_editable_columns(): void
+    {
+        $id = $this->insertedProductId();
+
+        $this->assertTrue($this->product->updateProduct($id, $this->productData(['nombre' => 'Renombrado'])));
+
+        $this->assertSame('Renombrado', $this->pdo->query("SELECT nombre FROM tb_almacen WHERE id_producto = $id")->fetchColumn());
+    }
+
+    public function test_create_product_rethrows_a_whitelist_violation_instead_of_returning_false(): void
+    {
+        $restricted = new class extends Product {
+            public function __construct()
+            {
+                parent::__construct();
+                $this->createColumns = ['codigo'];
+            }
+        };
+
+        $this->expectException(\InvalidArgumentException::class);
+        $restricted->createProduct($this->productData());
+    }
 }

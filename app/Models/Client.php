@@ -14,6 +14,9 @@ class Client extends Model
     protected string $table = 'tb_clientes';
     protected string $primaryKey = 'id_cliente';
 
+    protected array $createColumns = ['nombre_cliente', 'nit_ci_cliente', 'celular_cliente', 'email_cliente'];
+    protected array $updateColumns = ['nombre_cliente', 'nit_ci_cliente', 'celular_cliente', 'email_cliente'];
+
     /**
      * Indica si el cliente está referenciado en alguna venta registrada.
      *

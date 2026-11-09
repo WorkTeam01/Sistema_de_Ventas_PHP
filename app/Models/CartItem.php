@@ -13,6 +13,10 @@ class CartItem extends Model
     protected string $table      = 'tb_carrito';
     protected string $primaryKey = 'id_carrito';
 
+    /** `precio_unitario` se congela al cobrar con SQL propio; las líneas nacen sin él. */
+    protected array $createColumns = ['nro_venta', 'id_producto', 'cantidad'];
+    protected array $updateColumns = [];
+
     /**
      * Retorna todos los ítems del carrito para un número de venta dado,
      * con datos del producto (nombre, descripción, precio de venta, stock, imagen, código).

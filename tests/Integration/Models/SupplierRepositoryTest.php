@@ -153,4 +153,25 @@ final class SupplierRepositoryTest extends TestCase
         $id = $this->createSupplier('Empresa SA');
         $this->assertFalse($this->supplier->nameExists('Empresa SA', $id));
     }
+
+    public function test_update_accepts_supplier_columns_and_rejects_other_columns(): void
+    {
+        $id = $this->createSupplier();
+
+        $this->assertTrue($this->supplier->update($id, ['empresa' => 'Otra SA']));
+        $this->assertSame('Otra SA', $this->pdo->query("SELECT empresa FROM tb_proveedores WHERE id_proveedor = $id")->fetchColumn());
+
+        try {
+            $this->supplier->update($id, ['id_proveedor' => 55]);
+            $this->fail('update aceptó id_proveedor');
+        } catch (\InvalidArgumentException) {
+            $this->assertSame(1, (int) $this->pdo->query('SELECT COUNT(*) FROM tb_proveedores WHERE id_proveedor = ' . $id)->fetchColumn());
+        }
+    }
+
+    public function test_create_rejects_columns_outside_the_list(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->supplier->create(['nombre_proveedor' => 'X', 'empresa' => 'E', 'celular' => '7', 'direccion' => 'd', 'fyh_creacion' => '2020-01-01']);
+    }
 }

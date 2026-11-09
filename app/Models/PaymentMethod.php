@@ -14,6 +14,9 @@ class PaymentMethod extends Model
     protected string $table = 'tb_metodos_pago';
     protected string $primaryKey = 'id_metodo_pago';
 
+    protected array $createColumns = ['nombre', 'tipo', 'activo'];
+    protected array $updateColumns = ['nombre', 'tipo', 'activo'];
+
     /**
      * Devuelve solo los métodos activos (para el paso Cobro del POS).
      *
@@ -80,6 +83,9 @@ class PaymentMethod extends Model
      */
     public function update(int|string $id, array $data): bool
     {
+        // Antes del guard de tipo: su SELECT no debe ejecutarse con columnas no permitidas.
+        $this->assertWritable($data, $this->updateColumns);
+
         if (isset($data['tipo']) && $this->isTypeChangeBlocked($id, (string)$data['tipo'])) {
             return false;
         }

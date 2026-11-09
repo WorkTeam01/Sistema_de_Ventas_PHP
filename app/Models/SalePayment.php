@@ -15,6 +15,10 @@ class SalePayment extends Model
     protected string $table = 'tb_pagos';
     protected string $primaryKey = 'id_pago';
 
+    /** Sus filas las escribe SQL propio dentro de transacciones: ninguna columna se escribe por create()/update(). */
+    protected array $createColumns = [];
+    protected array $updateColumns = [];
+
     /**
      * Líneas de pago de una venta, con nombre y tipo del método.
      *

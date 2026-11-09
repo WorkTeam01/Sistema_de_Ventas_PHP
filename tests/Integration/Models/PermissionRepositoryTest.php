@@ -140,4 +140,27 @@ final class PermissionRepositoryTest extends TestCase
     {
         $this->assertFalse($this->permission->find(999));
     }
+
+    public function test_update_details_changes_description_and_module_but_update_rejects_the_key(): void
+    {
+        $id = $this->createPermission('manage_roles', 'Gestionar roles', 'roles');
+
+        $this->assertTrue($this->permission->updateDetails($id, 'Nueva descripción', 'seguridad'));
+
+        try {
+            $this->permission->update($id, ['clave' => 'is_superadmin']);
+            $this->fail('update aceptó clave');
+        } catch (\InvalidArgumentException) {
+            $row = $this->pdo->query("SELECT clave, descripcion, modulo FROM tb_permisos WHERE id_permiso = $id")->fetch();
+            $this->assertSame(['clave' => 'manage_roles', 'descripcion' => 'Nueva descripción', 'modulo' => 'seguridad'], $row);
+        }
+    }
+
+    public function test_create_accepts_the_key_and_rejects_other_columns(): void
+    {
+        $this->assertGreaterThan(0, $this->permission->create(['clave' => 'view_x', 'descripcion' => 'Ver x', 'modulo' => 'x']));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->permission->create(['clave' => 'view_y', 'descripcion' => 'Ver y', 'modulo' => 'y', 'id_permiso' => 50]);
+    }
 }

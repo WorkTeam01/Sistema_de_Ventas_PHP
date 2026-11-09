@@ -14,6 +14,11 @@ class Role extends Model
     protected string $table = 'tb_roles';
     protected string $primaryKey = 'id_rol';
 
+    protected array $createColumns = ['rol'];
+
+    /** `permisos_version` solo la incrementa syncPermissions(). */
+    protected array $updateColumns = ['rol'];
+
     /**
      * Verifica si el nombre del rol ya existe en la base de datos.
      *
@@ -44,7 +49,7 @@ class Role extends Model
     public function getAssignedPermissionIds(int $roleId): array
     {
         $rows = $this->query('SELECT id_permiso FROM tb_rol_permiso WHERE id_rol = ?', [$roleId]);
-        return array_map(static fn (array $row) => (int) $row['id_permiso'], $rows);
+        return array_map(static fn(array $row) => (int) $row['id_permiso'], $rows);
     }
 
     /**

@@ -14,6 +14,11 @@ class Permission extends Model
     protected string $table = 'tb_permisos';
     protected string $primaryKey = 'id_permiso';
 
+    protected array $createColumns = ['clave', 'descripcion', 'modulo'];
+
+    /** La clave es inmutable: las rutas `can:` y las comprobaciones de privilegios la usan como identificador. */
+    protected array $updateColumns = ['descripcion', 'modulo'];
+
     /**
      * Verifica si la clave del permiso ya existe en la base de datos.
      *

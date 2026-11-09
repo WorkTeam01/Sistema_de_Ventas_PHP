@@ -114,4 +114,19 @@ final class CategoryRepositoryTest extends TestCase
 
         $this->assertFalse($this->category->find($id));
     }
+
+    public function test_update_accepts_the_name_and_rejects_other_columns(): void
+    {
+        $id = $this->createCategory('Vieja');
+
+        $this->assertTrue($this->category->update($id, ['nombre_categoria' => 'Nueva']));
+        $this->assertSame('Nueva', $this->pdo->query("SELECT nombre_categoria FROM tb_categorias WHERE id_categoria = $id")->fetchColumn());
+
+        try {
+            $this->category->update($id, ['id_categoria' => 77]);
+            $this->fail('update aceptó id_categoria');
+        } catch (\InvalidArgumentException) {
+            $this->assertSame(1, (int) $this->pdo->query('SELECT COUNT(*) FROM tb_categorias WHERE id_categoria = ' . $id)->fetchColumn());
+        }
+    }
 }

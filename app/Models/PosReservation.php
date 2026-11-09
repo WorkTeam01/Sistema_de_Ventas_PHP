@@ -13,6 +13,10 @@ class PosReservation extends Model
     protected string $table      = 'tb_pos_reservas';
     protected string $primaryKey = 'id_reserva';
 
+    /** Sus filas las escribe SQL propio dentro de transacciones: ninguna columna se escribe por create()/update(). */
+    protected array $createColumns = [];
+    protected array $updateColumns = [];
+
     /**
      * Devuelve el nro_venta de la reserva abierta del usuario; la crea si no tiene.
      * Si hay más de una abierta (datos previos), conserva la más reciente y libera las demás

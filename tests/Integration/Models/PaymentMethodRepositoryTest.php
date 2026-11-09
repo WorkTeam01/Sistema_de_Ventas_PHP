@@ -274,4 +274,28 @@ final class PaymentMethodRepositoryTest extends TestCase
         $this->assertFalse($this->methods->isTypeChangeBlocked($free, 'efectivo'));
         $this->assertFalse($this->methods->isTypeChangeBlocked(9999, 'efectivo'));
     }
+
+    public function test_update_accepts_method_columns_and_rejects_other_columns(): void
+    {
+        $id = $this->createMethod('QR', 'no_efectivo');
+
+        $this->assertTrue($this->methods->update($id, ['nombre' => 'QR Banco']));
+        $this->assertSame('QR Banco', $this->pdo->query("SELECT nombre FROM tb_metodos_pago WHERE id_metodo_pago = $id")->fetchColumn());
+
+        try {
+            $this->methods->update($id, ['id_metodo_pago' => 44]);
+            $this->fail('update aceptó id_metodo_pago');
+        } catch (\InvalidArgumentException) {
+            $this->assertSame(1, (int) $this->pdo->query('SELECT COUNT(*) FROM tb_metodos_pago WHERE id_metodo_pago = ' . $id)->fetchColumn());
+        }
+    }
+
+    public function test_the_whitelist_is_checked_before_the_type_change_guard(): void
+    {
+        $used = $this->methodWithPayment('Efectivo', 'efectivo');
+
+        // Con pagos y otro tipo, el guard devolvería false; la excepción debe preceder a ese SELECT.
+        $this->expectException(\InvalidArgumentException::class);
+        $this->methods->update($used, ['tipo' => 'no_efectivo', 'fyh_creacion' => '2020-01-01']);
+    }
 }

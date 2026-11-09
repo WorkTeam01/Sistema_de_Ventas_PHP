@@ -164,4 +164,37 @@ final class ActivityLogRepositoryTest extends TestCase
         $this->assertSame('primero', $all[0]['descripcion']);
         $this->assertSame('tercero', $all[2]['descripcion']);
     }
+
+    public function test_record_writes_a_row_with_the_declared_columns(): void
+    {
+        ActivityLog::record('delete', 'sale', 5, 'Venta eliminada');
+
+        $this->assertSame(1, (int) $this->pdo->query("SELECT COUNT(*) FROM tb_activity_log WHERE entidad_id = 5")->fetchColumn());
+    }
+
+    public function test_record_rethrows_a_whitelist_violation_instead_of_logging_it(): void
+    {
+        $restricted = new class extends ActivityLog {
+            public function __construct()
+            {
+                parent::__construct();
+                $this->createColumns = ['accion'];
+            }
+        };
+
+        $this->expectException(\InvalidArgumentException::class);
+        $restricted::record('delete', 'sale', 5, 'x');
+    }
+
+    public function test_create_rejects_a_foreign_column_and_update_is_closed(): void
+    {
+        try {
+            $this->log->create(['accion' => 'delete', 'entidad' => 'sale', 'fyh_creacion' => '2020-01-01']);
+            $this->fail('create aceptó fyh_creacion');
+        } catch (\InvalidArgumentException) {
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->log->update(1, ['descripcion' => 'x']);
+    }
 }

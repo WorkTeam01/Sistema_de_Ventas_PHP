@@ -19,6 +19,10 @@ class Purchase extends Model
 
     protected string $primaryKey = 'id_compra';
 
+    /** Sus filas las escribe SQL propio dentro de transacciones: ninguna columna se escribe por create()/update(). */
+    protected array $createColumns = [];
+    protected array $updateColumns = [];
+
     /**
      * Retorna todas las compras con datos de producto, proveedor y usuario.
      * Filtra por usuario si se indica $userId.

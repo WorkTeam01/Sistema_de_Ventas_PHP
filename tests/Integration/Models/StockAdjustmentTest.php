@@ -225,4 +225,38 @@ final class StockAdjustmentTest extends TestCase
 
         $this->assertCount(2, $todos);
     }
+
+    public function test_register_still_writes_the_adjustment_row(): void
+    {
+        $id = $this->createProduct();
+
+        $this->assertTrue($this->adj->register($id, 'entrada', 3, 'Reposición')['ok']);
+        $this->assertSame(1, (int) $this->pdo->query('SELECT COUNT(*) FROM tb_ajustes_stock')->fetchColumn());
+    }
+
+    public function test_register_rethrows_a_whitelist_violation_and_rolls_back(): void
+    {
+        $id = $this->createProduct();
+        $restricted = new class extends StockAdjustment {
+            public function __construct()
+            {
+                parent::__construct();
+                $this->createColumns = ['id_producto'];
+            }
+        };
+
+        try {
+            $restricted->register($id, 'entrada', 3, 'Reposición');
+            $this->fail('Se esperaba InvalidArgumentException');
+        } catch (\InvalidArgumentException) {
+            $this->assertSame(50, (int) $this->pdo->query("SELECT stock FROM tb_almacen WHERE id_producto = $id")->fetchColumn());
+            $this->assertFalse($this->pdo->inTransaction());
+        }
+    }
+
+    public function test_the_history_rejects_updates(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->adj->update(1, ['motivo' => 'x']);
+    }
 }

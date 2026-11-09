@@ -20,6 +20,10 @@ class Sale extends Model
     protected string $table = 'tb_ventas';
     protected string $primaryKey = 'id_venta';
 
+    /** Sus filas las escribe SQL propio dentro de transacciones: ninguna columna se escribe por create()/update(). */
+    protected array $createColumns = [];
+    protected array $updateColumns = [];
+
     /**
      * Retorna todas las ventas con datos del cliente, ordenadas por id_venta DESC.
      * Filtra por usuario si se indica $userId.

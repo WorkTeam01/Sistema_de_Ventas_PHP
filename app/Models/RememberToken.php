@@ -16,6 +16,10 @@ class RememberToken extends Model
     protected string $table      = 'tb_sesiones_recordadas';
     protected string $primaryKey = 'id_sesion';
 
+    /** Sus filas las escribe SQL propio dentro de transacciones: ninguna columna se escribe por create()/update(). */
+    protected array $createColumns = [];
+    protected array $updateColumns = [];
+
     /**
      * Emite un token para un dispositivo nuevo.
      *
@@ -66,8 +70,11 @@ class RememberToken extends Model
              WHERE id_sesion = ? AND token_hash = ?'
         );
         $stmt->execute([
-            hash('sha256', $newValidator), $ip, self::truncateAgent($userAgent),
-            $session['id_sesion'], $session['token_hash'],
+            hash('sha256', $newValidator),
+            $ip,
+            self::truncateAgent($userAgent),
+            $session['id_sesion'],
+            $session['token_hash'],
         ]);
         if ($stmt->rowCount() === 0) {
             return null;

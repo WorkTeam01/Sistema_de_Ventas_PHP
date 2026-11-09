@@ -20,6 +20,19 @@ abstract class Model
     protected string $table;
     /** Nombre de la columna de clave primaria. */
     protected string $primaryKey = 'id';
+    /**
+     * Columnas que create() puede escribir. Vacío por defecto: un modelo que no declara su lista no
+     * escribe nada por aquí (deny-by-default).
+     *
+     * @var list<string>
+     */
+    protected array $createColumns = [];
+    /**
+     * Columnas que update() puede escribir; mismas reglas que $createColumns.
+     *
+     * @var list<string>
+     */
+    protected array $updateColumns = [];
 
     /**
      * Inicializa $db y $pdo con la conexión Singleton de Database.
@@ -64,6 +77,8 @@ abstract class Model
      */
     public function create(array $data): int|false
     {
+        $this->assertWritable($data, $this->createColumns);
+
         $keys = array_keys($data);
         $fields = implode(', ', $keys);
         $placeholders = ':' . implode(', :', $keys);
@@ -86,6 +101,8 @@ abstract class Model
      */
     public function update(int|string $id, array $data): bool
     {
+        $this->assertWritable($data, $this->updateColumns);
+
         $fields = '';
         foreach (array_keys($data) as $key) {
             $fields .= "{$key} = :{$key}, ";
@@ -97,6 +114,26 @@ abstract class Model
 
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($data);
+    }
+
+    /**
+     * Los nombres de columna se interpolan en el SQL, así que deben tener forma de identificador, y los
+     * modelos con lista no escriben columnas fuera de ella (un POST con campos de más no llega a la BD).
+     * Lanza antes de preparar la sentencia: no hay escritura parcial.
+     *
+     * @param list<string> $allowed
+     * @throws \InvalidArgumentException
+     */
+    protected function assertWritable(array $data, array $allowed): void
+    {
+        foreach (array_keys($data) as $key) {
+            if (!is_string($key) || preg_match('/^[a-z_][a-z0-9_]*$/', $key) !== 1) {
+                throw new \InvalidArgumentException('Columna inválida');
+            }
+            if (!in_array($key, $allowed, true)) {
+                throw new \InvalidArgumentException("Columna no permitida: {$key} en {$this->table}");
+            }
+        }
     }
 
     /**

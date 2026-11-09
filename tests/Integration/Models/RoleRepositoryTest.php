@@ -292,4 +292,27 @@ final class RoleRepositoryTest extends TestCase
 
         $this->assertFalse($this->role->grantsSuperadmin($roleId));
     }
+
+    public function test_update_changes_the_name_but_never_the_permissions_version(): void
+    {
+        $id = $this->createRole('Vendedor');
+
+        $this->assertTrue($this->role->update($id, ['rol' => 'Cajero']));
+        $this->assertSame('Cajero', $this->pdo->query("SELECT rol FROM tb_roles WHERE id_rol = $id")->fetchColumn());
+
+        try {
+            $this->role->update($id, ['permisos_version' => 99]);
+            $this->fail('update aceptó permisos_version');
+        } catch (\InvalidArgumentException) {
+            $this->assertSame(0, (int) $this->pdo->query("SELECT permisos_version FROM tb_roles WHERE id_rol = $id")->fetchColumn());
+        }
+    }
+
+    public function test_create_accepts_the_name_and_rejects_other_columns(): void
+    {
+        $this->assertGreaterThan(0, $this->role->create(['rol' => 'Nuevo']));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->role->create(['rol' => 'Otro', 'permisos_version' => 5]);
+    }
 }

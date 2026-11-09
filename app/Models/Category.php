@@ -14,6 +14,9 @@ class Category extends Model
     protected string $table = 'tb_categorias';
     protected string $primaryKey = 'id_categoria';
 
+    protected array $createColumns = ['nombre_categoria'];
+    protected array $updateColumns = ['nombre_categoria'];
+
     public function nameExists(string $name, ?int $excludeId = null): bool
     {
         $sql = "SELECT COUNT(*) as count FROM {$this->table} WHERE nombre_categoria = ?";
