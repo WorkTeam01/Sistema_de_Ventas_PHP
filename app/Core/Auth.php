@@ -3,6 +3,7 @@
 namespace App\Core;
 
 use App\Helpers\AuthSettings;
+use App\Helpers\SecurityHeaders;
 use App\Models\ActivityLog;
 use App\Models\RememberToken;
 use App\Models\User;
@@ -282,17 +283,12 @@ class Auth
     }
 
     /**
-     * Detecta HTTPS considerando despliegues detrás de un proxy reverso
-     * (Apache/XAMPP directo expone $_SERVER['HTTPS']; un proxy TLS-terminating
-     * reenvía el esquema original en X-Forwarded-Proto).
+     * Indica si la aplicación se sirve por HTTPS según el esquema de APP_URL. No se lee
+     * X-Forwarded-Proto ni $_SERVER['HTTPS']: quien hace la petición puede falsearlos.
      */
     private static function isHttps(): bool
     {
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-            return true;
-        }
-
-        return ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+        return SecurityHeaders::isHttpsUrl((string) Config::get('APP_URL', ''));
     }
 
     /**

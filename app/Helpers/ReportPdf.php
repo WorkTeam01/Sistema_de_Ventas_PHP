@@ -38,7 +38,7 @@ class ReportPdf
         $html = self::buildHtml($titulo, $subtitulo, $headers, $rows, $totals, $emisor);
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        $pdf->Output($filename . '.pdf', 'I');
+        PdfResponse::send($pdf, $filename . '.pdf');
     }
 
     private static function buildHtml(

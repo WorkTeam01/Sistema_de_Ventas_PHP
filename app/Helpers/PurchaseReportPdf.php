@@ -61,7 +61,7 @@ class PurchaseReportPdf
             'module_height' => 1,
         ]);
 
-        $pdf->Output('comprobante_compra_' . $id . '.pdf', 'I');
+        PdfResponse::send($pdf, 'comprobante_compra_' . $id . '.pdf');
     }
 
     /**

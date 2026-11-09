@@ -84,7 +84,7 @@ class InvoicePdf
             'module_height' => 1,
         ]);
 
-        $pdf->Output('factura_venta_' . $id . '.pdf', 'I');
+        PdfResponse::send($pdf, 'factura_venta_' . $id . '.pdf');
     }
 
     /**
