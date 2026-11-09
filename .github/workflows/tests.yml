@@ -17,19 +17,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        php-version: ["8.2", "8.3"]
+        php-version: ["8.2", "8.3", "8.4", "8.5"]
     name: Tests (PHP ${{ matrix.php-version }})
 
     # MariaDB real: solo la usan los tests *MariaDbTest.php (funciones de fecha
     # como CURDATE()/NOW()/DATE_FORMAT() que SQLite in-memory no soporta). El
-    # resto de la suite corre contra SQLite. GitHub define CI=true, así que
+    # resto de la suite corre contra SQLite. La conexión sale de .env.testing, que el
+    # primer paso copia de .env.testing.example. GitHub define CI=true, así que
     # RefreshMariaDatabase falla (no se salta) si el servicio no responde.
     services:
       mariadb:
         image: mariadb:10.11
         env:
-          MARIADB_ROOT_PASSWORD: root
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
         ports:
           - 3306:3306
         options: >-
@@ -38,15 +40,13 @@ jobs:
           --health-timeout=5s
           --health-retries=10
 
-    env:
-      DB_TEST_HOST: 127.0.0.1
-      DB_TEST_PORT: 3306
-      DB_TEST_NAME: sistemadeventas_test
-      DB_TEST_USER: root
-      DB_TEST_PASS: root
-
     steps:
       - uses: actions/checkout@v7
+
+      # Las credenciales de la BD de test viven solo en .env.testing.example (root sin
+      # contraseña, el servicio es efímero); el workflow no las repite.
+      - name: Crear .env.testing
+        run: cp .env.testing.example .env.testing
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
