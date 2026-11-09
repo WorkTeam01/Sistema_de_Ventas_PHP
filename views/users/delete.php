@@ -43,7 +43,7 @@
 
                             <div class="card-body">
                                 <div class="alert alert-danger">
-                                    <h5><i class="icon fas fa-ban"></i> Acción irreversible</h5>
+                                    <h3 class="h5"><i class="icon fas fa-ban"></i> Acción irreversible</h3>
                                     Esta operación eliminará permanentemente al usuario seleccionado.
                                 </div>
 

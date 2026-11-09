@@ -43,7 +43,7 @@
 
                             <div class="card-body">
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    <h5><i class="icon fas fa-ban"></i> Acción irreversible</h5>
+                                    <h3 class="h5"><i class="icon fas fa-ban"></i> Acción irreversible</h3>
                                     Esta operación eliminará permanentemente el producto seleccionado.
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>

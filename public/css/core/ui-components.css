@@ -61,9 +61,9 @@ html {
     }
 }
 
-/* Mejorar el highlight de opciones */
+/* Mejorar el highlight de opciones (#0056b3: #007bff con texto blanco da 3.97:1) */
 .select2-container--bootstrap4 .select2-results__option--highlighted {
-    background-color: #007bff;
+    background-color: #0056b3;
     color: white;
     transition: background-color 0.15s ease-in-out;
 }
@@ -153,12 +153,18 @@ html {
     border-color: #6c757d;
 }
 
+/* La flecha es un triángulo de bordes; el tema le pone el color del fondo del campo (#343a40) y desaparece. */
+.dark-mode .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b,
+.dark-mode .select2-container--bootstrap4.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-top-color: #fff;
+}
+
 .dark-mode .select2-container--bootstrap4 .select2-results__option {
     color: #fff;
 }
 
 .dark-mode .select2-container--bootstrap4 .select2-results__option--highlighted {
-    background-color: #007bff;
+    background-color: #0056b3;
     color: #fff;
 }
 
@@ -845,6 +851,11 @@ body.dark-mode .text-success {
 
 body.dark-mode .text-danger {
     color: #ffa3ab !important;
+}
+
+/* El rojo de Bootstrap (#dc3545) sobre el fondo oscuro de las tarjetas no llega a 4.5:1; mismo tono que .text-danger. */
+body.dark-mode .invalid-feedback {
+    color: #ffa3ab;
 }
 
 body.dark-mode a.text-secondary,

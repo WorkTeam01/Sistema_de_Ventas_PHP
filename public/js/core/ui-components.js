@@ -149,6 +149,8 @@ const ComponentUtils = {
 
         // Agregar clase cuando se abre el dropdown
         $(document).on('select2:open.componentUtils', function (e) {
+            ComponentUtils._labelSelect2Dropdown(e.target);
+
             const targetId = $(e.target).attr('id');
             if (targetId) {
                 $('#select2-' + targetId + '-container')
@@ -163,6 +165,29 @@ const ComponentUtils = {
         $(document).on('select2:close.componentUtils', function () {
             $('.select2-container').removeClass('select2-container--arrow-up');
         });
+    },
+
+    /**
+     * Select2 monta el desplegable en <body>, fuera de los landmarks, y su campo de búsqueda
+     * no trae nombre: se le da al desplegable un rol de región y al buscador el nombre del campo.
+     * @private
+     */
+    _labelSelect2Dropdown: function (select) {
+        const $select = $(select);
+        const id = $select.attr('id');
+        const name = ((id && $('label[for="' + id + '"]').first().text()) || $select.attr('aria-label') || '')
+            .replace(/(\s|\*|\(requerido\))+$/i, '').trim();
+
+        const $dropdown = $('.select2-container--open').has('.select2-dropdown').last();
+        $dropdown.attr({ role: 'region', 'aria-label': name ? 'Opciones de ' + name : 'Opciones' });
+        $dropdown.find('.select2-search__field').attr('aria-label', name ? 'Buscar en ' + name : 'Buscar');
+
+        // Con el desplegable abierto el combobox debe declarar qué controla; Select2 4.0 solo pone aria-owns.
+        const $selection = $select.next('.select2-container').find('.select2-selection').first();
+        const resultsId = $selection.attr('aria-owns');
+        if (resultsId) {
+            $selection.attr('aria-controls', resultsId);
+        }
     },
 
     /**
@@ -501,6 +526,17 @@ if ($.fn.dataTable) {
             });
         });
     }).observe(document.body, {childList: true, subtree: true});
+
+    // Buttons 2.4 marca el desplegable como `role="dialog"` sin nombre (aria-dialog-name):
+    // se nombra con el texto del botón que lo abrió.
+    $(document).on('buttons-popover.dt', function (e) {
+        const $popover = $(e.target);
+        // aria-expanded del botón se pone justo después de este evento.
+        setTimeout(function () {
+            const name = $('.buttons-collection[aria-expanded="true"]').first().text().trim();
+            $popover.attr('aria-label', name || 'Opciones');
+        }, 0);
+    });
 }
 
 // ============================================
