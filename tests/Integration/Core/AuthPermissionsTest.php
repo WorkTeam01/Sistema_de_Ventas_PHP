@@ -34,9 +34,11 @@ final class AuthPermissionsTest extends TestCase
 
     private function resetAuthCache(): void
     {
-        $prop = new \ReflectionProperty(Auth::class, 'cachedUser');
-        $prop->setAccessible(true);
-        $prop->setValue(null, null);
+        foreach (['cachedUser', 'checked'] as $name) {
+            $prop = new \ReflectionProperty(Auth::class, $name);
+            $prop->setAccessible(true);
+            $prop->setValue(null, null);
+        }
     }
 
     private function seedRolesAndPermisos(): void

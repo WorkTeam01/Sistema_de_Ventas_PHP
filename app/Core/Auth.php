@@ -16,6 +16,8 @@ use App\Models\User;
 class Auth
 {
     private static ?array $cachedUser = null;
+    /** Resultado de check() en esta petición; null mientras no se haya evaluado. */
+    private static ?bool $checked = null;
 
     /**
      * Inicia la sesión PHP si aún no está activa.
@@ -46,6 +48,14 @@ class Auth
      * timeout de inactividad.
      */
     public static function check(): bool
+    {
+        // AuthMiddleware y PermissionMiddleware llaman a check() en la misma petición: la revalidación
+        // contra la BD se hace una vez. Todo cambio de estado de la sesión (login, logout, destrucción,
+        // recarga de permisos) invalida este resultado.
+        return self::$checked ??= self::evaluateSession();
+    }
+
+    private static function evaluateSession(): bool
     {
         self::startSession();
 
@@ -82,9 +92,11 @@ class Auth
 
         // La comparación incluye el id_rol además de la versión: si el rol
         // cambió, la versión podría coincidir de forma accidental.
-        if (isset($_SESSION['id_rol'], $_SESSION['permisos_version'])
+        if (
+            isset($_SESSION['id_rol'], $_SESSION['permisos_version'])
             && ((int)$identity['id_rol'] !== (int)$_SESSION['id_rol']
-                || (int)$identity['permisos_version'] !== (int)$_SESSION['permisos_version'])) {
+                || (int)$identity['permisos_version'] !== (int)$_SESSION['permisos_version'])
+        ) {
             self::loadPermissions((int)$identity['id_rol']);
         }
 
@@ -251,6 +263,7 @@ class Auth
 
     public static function refreshPermissions(): void
     {
+        self::$checked = null;
         $user = self::user();
         if ($user) {
             self::loadPermissions((int) $user['id_rol']);
@@ -264,6 +277,7 @@ class Auth
     public static function login(array $user, bool $remember = false): void
     {
         self::$cachedUser = null;
+        self::$checked = null;
         self::startSession();
         session_regenerate_id(true);
         $_SESSION['csrf_token']    = bin2hex(random_bytes(32));
@@ -351,6 +365,7 @@ class Auth
     {
         self::startSession();
         self::$cachedUser = null;
+        self::$checked = null;
         $_SESSION = [];
 
         if (isset($_COOKIE[session_name()])) {
