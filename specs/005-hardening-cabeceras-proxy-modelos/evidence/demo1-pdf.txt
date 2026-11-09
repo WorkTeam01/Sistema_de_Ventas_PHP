@@ -1,0 +1,32 @@
+# Demo 1 — PDF (Apache, APP_URL=http://localhost/...) 2026-11-09T12:37:07-04:00
+login=302
+
+== GET /sales/invoice/1
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+Cache-Control: private, no-store
+Content-Disposition: inline; filename="factura_venta_1.pdf"; filename*=UTF-8''factura_venta_1.pdf
+Content-Length: 15201
+Content-Type: application/pdf
+magic: %PDF-  bytes: 15201
+Cache-Control lines: 1  Pragma lines: 0
+
+== GET /reports/sales?export=pdf
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+Cache-Control: private, no-store
+Content-Disposition: inline; filename="reporte_ventas.pdf"; filename*=UTF-8''reporte_ventas.pdf
+Content-Length: 7838
+Content-Type: application/pdf
+magic: %PDF-  bytes: 7838
+Cache-Control lines: 1  Pragma lines: 0
+
+== GET /purchases/report/1
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+Cache-Control: private, no-store
+Content-Disposition: inline; filename="comprobante_compra_1.pdf"; filename*=UTF-8''comprobante_compra_1.pdf
+Content-Length: 15400
+Content-Type: application/pdf
+magic: %PDF-  bytes: 15400
+Cache-Control lines: 1  Pragma lines: 0

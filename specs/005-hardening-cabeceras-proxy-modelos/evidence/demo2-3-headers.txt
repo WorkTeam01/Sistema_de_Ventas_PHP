@@ -1,0 +1,52 @@
+# Demo 2/3 — Secure, HSTS y cabeceras de navegador 2026-11-09T12:37:17-04:00
+
+## A. APP_URL=http://localhost/... (Apache) con X-Forwarded-Proto: https forjado, GET /auth
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Set-Cookie: PHPSESSID=pvghqqaa8isb5ub4rl6gt3e5db; path=/; HttpOnly; SameSite=Lax
+
+## B. APP_URL=http://localhost/... (Apache) sin cabecera forjada, GET /auth
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Set-Cookie: PHPSESSID=74cltsoe43vegemjuadf9o9ehe; path=/; HttpOnly; SameSite=Lax
+
+## C-default. APP_URL=https://127.0.0.1:8099 (php -S), HSTS_MAX_AGE='<sin definir>', GET /auth con X-Forwarded-Proto: http
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=86400
+Set-Cookie: PHPSESSID=7pihj8i8u1p995767t7215a21t; path=/; secure; HttpOnly; SameSite=Lax
+
+## C-custom. APP_URL=https://127.0.0.1:8099 (php -S), HSTS_MAX_AGE='604800', GET /auth con X-Forwarded-Proto: http
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=604800
+Set-Cookie: PHPSESSID=346hifr80rhb4h19kvbg2h512l; path=/; secure; HttpOnly; SameSite=Lax
+
+## C-invalid. APP_URL=https://127.0.0.1:8099 (php -S), HSTS_MAX_AGE='abc', GET /auth con X-Forwarded-Proto: http
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=86400
+Set-Cookie: PHPSESSID=ub9knrkohd0iog7ag61l3mfg0f; path=/; secure; HttpOnly; SameSite=Lax
+
+## C-zero. APP_URL=https://127.0.0.1:8099 (php -S), HSTS_MAX_AGE='0', GET /auth con X-Forwarded-Proto: http
+HTTP/1.1 200 OK
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=0
+Set-Cookie: PHPSESSID=2bb2hhs6r5d026stm8iiusnajs; path=/; secure; HttpOnly; SameSite=Lax
+## Cookie «recordarme» con APP_URL=https:// (php -S 127.0.0.1:8099): cabeceras Set-Cookie del login
+HTTP/1.1 302 Found
+Strict-Transport-Security: max-age=86400
+Set-Cookie: PHPSESSID=<redactado>; path=/; secure; HttpOnly; SameSite=Lax
+Set-Cookie: remember_token=<redactado>; expires=Mon, 23 Nov 2026 16:41:45 GMT; Max-Age=1209600; path=/; secure; HttpOnly; SameSite=Strict

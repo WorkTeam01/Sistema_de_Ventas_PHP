@@ -11,14 +11,14 @@
 Sistema de gestión de ventas con control de inventario, facturación, gestión de clientes y acceso por roles.
 Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir facturas en PDF.
 
-**Estado actual:** 1.19.4 — MVC completo, RBAC granular con gestión por UI, ventas/compras/dashboard scopeados por permiso y por usuario, devoluciones parciales, formas de pago + pago mixto, audit log, hardening de seguridad y accesibilidad (WCAG AA, claro y oscuro), moneda y zona horaria configurables por `.env`. Historial completo en [CHANGELOG.md](CHANGELOG.md); despliegue en [docs/guides/despliegue.md](docs/guides/despliegue.md).
+**Estado actual:** 1.20.0 — MVC completo, RBAC granular con gestión por UI, ventas/compras/dashboard scopeados por permiso y por usuario, devoluciones parciales, formas de pago + pago mixto, audit log, hardening de seguridad y accesibilidad (WCAG AA, claro y oscuro), moneda y zona horaria configurables por `.env`. Historial completo en [CHANGELOG.md](CHANGELOG.md); despliegue en [docs/guides/despliegue.md](docs/guides/despliegue.md).
 
 ---
 
 ## Stack Tecnológico
 
 - **Backend:** PHP 8.2+ (sin framework — MVC custom con PSR-4 via Composer)
-- **Frontend:** AdminLTE 3.2.0, Bootstrap 4, jQuery, DataTables, SweetAlert2
+- **Frontend:** AdminLTE 3.2.0, Bootstrap 4, jQuery 3.7.1, DataTables 1.13.11 (+ Buttons 2.4.3, Responsive 2.5.1, integración bs4), JSZip 3.10.2, Chart.js 2.9.4, SweetAlert2
 - **Base de datos:** MySQL / MariaDB (PDO)
 - **PDF:** TCPDF (`tecnickcom/tcpdf` vía Composer)
 - **Email:** PHPMailer (`phpmailer/phpmailer ^7.0` vía Composer) — SMTP Gmail con App Password
@@ -50,7 +50,7 @@ Permite registrar ventas, compras a proveedores, gestionar el almacén y emitir 
 app/Core/         Router, Auth, Controller, Model, Database, Config, Middleware (base del MVC)
 app/Controllers/  un controlador por módulo (PSR-4 App\Controllers)
 app/Models/       lógica de negocio y acceso a datos con PDO (fat model)
-app/Helpers/      Money, InvoicePdf, ReportPdf, ImageUpload, AuthSettings, ReportFilters…
+app/Helpers/      Money, InvoicePdf, ReportPdf, PdfResponse, SecurityHeaders, ImageUpload, AuthSettings, ReportFilters…
 app/Services/     EmailService (PHPMailer)
 app/Middleware/   AuthMiddleware, GuestMiddleware, PermissionMiddleware (`can:permiso`)
 views/            layouts/, partials y una carpeta por módulo
@@ -109,6 +109,11 @@ Invariantes que el esquema no deja ver:
   `query()` — `insert()` y `findAll()` están marcados `@deprecated`, usar `create()` y `all()`
 - Sobreescribir `isReferenced(int|string $id): bool` en modelos con FKs en otras tablas
 - Usar PDO con prepared statements siempre — nunca concatenar variables en SQL
+- **Lista blanca de columnas:** `Model::create()`/`update()` solo escriben las columnas de `$createColumns`/`$updateColumns`
+  del modelo (vacías por defecto: un modelo sin lista no escribe nada) y exigen que el nombre cumpla `^[a-z_][a-z0-9_]*$`;
+  si no, lanzan `InvalidArgumentException` antes de preparar la sentencia. Un modelo nuevo declara sus listas;
+  `tb_almacen.stock` solo está en la de creación de `Product`, y `codigo`, `stock` e `id_usuario` quedan fuera de su actualización.
+  Los modelos cuyo `catch (\Throwable)` rodea una escritura relanzan `InvalidArgumentException`.
 - **Borrado físico** (no lógico) — protegido por `isReferenced()` antes de ejecutar DELETE
 - **Fat model:** la lógica de negocio vive en el modelo (hashing de contraseñas, validación de formato, normalización
   de campos, cálculos, reglas de integridad, transacciones); el controlador solo orquesta (leer input → llamar
@@ -128,15 +133,16 @@ Invariantes que el esquema no deja ver:
 - Subidas de imágenes: `ImageUpload::validate()` comprueba el código de error, la extensión, el MIME real y 2 MB;
   `public/uploads/products/.htaccess` impide ejecutar PHP en ese directorio y debe estar versionado. **En un servidor
   que ignore `.htaccess` (Nginx, por ejemplo) hay que replicar la regla** (denegar `*.php` allí y desactivar el motor).
-- Stock: solo escriben `tb_almacen.stock` `Sale`, `SaleReturn`, `Purchase`, `StockAdjustment` y
-  `Product::createProduct` (lo vigila `StockWritesAuditTest`); la ficha de producto lo muestra solo lectura y se
+- Stock: solo escriben `tb_almacen.stock` `Sale`, `SaleReturn`, `Purchase` y `StockAdjustment` (lo vigila
+  `StockWritesAuditTest`, que además exige que solo `Product` declare `tb_almacen` como tabla). `Product::createProduct`
+  inserta la fila con `stock = 0` y el stock inicial entra como ajuste vía `StockAdjustment`; la ficha de producto lo muestra solo lectura y se
   cambia desde Inventario. Los cambios sobre un producto existente son relativos (`stock = stock ± ?`), nunca un valor leído antes.
 - Formularios que no deben procesarse dos veces y no tienen un identificador natural (ajuste de stock): token de un solo uso en sesión, `Auth::issueFormToken($scope)` al renderizar y `Auth::consumeFormToken($scope, $token)` justo antes de escribir; PHP serializa las peticiones de una misma sesión, así que no hay carrera. Si la idempotencia debe sobrevivir a la sesión, usar `token_formulario` UNIQUE como en devoluciones.
 - Stock: el decremento en `Sale::storeWithStock()` usa `AND stock >= ?` y verifica `rowCount() === 0` para rollback — nunca produce stock negativo
 - Totales: `Sale::storeWithStock()` congela `precio_unitario` por línea (desde `tb_almacen.precio_venta`) y calcula `total_pagado` como `SUM(cantidad * precio_unitario)` de `tb_carrito`, todo dentro de la transacción — ignorar siempre el valor del POST
 - Entradas: en controladores, los campos de texto se leen con `postString()`/`getString()` (devuelven `''` ante un array); un `trim($_POST['x'] ?? '')` revienta con `x[]=…` (TypeError → 500). Contraseñas: `postString('campo', false)`, sin `trim`.
 - Errores: `display_errors=0` y `log_errors=1` al inicio de `public/index.php`; nunca mostrar rutas ni SQL al cliente.
-- Exportación: el CSV de reportes (`ReportController::csvCell()`) y el de DataTables (`datatables-csv-safe.js`) neutralizan las celdas que empiezan por `= + - @`; no exportes texto de usuario sin pasar por ahí. Las descargas con datos financieros llevan `Cache-Control: private, no-store`.
+- Exportación: el CSV de reportes (`ReportController::csvCell()`) y el de DataTables (`datatables-csv-safe.js`) neutralizan las celdas que empiezan por `= + - @`; no exportes texto de usuario sin pasar por ahí. Las descargas con datos financieros llevan `Cache-Control: private, no-store`; los PDF se generan en memoria y se envían con `PdfResponse::send()` (nunca `Output('I')` de TCPDF, que escribe `Pragma: public`).
 - Cuenta: cambiar el correo exige la contraseña actual y anula `reset_token`; no se debe exponer ningún endpoint que diga si un correo ya existe. `UserController::update()` no deja degradar al único superusuario (`User::isLastSuperadminUser()`).
 - Guards en destroy: `isReferenced()` y verificación de auto-eliminación siempre server-side en `UserController::destroy()` — la verificación cliente-side (AJAX) es solo UX
 - Datos para operaciones críticas: usar siempre el snapshot de BD (ej: `$snapshot['id_producto']`, no `$_POST['id_producto']`) para revertir stock u otras operaciones irreversibles
@@ -155,7 +161,7 @@ Auth::can('permiso') / Auth::isAdmin()        // isAdmin() = can('is_superadmin'
 - **Scoping por dueño (`view_sales_all` / `view_purchases_all`):** sin el permiso `_all` se filtra por `id_usuario`. Aplica el filtro al listado **y** a `show`/`edit`/`update`/`destroy` (filtrar solo el listado deja abierto el acceso por URL directa), con `Controller::forbidden()` para "este registro no es tuyo".
 - **Anti escalada:** `manage_users`/`manage_roles` no incluyen otorgarse `is_superadmin` (`UserController::blocksSuperadminEscalation()`, `Role::grantsSuperadmin()`, `Role::isLastSuperadminRole()`). Úsalos en cualquier flujo que asigne roles o permisos.
 - Cada cambio de permisos de un rol incrementa `tb_roles.permisos_version`; `Auth::check()` la compara y recarga permisos sin re-login.
-- Sesión: cookie `HttpOnly`, `SameSite=Lax`, `Secure` en HTTPS (también tras proxy con `X-Forwarded-Proto`); timeout `SESSION_LIFETIME` (60 min); `pw_fp` cierra las demás sesiones al cambiar la contraseña.
+- Sesión: cookie `HttpOnly`, `SameSite=Lax`, `Secure` cuando `APP_URL` empieza por `https://` (nunca se lee `X-Forwarded-*`: el proyecto no soporta proxies inversos y la IP es siempre `REMOTE_ADDR`); con ese mismo criterio se emite `Strict-Transport-Security: max-age=<HSTS_MAX_AGE>` (86400 por defecto, sin `includeSubDomains` ni `preload`). `Auth::check()` revalida una sola vez por petición; timeout `SESSION_LIFETIME` (60 min); `pw_fp` cierra las demás sesiones al cambiar la contraseña.
 - Login: cada intento se registra en `tb_intentos_auth` **antes** de verificar nada; correo inexistente, contraseña incorrecta y bloqueo muestran el mismo mensaje. Umbrales ajustables por `.env` (`LOGIN_*`, `RESET_*`, `REMEMBER_LIFETIME`) vía `AuthSettings`.
 - Restablecimiento: el enlace nunca se muestra en pantalla (con `APP_DEBUG=true` solo va a `error_log`); la respuesta es la misma exista o no el correo.
 - Detalle de cada flujo, tabla de umbrales y "recordarme": [docs/guides/autenticacion.md](docs/guides/autenticacion.md).
@@ -166,6 +172,7 @@ Auth::can('permiso') / Auth::isAdmin()        // isAdmin() = can('is_superadmin'
 - Patrones de CRUD: página dedicada de confirmación (products, users), formulario inline (purchases) y modal + AJAX (roles, categories, suppliers, clients, payment-methods). Assets por vista con `$pageStyles`/`$pageScripts`; el JS de cada módulo va en `public/js/modules/[modulo]/`.
 - Todas las vistas usan `renderWithLayout()`, llevan breadcrumb y **no contienen lógica de negocio** (totales y sumas se calculan en Controller/Model). `BASE_URL` y `APP_CURRENCY_SYMBOL` están disponibles globalmente: no hardcodear `"Bs."` ni llamar `CURRENCY_SYMBOL` a una constante (colisiona con `intl`).
 - Accesibilidad: axe-core sin violaciones en claro y oscuro; título de modal `<h2 class="modal-title h5">`; `aria-label` en todo botón o enlace de solo icono; cada `<label>` con `for`/`id`.
+- Librerías fijadas por compatibilidad: jQuery se queda en 3.x (AdminLTE 3.2 y Bootstrap 4 no funcionan con 4.x), DataTables/Buttons/Responsive en su serie 1.x/2.x con integración bs4, y Chart.js en 2.9.x (la 4.x cambia por completo la configuración de los gráficos). Subir cualquiera exige un smoke test en navegador de las tablas, las exportaciones y los gráficos; Dependabot no las gestiona (están copiadas en `public/`).
 - Cache-busting: los assets propios llevan `?v=<?= APP_VERSION ?>`; tras un fix de CSS/JS, sube `APP_VERSION` en `.env`.
 - Layouts, POS (wizard, reserva del `nro_venta`), detalle de páginas y lecciones de Bootstrap/DataTables: [docs/guides/frontend.md](docs/guides/frontend.md).
 
@@ -184,7 +191,7 @@ composer test:coverage    # requiere PCOV o Xdebug
 - Al cambiar `database/schema.sql`, actualiza `tests/fixtures/schema.sqlite.sql` (tabla de equivalencias en [docs/guides/testing.md](docs/guides/testing.md)).
 - Todo test que resetee el singleton debe dejar SQLite inyectado (`Database::set(...)`), nunca solo `Database::reset()`.
 - Los tests `*MariaDbTest` usan MariaDB real solo para funciones de fecha del motor; no se ejecutan en paralelo (BD de test fija). Nunca calcules fechas límite con `date()` de PHP contra `NOW()` de la BD.
-- CI: un único job `test` (PHP 8.2/8.3, `mariadb:10.11`) en cada push a `master` y cada PR. Detalle: [docs/guides/testing.md](docs/guides/testing.md).
+- CI: un único job `test` (PHP 8.2–8.5, `mariadb:10.11`) en cada push a `master` y cada PR. Detalle: [docs/guides/testing.md](docs/guides/testing.md).
 
 ---
 
@@ -252,4 +259,4 @@ Comandos: `/sdd:constitution` · `/sdd:spec` · `/sdd:clarify` · `/sdd:plan` ·
 
 ---
 
-_Última actualización: 2026-10-25 — 1.19.4. Historial completo en [CHANGELOG.md](CHANGELOG.md)._
+_Última actualización: 2026-11-09 — 1.20.0. Historial completo en [CHANGELOG.md](CHANGELOG.md)._

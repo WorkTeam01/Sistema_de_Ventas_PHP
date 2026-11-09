@@ -69,12 +69,19 @@ Auth::logout()          // limpia sesión, BD y cookie
 
 **Sesión y CSRF:**
 
-- La cookie de sesión es `HttpOnly`, `SameSite=Lax` y `Secure` cuando la petición es HTTPS (también tras un
-  proxy que envía `X-Forwarded-Proto: https`). `Auth::login()` regenera el id de sesión y el token CSRF.
+- La cookie de sesión es `HttpOnly`, `SameSite=Lax` y `Secure` cuando `APP_URL` declara `https://`. Se decide por la
+  configuración y no por la petición: `X-Forwarded-Proto` y `$_SERVER['HTTPS']` los puede falsear quien hace la petición,
+  y el proyecto no soporta proxies inversos (la IP de los límites de intentos es siempre `REMOTE_ADDR`; tras un proxy
+  todos los clientes compartirían el contador de `LOGIN_MAX_PER_IP`). `Auth::login()` regenera el id de sesión y el token CSRF.
+- Con `APP_URL` en HTTPS la respuesta lleva `Strict-Transport-Security: max-age=<HSTS_MAX_AGE>` (86400 por defecto). Sin
+  `includeSubDomains` ni `preload`: en hosting compartido los subdominios pueden no tener HTTPS.
 
 **Timeout de sesión:**
 
 - Controlado por `SESSION_LIFETIME` en `.env` (minutos de inactividad). Default: `60`.
+- `Auth::check()` revalida contra la BD una sola vez por petición (el resultado se memoriza; `AuthMiddleware` y
+  `PermissionMiddleware` lo llaman en la misma petición). `login()`, `logout()` y `refreshPermissions()` lo descartan.
+  Toda ruta con `can:` lleva `auth` antes (lo vigila `RoutesAuthOrderTest`).
 - `Auth::check()` compara `$_SESSION['last_activity']` con `time()`; si expiró destruye solo la sesión de PHP (no revoca el
   dispositivo "recordarme", que `AuthMiddleware` reabre con la cookie). `Auth::startSession()` sube `session.gc_maxlifetime` para
   que el gc de PHP no borre la sesión antes del timeout.

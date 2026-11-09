@@ -61,26 +61,25 @@ retroactivos. El detalle vive en [CHANGELOG.md](../CHANGELOG.md)._
 23. **Reorganización de la documentación 1.19.3** — `docs/schema.md`, `app-flow.md` y `ux-brief.md`
     generados con `/sdd:docs`; guías en `docs/guides/`; `AGENTS.md` y `CLAUDE.md` reducidos.
     Sin spec propia (solo documentación). → CHANGELOG 1.19.3
-
 24. **Ronda a11y y hardening 1.19.4** — `/reports`, `/inventory` y `/errors/403` con 0 violaciones de
     axe en claro y oscuro; desplegables y aviso de «Copiar» de DataTables Buttons legibles en oscuro;
     CSV a prueba de fórmulas; se elimina `/profile/check-email`; contraseña actual para cambiar el correo;
     guard del último superusuario por usuario; entradas con forma de array sin 500. Sin spec propia
     (sin cambios de esquema). → CHANGELOG 1.19.4
+25. **Hardening de cabeceras, caché y escritura de modelos** →
+    [specs/005-hardening-cabeceras-proxy-modelos/](../specs/005-hardening-cabeceras-proxy-modelos/) —
+    PDF con `Cache-Control: private, no-store`; `Secure` y HSTS según el esquema de `APP_URL` (`X-Forwarded-*`
+    ignorado, sin soporte de proxies); `Auth::check()` una vez por petición; lista blanca de columnas en
+    `Model::create/update` (18 modelos, denegado por defecto); auditoría de escrituras de stock ampliada.
+    Sin cambios de esquema. → CHANGELOG 1.20.0
 
 ## Siguiente 🔜
 
-- **Hardening pendiente de la auditoría (2026-10-17)** — lo aplicado en 1.19.4 queda en el CHANGELOG. Falta:
-  - `Cache-Control: no-store` en los PDF (TCPDF escribe sus propias cabeceras en `Output()`: hay que generar el
-    PDF en memoria y enviarlo con las cabeceras propias).
-  - CSP y HSTS; `Auth::isHttps()` confía en `X-Forwarded-Proto` de cualquier cliente; el límite de intentos usa
-    `REMOTE_ADDR`, que se colapsa tras un proxy.
-  - `PermissionMiddleware` repite `Auth::check()` (dos SELECT por petición): cachear el resultado por petición.
-  - Librerías JS antiguas (jQuery 3.6.0, DataTables 1.11.4, JSZip 3.7.1, Chart.js 2.9.4): cada subida exige smoke test.
-  - `Model::create/update` sin lista blanca de columnas; `StockWritesAuditTest` no detecta `Model::update(['stock' => …])`.
-  - `.select2-selection` sin `aria-expanded` (axe `aria-required-attr`, viene de la librería).
-- **Despliegue real** — `docs/guides/despliegue.md` solo se ha probado con BD vacía; falta un servidor real y
-  conocer la zona horaria del MySQL de producción.
+- **Pendiente sin spec (flujo directo)**
+  - Chart.js 2.9.4 (la 4.x exige reescribir la configuración de los gráficos) y saltos de major de jQuery/DataTables (rompen AdminLTE 3.2): solo con spec.
+- **Pendiente de spec**
+  - `utf8` → `utf8mb4`: toca el esquema (SDD completo, con backup y cuidado de índices únicos `VARCHAR`).
+  - FR-17 de la spec 004 (el token de devolución se guarda al enviar): `/sdd:change` sobre esa spec.
 
 ## Backlog · ideas 💡
 

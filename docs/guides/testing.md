@@ -34,6 +34,16 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
   | `ON UPDATE CURRENT_TIMESTAMP` | (omitir)           |
   | `ENGINE=InnoDB CHARSET=`      | (omitir)           |
 
+## Tests de arquitectura
+
+- `StockWritesAuditTest`: lee el código de `app/` y falla si algo fuera de `Sale`, `SaleReturn`, `Purchase` y
+  `StockAdjustment` contiene SQL que escribe `tb_almacen.stock` (`UPDATE … SET stock`, `INSERT … (stock)`, `REPLACE INTO`),
+  o si otra clase además de `Product` declara `tb_almacen` como tabla.
+- `RoutesAuthOrderTest`: lee `routes/web.php` y falla si algún arreglo de middleware con `can:` no lleva `auth` antes.
+- `PdfResponseTest` y `SecurityHeadersTest`: cabeceras del PDF y decisión de `Secure`/HSTS (funciones puras; `X-Forwarded-*` no cuenta).
+- `ModelWhitelistTest` y `ModelWhitelistCoverageTest`: la lista blanca de `Model` y que los 18 modelos declaran listas
+  cuyas columnas existen en `tests/fixtures/schema.sqlite.sql`. Al añadir un modelo, declara sus listas.
+
 ## Tests contra MariaDB real (`RefreshMariaDatabase`)
 
 - Solo para casos que dependen de funciones de fecha del motor MySQL/MariaDB (`CURDATE()`, `NOW()`, `YEAR()`,
@@ -48,8 +58,9 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 - **Nunca calcular la fecha límite con `date()`/`strtotime()` de PHP y comparar contra `NOW()`/`CURDATE()` de la
   BD** — el reloj/timezone del proceso PHP y el del servidor MariaDB pueden diferir. Calcular la fecha límite con
   una expresión SQL evaluada por el propio motor (`NOW() - INTERVAL 1 HOUR`, etc.).
-- En CI (`tests.yml`), el job `test` levanta un servicio `mariadb:10.11` con las env vars `DB_TEST_*` ya
-  configuradas — no requiere `.env.testing` en ese entorno.
+- En CI (`tests.yml`), el job `test` levanta un servicio `mariadb:10.11` (root sin contraseña, efímero) y copia
+  `.env.testing.example` a `.env.testing`: las credenciales de test no se repiten en el workflow. Si cambias los
+  valores por defecto del ejemplo, el servicio del workflow debe seguir aceptándolos.
 
 ## Inyección del singleton para tests
 
@@ -59,10 +70,10 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 
 ## CI (`.github/workflows/tests.yml`)
 
-Un único job `test`, matrix PHP 8.2/8.3, que corre en cada push a `master` y cada PR:
+Un único job `test`, matrix PHP 8.2/8.3/8.4/8.5, que corre en cada push a `master` y cada PR:
 
 - Ejecuta `vendor/bin/phpunit` (suites `Unit` + `Integration` en un solo proceso). La suite completa
-  son 886 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
+  son 1023 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del
   runner, no los tests, así que filtrar salía más caro que correr todo.
 - `concurrency` con `cancel-in-progress` descarta runs obsoletos cuando llegan pushes seguidos.
 - Levanta el servicio `mariadb:10.11` para los tests `*MariaDbTest.php`; el resto corre contra SQLite.

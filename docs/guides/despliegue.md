@@ -22,7 +22,7 @@ Solo el artefacto de producción, sin `docs/`, `specs/`, `tests/`, `.github/` ni
 (`.gitattributes` ya los marca con `export-ignore`):
 
 ```bash
-git archive --format=tar.gz -o sistema.tar.gz 1.19.4   # tag sin prefijo v
+git archive --format=tar.gz -o sistema.tar.gz 1.20.0   # tag sin prefijo v
 ```
 
 En el servidor: `composer install --no-dev --optimize-autoloader`. No subas `vendor/` de desarrollo ni `.env`.
@@ -89,13 +89,15 @@ DB_USER=usuario_propio
 DB_PASS=contraseña_fuerte
 APP_URL=https://tudominio.com        # sin /public si el docroot ya es public/
 APP_TIMEZONE=America/La_Paz
-APP_VERSION=1.19.4                    # súbela en cada despliegue: invalida la caché de CSS/JS
+APP_VERSION=1.20.0                    # súbela en cada despliegue: invalida la caché de CSS/JS
 APP_DEBUG=false
+HSTS_MAX_AGE=86400                    # opcional; solo se envía si APP_URL es https://
 ```
 
 - `APP_DEBUG=false` siempre. Con `true` el enlace de restablecimiento se escribe en el log de PHP.
 - Correo (restablecer contraseña): `MAIL_*` con una **Contraseña de Aplicación** de Google.
 - `chmod 640 .env` y propietario el usuario del servidor web.
+- **Lista blanca de columnas:** los modelos solo escriben las columnas que declaran en `$createColumns`/`$updateColumns`. Si despliegas código propio que añade una columna a un formulario, añádela también a la lista de su modelo; si no, la escritura falla con un error 500 registrado en el log.
 - **Zona horaria:** `Database` fija `time_zone` de la sesión MySQL al desplazamiento de `APP_TIMEZONE`. En una
   BD nueva no hay nada que hacer. Si migras una BD con datos guardados en otra zona, esas filas se verán
   desplazadas y habría que convertirlas (`CONVERT_TZ`) antes de abrir.
@@ -130,8 +132,10 @@ server {
 server { listen 80; server_name tudominio.com; return 301 https://$host$request_uri; }
 ```
 
-Con HTTPS directo la cookie de sesión sale con `Secure` automáticamente. Tras un proxy o balanceador, este
-debe enviar `X-Forwarded-Proto: https`.
+Con `APP_URL=https://…` la cookie de sesión sale con `Secure` y la respuesta con `Strict-Transport-Security`
+(`HSTS_MAX_AGE`, 86400 s por defecto; súbelo cuando HTTPS esté estable, no lleva `includeSubDomains` ni `preload`).
+El proyecto no soporta proxies inversos ni balanceadores: ignora `X-Forwarded-*` y toma la IP de `REMOTE_ADDR`; tras
+un proxy todos los clientes compartirían el contador `LOGIN_MAX_PER_IP`.
 
 ## 7. Permisos de archivos
 

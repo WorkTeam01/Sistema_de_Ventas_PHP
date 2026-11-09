@@ -1,0 +1,75 @@
+# Demo 5 — recorrido de CRUD con el usuario administrador (Apache, BD de desarrollo) 2026-11-09T12:43:17-04:00
+Marcador de datos: Demo005 / demo005. Respuestas JSON o redirecciones, seguidas del SELECT que confirma la escritura.
+
+login -> 302
+## Categorías
+categoría crear                   {"success":true,"message":"Categor\u00eda creada exitosamente."} [200 ]
+categoría editar                  {"success":true,"message":"Categor\u00eda actualizada exitosamente."} [200 ]
+{"nombre_categoria":"Demo005Cat2"}
+## Clientes
+cliente crear                      {"success":true,"message":"El cliente se registr\u00f3 exitosamente.","data":{"id_cliente":13,"nombre_cliente":"Demo005Cli","nit_ci_cliente":"9900501","celular_cliente":"
+cliente editar                     {"success":true,"message":"El cliente se actualiz\u00f3 exitosamente."} [200 ]
+{"nombre_cliente":"Demo005Cli2","celular_cliente":"70000502"}
+## Proveedores
+proveedor crear                    {"success":true,"message":"El proveedor se registr\u00f3 exitosamente."} [200 ]
+proveedor editar                   {"success":true,"message":"El proveedor se actualiz\u00f3 exitosamente."} [200 ]
+{"empresa":"Demo005SA2","telefono":"2222222","email":"demo005@example.test"}
+## Métodos de pago
+método crear                      {"success":true,"message":"M\u00e9todo de pago creado exitosamente."} [200 ]
+método editar                     {"success":true,"message":"M\u00e9todo de pago actualizado exitosamente."} [200 ]
+{"nombre":"Demo005Pago2","activo":0}
+## Permisos
+permiso crear                      {"success":true,"message":"El permiso se registr\u00f3 exitosamente."} [200 ]
+permiso editar                     {"success":true,"message":"El permiso se actualiz\u00f3 exitosamente."} [200 ]
+{"clave":"demo005_perm","descripcion":"Demo005b","modulo":"demo005b"}
+## Roles
+rol crear                          {"success":true,"message":"Rol creado exitosamente."} [200 ]
+rol editar                         {"success":true,"message":"Rol actualizado exitosamente."} [200 ]
+rol sincronizar permisos           {"success":true,"message":"Permisos actualizados exitosamente."} [200 ]
+{"rol":"Demo005Rol2","permisos_version":1}
+## Usuarios
+usuario crear                       [302 http://localhost/Sistema_de_Ventas_PHP/public/users]
+usuario editar                      [302 http://localhost/Sistema_de_Ventas_PHP/public/users]
+{"nombres":"Demo005Usr2","id_rol":8}
+## Productos
+producto crear                      [302 http://localhost/Sistema_de_Ventas_PHP/public/products]
+{"codigo":"P-00005","stock":5}
+{"tipo":"entrada","cantidad":5,"motivo":"Stock inicial"}
+producto editar                     [302 http://localhost/Sistema_de_Ventas_PHP/public/products]
+{"nombre":"Demo005Prod2","stock":5,"stock_minimo":2,"precio_venta":"8.00","id_usuario":1}
+## Ajuste de stock (primer intento: el script renovó el token al pedir la página dos veces y el servidor lo rechazó)
+## POS (venta)
+nro_venta reservado: 55
+carrito agregar                     [302 http://localhost/Sistema_de_Ventas_PHP/public/sales/create]
+venta cobrar                        [302 http://localhost/Sistema_de_Ventas_PHP/public/sales]
+{"nro_venta":55,"total_pagado":"16.00","id_cliente":13}
+{"stock":3}
+## Bitácora
+GET /activity-log -> 200
+{"accion":"login","entidad":"auth","n":20}
+{"accion":"create","entidad":"category","n":1}
+{"accion":"update","entidad":"category","n":1}
+{"accion":"create","entidad":"client","n":1}
+{"accion":"update","entidad":"client","n":1}
+{"accion":"create","entidad":"payment_method","n":1}
+{"accion":"update","entidad":"payment_method","n":1}
+{"accion":"create","entidad":"permission","n":1}
+{"accion":"update","entidad":"permission","n":1}
+{"accion":"create","entidad":"product","n":1}
+{"accion":"price_change","entidad":"product","n":1}
+{"accion":"update","entidad":"product","n":1}
+{"accion":"create","entidad":"role","n":1}
+{"accion":"permission_change","entidad":"role","n":1}
+{"accion":"update","entidad":"role","n":1}
+{"accion":"create","entidad":"supplier","n":1}
+{"accion":"update","entidad":"supplier","n":1}
+{"accion":"create","entidad":"user","n":1}
+## Errores PHP en el log de Apache
+0
+
+## Ajuste de stock (segunda ejecución con tokens del mismo formulario)
+tokens: csrf=64 form=32
+ajuste entrada +3 (envío 1) [302 .../inventory?tab=ajustes]
+ajuste entrada +3 (envío 2) [302 .../inventory?tab=ajustes]   <- mismo form_token: no se vuelve a aplicar
+{"stock":6}   (3 tras la venta + 3 del ajuste)
+{"tipo":"entrada","cantidad":3,"stock_anterior":3,"stock_posterior":6}

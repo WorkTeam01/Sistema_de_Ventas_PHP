@@ -34,6 +34,8 @@ Sistema_de_Ventas_PHP/
 │   │   ├── NumberToWords.php
 │   │   ├── InvoicePdf.php
 │   │   ├── PurchaseReportPdf.php
+│   │   ├── PdfResponse.php          ← send(): genera el PDF en memoria y lo envía con `Cache-Control: private, no-store`
+│   │   ├── SecurityHeaders.php      ← isHttpsUrl()/hstsValue(): `Secure` y HSTS según el esquema de `APP_URL`
 │   │   ├── ActivityLogRenderer.php  ← decodifica JSON del log y prepara filas para las vistas
 │   │   ├── ReportFilters.php        ← parseDateRange() — normaliza rango GET (default = mes actual); parseTop() — 5/10/20/50, default 10
 │   │   ├── Money.php                ← toCents()/fromCents(): montos en céntimos (mitad hacia arriba, coma o punto)

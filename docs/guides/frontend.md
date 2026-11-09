@@ -38,6 +38,18 @@
   `stripData` por defecto: hay que llamarlo dentro. Los textos del aviso de copiado se traducen una vez en
   `ui-components.js` (defaults de DataTables). Las utilidades de Bootstrap como `.text-muted` llevan `!important`:
   para sobrescribirlas, otro `!important` con mayor especificidad.
+- **Librerías copiadas en `public/`** (sin `?v=`, no las gestiona Dependabot): jQuery 3.7.1, DataTables 1.13.11 con
+  Buttons 2.4.3 y Responsive 2.5.1 (integración bs4), JSZip 3.10.2, Select2 4.0.13 y Chart.js 2.9.4. jQuery 4,
+  DataTables 2/3 y Chart.js 4 rompen AdminLTE 3.2 o los gráficos: solo con spec. Al subir una, smoke test en navegador
+  de tablas, exportaciones (CSV con celda `=…` y marcado, Excel, PDF), «Columnas», responsive y selects; un navegador con
+  la versión anterior en caché necesita recarga forzada.
+- **DataTables Buttons 2.4:** los desplegables llevan `role="dialog"` sin nombre; `ui-components.js` les pone el texto
+  del botón que los abre (`buttons-popover.dt`). El ítem activo de «Columnas» se marca con ✓, sin fondo azul.
+- **Select2 (4.0.13, tema bootstrap4):** el desplegable cuelga de `<body>`; al abrirlo `_labelSelect2Dropdown`
+  (`ui-components.js`) le da `role="region"` y nombre, nombra el campo de búsqueda y añade `aria-controls` al combobox.
+  En oscuro la flecha es un triángulo de bordes que el tema pinta del color del fondo: se fuerza `border-top-color`; la
+  opción resaltada usa `#0056b3` (con `#007bff` y texto blanco da 3.97:1). Los errores `.invalid-feedback` usan
+  `#ffa3ab` en oscuro. Al medir con axe, desactiva las transiciones: una opción a medio animar da falsos positivos.
 - **Cache-busting**: los layouts anexan `?v=<?= APP_VERSION ?>` a todos los assets propios (CSS/JS de `core/` y
   cada entrada de `$pageStyles` / `$pageScripts`). Tras un fix de CSS/JS, subir `APP_VERSION` en `.env` para forzar
   la recarga en navegadores de usuarios. Los vendors (`lib/`, `plugins/`) no llevan query string.

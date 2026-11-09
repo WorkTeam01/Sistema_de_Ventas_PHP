@@ -1,0 +1,51 @@
+# Demo 4 — revocación de sesión: código nuevo vs HEAD (código anterior), 2026-11-09T12:41:55-04:00
+Usuario descartable demo005_*@example.test (rol Vendedor); php -S con SESSION_LIFETIME=1 min; 'GET /' = dashboard.
+
+### nuevo (/opt/lampp/htdocs/Sistema_de_Ventas_PHP, SESSION_LIFETIME=1)
+-- a) cuenta eliminada
+login -> 302 http://127.0.0.1:8101/
+GET / -> 200 
+{"id_usuario":18,"email":"demo005_nuevo@example.test"}
+GET / -> 302 http://127.0.0.1:8101/auth
+-- b) contraseña cambiada
+login -> 302 http://127.0.0.1:8101/
+GET / -> 200 
+GET / -> 302 http://127.0.0.1:8101/auth
+-- c) permiso revocado al rol sin re-login (Vendedor pierde view_clients)
+login -> 302 http://127.0.0.1:8101/
+GET /clients -> 200 
+GET /clients -> 302 http://127.0.0.1:8101/errors/403
+GET /clients -> 200 
+-- d) recordarme (cookie de sesión PHP descartada)
+login -> 302 http://127.0.0.1:8101/
+cookie: remember_token secure-flag-col: #HttpOnly_127.0.0.1
+GET / -> 200 
+-- e) timeout (66 s)
+login -> 302 http://127.0.0.1:8101/
+GET / -> 302 http://127.0.0.1:8101/auth
+
+### antes (<HEAD>, SESSION_LIFETIME=1)
+-- a) cuenta eliminada
+login -> 302 http://127.0.0.1:8102/
+GET / -> 200 
+{"id_usuario":22,"email":"demo005_antes@example.test"}
+GET / -> 302 http://127.0.0.1:8102/auth
+-- b) contraseña cambiada
+login -> 302 http://127.0.0.1:8102/
+GET / -> 200 
+GET / -> 302 http://127.0.0.1:8102/auth
+-- c) permiso revocado al rol sin re-login (Vendedor pierde view_clients)
+login -> 302 http://127.0.0.1:8102/
+GET /clients -> 200 
+GET /clients -> 302 http://127.0.0.1:8102/errors/403
+GET /clients -> 200 
+-- d) recordarme (cookie de sesión PHP descartada)
+login -> 302 http://127.0.0.1:8102/
+cookie: remember_token secure-flag-col: #HttpOnly_127.0.0.1
+GET / -> 200 
+-- e) timeout (66 s)
+login -> 302 http://127.0.0.1:8102/
+GET / -> 302 http://127.0.0.1:8102/auth
+
+Diferencias entre ambos (ignorando puerto y nombre):
+(ninguna)
