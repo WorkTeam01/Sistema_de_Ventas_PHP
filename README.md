@@ -4,7 +4,7 @@
 
 Sistema web de gestión de ventas para pequeñas y medianas empresas. Cubre el ciclo completo: compras a proveedores, control de inventario, punto de venta con facturación PDF y reportes por período.
 
-![Versión](https://img.shields.io/badge/Versión-1.19.4-blue)
+![Versión](https://img.shields.io/badge/Versión-1.20.0-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)
 ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2.0-3c8dbc)
@@ -294,7 +294,7 @@ composer test:integration # Integration — SQLite in-memory
 composer test:coverage    # con reporte de cobertura (requiere PCOV)
 ```
 
-CI con GitHub Actions en PHP 8.2 y 8.3. Ver [docs/guides/testing.md](docs/guides/testing.md) para convenciones de testing.
+CI con GitHub Actions en PHP 8.2, 8.3, 8.4 y 8.5. Ver [docs/guides/testing.md](docs/guides/testing.md) para convenciones de testing.
 
 ---
 

@@ -17,4 +17,4 @@ Features nuevas siguen Spec-Driven Development (`/sdd:constitution`, `/sdd:spec`
 
 ---
 
-_Última actualización: 2026-10-25 — 1.19.4_
+_Última actualización: 2026-11-09 — 1.20.0_

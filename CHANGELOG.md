@@ -7,6 +7,38 @@ y este proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [1.20.0] - 2026-11-09
+
+Hardening de cabeceras, caché y escritura de modelos. Sin cambios de esquema ni migraciones.
+
+### Actualización desde 1.19.4
+
+No hay migraciones. Tras desplegar el código: subir `APP_VERSION` a `1.20.0` en `.env`. Opcional: añadir `HSTS_MAX_AGE` (segundos; por defecto 86400). `Secure` en la cookie de sesión y `Strict-Transport-Security` se deciden solo por el esquema de `APP_URL`: con `APP_URL=https://…` se activan; con `http://` no. Las cabeceras `X-Forwarded-*` se ignoran y el proyecto no soporta proxies inversos: detrás de uno, todos los clientes compartirían IP en el límite de intentos de login (`LOGIN_MAX_PER_IP`).
+
+### Añadido
+
+- `App\Helpers\PdfResponse`: las facturas y los reportes PDF se generan en memoria y se envían con `Cache-Control: private, no-store` (sin `Pragma: public` de TCPDF); si la generación falla no queda una respuesta a medias.
+- `App\Helpers\SecurityHeaders`: `Strict-Transport-Security: max-age=<HSTS_MAX_AGE>` cuando `APP_URL` es HTTPS, sin `includeSubDomains` ni `preload`; un valor inválido usa el predeterminado.
+- Lista blanca de columnas en `Model::create()`/`update()`/`insert()` (`$createColumns`/`$updateColumns`, denegado por defecto) en los 18 modelos: una columna fuera de la lista o con nombre inválido lanza `InvalidArgumentException` antes de preparar la sentencia. `tb_almacen.stock` solo se escribe al crear un producto; `codigo`, `stock` e `id_usuario` no se actualizan.
+- `RoutesAuthOrderTest` (toda ruta con `can:` lleva `auth` antes), `ModelWhitelistTest` y `ModelWhitelistCoverageTest`; `StockWritesAuditTest` ampliado (UPDATE, INSERT y REPLACE sobre el stock). La suite pasa de 890 a 1023 tests.
+
+### Cambiado
+
+- `Auth::check()` revalida cuenta, rol y permisos una sola vez por petición (el middleware de permisos ya no repite la consulta).
+- `Database` fija la zona horaria de la sesión MySQL desde `APP_TIMEZONE` (desplazamiento `+HH:MM`) y sustituye `PDO::MYSQL_ATTR_INIT_COMMAND` (deprecada en PHP 8.5) por un `SET time_zone` explícito. Si el servidor MySQL tenía otra zona, las filas anteriores se leerán desplazadas.
+- Librerías JS dentro de su serie actual: jQuery 3.6.0 → 3.7.1, DataTables 1.11.4 → 1.13.11, Buttons 2.2.2 → 2.4.3, Responsive 2.2.9 → 2.5.1 y JSZip 3.7.1 → 3.10.2. Están copiadas en `public/` sin `?v=`: si el navegador conserva la versión anterior en caché, forzar la recarga.
+- **Accesibilidad de Select2 (axe 4.14, claro y con el desplegable abierto, 0 violaciones):** al abrirse, el desplegable recibe `role="region"` y nombre, el campo de búsqueda un `aria-label` («Buscar en <campo>») y el combobox `aria-controls` hacia la lista de resultados (`ComponentUtils._labelSelect2Dropdown`).
+- **Menú «Columnas» de DataTables Buttons:** con Buttons 2.4 el ítem activo se marca con ✓ en vez del fondo azul pesado, así que se mantiene como está. Buttons 2.4 declara los desplegables como `role="dialog"` sin nombre: ahora se nombran con el texto del botón que los abre («Reportes», «Columnas»), con 0 violaciones de axe 4.14 en claro y oscuro.
+- **Auditoría de accesibilidad de Usuarios, Perfil, Devoluciones y Métodos de pago** (axe 4.14, claro y oscuro, incluidos modales, confirmación de borrado y formularios con errores de validación): `Acción irreversible` en las confirmaciones de borrado de usuarios y productos pasa de `h5` a `h3.h5` (orden de encabezados); los mensajes de validación (`.invalid-feedback`) usan `#ffa3ab` en modo oscuro (el rojo de Bootstrap daba 2.5:1); la opción resaltada de Select2 usa `#0056b3` (con `#007bff` y texto blanco daba 3.97:1).
+- La flecha de Select2 en modo oscuro era invisible (el tema le pone el color del fondo del campo): ahora es blanca, también con el desplegable abierto.
+- `Product::createProduct`, `StockAdjustment::register` y `ActivityLog::record` relanzan `InvalidArgumentException` en vez de disfrazarla de error interno.
+
+### Pendiente
+
+Ver `docs/roadmap.md` § Siguiente (librerías JS, `utf8mb4`, `select2`, auditorías de accesibilidad).
+
+---
+
 ## [1.19.4] - 2026-10-25
 
 Ronda de accesibilidad y hardening de seguridad a partir de la auditoría del 2026-10-17 y de un análisis de solo lectura de los propios cambios. Sin cambios de esquema ni migraciones.
