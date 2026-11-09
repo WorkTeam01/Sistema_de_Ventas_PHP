@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["8.2", "8.3", "8.4", "8.5"]
+        php-version: ["8.2", "8.5"]
     name: Tests (PHP ${{ matrix.php-version }})
 
     # MariaDB real: solo la usan los tests *MariaDbTest.php (funciones de fecha

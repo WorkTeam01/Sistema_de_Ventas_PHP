@@ -294,7 +294,7 @@ composer test:integration # Integration — SQLite in-memory
 composer test:coverage    # con reporte de cobertura (requiere PCOV)
 ```
 
-CI con GitHub Actions en PHP 8.2, 8.3, 8.4 y 8.5. Ver [docs/guides/testing.md](docs/guides/testing.md) para convenciones de testing.
+CI con GitHub Actions en PHP 8.2 y 8.5. Ver [docs/guides/testing.md](docs/guides/testing.md) para convenciones de testing.
 
 ---
 

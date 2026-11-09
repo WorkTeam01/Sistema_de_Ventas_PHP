@@ -70,7 +70,7 @@ composer test:coverage    # con reporte de cobertura (requiere PCOV)
 
 ## CI (`.github/workflows/tests.yml`)
 
-Un único job `test`, matrix PHP 8.2/8.3/8.4/8.5, que corre en cada push a `master` y cada PR:
+Un único job `test`, matrix PHP 8.2/8.5 (el mínimo declarado y el último estable), que corre en cada push a `master` y cada PR:
 
 - Ejecuta `vendor/bin/phpunit` (suites `Unit` + `Integration` en un solo proceso). La suite completa
   son 1023 tests y tarda ~2 min en local con MariaDB real; no se filtra por diff ni se paraleliza — el coste real del pipeline es el provisioning del

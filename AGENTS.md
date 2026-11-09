@@ -191,7 +191,7 @@ composer test:coverage    # requiere PCOV o Xdebug
 - Al cambiar `database/schema.sql`, actualiza `tests/fixtures/schema.sqlite.sql` (tabla de equivalencias en [docs/guides/testing.md](docs/guides/testing.md)).
 - Todo test que resetee el singleton debe dejar SQLite inyectado (`Database::set(...)`), nunca solo `Database::reset()`.
 - Los tests `*MariaDbTest` usan MariaDB real solo para funciones de fecha del motor; no se ejecutan en paralelo (BD de test fija). Nunca calcules fechas límite con `date()` de PHP contra `NOW()` de la BD.
-- CI: un único job `test` (PHP 8.2–8.5, `mariadb:10.11`) en cada push a `master` y cada PR. Detalle: [docs/guides/testing.md](docs/guides/testing.md).
+- CI: un único job `test` (PHP 8.2/8.5, `mariadb:10.11`) en cada push a `master` y cada PR. Detalle: [docs/guides/testing.md](docs/guides/testing.md).
 
 ---
 
