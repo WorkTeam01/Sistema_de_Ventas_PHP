@@ -44,14 +44,14 @@ Ninguno.
 
 - [x] Todos los FR con test o demo manual registrada.
 - [x] `composer test` verde en local (1023 tests).
-- [ ] `composer test` verde en CI (matriz ampliada a PHP 8.2/8.5, MariaDB 10.11): pendiente de subir la rama; es un paso del cierre.
+- [x] `composer test` verde en CI (matriz PHP 8.2/8.5, MariaDB 10.11): 1023 tests en ambos jobs sobre el commit `f1c53fa`.
 - [x] Demo manual: tres PDF con una sola `Cache-Control: private, no-store`; `X-Forwarded-Proto` forjado sin efecto; `Secure` y HSTS solo con `APP_URL` https; cabeceras de navegador intactas; sesión revocada con la misma respuesta que antes.
 - [x] `.env.example`, `docs/guides/autenticacion.md`, `despliegue.md`, `testing.md`, `AGENTS.md` (con la corrección de escritores de stock) y `docs/roadmap.md` actualizados.
 - [x] `CHANGELOG.md`: entrada 1.20.0.
 
 ## Verdict
 
-Spec fulfilled. Los 25 requisitos vigentes (FR-9 y FR-10 retirados) tienen test o demo registrada y pasan. Queda abierto un paso del cierre que no depende del código: el CI en verde antes de subir el tag 1.20.0.
+Spec fulfilled. Los 25 requisitos vigentes (FR-9 y FR-10 retirados) tienen test o demo registrada y pasan. Los pasos del cierre están completos; falta solo crear el tag 1.20.0.
 
 ## Notes
 
